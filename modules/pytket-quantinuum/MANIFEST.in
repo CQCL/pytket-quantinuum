@@ -1,2 +1,0 @@
-include _metadata.py
-include pytket/extensions/quantinuum/py.typed

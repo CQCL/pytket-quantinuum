@@ -1,0 +1,27 @@
+pytket-extensions
+=================
+
+.. image:: CQCLogo.png
+   :width: 120px
+   :align: right
+
+
+These extensions enable `CQC`_ `pytket`_ to be used in conjunction with other
+platforms. Each extension adds either new methods to the ``pytket`` package to
+convert between circuit representations, or new backends to which ``pytket``
+circuits can be submitted.
+
+.. _pytket: https://cqcl.github.io/tket/pytket/api/
+.. _CQC: https://cambridgequantum.com
+
+.. toctree::
+	:caption: Extensions:
+	:maxdepth: 1
+
+	pytket-quantinuum <quantinuum/index.html#http://>
+
+.. toctree::
+	:caption: More documentation:
+	:maxdepth: 1
+
+	pytket <https://cqcl.github.io/tket/pytket/api/index.html>
