@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pytket-extensions &mdash; pytket-extensions  documentation</title>
+  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.5.0rc0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -17,7 +17,8 @@
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API documentation" href="api.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,16 +26,27 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> pytket-extensions
+            <a href="#" class="icon icon-home"> pytket-quantinuum
           </a>
+              <div class="version">
+                0.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Extensions:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="quantinuum/index.html#http://">pytket-quantinuum</a></li>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">More documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/index.html">pytket</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/pytket-extensions/api/index.html">pytket extensions</a></li>
 </ul>
 
         </div>
@@ -43,7 +55,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">pytket-extensions</a>
+          <a href="#">pytket-quantinuum</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -51,7 +63,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>pytket-extensions</li>
+      <li>pytket-quantinuum</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -61,23 +73,167 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pytket-extensions">
-<h1>pytket-extensions<a class="headerlink" href="#pytket-extensions" title="Permalink to this headline"></a></h1>
+  <section id="pytket-quantinuum">
+<h1>pytket-quantinuum<a class="headerlink" href="#pytket-quantinuum" title="Permalink to this headline"></a></h1>
 <a class="reference internal image-reference" href="_images/CQCLogo.png"><img alt="_images/CQCLogo.png" class="align-right" src="_images/CQCLogo.png" style="width: 120px;" /></a>
-<p>These extensions enable <a class="reference external" href="https://cambridgequantum.com">CQC</a> <a class="reference external" href="https://cqcl.github.io/tket/pytket/api/">pytket</a> to be used in conjunction with other
-platforms. Each extension adds either new methods to the <code class="docutils literal notranslate"><span class="pre">pytket</span></code> package to
-convert between circuit representations, or new backends to which <code class="docutils literal notranslate"><span class="pre">pytket</span></code>
-circuits can be submitted.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytket-quantinuum</span></code> is an extension to <code class="docutils literal notranslate"><span class="pre">pytket</span></code> that allows <code class="docutils literal notranslate"><span class="pre">pytket</span></code> circuits to
+be executed on Quantinuum’s quantum devices.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytket-quantinuum</span></code> is available for Python 3.8, 3.9 and 3.10, on Linux, MacOS
+and Windows. To install, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pytket</span><span class="o">-</span><span class="n">quantinuum</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend</span></code> requires a <a class="reference external" href="https://www.quantinuum.com/">Quantinuum</a> account.
+The user will be prompted for their login credentials when making API calls such as calling the <code class="docutils literal notranslate"><span class="pre">process_circuits</span></code> method or querying <code class="docutils literal notranslate"><span class="pre">backend_info</span></code>.</p>
+</div>
+</section>
+<section id="devices">
+<h1>Devices<a class="headerlink" href="#devices" title="Permalink to this headline"></a></h1>
+<p>The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend</span></code> class. The available devices are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">H1-1</span></code>, <code class="docutils literal notranslate"><span class="pre">H1-2</span></code>: Quantum computers, submit specifically to <code class="docutils literal notranslate"><span class="pre">H1-1</span></code> or <code class="docutils literal notranslate"><span class="pre">H1-2</span></code> by using the device name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H1-1E</span></code>, <code class="docutils literal notranslate"><span class="pre">H1-2E</span></code>: Device-specific emulators of <code class="docutils literal notranslate"><span class="pre">H1-1</span></code> and <code class="docutils literal notranslate"><span class="pre">H1-2</span></code>. These emulators run remotely on servers and require credentials.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H1-1SC</span></code>, <code class="docutils literal notranslate"><span class="pre">H1-2SC</span></code>: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status “completed” if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status “failed” if the syntax is incorrect (along with the error).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H1</span></code>: Submit to Quantinuum <code class="docutils literal notranslate"><span class="pre">H1</span></code> machines: job is run on <code class="docutils literal notranslate"><span class="pre">H1-1</span></code> or <code class="docutils literal notranslate"><span class="pre">H1-2</span></code> based on the soonest available device.</p></li>
+</ul>
+<p>There are also optional initialisation parameters <code class="docutils literal notranslate"><span class="pre">label</span></code> (for naming circuits), <code class="docutils literal notranslate"><span class="pre">group</span></code> (identifier for a collection of jobs) and <code class="docutils literal notranslate"><span class="pre">simulator</span></code> (see below).</p>
+<p>The H-series devices and emulators produce shots-based results and therefore require measurements. It is also possible to use a stabilizer simulator by specifying <code class="docutils literal notranslate"><span class="pre">simulator='stabilizer'</span></code>. This option may be preferable for simulating Clifford circuits.</p>
+<p>By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying <code class="docutils literal notranslate"><span class="pre">noisy_simulation=False</span></code>.</p>
+<p>For examples demonstrating the <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend</span></code> see the <a class="reference external" href="https://github.com/CQCL/pytket-extensions/tree/develop/modules/pytket-quantinuum/examples">example notebooks</a> .</p>
+<p><strong>Web portal:</strong>
+<a class="reference external" href="https://um.qapi.honeywell.com/user">https://um.qapi.honeywell.com/user</a></p>
+</section>
+<section id="default-compilation">
+<h1>Default Compilation<a class="headerlink" href="#default-compilation" title="Permalink to this headline"></a></h1>
+<p>Every <code class="docutils literal notranslate"><span class="pre">Backend</span></code> in pytket has its own <code class="docutils literal notranslate"><span class="pre">default_compilation_pass</span></code> method.
+This method applies a sequence of optimisations to a circuit depending on the value of an <code class="docutils literal notranslate"><span class="pre">optimisation_level</span></code> parameter.
+This default compilation will ensure that the circuit meets all the constraints required to run on the <code class="docutils literal notranslate"><span class="pre">Backend</span></code>.
+The passes applied by different levels of optimisation are specified in the table below.</p>
+<table class="colwidths-given docutils align-default" id="id6">
+<caption><span class="caption-text"><strong>Default compilation pass for the Quantinuum backends</strong></span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>optimisation_level = 0</p></th>
+<th class="head"><p>optimisation_level = 1 [1]</p></th>
+<th class="head"><p>optimisation_level = 2</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes">DecomposeBoxes</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes">DecomposeBoxes</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes">DecomposeBoxes</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>self.rebase_pass [2]</p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket">SynthesiseTket</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise">FullPeepholeOptimise</a></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>self.rebase_pass [2]</p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket">SynthesiseTket</a></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass">auto_squash_pass [3]</a></p></td>
+<td><p>self.rebase_pass [2]</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial">SimplifyInitial [4]</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass">auto_squash_pass [3]</a></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial">SimplifyInitial [4]</a></p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>[1] If no value is specified then <code class="docutils literal notranslate"><span class="pre">optimisation_level</span></code> defaults to a value of 1.</p></li>
+<li><p>[2] <code class="docutils literal notranslate"><span class="pre">self.rebase_pass</span></code> is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).</p></li>
+<li><p>[3] <code class="docutils literal notranslate"><span class="pre">auto_squash_pass</span></code> has arguments <code class="docutils literal notranslate"><span class="pre">auto_squash_pass({OpType.PhasedX,OpType.Rz})</span></code></p></li>
+<li><p>[4] <code class="docutils literal notranslate"><span class="pre">SimplifyInitial</span></code> has arguments  <code class="docutils literal notranslate"><span class="pre">SimplifyInitial(allow_classical=False,</span> <span class="pre">create_all_qubits=True,</span> <span class="pre">xcirc=_xcirc)</span></code>. Here <code class="docutils literal notranslate"><span class="pre">_xcirc</span></code> is a single qubit circuit that implements the <code class="docutils literal notranslate"><span class="pre">X</span></code> gate using the native <code class="docutils literal notranslate"><span class="pre">PhasedX</span></code> gate.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">optimisation_level</span> <span class="pre">=</span> <span class="pre">0</span></code> the device constraints are solved but no additional optimisation is applied. Setting <code class="docutils literal notranslate"><span class="pre">optimisation_level</span> <span class="pre">=</span> <span class="pre">1</span></code> applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.</p>
+</div>
+</section>
+<section id="device-predicates">
+<h1>Device Predicates<a class="headerlink" href="#device-predicates" title="Permalink to this headline"></a></h1>
+<p>Circuits must satisfy the following predicates in order to run on the <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend</span></code>.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/predicates.html#pytket.predicates.NoSymbolsPredicate">NoSymbolsPredicate</a>: Parameterised gates must have numerical parameters when the circuit is executed.</p></li>
+<li><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/predicates.html#pytket.predicates.GateSetPredicate">GateSetPredicate</a>: To view supported Ops run <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend.backend_info.gate_set</span></code>.</p></li>
+<li><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/predicates.html#pytket.predicates.MaxNQubitsPredicate">MaxNQubitsPredicate</a>: <code class="docutils literal notranslate"><span class="pre">H1-1</span></code>, <code class="docutils literal notranslate"><span class="pre">H1-1E</span></code> and <code class="docutils literal notranslate"><span class="pre">H1-1SC</span></code> all support a maximum of 20 qubits. The <code class="docutils literal notranslate"><span class="pre">H1-2</span></code>, <code class="docutils literal notranslate"><span class="pre">H1-2E</span></code> and <code class="docutils literal notranslate"><span class="pre">H1-2SC</span></code> support a maximum of 12 qubits.</p></li>
+</ul>
+</section>
+<section id="job-statuses">
+<h1>Job Statuses<a class="headerlink" href="#job-statuses" title="Permalink to this headline"></a></h1>
+<p>When using the Quantinuum <code class="docutils literal notranslate"><span class="pre">Backend</span></code> to run circuits there are several possible circuit statuses.</p>
+<ul class="simple">
+<li><p>queued - The job has been queued but has not yet been run.</p></li>
+<li><p>running - The circuit is currently being run on the device/emulator.</p></li>
+<li><p>completed - The job has finished.</p></li>
+<li><p>failed -  The job has failed.</p></li>
+<li><p>cancelling - The job is in the process of being cancelled.</p></li>
+<li><p>cancelled - The job has been cancelled.</p></li>
+</ul>
+<p>The status of the job can be checked with by using the <code class="docutils literal notranslate"><span class="pre">circuit_status</span></code> method. To cancel a job simply use the <code class="docutils literal notranslate"><span class="pre">cancel</span></code> method and supply the job handle as a parameter.</p>
+</section>
+<section id="additional-backend-capabilities">
+<h1>Additional Backend Capabilities<a class="headerlink" href="#additional-backend-capabilities" title="Permalink to this headline"></a></h1>
+<p>The Quantinuum <code class="docutils literal notranslate"><span class="pre">Backend</span></code> has a <code class="docutils literal notranslate"><span class="pre">cost</span></code> method. This calculates the cost (in HQCs) required to execute the circuit for the specified number of shots.</p>
+<p>Every Quantinuum <code class="docutils literal notranslate"><span class="pre">Backend</span></code> supports mid-circuit measurements and fast classical feedforward.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">process_circuits</span></code> method for the QuantinuumBackend accepts the following additional keyword arguments.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">postprocess</span></code> : boolean flag to allow classical postprocessing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noisy_simulation</span></code> : boolean flag to specify whether the simulator should
+perform noisy simulation with an error model (default value is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> : string identifier of a collection of jobs, can be used for usage tracking.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_batch_cost</span></code>: maximum HQC usable by submitted batch, default is 500.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_id</span></code> : first <code class="docutils literal notranslate"><span class="pre">jobid</span></code> of the batch to which this batch of circuits should be submitted. Job IDs can be retrieved from ResultHandle using <code class="docutils literal notranslate"><span class="pre">backend.get_jobid(handle)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">close_batch</span></code> : boolean flag to close the batch after the last circuit in the job (default value is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p></li>
+</ul>
+<p>For the Quantinuum <code class="docutils literal notranslate"><span class="pre">Backend</span></code>, <code class="docutils literal notranslate"><span class="pre">process_circuits</span></code> returns a <code class="docutils literal notranslate"><span class="pre">ResultHandle</span></code> object containing a <code class="docutils literal notranslate"><span class="pre">job_id</span></code> and a postprocessing ( <code class="docutils literal notranslate"><span class="pre">ppcirc</span></code>) circuit if there is one.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">logout()</span></code> method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.</p>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Extensions:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="quantinuum/index.html#http://">pytket-quantinuum</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#june-2022">0.4.0 (June 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#may-2022">0.3.1 (May 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.3.0 (May 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#april-2022">0.2.0 (April 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">0.1.2 (April 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#march-2022">0.1.1 (March 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">0.1.0 (March 2022)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#february-2022">0.21.0 (February 2022)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#january-2022">0.20.0 (January 2022)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">0.19.0 (January 2022)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#november-2021">0.18.0 (November 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#october-2021">0.17.0 (October 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#september-2021">0.16.0 (September 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id5">0.15.0 (September 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#august-2021">0.14.0 (August 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#july-2021">0.13.0 (July 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#june-2021">0.12.0 (June 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#may-2021">0.11.0 (May 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id6">0.10.0 (May 2021)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">More documentation:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/index.html">pytket</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/pytket-extensions/api/index.html">pytket extensions</a></li>
 </ul>
 </div>
 </section>
@@ -85,7 +241,9 @@ circuits can be submitted.</p>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-right" title="API documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
