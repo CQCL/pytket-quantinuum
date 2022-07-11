@@ -1,0 +1,4 @@
+pytest
+pytest-timeout ~= 1.4.2
+hypothesis
+requests_mock

@@ -1,0 +1,52 @@
+name: Pytket Extensions Docs
+
+on:
+  push:
+    branches:
+      - 'docs/**'
+  schedule:
+    # 04:00 every weekday morning
+    - cron: '0 4 * * 1-5'
+
+jobs:
+  docs:
+    name: build docs
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+    - name: Upgrade pip and install wheel
+      run: pip install --upgrade pip wheel
+    - name: Install pytket extensions
+      run: |
+        for path in modules/*/
+        do
+          cd ${path}
+          pip install .
+          cd ../..
+        done
+    - name: Install dotnet SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+    - name: Install iqsharp
+      run: |
+        dotnet tool install -g Microsoft.Quantum.IQSharp
+        dotnet iqsharp install --user
+    - name: Install docs dependencies
+      run: |
+        pip install -r .github/workflows/docs/requirements.txt
+
+    - name: Test building docs
+      timeout-minutes: 20
+      run: |
+        cd .github/workflows/docs
+        mkdir extensions
+        ./build-docs -a -i -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
+    - uses: actions/upload-artifact@v3
+      with:
+        name: pytket-extension-docs
+        path: .github/workflows/docs/extensions/

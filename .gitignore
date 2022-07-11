@@ -1,0 +1,13 @@
+.eggs
+*.egg-info
+build
+dist
+*.pyc
+.vscode
+.mypy_cache
+.hypothesis
+_metadata.py
+!modules/*/_metadata.py
+obj
+docs/extensions
+.ipynb_checkpoints

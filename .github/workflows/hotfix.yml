@@ -1,0 +1,90 @@
+name: Hotfix
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  generate:
+    name: Generate hotfixed modules
+    if: contains(github.event.head_commit.message, 'hotfix')
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: '0'
+    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+    - name: Parse modules from commit message
+      run: |
+        tmpfile=`mktemp`
+        cat << EOF > $tmpfile
+        ${{ github.event.head_commit.message }}
+
+        EOF
+        COMMIT_MSG=`cat $tmpfile`
+        LS_MODULES=`ls ${GITHUB_WORKSPACE}/modules`
+        ALL_MODULES=`echo ${LS_MODULES}`
+        MODULES_TO_TEST=""
+        for MODULE in ${ALL_MODULES}
+        do
+          if [[ ${COMMIT_MSG} =~ ${MODULE} ]]
+          then
+            MODULES_TO_TEST="${MODULES_TO_TEST} ${MODULE}"
+          fi
+        done
+        echo "MODULES_TO_TEST=${MODULES_TO_TEST}" >> $GITHUB_ENV
+
+    - name: Pull docker images
+      if: contains(env.MODULES_TO_TEST, 'pytket-pyquil')
+      run: |
+        docker pull rigetti/quilc
+        docker pull rigetti/qvm
+    - name: Install dotnet SDK
+      if: contains(env.MODULES_TO_TEST, 'pytket-qsharp')
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+    - name: Install iqsharp
+      if: contains(env.MODULES_TO_TEST, 'pytket-qsharp')
+      run: dotnet tool install -g Microsoft.Quantum.IQSharp
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    - name: Build and test
+      run: |
+        for mod in ${MODULES_TO_TEST}
+        do
+          MODULE=${mod} ./.github/workflows/build-test nomypy
+        done
+    - uses: actions/upload-artifact@v3
+      with:
+        name: artefacts
+        path: wheelhouse/
+
+  publish_to_pypi:
+    name: Publish to pypi
+    if: contains(github.event.head_commit.message, 'hotfix')
+    needs: generate
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - name: Download all wheels
+      uses: actions/download-artifact@v3
+      with:
+        path: wheelhouse
+    - name: Put them all in the dist folder
+      run: |
+        mkdir dist
+        for w in `find wheelhouse/ -type f -name "*.whl"` ; do cp $w dist/ ; done
+    - name: Publish wheels
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_EXTENSIONS_API_TOKEN }}
+        verbose: true

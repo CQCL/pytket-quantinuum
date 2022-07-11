@@ -1,0 +1,164 @@
+#!/usr/bin/env python
+
+import argparse
+import datetime
+from importlib import import_module
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+DOCS_DIR = Path(sys.argv[0]).absolute().parent
+MODULES_DIR = DOCS_DIR.parent.parent.parent / "modules"
+PYTKET_DOCS_LINK = "https://cqcl.github.io/tket/pytket/api/index.html"
+
+
+def get_all_modules():
+    return ['quantinuum']
+
+
+def get_module_version(module):
+    m = import_module(f"pytket.extensions.{module}")
+    return m._metadata.__extension_version__.split(".")
+
+
+def remove_dir(dirpath):
+    if dirpath.exists() and dirpath.is_dir():
+        shutil.rmtree(dirpath)
+
+
+def fix_links(filepath):
+    with open(filepath, "r", encoding="utf8") as f:
+        content = f.read()
+    content = content.replace("pytket._tket", "pytket")
+    with open(filepath, "w", encoding="utf8") as f:
+        f.write(content)
+
+
+def build_module_docs(module):
+    v = get_module_version(module)
+    mod_docs = MODULES_DIR / f"pytket-{module}" / "docs"
+    mod_build = mod_docs / "build"
+    conf_copy = mod_docs / "conf.py"
+    logo_copy = mod_docs / "CQCLogo.png"
+    shutil.copy(DOCS_DIR / "conf.py", conf_copy)
+    shutil.copy(DOCS_DIR / "CQCLogo.png", logo_copy)
+    remove_dir(mod_build)
+    index_rst = mod_docs / "index.rst"
+    with open(mod_docs / "intro.txt", "r") as f:
+        content = f.readlines()
+        content.append("\n.. toctree::\n\t:caption: Extensions:\n\t:maxdepth: 1\n\n")
+        content.append(f"\tIntroduction <../index.html#http://>\n")
+        for mod in get_all_modules():
+            # Using relative links in toctree requires a hack, see
+            # https://stackoverflow.com/questions/27979803/external-relative-link-in-sphinx-toctree-directive/31820846#31820846
+            content.append(f"\tpytket-{mod} <../{mod}/index.html#http://>\n")
+        content.append(
+            "\n.. toctree::\n\t:caption: More documentation:\n\t:maxdepth: 1\n\n"
+        )
+        content.append(f"\tpytket <{PYTKET_DOCS_LINK}>\n")
+
+    with open(index_rst, "w") as f:
+        f.writelines(content)
+    subprocess.run(
+        [
+            "sphinx-build",
+            "-b",
+            "html",
+            "-D",
+            f"project=pytket-{module}",
+            "-D",
+            f"copyright={datetime.date.today().year} Cambridge Quantum Computing",
+            "-D",
+            f"version={'.'.join(v[:2])}",
+            "-D",
+            f"release={'.'.join(v)}",
+            ".",
+            "build",
+        ],
+        cwd=mod_docs,
+    )
+    for htmlfile in mod_build.rglob("*.html"):
+        fix_links(htmlfile)
+    fix_links(mod_build / "searchindex.js")
+    conf_copy.unlink()
+    logo_copy.unlink()
+    index_rst.unlink()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Build HTML documentation for one or more modules."
+    )
+    parser.add_argument(
+        "-m",
+        "--modules",
+        nargs="*",
+        default=[],
+        help="names of modules to build (without the `pytket-` prefix)",
+    )
+    parser.add_argument("-a", "--all", action="store_true", help="build all modules")
+    parser.add_argument("-i", "--index", action="store_true", help="build index page")
+    parser.add_argument("-d", "--dest", help="copy artifacts into destination folder")
+    args = parser.parse_args()
+
+    if args.all:
+        modules_to_build = get_all_modules()
+    else:
+        modules_to_build = args.modules
+
+    print("Building docs for modules:", modules_to_build)
+    for module in modules_to_build:
+        build_module_docs(module)
+
+    if args.index:
+        print("Building index page...")
+        index_rst = DOCS_DIR / "index.rst"
+        with open(DOCS_DIR / "intro.txt", "r") as f:
+            content = f.readlines()
+            content.append(
+                "\n.. toctree::\n\t:caption: Extensions:\n\t:maxdepth: 1\n\n"
+            )
+            for module in get_all_modules():
+                content.append(f"\tpytket-{module} <{module}/index.html#http://>\n")
+
+            content.append(
+                "\n.. toctree::\n\t:caption: More documentation:\n\t:maxdepth: 1\n\n"
+            )
+            content.append(f"\tpytket <{PYTKET_DOCS_LINK}>\n")
+
+        with open(index_rst, "w") as f:
+            f.writelines(content)
+        remove_dir(DOCS_DIR / "build")
+        subprocess.run(
+            [
+                "sphinx-build",
+                "-b",
+                "html",
+                "-D",
+                f"project=pytket-extensions",
+                "-D",
+                f"copyright={datetime.date.today().year} Cambridge Quantum Computing",
+                "-D",
+                "templates_path=templates",
+                ".",
+                "build",
+            ],
+            cwd=DOCS_DIR,
+        )
+        index_rst.unlink()
+
+    if args.dest is not None:
+        dest = Path(args.dest)
+        for module in modules_to_build:
+            shutil.copytree(
+                MODULES_DIR / f"pytket-{module}" / "docs" / "build",
+                dest / module,
+                dirs_exist_ok=True,
+            )
+        if args.index:
+            for f in (DOCS_DIR / "build").iterdir():
+                if f.is_dir():
+                    shutil.copytree(f, dest / f.name, dirs_exist_ok=True)
+                else:
+                    shutil.copy(f, dest)
