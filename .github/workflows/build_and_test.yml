@@ -194,7 +194,7 @@ jobs:
 
   publish_to_pypi:
     name: Publish to pypi
-    if: github.event_name == 'release' || github.event_name == 'pull_request' || github.event_name != 'release'
+    if: github.event_name == 'release'
     needs: linux
     runs-on: ubuntu-20.04
     steps:
@@ -215,7 +215,7 @@ jobs:
 
   docs:
     name: Build and publish docs
-    if: github.event_name == 'release' || github.event_name == 'pull_request' || github.event_name != 'release'
+    if: github.event_name == 'release'
     needs: publish_to_pypi
     runs-on: ubuntu-20.04
     steps:
@@ -257,5 +257,5 @@ jobs:
         mv .github/workflows/docs/extensions docs/api
         git add -f docs/api
         git commit --allow-empty -m "Add generated documentation."
-        #- name: Publish docs
-        #  run:  git push origin gh-pages:gh-pages
+    - name: Publish docs
+      run:  git push origin gh-pages:gh-pages

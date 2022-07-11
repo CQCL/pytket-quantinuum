@@ -22,24 +22,11 @@ jobs:
       run: pip install --upgrade pip wheel
     - name: Install pytket extensions
       run: |
-        for path in modules/*/
-        do
-          cd ${path}
-          pip install .
-          cd ../..
-        done
-    - name: Install dotnet SDK
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '6.0.x'
-    - name: Install iqsharp
-      run: |
-        dotnet tool install -g Microsoft.Quantum.IQSharp
-        dotnet iqsharp install --user
+        cd modules/pytket-quantinuum/
+        pip install .
     - name: Install docs dependencies
       run: |
         pip install -r .github/workflows/docs/requirements.txt
-
     - name: Test building docs
       timeout-minutes: 20
       run: |

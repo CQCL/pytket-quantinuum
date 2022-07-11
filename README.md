@@ -1,57 +1,32 @@
 # Pytket Extensions
 
-This repository contains a collection of Python extension modules for CQC's
+This repository contains the pytket-quantinuum extension, using CQC's
 [pytket](https://cqcl.github.io/tket/pytket/api/index.html) quantum SDK.
+The other pytket extensions can be found [here](https://github.com/CQCL/pytket-extensions)
 
-Each of these modules provides one or several _backends_ (interfaces to devices
-or simulators), _frontends_ (interfaces to other high-level quantum languages),
-or both.
 
-All the extensions are written in pure Python, and depend on the `pytket`
-module.
+# pytket-quantinuum
 
-Code for the following extensions is included here, each within its own
-subdirectory of the `modules` directory:
+[Pytket](https://cqcl.github.io/pytket) is a Python module for interfacing
+with CQC tket, a set of quantum programming tools.
 
-* `pytket-aqt`
-* `pytket-braket`
-* `pytket-cirq`
-* `pytket-ionq`
-* `pytket-iqm`
-* `pytket-projectq`
-* `pytket-pyquil`
-* `pytket-pysimplex`
-* `pytket-pyzx`
-* `pytket-qiskit`
-* `pytket-qsharp`
-* `pytket-quantinuum`
-* `pytket-qulacs`
-* `pytket-stim`
+`pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
+be executed on Quantinuum's quantum devices.
 
-See the individual `README` files for descriptions.
+## Getting started
 
-Note that most backend providers require you to set up credentials in order to
-submit jobs over the internet. These should be obtained directly from the
-providers.
+`pytket-quantinuum` is available for Python 3.8, 3.9 and 3.10, on Linux, MacOS
+and Windows. To install, run:
 
-## Installing and using an extension
-
-Each of the extensions can be installed using `pip`. For example:
-
-```shell
-pip install pytket-qiskit
-```
+```pip install pytket-quantinuum```
 
 This will install `pytket` if it isn't already installed, and add new classes
 and methods into the `pytket.extensions` namespace.
 
-Full documentation for all these extension module is available
-[here](https://cqcl.github.io/pytket-extensions/api/index.html).
-
 ## Bugs and feature requests
 
 Please file bugs and feature requests on the Github
-[issue tracker](https://github.com/CQCL/pytket-extensions/issues).
+[issue tracker](https://github.com/CQCL/pytket-quantinuum/issues).
 
 ## Development
 
@@ -61,15 +36,6 @@ within the `modules` directory, and run:
 ```shell
 pip install -e .
 ```
-
-If you wish to write your own backend extension for `pytket`, we recommend
-looking at the example notebook
-[here](https://github.com/CQCL/pytket/blob/main/examples/creating_backends.ipynb)
-which explains how to do so.
-
-If you would like to add it to this repo, please follow the existing code and
-naming convetions, and make a PR as described below with your module as a new
-subdirectory in `modules`.
 
 ## Contributing
 
