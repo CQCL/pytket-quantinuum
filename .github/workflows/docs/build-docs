@@ -12,7 +12,7 @@ DOCS_DIR = Path(sys.argv[0]).absolute().parent
 MODULES_DIR = DOCS_DIR.parent.parent.parent
 PYTKET_DOCS_LINK = "https://cqcl.github.io/tket/pytket/api/index.html"
 PYTKET_EX_DOCS_LINK = "https://cqcl.github.io/pytket-extensions/api/index.html"
-MODULE = "quantinuum"
+MODULE = ["quantinuum"]
 
 def remove_dir(dirpath):
     if dirpath.exists() and dirpath.is_dir():
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.all:
-        modules_to_build = [MODULE]
+        modules_to_build = MODULE
     else:
         modules_to_build = args.modules
 
