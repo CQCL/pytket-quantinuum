@@ -53,7 +53,7 @@ jobs:
       run: |
         ./.github/workflows/build-test nomypy
       env:
-        # PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
     - name: Set up Python 3.10
       if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -104,7 +104,7 @@ jobs:
       run: |
         ./.github/workflows/build-test mypy
       env:
-        # PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
 
     - name: Set up Python 3.10
@@ -151,7 +151,7 @@ jobs:
       run: |
         ./.github/workflows/build-test nomypy
       env:
-        # PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
     - name: Set up Python 3.10
       if: github.event_name == 'push' || github.event_name == 'pull_request'
