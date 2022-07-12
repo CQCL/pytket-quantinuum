@@ -29,7 +29,7 @@ def fix_links(filepath):
 
 def build_module_docs(module):
     v = [0, 5, 0]
-    mod_docs = MODULES_DIR / f"pytket-{module}" / "docs"
+    mod_docs = "docs"
     mod_build = mod_docs / "build"
     conf_copy = mod_docs / "conf.py"
     logo_copy = mod_docs / "CQCLogo.png"
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         dest = Path(args.dest)
         for module in modules_to_build:
             shutil.copytree(
-                MODULES_DIR / f"pytket-{module}" / "docs" / "build",
+                MODULES_DIR / "docs" / "build",
                 dest,
                 dirs_exist_ok=True,
             )
