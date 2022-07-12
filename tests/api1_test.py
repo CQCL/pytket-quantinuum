@@ -27,7 +27,6 @@ from pytket.extensions.quantinuum.backends import QuantinuumBackend
 from pytket.circuit import Circuit  # type: ignore
 from pytket.architecture import FullyConnected  # type: ignore
 from pytket.extensions.quantinuum.backends.quantinuum import DEFAULT_API_HANDLER
-from pytket.extensions.quantinuum._metadata import __extension_version__
 
 
 def test_default_login_flow(
