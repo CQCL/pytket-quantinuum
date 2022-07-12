@@ -24,11 +24,12 @@ shutil.copy(
     os.path.join("pytket", "extensions", "quantinuum", "_metadata.py"),
 )
 
+setup_dir = os.path.abspath(os.path.dirname(__file__))
+
 setup(
-    name=metadata["__extension_name__"],
-    version=metadata["__extension_version__"],
-    author="Seyon Sivarajah",
-    author_email="seyon.sivarajah@cambridgequantum.com",
+    name=metadata["pytket-quantinuum"],    
+    author="TKET development team",
+    author_email="tket-support@cambridgequantum.com",
     python_requires=">=3.8",
     url="https://github.com/CQCL/pytket-extensions",
     description="Extension for pytket, providing access to Quantinuum backends",
@@ -59,4 +60,9 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     zip_safe=False,
+    use_scm_version={
+        "root": os.path.dirname(setup_dir),
+        "write_to": os.path.join(setup_dir, "pytket-quantinuum", "_version.py"),
+        "write_to_template": "__version__ = '{version}'",
+    },
 )
