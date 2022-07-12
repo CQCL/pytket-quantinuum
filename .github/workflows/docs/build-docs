@@ -29,7 +29,7 @@ def fix_links(filepath):
 
 def build_module_docs(module):
     v = [0, 5, 0]
-    mod_docs = "docs"
+    mod_docs = MODULES_DIR / "docs"
     mod_build = mod_docs / "build"
     conf_copy = mod_docs / "conf.py"
     logo_copy = mod_docs / "CQCLogo.png"
