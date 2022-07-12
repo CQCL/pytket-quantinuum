@@ -49,6 +49,8 @@ then
 fi
 
 echo "${MODULE}..."
+echo "${MODULE}..."
+echo "${MODULEDIR}"
 
 cd ${MODULEDIR}/tests
 
