@@ -16,14 +16,6 @@ import shutil
 import os
 from setuptools import setup, find_namespace_packages  # type: ignore
 
-metadata: dict = {}
-with open("_metadata.py") as fp:
-    exec(fp.read(), metadata)
-shutil.copy(
-    "_metadata.py",
-    os.path.join("pytket", "extensions", "quantinuum", "_metadata.py"),
-)
-
 setup_dir = os.path.abspath(os.path.dirname(__file__))
 
 setup(
