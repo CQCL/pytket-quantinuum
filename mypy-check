@@ -6,7 +6,13 @@ set -evu
 
 MODULEDIR=$1
 
-cd ${MODULEDIR}
+# cd ${MODULEDIR}
+
+pwd
+
+echo "${MODULEDIR}"
+
+ls -l
 
 # set MYPYPATH
 MYPYPATH="."
