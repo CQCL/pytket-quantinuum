@@ -31,7 +31,6 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
-from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
     BasePass,
@@ -209,7 +208,7 @@ class QuantinuumBackend(Backend):
         return BackendInfo(
             name=cls.__name__,
             device_name=name,
-            version=__extension_version__,
+            version="0.5.0",
             architecture=FullyConnected(n_qubits),
             gate_set=_get_gateset(gate_set),
             supports_fast_feedforward=True,
