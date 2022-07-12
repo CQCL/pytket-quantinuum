@@ -19,7 +19,7 @@ from setuptools import setup, find_namespace_packages  # type: ignore
 setup_dir = os.path.abspath(os.path.dirname(__file__))
 
 setup(
-    name=metadata["pytket-quantinuum"],    
+    name="pytket-quantinuum",
     author="TKET development team",
     author_email="tket-support@cambridgequantum.com",
     python_requires=">=3.8",
