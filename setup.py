@@ -20,6 +20,7 @@ setup_dir = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name="pytket-quantinuum",
+    version=metadata["__extension_version__"],
     author="TKET development team",
     author_email="tket-support@cambridgequantum.com",
     python_requires=">=3.8",
@@ -52,9 +53,9 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     zip_safe=False,
-    use_scm_version={
-        "root": os.path.dirname(setup_dir),
-        "write_to": os.path.join(setup_dir, "pytket-quantinuum", "_version.py"),
-        "write_to_template": "__version__ = '{version}'",
-    },
+    #use_scm_version={
+    #    "root": os.path.dirname(setup_dir),
+    #    "write_to": os.path.join(setup_dir, "pytket-quantinuum", "_version.py"),
+    #    "write_to_template": "__version__ = '{version}'",
+    #},
 )
