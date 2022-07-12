@@ -20,7 +20,7 @@ jobs:
         python-version: 3.9
     - name: Upgrade pip and install wheel
       run: pip install --upgrade pip wheel
-    - name: Install pytket extensions
+    - name: Install pytket quantinuum
       run: |        
         pip install .
     - name: Install docs dependencies
