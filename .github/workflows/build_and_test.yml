@@ -46,13 +46,23 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.9'
-    - name: Build and test including remote checks (3.9)
+    - name: Build and test including remote checks (3.9) mypy
       if: |
-        (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository)
+        ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository)
         || github.event_name == 'release'
-        || contains(github.ref, 'refs/heads/wheel')
+        || contains(github.ref, 'refs/heads/wheel')) && ${{ matrix.os }} == 'macos-11'
       run: |
         ./.github/workflows/build-test mypy
+      env:
+        PYTKET_RUN_REMOTE_TESTS: 1
+        MODULE: ${{ matrix.module }}
+    - name: Build and test including remote checks (3.9) nomypy
+      if: |
+        ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository)
+        || github.event_name == 'release'
+        || contains(github.ref, 'refs/heads/wheel')) && ${{ matrix.os }} != 'macos-11'
+      run: |
+        ./.github/workflows/build-test nomypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
