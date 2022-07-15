@@ -19,16 +19,17 @@ env:
   PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
 
 jobs:
-  linux-checks:
-    name: Linux - Build and test module
-    runs-on: ubuntu-20.04
-
+  quantinuum-checks:
+    name: Quantinuum - Build and test module
+    strategy:
+      matrix:
+        os: ['ubuntu-20.04', 'macos-11', 'windows-2019']
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
       with:
         fetch-depth: '0'
     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
-
     - name: Set up Python 3.8
       if: github.event_name == 'push'
       uses: actions/setup-python@v3
@@ -51,7 +52,7 @@ jobs:
         || github.event_name == 'release'
         || contains(github.ref, 'refs/heads/wheel')
       run: |
-        ./.github/workflows/build-test nomypy
+        ./.github/workflows/build-test mypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
@@ -72,130 +73,10 @@ jobs:
         name: artefacts
         path: wheelhouse/
 
-  macos-checks:
-    name: MacOS - Build and test module
-    runs-on: macos-11
-
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: '0'
-    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
-
-    - name: Set up Python 3.8
-      if: github.event_name == 'push'
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.8'
-    - name: Build and test (3.8)
-      if: github.event_name == 'push'
-      run: |
-        ./.github/workflows/build-test nomypy
-      env:
-        MODULE: ${{ matrix.module }}
-
-    - name: Set up Python 3.9
-      if: github.event_name == 'pull_request'
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-    - name: Build and test including remote checks and mypy (3.9)
-      if: github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository
-      run: |
-        ./.github/workflows/build-test mypy
-      env:
-        PYTKET_RUN_REMOTE_TESTS: 1
-        MODULE: ${{ matrix.module }}
-
-    - name: Set up Python 3.10
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10'
-    - name: Build and test (3.10)
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
-      run: |
-        ./.github/workflows/build-test nomypy
-      env:
-        MODULE: ${{ matrix.module }}
-
-  windows-checks:
-    name: Windows - Build and test module
-    runs-on: windows-2019
-
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: '0'
-    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
-    - name: Set up Python 3.8
-      if: github.event_name == 'push'
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.8'
-    - name: Build and test (3.8)
-      if: github.event_name == 'push'
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-      env:
-        MODULE: ${{ matrix.module }}
-    - name: Set up Python 3.9
-      if: github.event_name == 'pull_request'
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
-    - name: Build and test including remote checks (3.9)
-      if: github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-      env:
-        PYTKET_RUN_REMOTE_TESTS: 1
-        MODULE: ${{ matrix.module }}
-    - name: Set up Python 3.10
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10'
-    - name: Build and test (3.10)
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-      env:
-        MODULE: ${{ matrix.module }}
-
-  linux:
-    name: Build and test (Linux)
-    runs-on: ubuntu-20.04
-    needs: linux-checks
-    steps:
-      - name: All linux checks should have succeeded by now
-        run: exit 0
-
-  macos:
-    if: github.event_name != 'release'
-    name: Build and test (MacOS)
-    needs: macos-checks
-    runs-on: ubuntu-20.04
-    steps:
-      - name: All macos checks should have succeeded by now
-        run: exit 0
-
-  windows:
-    if: github.event_name != 'release'
-    name: Build and test (Windows)
-    needs: windows-checks
-    runs-on: ubuntu-20.04
-    steps:
-      - name: All windows checks should have succeeded by now
-        run: exit 0
-
   publish_to_pypi:
     name: Publish to pypi
     if: github.event_name == 'release'
-    needs: linux
+    needs: quantinuum-checks
     runs-on: ubuntu-20.04
     steps:
     - name: Download all wheels
