@@ -53,7 +53,7 @@ jobs:
       run: |
         ./.github/workflows/build-test nomypy
       env:
-        # PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
     - name: Set up Python 3.10
       if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -104,7 +104,7 @@ jobs:
       run: |
         ./.github/workflows/build-test mypy
       env:
-        # PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
 
     - name: Set up Python 3.10
@@ -151,7 +151,7 @@ jobs:
       run: |
         ./.github/workflows/build-test nomypy
       env:
-        # PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS: 1
         MODULE: ${{ matrix.module }}
     - name: Set up Python 3.10
       if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -206,12 +206,12 @@ jobs:
       run: |
         mkdir dist
         for w in `find wheelhouse/ -type f -name "*.whl"` ; do cp $w dist/ ; done
-        #- name: Publish wheels
-        #  uses: pypa/gh-action-pypi-publish@release/v1
-        #  with:
-        #    user: __token__
-        #    password: ${{ secrets.PYPI_EXTENSIONS_API_TOKEN }}
-        #    verbose: true
+    - name: Publish wheels
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PYTKET_QUANTINUUM_API_TOKEN }}
+        verbose: true
 
   docs:
     name: Build and publish docs

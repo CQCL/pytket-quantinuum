@@ -1,4 +1,4 @@
-name: Pytket Extensions Docs
+name: Pytket Quantinuum Docs
 
 on:
   push:
@@ -20,9 +20,8 @@ jobs:
         python-version: 3.9
     - name: Upgrade pip and install wheel
       run: pip install --upgrade pip wheel
-    - name: Install pytket extensions
-      run: |
-        cd modules/pytket-quantinuum/
+    - name: Install pytket quantinuum
+      run: |        
         pip install .
     - name: Install docs dependencies
       run: |

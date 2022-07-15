@@ -16,6 +16,8 @@ import shutil
 import os
 from setuptools import setup, find_namespace_packages  # type: ignore
 
+setup_dir = os.path.abspath(os.path.dirname(__file__))
+
 metadata: dict = {}
 with open("_metadata.py") as fp:
     exec(fp.read(), metadata)
@@ -24,11 +26,12 @@ shutil.copy(
     os.path.join("pytket", "extensions", "quantinuum", "_metadata.py"),
 )
 
+
 setup(
-    name=metadata["__extension_name__"],
+    name="pytket-quantinuum",
     version=metadata["__extension_version__"],
-    author="Seyon Sivarajah",
-    author_email="seyon.sivarajah@cambridgequantum.com",
+    author="TKET development team",
+    author_email="tket-support@cambridgequantum.com",
     python_requires=">=3.8",
     url="https://github.com/CQCL/pytket-extensions",
     description="Extension for pytket, providing access to Quantinuum backends",
