@@ -39,8 +39,6 @@ jobs:
       if: github.event_name == 'push'
       run: |
         ./.github/workflows/build-test nomypy
-      env:
-        MODULE: pytket-quantinuum
     - name: Set up Python 3.9
       if: github.event_name == 'pull_request' || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
       uses: actions/setup-python@v3
@@ -55,7 +53,6 @@ jobs:
         ./.github/workflows/build-test mypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
-        MODULE: pytket-quantinuum
     - name: Build and test including remote checks (3.9) nomypy
       if: |
         ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository)
@@ -65,7 +62,6 @@ jobs:
         ./.github/workflows/build-test nomypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
-        MODULE: pytket-quantinuum
     - name: Set up Python 3.10
       if: github.event_name == 'push' || github.event_name == 'pull_request'
       uses: actions/setup-python@v3
@@ -75,8 +71,6 @@ jobs:
       if: github.event_name == 'push' || github.event_name == 'pull_request'
       run: |
         ./.github/workflows/build-test nomypy
-      env:
-        MODULE: pytket-quantinuum
     - uses: actions/upload-artifact@v3
       if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
       with:
