@@ -21,10 +21,10 @@ setup_dir = os.path.abspath(os.path.dirname(__file__))
 metadata: dict = {}
 with open("_metadata.py") as fp:
     exec(fp.read(), metadata)
-#shutil.copy(
+# shutil.copy(
 #    "_metadata.py",
 #    os.path.join("pytket", "extensions", "quantinuum", "_metadata.py"),
-#)
+# )
 
 
 setup(
@@ -62,9 +62,9 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     zip_safe=False,
-    #use_scm_version={
+    # use_scm_version={
     #    "root": os.path.dirname(setup_dir),
     #    "write_to": os.path.join(setup_dir, "pytket-quantinuum", "_version.py"),
     #    "write_to_template": "__version__ = '{version}'",
-    #},
+    # },
 )
