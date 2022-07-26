@@ -7,6 +7,7 @@ Changelog
 * Changed batching interface: `process_circuits` no longer batches, use
   `start_batching` and `add_to_batch` methods to explicitly start and append to
   batches.
+* New `submit_qasm` backend method to enable direct submission of a QASM program.
 
 0.5.0 (July 2022)
 -----------------

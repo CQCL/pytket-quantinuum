@@ -576,3 +576,31 @@ def test_wasm(
     c = b.get_compiled_circuit(c)
     h = b.process_circuits([c], n_shots=10, wasm_file_handler=wasfile)[0]
     assert b.get_result(h)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_submit_qasm(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    qasm = """
+    OPENQASM 2.0;
+    include "hqslib1.inc";
+
+    qreg q[2];
+    creg c[2];
+    U1q(0.5*pi,0.5*pi) q[0];
+    measure q[0] -> c[0];
+    if(c[0]==1) rz(1.5*pi) q[0];
+    if(c[0]==1) rz(0.0*pi) q[1];
+    if(c[0]==1) U1q(3.5*pi,0.5*pi) q[1];
+    if(c[0]==1) ZZ q[0],q[1];
+    if(c[0]==1) rz(3.5*pi) q[1];
+    if(c[0]==1) U1q(3.5*pi,1.5*pi) q[1];
+    """
+
+    b = authenticated_quum_backend
+    h = b.submit_qasm(qasm, 10)
+    assert b.get_result(h)
