@@ -95,7 +95,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("Building docs for modules:", MODULE)
-    build_module_docs(MODULE)
+    build_module_docs()
 
     if args.index:
         print("Building index page...")
