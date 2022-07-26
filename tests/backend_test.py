@@ -387,7 +387,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-2E"}], indirect=True
 )
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -397,7 +397,7 @@ def test_simulator(
     n_shots = 1000
     state_backend = authenticated_quum_backend
     stabilizer_backend = QuantinuumBackend(
-        "H1-1E", simulator="stabilizer", _api_handler=authenticated_quum_handler
+        "H1-2E", simulator="stabilizer", _api_handler=authenticated_quum_handler
     )
 
     circ = state_backend.get_compiled_circuit(circ)
@@ -453,7 +453,7 @@ def test_retrieve_available_devices(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-2E"}], indirect=True
 )
 def test_batching(
     authenticated_quum_backend: QuantinuumBackend,
@@ -461,17 +461,13 @@ def test_batching(
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
     state_backend = authenticated_quum_backend
     circ = state_backend.get_compiled_circuit(circ)
-
-    handles = state_backend.process_circuits([circ, circ], 10)
-    assert state_backend.get_results(handles)
-
     # test batch can be resumed
 
-    [h1, _] = state_backend.process_circuits([circ, circ], 10, close_batch=False)
+    h1 = state_backend.start_batch(500, circ, 10)
+    h2 = state_backend.add_to_batch(h1, circ, 10)
+    h3 = state_backend.add_to_batch(h1, circ, 10, batch_end=True)
 
-    h2 = state_backend.process_circuit(circ, 10, batch_id=state_backend.get_jobid(h1))
-
-    assert state_backend.get_results([h1, h2])
+    assert state_backend.get_results([h1, h2, h3])
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -518,6 +514,13 @@ def test_zzphase(
     res = backend.get_result(handle, timeout=49)
     counts = res.get_counts()
     assert counts == correct_counts
+
+    c = Circuit(2, 2, "test_rzz_1")
+    c.H(0).H(1)
+    c.ZZPhase(1, 1, 0)
+    c.H(0).H(1)
+    c1 = backend.get_compiled_circuit(c, 1)
+    assert c1.n_gates_of_type(OpType.ZZPhase) == 0
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
