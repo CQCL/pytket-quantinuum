@@ -6,11 +6,9 @@ set -evu
 
 MODULEDIR=$1
 
-cd ${MODULEDIR}
-
 # set MYPYPATH
 MYPYPATH="."
-for MOD in $(ls -d "$MODULEDIR/../pytket-"*); do
+for MOD in $(ls -d "$MODULEDIR"*); do
     MOD_PATH="$(cd "$MOD" && pwd)"
     MYPYPATH="$MYPYPATH:$MOD_PATH"
 done
@@ -22,7 +20,7 @@ ROOT_INIT_FILE=$(python -c "from importlib.util import find_spec; print(find_spe
 mv "$ROOT_INIT_FILE" "$ROOT_INIT_FILE.ignore"
 
 set +e
-mypy --config-file=../../mypy.ini --no-incremental -p pytket -p tests
+mypy --config-file=mypy.ini --no-incremental -p pytket -p tests
 STATUS=$?
 set -e
 

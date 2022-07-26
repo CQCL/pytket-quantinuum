@@ -86,5 +86,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
-        password: ${{ secrets.PYPI_EXTENSIONS_API_TOKEN }}
+        password: ${{ secrets.PYPI_PYTKET_QUANTINUUM_API_TOKEN }}
         verbose: true

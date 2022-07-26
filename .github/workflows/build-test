@@ -27,7 +27,7 @@ git clean -dfx
 
 echo "Module to test: ${MODULE}"
 
-MODULEDIR="${GITHUB_WORKSPACE}/modules"
+MODULEDIR="${GITHUB_WORKSPACE}"
 
 ARTIFACTSDIR=${GITHUB_WORKSPACE}/wheelhouse
 
@@ -35,84 +35,28 @@ rm -rf ${ARTIFACTSDIR} && mkdir ${ARTIFACTSDIR}
 
 python -m pip install --upgrade pip wheel build
 
-function unsupported() {
-    case "$1" in
-        pytket-iqm)
-            # The iqm-client package is not available for 3.8.
-            [[ "${PYVER}" == "3.8" ]] && return
-            ;;
-        pytket-qsharp)
-            # Cannot install qsharp on Windows with 3.10.
-            [[ "${PLAT}" == "Windows" && ${PYVER} == "3.10" ]] && return
-            ;;
-        pytket-qulacs)
-            # Cannot install qulacs on MacOS or Windows with 3.10.
-            [[ "${PLAT}" != "Linux" && "${PYVER}" == "3.10" ]] && return
-            ;;
-        *)
-            false
-            ;;
-    esac
-}
-
-function skip_tests() {
-    case "$1" in
-        pytket-qsharp)
-            case "${PLAT}" in
-                Darwin)
-                    # Test timeout issues
-                    [[ ${PYVER} == "3.10" ]] && return
-                    ;;
-                *)
-                    false
-                    ;;
-            esac
-            ;;
-        *)
-            false
-            ;;
-    esac
-}
-
 # Generate and install the package
-if ! (unsupported ${MODULE}) ; then
-    echo "${MODULE}..."
-    cd ${MODULEDIR}/${MODULE}
-    python -m build
-    for w in dist/*.whl ; do
-        python -m pip install $w
-        cp $w ${ARTIFACTSDIR}
-    done
-fi
+python -m build
+for w in dist/*.whl ; do
+    python -m pip install $w
+    cp $w ${ARTIFACTSDIR}
+done
 
 # Test and mypy:
 if [[ "${MYPY}" = "mypy" ]]
 then
     python -m pip install --upgrade mypy
 fi
-if ! (unsupported ${MODULE}) ; then
-    if ! (skip_tests ${MODULE}) ; then
-        echo "${MODULE}..."
 
-        cd ${MODULEDIR}/${MODULE}/tests
+cd ${GITHUB_WORKSPACE}/tests
 
-        python -m pip install --pre -r test-requirements.txt
+python -m pip install --pre -r test-requirements.txt
 
-        if [[ "${MODULE}" = "pytket-qsharp" && "${PLAT}" != "Darwin" ]]
-        then
-            dotnet iqsharp install --user
-        fi
+pytest --doctest-modules
 
-        # Disable the remote tests for pytket-aqt and -qsharp for now
-        if [[ "${MODULE}" = "pytket-aqt" || "${MODULE}" = "pytket-qsharp" ]]; then
-            unset PYTKET_RUN_REMOTE_TESTS; pytest --doctest-modules
-        else
-            pytest --doctest-modules
-        fi
+cd ..
 
-        if [[ "${MYPY}" = "mypy" ]]
-        then
-            ${MODULEDIR}/mypy-check ${MODULEDIR}/${MODULE}
-        fi
-    fi
+if [[ "${MYPY}" = "mypy" ]]
+then
+    ${GITHUB_WORKSPACE}/mypy-check ${GITHUB_WORKSPACE}}
 fi
