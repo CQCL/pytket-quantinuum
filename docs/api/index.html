@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.5.0rc0 documentation</title>
+  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.6.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -29,7 +29,7 @@
             <a href="#" class="icon icon-home"> pytket-quantinuum
           </a>
               <div class="version">
-                0.5
+                0.6
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -194,35 +194,58 @@ The passes applied by different levels of optimisation are specified in the tabl
 <li><p><code class="docutils literal notranslate"><span class="pre">noisy_simulation</span></code> : boolean flag to specify whether the simulator should
 perform noisy simulation with an error model (default value is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> : string identifier of a collection of jobs, can be used for usage tracking.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">max_batch_cost</span></code>: maximum HQC usable by submitted batch, default is 500.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">batch_id</span></code> : first <code class="docutils literal notranslate"><span class="pre">jobid</span></code> of the batch to which this batch of circuits should be submitted. Job IDs can be retrieved from ResultHandle using <code class="docutils literal notranslate"><span class="pre">backend.get_jobid(handle)</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">close_batch</span></code> : boolean flag to close the batch after the last circuit in the job (default value is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p></li>
 </ul>
 <p>For the Quantinuum <code class="docutils literal notranslate"><span class="pre">Backend</span></code>, <code class="docutils literal notranslate"><span class="pre">process_circuits</span></code> returns a <code class="docutils literal notranslate"><span class="pre">ResultHandle</span></code> object containing a <code class="docutils literal notranslate"><span class="pre">job_id</span></code> and a postprocessing ( <code class="docutils literal notranslate"><span class="pre">ppcirc</span></code>) circuit if there is one.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">logout()</span></code> method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.</p>
+<section id="batching">
+<h2>Batching<a class="headerlink" href="#batching" title="Permalink to this headline"></a></h2>
+<p>Quantinuum backends (except syntax checkers) support batching of jobs (circuits). To create
+a batch of jobs, users submit the first job, then signal that subsequent jobs should
+be added to the same batch using the handle of the first. The backend queue
+management system will start the batch as soon as the first job reaches the
+front of the queue and ensure subsequent batch jobs are run one after the other,
+until the end of the batch is reached or there are no new jobs added to the batch
+for ~1 min (at which point the batch expires and any subsequent jobs will be
+added to the standard queue).</p>
+<p>The standard <code class="docutils literal notranslate"><span class="pre">process_circuits</span></code> method <strong>no
+longer batches by default</strong>. To use batching first start the batch with
+<code class="docutils literal notranslate"><span class="pre">start_batch</span></code>, which has a similar interface to <code class="docutils literal notranslate"><span class="pre">process_circuit</span></code> but with
+an extra first argument <cite>max_batch_cost</cite>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h1</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">start_batch</span><span class="p">(</span><span class="n">max_batch_cost</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">circuit</span><span class="o">=</span><span class="n">circuit</span><span class="p">,</span> <span class="n">n_shots</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Add to the batch with subsequent calls of <code class="docutils literal notranslate"><span class="pre">add_to_batch</span></code> which takes as first
+argument the handle of the first job of the batch, and has the optional keyword
+argument <cite>batch_end</cite> to signal the end of a batch (default <cite>False</cite>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h2</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">add_to_batch</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">circuit_2</span><span class="p">,</span> <span class="n">n_shots</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">h3</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">add_to_batch</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">circuit_3</span><span class="p">,</span> <span class="n">n_shots</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#july-2022">0.6.0 (July 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.5.0 (July 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#june-2022">0.4.0 (June 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#may-2022">0.3.1 (May 2022)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.3.0 (May 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">0.3.0 (May 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#april-2022">0.2.0 (April 2022)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id2">0.1.2 (April 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">0.1.2 (April 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#march-2022">0.1.1 (March 2022)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id3">0.1.0 (March 2022)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id4">0.1.0 (March 2022)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#february-2022">0.21.0 (February 2022)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#january-2022">0.20.0 (January 2022)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id4">0.19.0 (January 2022)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id5">0.19.0 (January 2022)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#november-2021">0.18.0 (November 2021)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#october-2021">0.17.0 (October 2021)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#september-2021">0.16.0 (September 2021)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id5">0.15.0 (September 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id6">0.15.0 (September 2021)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#august-2021">0.14.0 (August 2021)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#july-2021">0.13.0 (July 2021)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#june-2021">0.12.0 (June 2021)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#may-2021">0.11.0 (May 2021)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id6">0.10.0 (May 2021)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id7">0.10.0 (May 2021)</a></li>
 </ul>
 </li>
 </ul>
@@ -236,6 +259,7 @@ perform noisy simulation with an error model (default value is <code class="docu
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/pytket-extensions/api/index.html">pytket extensions</a></li>
 </ul>
 </div>
+</section>
 </section>
 
 
