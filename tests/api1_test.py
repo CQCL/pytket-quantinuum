@@ -462,3 +462,54 @@ def test_available_devices(
         "wasm": True,
     }
     assert backinfo.name == "QuantinuumBackend"
+
+
+def test_submit_qasm_api(
+    requests_mock: Mocker,
+    mock_quum_api_handler: QuantinuumAPI,
+    sample_machine_infos: Dict[str, Any],
+) -> None:
+    """Test that you can resume using a batch."""
+
+    fake_job_id = "abc-123"
+
+    requests_mock.register_uri(
+        "POST",
+        "https://qapi.quantinuum.com/v1/job",
+        json={"job": fake_job_id},
+        headers={"Content-Type": "application/json"},
+    )
+
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        json={"job": fake_job_id},
+        headers={"Content-Type": "application/json"},
+    )
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        json=sample_machine_infos,
+        headers={"Content-Type": "application/json"},
+    )
+
+    backend = QuantinuumBackend(
+        device_name="H1-2SC",
+    )
+    backend._api_handler = mock_quum_api_handler
+
+    qasm = """
+    OPENQASM 2.0;
+    include "hqslib1.inc";
+    """
+    h1 = backend.submit_qasm(qasm, n_shots=10)
+
+    assert h1[0] == fake_job_id
+
+    submitted_json = {}
+    if requests_mock.last_request:
+        # start batch makes two requests
+        submitted_json = requests_mock.last_request.json()
+
+    assert submitted_json["program"] == qasm
+    assert submitted_json["count"] == 10
