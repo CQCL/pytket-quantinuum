@@ -45,6 +45,16 @@ def mock_token() -> str:
 
 
 @pytest.fixture()
+def mock_mfa_code() -> str:
+    return "mfa code"
+
+
+@pytest.fixture()
+def mock_ms_provider_token() -> str:
+    return "ms token"
+
+
+@pytest.fixture()
 def mock_machine_info() -> Dict[str, Any]:
     return {
         "name": "H9-27",

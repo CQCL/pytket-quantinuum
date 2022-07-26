@@ -119,13 +119,41 @@ The ``process_circuits`` method for the QuantinuumBackend accepts the following 
 *  ``noisy_simulation`` : boolean flag to specify whether the simulator should
    perform noisy simulation with an error model (default value is ``True``).
 *  ``group`` : string identifier of a collection of jobs, can be used for usage tracking.
-*  ``max_batch_cost``: maximum HQC usable by submitted batch, default is 500.
-*  ``batch_id`` : first ``jobid`` of the batch to which this batch of circuits should be submitted. Job IDs can be retrieved from ResultHandle using ``backend.get_jobid(handle)``.
-*  ``close_batch`` : boolean flag to close the batch after the last circuit in the job (default value is ``True``).
 
 For the Quantinuum ``Backend``, ``process_circuits`` returns a ``ResultHandle`` object containing a ``job_id`` and a postprocessing ( ``ppcirc``) circuit if there is one.
 
 The ``logout()`` method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.
+
+Batching
+--------
+Quantinuum backends (except syntax checkers) support batching of jobs (circuits). To create
+a batch of jobs, users submit the first job, then signal that subsequent jobs should
+be added to the same batch using the handle of the first. The backend queue
+management system will start the batch as soon as the first job reaches the
+front of the queue and ensure subsequent batch jobs are run one after the other,
+until the end of the batch is reached or there are no new jobs added to the batch
+for ~1 min (at which point the batch expires and any subsequent jobs will be
+added to the standard queue). 
+
+The standard ``process_circuits`` method **no
+longer batches by default**. To use batching first start the batch with
+``start_batch``, which has a similar interface to ``process_circuit`` but with
+an extra first argument `max_batch_cost`:
+
+::
+  
+  h1 = backend.start_batch(max_batch_cost=300, circuit=circuit, n_shots=100)
+
+Add to the batch with subsequent calls of ``add_to_batch`` which takes as first
+argument the handle of the first job of the batch, and has the optional keyword
+argument `batch_end` to signal the end of a batch (default `False`).
+
+::
+
+  h2 = backend.add_to_batch(h1, circuit_2, n_shots=100)
+  h3 = backend.add_to_batch(h1, circuit_3, n_shots=100, batch_end=True)
+
+
 
 .. toctree::
     api.rst

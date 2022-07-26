@@ -17,16 +17,22 @@
 # phase.
 
 from io import StringIO
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
+from http import HTTPStatus
+from unittest.mock import patch, MagicMock
 import pytest
 
+import requests
 from requests_mock.mocker import Mocker
 
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends import QuantinuumBackend
 from pytket.circuit import Circuit  # type: ignore
 from pytket.architecture import FullyConnected  # type: ignore
-from pytket.extensions.quantinuum.backends.quantinuum import DEFAULT_API_HANDLER
+from pytket.extensions.quantinuum.backends.quantinuum import (
+    DEFAULT_API_HANDLER,
+    BatchingUnsupported,
+)
 from pytket.extensions.quantinuum._metadata import __extension_version__
 
 
@@ -110,7 +116,7 @@ def test_default_login_flow(
     # We expect /login to be called once globally.
     assert login_route.called_once  # type: ignore
     assert job_submit_route.call_count == 4  # type: ignore
-    assert job_status_route.call_count == 2  # type: ignore
+    assert job_status_route.call_count == 0  # type: ignore
 
 
 def test_custom_login_flow(
@@ -191,19 +197,131 @@ def test_custom_login_flow(
     # We expect /login to be called for each api_handler.
     assert login_route.call_count == 2  # type: ignore
     assert job_submit_route.call_count == 4  # type: ignore
-    assert job_status_route.call_count == 2  # type: ignore
+    assert job_status_route.call_count == 0  # type: ignore
+
+
+def test_mfa_login_flow(
+    requests_mock: Mocker,
+    mock_credentials: Tuple[str, str],
+    mock_token: str,
+    mock_mfa_code: str,
+    mock_machine_info: Dict[str, Any],
+    monkeypatch: Any,
+) -> None:
+    """Test that the MFA authentication works as expected"""
+
+    DEFAULT_API_HANDLER.delete_authentication()
+
+    fake_device = mock_machine_info["name"]
+
+    def match_mfa_request(request: requests.PreparedRequest) -> bool:
+        return "code" in request.body  # type: ignore
+
+    def match_normal_request(request: requests.PreparedRequest) -> bool:
+        return "code" not in request.body  # type: ignore
+
+    mfa_login_route = requests_mock.register_uri(
+        "POST",
+        "https://qapi.quantinuum.com/v1/login",
+        json={
+            "id-token": mock_token,
+            "refresh-token": mock_token,
+        },
+        headers={"Content-Type": "application/json"},
+        additional_matcher=match_mfa_request,  # type: ignore
+    )
+    normal_login_route = requests_mock.register_uri(
+        "POST",
+        "https://qapi.quantinuum.com/v1/login",
+        json={
+            "error": {"code": 73},
+        },
+        headers={"Content-Type": "application/json"},
+        additional_matcher=match_normal_request,  # type: ignore
+        status_code=HTTPStatus.UNAUTHORIZED,
+    )
+
+    username, pwd = mock_credentials
+    # fake user input from stdin
+    inputs = iter([username + "\n", mock_mfa_code + "\n"])
+    monkeypatch.setattr("builtins.input", lambda msg: next(inputs))
+    monkeypatch.setattr("getpass.getpass", lambda prompt: pwd)
+
+    backend = QuantinuumBackend(
+        device_name=fake_device,
+    )
+    backend.login()
+
+    assert normal_login_route.called_once  # type: ignore
+    # Check that the mfa login has been invoked
+    assert mfa_login_route.called_once  # type: ignore
+    assert backend._api_handler._cred_store.id_token is not None
+    assert backend._api_handler._cred_store.refresh_token is not None
+
+
+@patch("pytket.extensions.quantinuum.backends.api_wrappers.microsoft_login")
+def test_federated_login(
+    mock_microsoft_login: MagicMock,
+    requests_mock: Mocker,
+    mock_credentials: Tuple[str, str],
+    mock_token: str,
+    mock_ms_provider_token: str,
+    mock_machine_info: Dict[str, Any],
+) -> None:
+    """Test that the federated authentication works as expected"""
+    DEFAULT_API_HANDLER.delete_authentication()
+
+    fake_device = mock_machine_info["name"]
+
+    backend = QuantinuumBackend(
+        device_name=fake_device,
+        provider="microsoft",
+    )
+    login_route = requests_mock.register_uri(
+        "POST",
+        "https://qapi.quantinuum.com/v1/login",
+        json={
+            "id-token": mock_token,
+            "refresh-token": mock_token,
+        },
+        headers={"Content-Type": "application/json"},
+    )
+    mock_microsoft_login.return_value = (mock_credentials[0], mock_ms_provider_token)
+    backend.login()
+
+    mock_microsoft_login.assert_called_once()
+    assert login_route.called_once  # type: ignore
+    assert backend._api_handler._cred_store.id_token is not None
+    assert backend._api_handler._cred_store.refresh_token is not None
+
+
+def test_federated_login_wrong_provider(
+    mock_machine_info: Dict[str, Any],
+) -> None:
+    """Test that the federated authentication works as expected"""
+    DEFAULT_API_HANDLER.delete_authentication()
+
+    fake_device = mock_machine_info["name"]
+
+    backend = QuantinuumBackend(
+        device_name=fake_device,
+        provider="wrong provider",
+    )
+    with pytest.raises(RuntimeError) as e:
+        backend.login()
+        err_msg = "Unsupported provider for login"
+        assert err_msg in str(e.value)
 
 
 @pytest.mark.parametrize(
-    "chosen_device,max_batch_cost",
-    [("H1", 300), ("H1-1", 300), ("H1-1", None)],
+    "chosen_device",
+    ["H1", "H1-1", "H1-2"],
 )
 def test_device_family(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
     sample_machine_infos: List[Dict[str, Any]],
     chosen_device: str,
-    max_batch_cost: Optional[int],
 ) -> None:
     """Test that batch params are NOT supplied by default
     if we are submitting to a device family.
@@ -232,31 +350,26 @@ def test_device_family(
         headers={"Content-Type": "application/json"},
     )
 
-    family_backend = QuantinuumBackend(
+    backend = QuantinuumBackend(
         device_name=chosen_device,
     )
-    family_backend._api_handler = mock_quum_api_handler
+    backend._api_handler = mock_quum_api_handler
 
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
-    circ = family_backend.get_compiled_circuit(circ)
+    circ = backend.get_compiled_circuit(circ)
 
-    kwargs = {}
-    if max_batch_cost is not None:
-        kwargs["max_batch_cost"] = max_batch_cost
-    family_backend.process_circuits(
-        circuits=[circ, circ], n_shots=10, valid_check=False, **kwargs
-    )
-
-    submitted_json = {}
-    if requests_mock.last_request:
-        submitted_json = requests_mock.last_request.json()
-
+    max_batch_cost = 20
     if chosen_device == "H1":
-        assert "batch-exec" not in submitted_json.keys()
-        assert "batch-end" not in submitted_json.keys()
+        with pytest.raises(BatchingUnsupported):
+            backend.start_batch(max_batch_cost, circ, 10)
     else:
-        assert "batch-exec" in submitted_json.keys()
-        assert "batch-end" in submitted_json.keys()
+        backend.start_batch(max_batch_cost, circ, 10)
+        submitted_json = {}
+        if requests_mock.last_request:
+            # start_batch makes two requests
+            submitted_json = requests_mock.request_history[-2].json()
+        assert "batch-exec" in submitted_json
+        assert submitted_json["batch-exec"] == max_batch_cost
 
 
 def test_resumed_batching(
@@ -296,22 +409,18 @@ def test_resumed_batching(
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
     circ = backend.get_compiled_circuit(circ)
 
-    [h1, _] = backend.process_circuits(
-        circuits=[circ, circ], n_shots=10, valid_check=False, close_batch=False
-    )
+    h1 = backend.start_batch(500, circ, n_shots=10, valid_check=False)
 
     submitted_json = {}
     if requests_mock.last_request:
-        print(requests_mock.last_request)
-        submitted_json = requests_mock.last_request.json()
+        # start batch makes two requests
+        submitted_json = requests_mock.request_history[-2].json()
 
     assert "batch-exec" in submitted_json
-    assert submitted_json["batch-exec"] == backend.get_jobid(h1)
+    assert submitted_json["batch-exec"] == 500
     assert "batch-end" not in submitted_json
 
-    _ = backend.process_circuit(
-        circ, n_shots=10, valid_check=False, batch_id=backend.get_jobid(h1)
-    )
+    _ = backend.add_to_batch(h1, circ, n_shots=10, valid_check=False, batch_end=True)
 
     if requests_mock.last_request:
         submitted_json = requests_mock.last_request.json()
@@ -353,3 +462,54 @@ def test_available_devices(
         "wasm": True,
     }
     assert backinfo.name == "QuantinuumBackend"
+
+
+def test_submit_qasm_api(
+    requests_mock: Mocker,
+    mock_quum_api_handler: QuantinuumAPI,
+    sample_machine_infos: Dict[str, Any],
+) -> None:
+    """Test that you can resume using a batch."""
+
+    fake_job_id = "abc-123"
+
+    requests_mock.register_uri(
+        "POST",
+        "https://qapi.quantinuum.com/v1/job",
+        json={"job": fake_job_id},
+        headers={"Content-Type": "application/json"},
+    )
+
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        json={"job": fake_job_id},
+        headers={"Content-Type": "application/json"},
+    )
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        json=sample_machine_infos,
+        headers={"Content-Type": "application/json"},
+    )
+
+    backend = QuantinuumBackend(
+        device_name="H1-2SC",
+    )
+    backend._api_handler = mock_quum_api_handler
+
+    qasm = """
+    OPENQASM 2.0;
+    include "hqslib1.inc";
+    """
+    h1 = backend.submit_qasm(qasm, n_shots=10)
+
+    assert h1[0] == fake_job_id
+
+    submitted_json = {}
+    if requests_mock.last_request:
+        # start batch makes two requests
+        submitted_json = requests_mock.last_request.json()
+
+    assert submitted_json["program"] == qasm
+    assert submitted_json["count"] == 10
