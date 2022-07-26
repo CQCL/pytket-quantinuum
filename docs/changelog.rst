@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-0.6.0 (Unreleased)
-------------------
+0.6.0 (July 2022)
+-----------------
 
 * Changed batching interface: `process_circuits` no longer batches, use
   `start_batching` and `add_to_batch` methods to explicitly start and append to
