@@ -7,7 +7,7 @@ The other pytket extensions can be found [here](https://github.com/CQCL/pytket-e
 
 # pytket-quantinuum
 
-[Pytket](https://cqcl.github.io/pytket) is a Python module for interfacing
+[Pytket](https://cqcl.github.io/tket/pytket/api/index.html) is a python module for interfacing
 with CQC tket, a set of quantum programming tools.
 
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
