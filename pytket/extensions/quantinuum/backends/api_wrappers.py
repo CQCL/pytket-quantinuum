@@ -521,7 +521,7 @@ class QuantinuumAPIOffline:
         self.machine_list = machine_list
         self.submitted: list = []
 
-    def _get_machine_list(self) -> list:
+    def _get_machine_list(self) -> Optional[list]:
         """returns the given list of the avilable machines
         :return: list of machines
         """
