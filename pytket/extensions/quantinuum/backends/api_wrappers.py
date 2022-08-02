@@ -107,6 +107,7 @@ class QuantinuumAPI:
         :type support_mfa: bool, optional
         """
         self.config = QuantinuumConfig.from_default_config_file()
+        self.online = True
 
         self.url = f"{api_url if api_url else self.DEFAULT_API_URL}v{api_version}/"
 
@@ -469,3 +470,130 @@ class QuantinuumAPI:
         jr = res.json()
 
         return jr  # type: ignore
+
+
+class QuantinuumAPIOffline:
+    def __init__(
+        self,
+        machine_list: Optional[list] = [
+            {
+                "name": "H1-1",
+                "n_qubits": 20,
+                "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                "n_classical_registers": 50,
+                "n_shots": 10000,
+                "system_family": "H1",
+                "system_type": "hardware",
+                "emulator": "H1-1E",
+                "syntax_checker": "H1-1SC",
+                "batching": True,
+                "wasm": True,
+            },
+            {
+                "name": "H1-2",
+                "n_qubits": 12,
+                "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                "n_classical_registers": 50,
+                "n_shots": 10000,
+                "system_family": "H1",
+                "system_type": "hardware",
+                "emulator": "H1-2E",
+                "syntax_checker": "H1-2SC",
+                "batching": True,
+                "wasm": True,
+            },
+        ],
+    ):
+        """Initialize OfflineQuantinuum API client.
+        Trys to allow all the operations like the QuantinuumAPI without
+        any interaction with the remote device
+        All jobs that are submitted to this offline api are stored
+        and can be requested again later
+
+        :param machine_list: gives the parameter of all the devices
+        and the device information
+        :type machine_list: list
+        """
+
+        self.provider = ""
+        self.url = ""
+        self.online = False
+        self.machine_list = machine_list
+        self.submitted: list = []
+
+    def _get_machine_list(self) -> list:
+        """returns the given list of the avilable machines
+        :return: list of machines
+        """
+
+        return self.machine_list
+
+    def full_login(self) -> None:
+        """No login offline with the offline API
+        :return: None"""
+
+        return None
+
+    def login(self) -> str:
+        """No login offline with the offline API, this function will always
+         return an empty api token
+        :return: empty api token"""
+        return ""
+
+    def _submit_job(self, body: Dict) -> None:
+        """The function will take the submitted job and store it for later
+
+        :param body: submitted job
+        :type body: dict
+
+        :return: None
+        """
+        self.submitted.append(body)
+        return None
+
+    def get_jobs(self) -> Optional[list]:
+        """The function will return all the jobs that have been submitted
+
+        :return: List of all the submitted jobs
+        """
+        return self.submitted
+
+    def _response_check(self, res: requests.Response, description: str) -> None:
+        """No _response_check offline"""
+
+        jr = res.json()
+        raise QuantinuumAPIError(
+            (
+                f"Reponse can't be checked offline: {description}."
+                f"\n\nServer Response: {jr}"
+            )
+        )
+
+    def retrieve_job_status(
+        self, job_id: str, use_websocket: Optional[bool] = None
+    ) -> None:
+        """No retrieve_job_status offline"""
+        raise QuantinuumAPIError(
+            (
+                f"Can't retrieve job status offline: job_id {job_id}."
+                f"\n use_websocket {use_websocket}"
+            )
+        )
+
+    def retrieve_job(self, job_id: str, use_websocket: Optional[bool] = None) -> None:
+        """No retrieve_job_status offline"""
+        raise QuantinuumAPIError(
+            (
+                f"Can't retrieve job status offline: job_id {job_id}."
+                f"\n use_websocket {use_websocket}"
+            )
+        )
+
+    def status(self, machine: str) -> str:
+        """No retrieve_job_status offline"""
+
+        return "unclear"
+
+    def cancel(self, job_id: str) -> dict:
+        """No cancel offline"""
+        raise QuantinuumAPIError((f"Can't cancel job offline: job_id {job_id}."))

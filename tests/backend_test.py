@@ -53,6 +53,7 @@ from pytket.extensions.quantinuum.backends.quantinuum import (
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
+    QuantinuumAPIOffline,
 )
 from pytket.backends.status import StatusEnum
 from pytket.wasm import WasmFileHandler
@@ -102,6 +103,56 @@ def test_quantinuum(
     assert newcounts == correct_counts
     if skip_remote_tests:
         assert backend.backend_info is None
+
+
+def test_quantinuum_offline() -> None:
+    qapioffline = QuantinuumAPIOffline()
+    backend = QuantinuumBackend(
+        device_name="H1-1", machine_debug=False, _api_handler=qapioffline  # type: ignore
+    )
+    c = Circuit(4, 4, "test 1")
+    c.H(0)
+    c.CX(0, 1)
+    c.Rz(0.3, 2)
+    c.CSWAP(0, 1, 2)
+    c.CRz(0.4, 2, 3)
+    c.CY(1, 3)
+    c.ZZPhase(0.1, 2, 0)
+    c.Tdg(3)
+    c.measure_all()
+    c = backend.get_compiled_circuit(c)
+    n_shots = 4
+    _ = backend.process_circuits([c], n_shots)[0]
+    expected_result = {
+        "name": "test 1",
+        "count": 4,
+        "machine": "H1-1",
+        "language": "OPENQASM 2.0",
+        "program": """OPENQASM 2.0;\ninclude "hqslib1.inc";\n\nqreg q[4];\ncreg c[4];
+U1q(0.5*pi,0.25*pi) q[0];\nU1q(3.5*pi,0.5*pi) q[1];\nU1q(0.5*pi,1.5*pi) q[3];\nZZ q[0],q[1];
+rz(1.5*pi) q[0];\nrz(3.5*pi) q[1];\nZZ q[2],q[1];\nrz(3.25*pi) q[1];\nrz(1.0*pi) q[2];
+U1q(1.5*pi,1.25*pi) q[1];\nZZ q[1],q[2];\nrz(1.5*pi) q[1];\nrz(3.5*pi) q[2];\nU1q(0.25*pi,0.0*pi) q[2];
+ZZ q[0],q[2];\nrz(1.5*pi) q[0];\nrz(3.5*pi) q[2];\nU1q(3.75*pi,0.0*pi) q[2];\nZZ q[1],q[2];
+U1q(3.5*pi,0.5*pi) q[1];\nrz(3.5*pi) q[2];\nU1q(0.25*pi,0.0*pi) q[2];\nZZ q[0],q[2];\nrz(1.5*pi) q[0];
+U1q(1.75*pi,0.5*pi) q[2];\nZZ q[0],q[1];\nrz(1.5*pi) q[0];\nrz(3.5*pi) q[1];\nU1q(0.25*pi,0.0*pi) q[1];
+ZZ q[0],q[1];\nU1q(3.5*pi,0.5*pi) q[0];\nrz(3.5*pi) q[1];\nZZ q[2],q[1];\nrz(1.0*pi) q[1];\nrz(1.5*pi) q[2];
+U1q(3.5*pi,1.0*pi) q[1];\nZZ q[2],q[3];\nrz(1.5*pi) q[2];\nrz(3.5*pi) q[3];
+U1q(0.20000000000000004*pi,0.0*pi) q[3];\nZZ q[2],q[3];\nrz(1.5*pi) q[2];\nrz(3.5*pi) q[3];
+ZZ q[2],q[0];\nU1q(0.5*pi,0.0*pi) q[3];\nrz(3.5*pi) q[0];\nZZ q[1],q[3];\nrz(1.5*pi) q[2];
+measure q[1] -> c[1];\nU1q(3.8999999999999995*pi,0.0*pi) q[0];\nU1q(1.5*pi,0.0*pi) q[3];
+measure q[3] -> c[3];\nZZ q[2],q[0];\nmeasure q[2] -> c[2];\nU1q(1.5*pi,0.0*pi) q[0];
+measure q[0] -> c[0];\n""",
+        "priority": "normal",
+        "options": {"simulator": "state-vector", "error-model": True, "tket": {}},
+    }
+    result = qapioffline.get_jobs()
+    assert result is not None
+    assert result[0]["name"] == expected_result["name"]
+    assert result[0]["count"] == expected_result["count"]
+    assert result[0]["machine"] == expected_result["machine"]
+    assert result[0]["language"] == expected_result["language"]
+    assert result[0]["priority"] == expected_result["priority"]
+    assert result[0]["options"] == expected_result["options"]
 
 
 def test_tket_pass_submission() -> None:

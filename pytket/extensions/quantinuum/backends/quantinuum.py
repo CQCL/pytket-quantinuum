@@ -206,12 +206,15 @@ class QuantinuumBackend(Backend):
         :rtype: List[Dict[str, Any]]
         """
         id_token = _api_handler.login()
-        res = requests.get(
-            f"{_api_handler.url}machine/?config=true",
-            headers={"Authorization": id_token},
-        )
-        _api_handler._response_check(res, "get machine list")
-        jr = res.json()
+        if _api_handler.online:
+            res = requests.get(
+                f"{_api_handler.url}machine/?config=true",
+                headers={"Authorization": id_token},
+            )
+            _api_handler._response_check(res, "get machine list")
+            jr = res.json()
+        else:
+            jr = _api_handler._get_machine_list()  # type: ignore
         return jr  # type: ignore
 
     @classmethod
@@ -438,12 +441,14 @@ class QuantinuumBackend(Backend):
 
         try:
             res = self._api_handler._submit_job(body)
-
-            jobdict = res.json()
-            if res.status_code != HTTPStatus.OK:
-                raise QuantinuumAPIError(
-                    f'HTTP error submitting job, {jobdict["error"]}'
-                )
+            if self._api_handler.online:
+                jobdict = res.json()
+                if res.status_code != HTTPStatus.OK:
+                    raise QuantinuumAPIError(
+                        f'HTTP error submitting job, {jobdict["error"]}'
+                    )
+            else:
+                return ResultHandle(cast(str, ""), "null")
         except ConnectionError:
             raise ConnectionError(
                 f"{self._label} Connection Error: Error during submit..."
