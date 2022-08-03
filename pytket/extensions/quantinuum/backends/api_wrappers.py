@@ -493,7 +493,8 @@ class QuantinuumAPIOffline:
         and can be requested again later.
 
         :param machine_list: List of dictionaries each containing device information.
-            The format of should match what a real backend would return. One short example:
+            The format of should match what a real backend would return.
+            One short example:
             {
             "name": "H1-2",
             "n_qubits": 12,
