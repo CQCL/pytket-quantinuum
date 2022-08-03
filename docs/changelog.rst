@@ -4,7 +4,7 @@ Changelog
 0.7.0 (unreleased)
 ------------------
 
-* Add new `QuantinuumAPIOffline` for allowing usage of the backend without api calls
+* Add new `QuantinuumAPIOffline` for allowing usage of the backend without API calls.
 
 0.6.0 (July 2022)
 -----------------
