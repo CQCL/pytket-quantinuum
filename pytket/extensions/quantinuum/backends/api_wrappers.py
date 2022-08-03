@@ -68,7 +68,9 @@ class _OverrideManager:
 
 
 class QuantinuumAPI:
-
+    """
+    Interface to the Quantinuum online remote API.
+    """
     JOB_DONE = ["failed", "completed", "canceled"]
 
     DEFAULT_API_URL = "https://qapi.quantinuum.com/"
@@ -476,6 +478,10 @@ class QuantinuumAPI:
 
 
 class QuantinuumAPIOffline:
+    """
+    Offline copy of the interface to the Quantinuum remote API.
+    """
+
     def __init__(self, machine_list: Optional[list] = None):
         """Initialize offline API client.
 
@@ -489,11 +495,11 @@ class QuantinuumAPIOffline:
             and the device information, the format of this list should be in
             the same format like the backend would return this. One short example:
             {
-                "name": "H1-2",
-                "n_qubits": 12,
-                "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-                "n_shots": 10000,
-                "batching": True,
+            "name": "H1-2",
+            "n_qubits": 12,
+            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "n_shots": 10000,
+            "batching": True,
             }
         :type machine_list: list
         """
@@ -548,7 +554,7 @@ class QuantinuumAPIOffline:
 
     def login(self) -> str:
         """No login offline with the offline API, this function will always
-         return an empty api token
+        return an empty api token
         :return: empty api token"""
         return ""
 

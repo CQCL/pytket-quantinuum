@@ -593,14 +593,14 @@ class QuantinuumBackend(Backend):
         **kwargs: QuumKwargTypes,
     ) -> ResultHandle:
         """Add to a batch of jobs on the backend, behaves like `process_circuit`
-        except in two ways:
-            1. The first argument must be the result handle of the first job of
-               batch.
-            2. The optional argument `batch_end` should be set to "True" for the
-               final circuit of the batch. By default it is False.
+        except in two ways:\n
+        1. The first argument must be the result handle of the first job of
+        batch.\n
+        2. The optional argument `batch_end` should be set to "True" for the
+        final circuit of the batch. By default it is False.\n
 
         See :py:meth:`pytket.backends.Backend.process_circuits` for
-           documentation on remaining parameters.
+        documentation on remaining parameters.
 
         :param batch_start_job: Handle of first circuit submitted to batch.
         :type batch_start_job: ResultHandle
