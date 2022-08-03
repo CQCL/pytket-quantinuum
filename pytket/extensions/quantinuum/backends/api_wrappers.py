@@ -504,14 +504,16 @@ class QuantinuumAPIOffline:
             },
         ],
     ):
-        """Initialize OfflineQuantinuum API client.
-        Trys to allow all the operations like the QuantinuumAPI without
-        any interaction with the remote device
-        All jobs that are submitted to this offline api are stored
-        and can be requested again later
+        """Initialize offline API client.
+        
+        Tries to allow all the operations of the QuantinuumAPI without
+        any interaction with the remote device.
+        
+        All jobs that are submitted to this offline API are stored
+        and can be requested again later.
 
         :param machine_list: gives the parameter of all the devices
-        and the device information
+            and the device information
         :type machine_list: list
         """
 
