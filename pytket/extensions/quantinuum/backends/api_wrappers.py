@@ -71,6 +71,7 @@ class QuantinuumAPI:
     """
     Interface to the Quantinuum online remote API.
     """
+
     JOB_DONE = ["failed", "completed", "canceled"]
 
     DEFAULT_API_URL = "https://qapi.quantinuum.com/"
