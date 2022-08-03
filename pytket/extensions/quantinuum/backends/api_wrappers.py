@@ -476,37 +476,7 @@ class QuantinuumAPI:
 
 
 class QuantinuumAPIOffline:
-    def __init__(
-        self,
-        machine_list: list = [
-            {
-                "name": "H1-1",
-                "n_qubits": 20,
-                "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-                "n_classical_registers": 50,
-                "n_shots": 10000,
-                "system_family": "H1",
-                "system_type": "hardware",
-                "emulator": "H1-1E",
-                "syntax_checker": "H1-1SC",
-                "batching": True,
-                "wasm": True,
-            },
-            {
-                "name": "H1-2",
-                "n_qubits": 12,
-                "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-                "n_classical_registers": 50,
-                "n_shots": 10000,
-                "system_family": "H1",
-                "system_type": "hardware",
-                "emulator": "H1-2E",
-                "syntax_checker": "H1-2SC",
-                "batching": True,
-                "wasm": True,
-            },
-        ],
-    ):
+    def __init__(self, machine_list: Optional[list] = None):
         """Initialize offline API client.
 
         Tries to allow all the operations of the QuantinuumAPI without
@@ -527,7 +497,35 @@ class QuantinuumAPIOffline:
             }
         :type machine_list: list
         """
-
+        if machine_list == None:
+            machine_list = [
+                {
+                    "name": "H1-1",
+                    "n_qubits": 20,
+                    "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                    "n_classical_registers": 50,
+                    "n_shots": 10000,
+                    "system_family": "H1",
+                    "system_type": "hardware",
+                    "emulator": "H1-1E",
+                    "syntax_checker": "H1-1SC",
+                    "batching": True,
+                    "wasm": True,
+                },
+                {
+                    "name": "H1-2",
+                    "n_qubits": 12,
+                    "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                    "n_classical_registers": 50,
+                    "n_shots": 10000,
+                    "system_family": "H1",
+                    "system_type": "hardware",
+                    "emulator": "H1-2E",
+                    "syntax_checker": "H1-2SC",
+                    "batching": True,
+                    "wasm": True,
+                },
+            ]
         self.provider = ""
         self.url = ""
         self.online = False

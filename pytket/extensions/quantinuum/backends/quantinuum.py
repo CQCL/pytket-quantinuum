@@ -59,7 +59,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
-from .api_wrappers import QuantinuumAPIError, QuantinuumAPI, QuantinuumAPIOffline
+from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 QUANTINUUM_URL_PREFIX = "https://qapi.quantinuum.com/"
