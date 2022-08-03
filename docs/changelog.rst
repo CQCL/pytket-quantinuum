@@ -6,7 +6,7 @@ Changelog
 
 * Add new `QuantinuumAPIOffline` for allowing usage of the backend without API calls.
 * New `api_handler` parameter for `QuantinuumBackend`, allowing to choose
-  online or offline options. Default value is the old online api.
+  online or offline options. Default value is the standard online api.
 
 0.6.0 (July 2022)
 -----------------
