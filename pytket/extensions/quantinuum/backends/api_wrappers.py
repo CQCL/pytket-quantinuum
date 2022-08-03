@@ -492,9 +492,8 @@ class QuantinuumAPIOffline:
         All jobs that are submitted to this offline API are stored
         and can be requested again later.
 
-        :param machine_list: gives the parameter of all the devices
-            and the device information, the format of this list should be in
-            the same format like the backend would return this. One short example:
+        :param machine_list: List of dictionaries each containing device information.
+            The format of should match what a real backend would return. One short example:
             {
             "name": "H1-2",
             "n_qubits": 12,
