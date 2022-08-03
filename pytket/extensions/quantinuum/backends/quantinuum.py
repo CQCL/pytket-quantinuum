@@ -59,7 +59,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
-from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
+from .api_wrappers import QuantinuumAPIError, QuantinuumAPI, QuantinuumAPIOffline
 
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 QUANTINUUM_URL_PREFIX = "https://qapi.quantinuum.com/"
@@ -155,7 +155,7 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         provider: Optional[str] = None,
         machine_debug: bool = False,
-        _api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
+        api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
     ):
         """Construct a new Quantinuum backend.
 
@@ -172,8 +172,8 @@ class QuantinuumBackend(Backend):
             only support 'microsoft', which enables the microsoft Device Flow.
         :type provider: Optional[str], optional
         :type simulator: str, optional
-        :param _api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
-        :type _api_handler: QuantinuumAPI
+        :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
+        :type api_handler: QuantinuumAPI
         """
 
         super().__init__()
@@ -186,35 +186,35 @@ class QuantinuumBackend(Backend):
 
         self.simulator_type = simulator
 
-        self._api_handler = _api_handler
+        self.api_handler = api_handler
 
-        self._api_handler.provider = provider
+        self.api_handler.provider = provider
 
     @classmethod
     def _available_devices(
         cls,
-        _api_handler: QuantinuumAPI,
+        api_handler: QuantinuumAPI,
     ) -> List[Dict[str, Any]]:
         """List devices available from Quantinuum.
 
         >>> QuantinuumBackend._available_devices()
         e.g. [{'name': 'H1', 'n_qubits': 6}]
 
-        :param _api_handler: Instance of API handler
-        :type _api_handler: QuantinuumAPI
+        :param api_handler: Instance of API handler
+        :type api_handler: QuantinuumAPI
         :return: Dictionaries of machine name and number of qubits.
         :rtype: List[Dict[str, Any]]
         """
-        id_token = _api_handler.login()
-        if _api_handler.online:
+        id_token = api_handler.login()
+        if api_handler.online:
             res = requests.get(
-                f"{_api_handler.url}machine/?config=true",
+                f"{api_handler.url}machine/?config=true",
                 headers={"Authorization": id_token},
             )
-            _api_handler._response_check(res, "get machine list")
+            api_handler._response_check(res, "get machine list")
             jr = res.json()
         else:
-            jr = _api_handler._get_machine_list()  # type: ignore
+            jr = api_handler._get_machine_list()  # type: ignore
         return jr  # type: ignore
 
     @classmethod
@@ -241,15 +241,15 @@ class QuantinuumBackend(Backend):
     ) -> List[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
-        :param _api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
-        :type _api_handler: Optional[QuantinuumAPI]
+        :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
+        :type api_handler: Optional[QuantinuumAPI]
         """
-        _api_handler = kwargs.get("_api_handler", DEFAULT_API_HANDLER)
-        jr = cls._available_devices(_api_handler)
+        api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
+        jr = cls._available_devices(api_handler)
         return list(map(cls._dict_to_backendinfo, jr))
 
     def _retrieve_backendinfo(self, machine: str) -> BackendInfo:
-        jr = self._available_devices(self._api_handler)
+        jr = self._available_devices(self.api_handler)
         try:
             _machine_info = next(entry for entry in jr if entry["name"] == machine)
         except StopIteration:
@@ -260,7 +260,7 @@ class QuantinuumBackend(Backend):
     def device_state(
         cls,
         device_name: str,
-        _api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
+        api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
     ) -> str:
         """Check the status of a device.
 
@@ -269,16 +269,16 @@ class QuantinuumBackend(Backend):
 
         :param device_name: Name of the device.
         :type device_name: str
-        :param _api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
-        :type _api_handler: QuantinuumAPI
+        :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
+        :type api_handler: QuantinuumAPI
         :return: String of state, e.g. "online"
         :rtype: str
         """
         res = requests.get(
-            f"{_api_handler.url}machine/{device_name}",
-            headers={"Authorization": _api_handler.login()},
+            f"{api_handler.url}machine/{device_name}",
+            headers={"Authorization": api_handler.login()},
         )
-        _api_handler._response_check(res, "get machine status")
+        api_handler._response_check(res, "get machine status")
         jr = res.json()
         try:
             return str(jr["state"])
@@ -440,8 +440,8 @@ class QuantinuumBackend(Backend):
         body.update(request_options or {})
 
         try:
-            res = self._api_handler._submit_job(body)
-            if self._api_handler.online:
+            res = self.api_handler._submit_job(body)
+            if self.api_handler.online:
                 jobdict = res.json()
                 if res.status_code != HTTPStatus.OK:
                     raise QuantinuumAPIError(
@@ -577,7 +577,7 @@ class QuantinuumBackend(Backend):
 
         # make sure the starting job is received, such that subsequent addtions
         # to batch will be recognised as being added to an existing batch
-        self._api_handler.retrieve_job_status(
+        self.api_handler.retrieve_job_status(
             str(h1[0]),
             use_websocket=cast(bool, kwargs.get("use_websocket", True)),
         )
@@ -625,20 +625,20 @@ class QuantinuumBackend(Backend):
         wait: Optional[int] = None,
         use_websocket: Optional[bool] = True,
     ) -> Dict:
-        if not self._api_handler:
+        if not self.api_handler:
             raise RuntimeError("API handler not set")
-        with self._api_handler.override_timeouts(timeout=timeout, retry_timeout=wait):
+        with self.api_handler.override_timeouts(timeout=timeout, retry_timeout=wait):
             # set and unset optional timeout parameters
-            job_dict = self._api_handler.retrieve_job(jobid, use_websocket)
+            job_dict = self.api_handler.retrieve_job(jobid, use_websocket)
 
         if job_dict is None:
             raise RuntimeError(f"Unable to retrieve job {jobid}")
         return job_dict
 
     def cancel(self, handle: ResultHandle) -> None:
-        if self._api_handler is not None:
+        if self.api_handler is not None:
             jobid = str(handle[0])
-            self._api_handler.cancel(jobid)
+            self.api_handler.cancel(jobid)
 
     def _update_cache_result(self, handle: ResultHandle, res: BackendResult) -> None:
         rescache = {"result": res}
@@ -658,12 +658,12 @@ class QuantinuumBackend(Backend):
         use_websocket = cast(bool, kwargs.get("use_websocket", True))
         # TODO check queue position and add to message
         try:
-            response = self._api_handler.retrieve_job_status(
+            response = self.api_handler.retrieve_job_status(
                 jobid, use_websocket=use_websocket
             )
         except QuantinuumAPIError:
-            self._api_handler.login()
-            response = self._api_handler.retrieve_job_status(
+            self.api_handler.login()
+            response = self.api_handler.retrieve_job_status(
                 jobid, use_websocket=use_websocket
             )
 
@@ -780,7 +780,7 @@ class QuantinuumBackend(Backend):
             )
 
         backend = QuantinuumBackend(
-            cast(str, syntax_checker), _api_handler=self._api_handler
+            cast(str, syntax_checker), api_handler=self.api_handler
         )
         try:
             handle = backend.process_circuit(circuit, n_shots)
@@ -808,12 +808,12 @@ class QuantinuumBackend(Backend):
         After log in you should not need to provide credentials again while that
         session (script/notebook) is alive.
         """
-        self._api_handler.full_login()
+        self.api_handler.full_login()
 
     def logout(self) -> None:
         """Clear stored JWT tokens from login. Will need to `login` again to
         make API calls."""
-        self._api_handler.delete_authentication()
+        self.api_handler.delete_authentication()
 
 
 _xcirc = Circuit(1).add_gate(OpType.PhasedX, [1, 0], [0])

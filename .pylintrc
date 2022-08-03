@@ -13,6 +13,7 @@ enable=
     bad-super-call,
     consider-merging-isinstance,
     continue-in-finally,
+    dangerous-default-value,
     duplicate-argument-name,
     expression-not-assigned,
     function-redefined,

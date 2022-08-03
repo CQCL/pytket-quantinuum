@@ -108,7 +108,7 @@ def test_quantinuum(
 def test_quantinuum_offline() -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1", machine_debug=False, _api_handler=qapioffline  # type: ignore
+        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
     )
     c = Circuit(4, 4, "test 1")
     c.H(0)
@@ -128,20 +128,7 @@ def test_quantinuum_offline() -> None:
         "count": 4,
         "machine": "H1-1",
         "language": "OPENQASM 2.0",
-        "program": """OPENQASM 2.0;\ninclude "hqslib1.inc";\n\nqreg q[4];\ncreg c[4];
-U1q(0.5*pi,0.25*pi) q[0];\nU1q(3.5*pi,0.5*pi) q[1];\nU1q(0.5*pi,1.5*pi) q[3];\nZZ q[0],q[1];
-rz(1.5*pi) q[0];\nrz(3.5*pi) q[1];\nZZ q[2],q[1];\nrz(3.25*pi) q[1];\nrz(1.0*pi) q[2];
-U1q(1.5*pi,1.25*pi) q[1];\nZZ q[1],q[2];\nrz(1.5*pi) q[1];\nrz(3.5*pi) q[2];\nU1q(0.25*pi,0.0*pi) q[2];
-ZZ q[0],q[2];\nrz(1.5*pi) q[0];\nrz(3.5*pi) q[2];\nU1q(3.75*pi,0.0*pi) q[2];\nZZ q[1],q[2];
-U1q(3.5*pi,0.5*pi) q[1];\nrz(3.5*pi) q[2];\nU1q(0.25*pi,0.0*pi) q[2];\nZZ q[0],q[2];\nrz(1.5*pi) q[0];
-U1q(1.75*pi,0.5*pi) q[2];\nZZ q[0],q[1];\nrz(1.5*pi) q[0];\nrz(3.5*pi) q[1];\nU1q(0.25*pi,0.0*pi) q[1];
-ZZ q[0],q[1];\nU1q(3.5*pi,0.5*pi) q[0];\nrz(3.5*pi) q[1];\nZZ q[2],q[1];\nrz(1.0*pi) q[1];\nrz(1.5*pi) q[2];
-U1q(3.5*pi,1.0*pi) q[1];\nZZ q[2],q[3];\nrz(1.5*pi) q[2];\nrz(3.5*pi) q[3];
-U1q(0.20000000000000004*pi,0.0*pi) q[3];\nZZ q[2],q[3];\nrz(1.5*pi) q[2];\nrz(3.5*pi) q[3];
-ZZ q[2],q[0];\nU1q(0.5*pi,0.0*pi) q[3];\nrz(3.5*pi) q[0];\nZZ q[1],q[3];\nrz(1.5*pi) q[2];
-measure q[1] -> c[1];\nU1q(3.8999999999999995*pi,0.0*pi) q[0];\nU1q(1.5*pi,0.0*pi) q[3];
-measure q[3] -> c[3];\nZZ q[2],q[0];\nmeasure q[2] -> c[2];\nU1q(1.5*pi,0.0*pi) q[0];
-measure q[0] -> c[0];\n""",
+        "program": "...",  # not checked
         "priority": "normal",
         "options": {"simulator": "state-vector", "error-model": True, "tket": {}},
     }
@@ -448,7 +435,7 @@ def test_simulator(
     n_shots = 1000
     state_backend = authenticated_quum_backend
     stabilizer_backend = QuantinuumBackend(
-        "H1-2E", simulator="stabilizer", _api_handler=authenticated_quum_handler
+        "H1-2E", simulator="stabilizer", api_handler=authenticated_quum_handler
     )
 
     circ = state_backend.get_compiled_circuit(circ)
@@ -492,12 +479,12 @@ def test_retrieve_available_devices(
     # authenticated_quum_backend still needs a handler or it will
     # attempt to use the DEFAULT_API_HANDLER.
     backend_infos = authenticated_quum_backend.available_devices(
-        _api_handler=authenticated_quum_handler
+        api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
 
     backend_infos = QuantinuumBackend.available_devices(
-        _api_handler=authenticated_quum_handler
+        api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
 
@@ -581,19 +568,19 @@ def test_device_state(
 ) -> None:
     assert isinstance(
         QuantinuumBackend.device_state(
-            device_name, _api_handler=authenticated_quum_handler
+            device_name, api_handler=authenticated_quum_handler
         ),
         str,
     )
 
 
 @pytest.mark.parametrize("device_name", ALL_DEVICE_NAMES)
-def test_default_api_handler(device_name: str) -> None:
+def test_defaultapi_handler(device_name: str) -> None:
     """Test that the default API handler is used on backend construction."""
     backend_1 = QuantinuumBackend(device_name)
     backend_2 = QuantinuumBackend(device_name)
 
-    assert backend_1._api_handler is backend_2._api_handler
+    assert backend_1.api_handler is backend_2.api_handler
 
 
 @pytest.mark.parametrize("device_name", ALL_DEVICE_NAMES)
@@ -602,11 +589,11 @@ def test_custom_api_handler(device_name: str) -> None:
     handler_1 = QuantinuumAPI()
     handler_2 = QuantinuumAPI()
 
-    backend_1 = QuantinuumBackend(device_name, _api_handler=handler_1)
-    backend_2 = QuantinuumBackend(device_name, _api_handler=handler_2)
+    backend_1 = QuantinuumBackend(device_name, api_handler=handler_1)
+    backend_2 = QuantinuumBackend(device_name, api_handler=handler_2)
 
-    assert backend_1._api_handler is not backend_2._api_handler
-    assert backend_1._api_handler._cred_store is not backend_2._api_handler._cred_store
+    assert backend_1.api_handler is not backend_2.api_handler
+    assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)

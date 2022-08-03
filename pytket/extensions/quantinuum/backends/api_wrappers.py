@@ -252,6 +252,8 @@ class QuantinuumAPI:
         """This methods checks if we have a valid (non-expired) id-token
         and returns it, otherwise it gets a new one with refresh-token.
         If refresh-token doesn't exist, it asks user for credentials.
+
+        :return: (str) login token
         """
         # check if refresh_token exists
         refresh_token = self._cred_store.refresh_token
@@ -312,12 +314,12 @@ class QuantinuumAPI:
         """
         Retrieves job status from device.
 
-        Args:
-            job_id:        unique id of job
-            use_websocket: use websocket to minimize interaction
+        :param job_id: unique id of job
+        :type job_id: str
+        :param use_websocket: use websocket to minimize interaction
+        :type use_websocket: bool
 
-        Returns:
-            (dict):        output from API
+        :return: (dict) output from API
 
         """
         job_url = f"{self.url}job/{job_id}"
@@ -341,12 +343,12 @@ class QuantinuumAPI:
         """
         Retrieves job from device.
 
-        Args:
-            job_id:        unique id of job
-            use_websocket: use websocket to minimize interaction
+        :param job_id: unique id of job
+        :type job_id: str
+        :param use_websocket: use websocket to minimize interaction
+        :type use_websocket: bool
 
-        Returns:
-            (dict):        output from API
+        :return: (dict) output from API
 
         """
         jr = self.retrieve_job_status(job_id, use_websocket)
@@ -436,8 +438,10 @@ class QuantinuumAPI:
         """
         Check status of machine.
 
-        Args:
-            (str):    machine name
+        :param machine: machine name
+        :type machine: str
+
+        :return: (str) status of machine
 
         """
         id_token = self.login()
@@ -454,11 +458,10 @@ class QuantinuumAPI:
         """
         Cancels job.
 
-        Args:
-            job_id:     job ID to cancel
+        :param job_id: job ID to cancel
+        :type job_id: str
 
-        Returns:
-            jr:         (dict) output from API
+        :return: (dict) output from API
 
         """
 
@@ -475,7 +478,7 @@ class QuantinuumAPI:
 class QuantinuumAPIOffline:
     def __init__(
         self,
-        machine_list: Optional[list] = [
+        machine_list: list = [
             {
                 "name": "H1-1",
                 "n_qubits": 20,
@@ -505,15 +508,23 @@ class QuantinuumAPIOffline:
         ],
     ):
         """Initialize offline API client.
-        
+
         Tries to allow all the operations of the QuantinuumAPI without
         any interaction with the remote device.
-        
+
         All jobs that are submitted to this offline API are stored
         and can be requested again later.
 
         :param machine_list: gives the parameter of all the devices
-            and the device information
+            and the device information, the format of this list should be in
+            the same format like the backend would return this. One short example:
+            {
+                "name": "H1-2",
+                "n_qubits": 12,
+                "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                "n_shots": 10000,
+                "batching": True,
+            }
         :type machine_list: list
         """
 
@@ -521,6 +532,7 @@ class QuantinuumAPIOffline:
         self.url = ""
         self.online = False
         self.machine_list = machine_list
+        self._cred_store = None
         self.submitted: list = []
 
     def _get_machine_list(self) -> Optional[list]:
