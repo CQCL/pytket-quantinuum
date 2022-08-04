@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ./.github/workflows/docs/build-docs 1>out.txt 2>err.txt
 cat out.txt err.txt
