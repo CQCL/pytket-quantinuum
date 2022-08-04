@@ -31,7 +31,7 @@ jobs:
       run: |
         cd .github/workflows/docs
         mkdir extensions
-        ./build-docs -a -i -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
+        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
     - uses: actions/upload-artifact@v3
       with:
         name: pytket-extension-docs
