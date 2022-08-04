@@ -80,55 +80,13 @@ def build_module_docs():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Build HTML documentation for one or more modules."
+        description="Build HTML documentation for pytket-quantinuum."
     )
-    parser.add_argument(
-        "-m",
-        "--modules",
-        nargs="*",
-        default=[],
-        help="names of modules to build (without the `pytket-` prefix)",
-    )
-    parser.add_argument("-a", "--all", action="store_true", help="build all modules")
-    parser.add_argument("-i", "--index", action="store_true", help="build index page")
     parser.add_argument("-d", "--dest", help="copy artifacts into destination folder")
     args = parser.parse_args()
 
     print("Building docs for modules:", MODULE)
     build_module_docs()
-
-    if args.index:
-        print("Building index page...")
-        index_rst = DOCS_DIR / "index.rst"
-        with open(DOCS_DIR / "intro.txt", "r") as f:
-            content = f.readlines()
-            content.append(
-                "\n.. toctree::\n\t:caption: More documentation:\n\t:maxdepth: 1\n\n"
-            )            
-            content.append(f"\tpytket <{PYTKET_DOCS_LINK}>\n")
-            content.append(f"\tpytket extensions <{PYTKET_EX_DOCS_LINK}>\n")
-
-
-        with open(index_rst, "w") as f:
-            f.writelines(content)
-        remove_dir(DOCS_DIR / "build")
-        subprocess.run(
-            [
-                "sphinx-build",
-                "-b",
-                "html",
-                "-D",
-                f"project=pytket-extensions",
-                "-D",
-                f"copyright={datetime.date.today().year} Cambridge Quantum Computing",
-                "-D",
-                "templates_path=templates",
-                ".",
-                "build",
-            ],
-            cwd=DOCS_DIR,
-        )
-        index_rst.unlink()
 
     if args.dest is not None:
         dest = Path(args.dest)
