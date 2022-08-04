@@ -97,7 +97,7 @@ class QuantinuumAPI:
 
         :param token_store: JWT Token store, defaults to None
             A new MemoryCredentialStorage will be initialised
-            if None is provided.
+                if None is provided.
         :type token_store: MemoryCredentialStorage, optional
         :param api_url: _description_, defaults to DEFAULT_API_URL
         :type api_url: Optional[str], optional
