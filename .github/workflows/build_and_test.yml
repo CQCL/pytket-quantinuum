@@ -70,6 +70,16 @@ jobs:
       with:
         name: artefacts
         path: wheelhouse/
+    - name: Install docs dependencies
+      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request')
+      run: |
+        pip install -r .github/workflows/docs/requirements.txt
+    - name: Build docs
+      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request')
+      timeout-minutes: 20
+      run: |
+        ./.github/workflows/docs/check-build-docs
+
 
   publish_to_pypi:
     name: Publish to pypi
@@ -121,7 +131,7 @@ jobs:
       run: |
         cd .github/workflows/docs
         mkdir extensions
-        ./build-docs -a -i -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
+        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
     - name: Configure git
       run: |
         git config --global user.email "tket-bot@cambridgequantum.com"

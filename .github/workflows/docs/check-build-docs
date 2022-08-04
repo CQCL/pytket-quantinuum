@@ -1,0 +1,10 @@
+#!/bin/bash
+
+./.github/workflows/docs/build-docs 1>out.txt 2>err.txt
+cat out.txt err.txt
+ERRS=`cat err.txt`
+if [ ! -z $ERRS ]
+then
+    echo "Docs build failed."
+    exit 1
+fi

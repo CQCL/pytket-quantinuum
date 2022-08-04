@@ -16,8 +16,6 @@ import shutil
 import os
 from setuptools import setup, find_namespace_packages  # type: ignore
 
-setup_dir = os.path.abspath(os.path.dirname(__file__))
-
 metadata: dict = {}
 with open("_metadata.py") as fp:
     exec(fp.read(), metadata)
@@ -41,7 +39,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket ~= 1.4",
+        "pytket ~= 1.5",
         "requests >= 2.2",
         "types-requests",
         "websockets >= 7.0",

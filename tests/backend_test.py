@@ -53,6 +53,7 @@ from pytket.extensions.quantinuum.backends.quantinuum import (
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
+    QuantinuumAPIOffline,
 )
 from pytket.backends.status import StatusEnum
 from pytket.wasm import WasmFileHandler
@@ -102,6 +103,43 @@ def test_quantinuum(
     assert newcounts == correct_counts
     if skip_remote_tests:
         assert backend.backend_info is None
+
+
+def test_quantinuum_offline() -> None:
+    qapioffline = QuantinuumAPIOffline()
+    backend = QuantinuumBackend(
+        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+    )
+    c = Circuit(4, 4, "test 1")
+    c.H(0)
+    c.CX(0, 1)
+    c.Rz(0.3, 2)
+    c.CSWAP(0, 1, 2)
+    c.CRz(0.4, 2, 3)
+    c.CY(1, 3)
+    c.ZZPhase(0.1, 2, 0)
+    c.Tdg(3)
+    c.measure_all()
+    c = backend.get_compiled_circuit(c)
+    n_shots = 4
+    _ = backend.process_circuits([c], n_shots)[0]
+    expected_result = {
+        "name": "test 1",
+        "count": 4,
+        "machine": "H1-1",
+        "language": "OPENQASM 2.0",
+        "program": "...",  # not checked
+        "priority": "normal",
+        "options": {"simulator": "state-vector", "error-model": True, "tket": {}},
+    }
+    result = qapioffline.get_jobs()
+    assert result is not None
+    assert result[0]["name"] == expected_result["name"]
+    assert result[0]["count"] == expected_result["count"]
+    assert result[0]["machine"] == expected_result["machine"]
+    assert result[0]["language"] == expected_result["language"]
+    assert result[0]["priority"] == expected_result["priority"]
+    assert result[0]["options"] == expected_result["options"]
 
 
 def test_tket_pass_submission() -> None:
@@ -397,7 +435,7 @@ def test_simulator(
     n_shots = 1000
     state_backend = authenticated_quum_backend
     stabilizer_backend = QuantinuumBackend(
-        "H1-2E", simulator="stabilizer", _api_handler=authenticated_quum_handler
+        "H1-2E", simulator="stabilizer", api_handler=authenticated_quum_handler
     )
 
     circ = state_backend.get_compiled_circuit(circ)
@@ -441,12 +479,12 @@ def test_retrieve_available_devices(
     # authenticated_quum_backend still needs a handler or it will
     # attempt to use the DEFAULT_API_HANDLER.
     backend_infos = authenticated_quum_backend.available_devices(
-        _api_handler=authenticated_quum_handler
+        api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
 
     backend_infos = QuantinuumBackend.available_devices(
-        _api_handler=authenticated_quum_handler
+        api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
 
@@ -530,19 +568,19 @@ def test_device_state(
 ) -> None:
     assert isinstance(
         QuantinuumBackend.device_state(
-            device_name, _api_handler=authenticated_quum_handler
+            device_name, api_handler=authenticated_quum_handler
         ),
         str,
     )
 
 
 @pytest.mark.parametrize("device_name", ALL_DEVICE_NAMES)
-def test_default_api_handler(device_name: str) -> None:
+def test_defaultapi_handler(device_name: str) -> None:
     """Test that the default API handler is used on backend construction."""
     backend_1 = QuantinuumBackend(device_name)
     backend_2 = QuantinuumBackend(device_name)
 
-    assert backend_1._api_handler is backend_2._api_handler
+    assert backend_1.api_handler is backend_2.api_handler
 
 
 @pytest.mark.parametrize("device_name", ALL_DEVICE_NAMES)
@@ -551,11 +589,11 @@ def test_custom_api_handler(device_name: str) -> None:
     handler_1 = QuantinuumAPI()
     handler_2 = QuantinuumAPI()
 
-    backend_1 = QuantinuumBackend(device_name, _api_handler=handler_1)
-    backend_2 = QuantinuumBackend(device_name, _api_handler=handler_2)
+    backend_1 = QuantinuumBackend(device_name, api_handler=handler_1)
+    backend_2 = QuantinuumBackend(device_name, api_handler=handler_2)
 
-    assert backend_1._api_handler is not backend_2._api_handler
-    assert backend_1._api_handler._cred_store is not backend_2._api_handler._cred_store
+    assert backend_1.api_handler is not backend_2.api_handler
+    assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
