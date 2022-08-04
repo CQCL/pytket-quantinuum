@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; pytket-quantinuum 0.6.1 documentation</title>
+  <title>Index &mdash; pytket-quantinuum 0.7.0rc0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -27,7 +27,7 @@
             <a href="index.html" class="icon icon-home"> pytket-quantinuum
           </a>
               <div class="version">
-                0.6
+                0.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -92,8 +92,22 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.__init__">__init__() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.__init__">__init__() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.__init__">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
 </li>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.__init__">(pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.__weakref__">__weakref__ (pytket.extensions.quantinuum.QuantinuumAPI attribute)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.__weakref__">(pytket.extensions.quantinuum.QuantinuumAPIOffline attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -120,12 +134,18 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.cancel">cancel() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.cancel">cancel() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.cancel">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
 </li>
-      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.circuit_status">circuit_status() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.cancel">(pytket.extensions.quantinuum.QuantinuumBackend method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.circuit_status">circuit_status() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+</li>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.cost">cost() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
 </li>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.cost_estimate">cost_estimate() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
@@ -140,6 +160,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.delete_authentication">delete_authentication() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+</li>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.device_state">device_state() (pytket.extensions.quantinuum.QuantinuumBackend class method)</a>
 </li>
   </ul></td>
@@ -151,6 +173,14 @@
       <li><a href="api.html#pytket.extensions.quantinuum.backends.config.QuantinuumConfig.from_extension_dict">from_extension_dict() (pytket.extensions.quantinuum.backends.config.QuantinuumConfig class method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.full_login">full_login() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.full_login">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="G">G</h2>
@@ -160,6 +190,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.get_jobs">get_jobs() (pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
+</li>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.get_result">get_result() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
 </li>
   </ul></td>
@@ -168,8 +200,14 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.login">login() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.login">login() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.login">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
 </li>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.login">(pytket.extensions.quantinuum.QuantinuumBackend method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.logout">logout() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
@@ -219,10 +257,14 @@
 <h2 id="Q">Q</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend">QuantinuumBackend (class in pytket.extensions.quantinuum)</a>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI">QuantinuumAPI (class in pytket.extensions.quantinuum)</a>
+</li>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline">QuantinuumAPIOffline (class in pytket.extensions.quantinuum)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend">QuantinuumBackend (class in pytket.extensions.quantinuum)</a>
+</li>
       <li><a href="api.html#pytket.extensions.quantinuum.backends.config.QuantinuumConfig">QuantinuumConfig (class in pytket.extensions.quantinuum.backends.config)</a>
 </li>
   </ul></td>
@@ -233,10 +275,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.rebase_pass">rebase_pass() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.required_predicates">required_predicates (pytket.extensions.quantinuum.QuantinuumBackend property)</a>
 </li>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.retrieve_job">retrieve_job() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.retrieve_job">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.retrieve_job_status">retrieve_job_status() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.retrieve_job_status">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -245,10 +299,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pytket.extensions.quantinuum.backends.config.set_quantinuum_config">set_quantinuum_config() (in module pytket.extensions.quantinuum.backends.config)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.start_batch">start_batch() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPI.status">status() (pytket.extensions.quantinuum.QuantinuumAPI method)</a>
+
+      <ul>
+        <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumAPIOffline.status">(pytket.extensions.quantinuum.QuantinuumAPIOffline method)</a>
+</li>
+      </ul></li>
       <li><a href="api.html#pytket.extensions.quantinuum.QuantinuumBackend.submit_qasm">submit_qasm() (pytket.extensions.quantinuum.QuantinuumBackend method)</a>
 </li>
   </ul></td>
