@@ -80,7 +80,14 @@ jobs:
       run: |
         cd .github/workflows/docs
         mkdir extensions
-        ./build-docs -a -i -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
+        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions 1>out.txt 2>err.txt
+        cat out.txt err.txt
+        ERRS=`cat err.txt | grep -v "start-string without end-string"`
+        if [[ ! -z $ERRS ]]
+        then
+            echo "Docs build failed."
+            exit 1
+        fi
 
 
   publish_to_pypi:
