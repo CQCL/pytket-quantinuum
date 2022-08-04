@@ -16,3 +16,4 @@
 """
 
 from .quantinuum import QuantinuumBackend
+from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline

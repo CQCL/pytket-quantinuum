@@ -166,14 +166,14 @@ def test_custom_login_flow(
 
     backend_1 = QuantinuumBackend(
         device_name=fake_device,
-        _api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
             _QuantinuumAPI__user_name="user1",
             _QuantinuumAPI__pwd="securepassword",
         ),
     )
     backend_2 = QuantinuumBackend(
         device_name=fake_device,
-        _api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
             _QuantinuumAPI__user_name="user2",
             _QuantinuumAPI__pwd="insecurepassword",
         ),
@@ -255,8 +255,8 @@ def test_mfa_login_flow(
     assert normal_login_route.called_once  # type: ignore
     # Check that the mfa login has been invoked
     assert mfa_login_route.called_once  # type: ignore
-    assert backend._api_handler._cred_store.id_token is not None
-    assert backend._api_handler._cred_store.refresh_token is not None
+    assert backend.api_handler._cred_store.id_token is not None
+    assert backend.api_handler._cred_store.refresh_token is not None
 
 
 @patch("pytket.extensions.quantinuum.backends.api_wrappers.microsoft_login")
@@ -291,8 +291,8 @@ def test_federated_login(
 
     mock_microsoft_login.assert_called_once()
     assert login_route.called_once  # type: ignore
-    assert backend._api_handler._cred_store.id_token is not None
-    assert backend._api_handler._cred_store.refresh_token is not None
+    assert backend.api_handler._cred_store.id_token is not None
+    assert backend.api_handler._cred_store.refresh_token is not None
 
 
 def test_federated_login_wrong_provider(
@@ -353,7 +353,7 @@ def test_device_family(
     backend = QuantinuumBackend(
         device_name=chosen_device,
     )
-    backend._api_handler = mock_quum_api_handler
+    backend.api_handler = mock_quum_api_handler
 
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
     circ = backend.get_compiled_circuit(circ)
@@ -404,7 +404,7 @@ def test_resumed_batching(
     backend = QuantinuumBackend(
         device_name="H1-1E",
     )
-    backend._api_handler = mock_quum_api_handler
+    backend.api_handler = mock_quum_api_handler
 
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
     circ = backend.get_compiled_circuit(circ)
@@ -441,7 +441,7 @@ def test_available_devices(
         headers={"Content-Type": "application/json"},
     )
 
-    devices = QuantinuumBackend.available_devices(_api_handler=mock_quum_api_handler)
+    devices = QuantinuumBackend.available_devices(api_handler=mock_quum_api_handler)
     assert len(devices) == 1
     backinfo = devices[0]
 
@@ -496,7 +496,7 @@ def test_submit_qasm_api(
     backend = QuantinuumBackend(
         device_name="H1-2SC",
     )
-    backend._api_handler = mock_quum_api_handler
+    backend.api_handler = mock_quum_api_handler
 
     qasm = """
     OPENQASM 2.0;

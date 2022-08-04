@@ -213,10 +213,10 @@ def fixture_authenticated_quum_backend(
     # but other params can be specified when parametrizing the
     # authenticated_quum_backend
     if request.param is None:
-        backend = QuantinuumBackend("H1-1SC", _api_handler=authenticated_quum_handler)
+        backend = QuantinuumBackend("H1-1SC", api_handler=authenticated_quum_handler)
     else:
         backend = QuantinuumBackend(
-            _api_handler=authenticated_quum_handler, **request.param
+            api_handler=authenticated_quum_handler, **request.param
         )
     # In case machine_debug was specified by mistake in the params
     backend._MACHINE_DEBUG = False
