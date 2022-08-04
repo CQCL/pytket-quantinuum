@@ -78,8 +78,7 @@ jobs:
       if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request')
       timeout-minutes: 20
       run: |
-        cd .github/workflows/docs
-        ./check-build-docs
+        ./.github/workflows/docs/check-build-docs
 
 
   publish_to_pypi:
