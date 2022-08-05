@@ -1,12 +1,13 @@
 Changelog
 ~~~~~~~~~
 
-0.7.0 (unreleased)
-------------------
+0.7.0 (August 2022)
+-------------------
 
 * Add new `QuantinuumAPIOffline` for allowing usage of the backend without API calls.
 * New `api_handler` parameter for `QuantinuumBackend`, allowing to choose
   online or offline options. Default value is the standard online api.
+* Updated pytket version requirement to 1.5.
 
 0.6.0 (July 2022)
 -----------------
