@@ -565,6 +565,25 @@ def test_zzphase(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_zzphase_support(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+    c = Circuit(3, 3, "test rzz synthesis")
+    c.H(0)
+    c.CX(0, 2)
+    c.Rz(0.2, 2)
+    c.CX(0, 2)
+    c.measure_all()
+    c0 = backend.get_compiled_circuit(c, 0)
+
+    assert c0.n_gates_of_type(OpType.ZZPhase) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("device_name", ALL_DEVICE_NAMES)
 def test_device_state(
     device_name: str, authenticated_quum_handler: QuantinuumAPI
