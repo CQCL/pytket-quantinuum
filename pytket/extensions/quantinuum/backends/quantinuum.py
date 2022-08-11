@@ -324,11 +324,14 @@ class QuantinuumBackend(Backend):
 
         # use default (perfect fidelities) for supported gates
         fidelities = {}
-        if OpType.ZZMax in self._gate_set():
-            fidelities["ZZMax_fidelity"] = 1.
-        if OpType.ZZPhase in self._gate_set():
-            fidelities["ZZPhase_fidelity"] = lambda x: 1.
-        assert len(fidelities) > 0
+        if OpType.ZZMax in self._gate_set:
+            fidelities["ZZMax_fidelity"] = 1.0
+        if OpType.ZZPhase in self._gate_set:
+            fidelities["ZZPhase_fidelity"] = lambda x: 1.0
+        if len(fidelities) == 0:
+            raise QuantinuumAPIError(
+                "Either ZZMax or ZZPhase gate must be supported by device"
+            )
 
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
@@ -371,7 +374,7 @@ class QuantinuumBackend(Backend):
 
         :param handle: result handle.
         :type handle: ResultHandle
-        :return: Qunatinuum API Job ID string.
+        :return: Quantinuum API Job ID string.
         :rtype: str
         """
         return cast(str, handle[0])
