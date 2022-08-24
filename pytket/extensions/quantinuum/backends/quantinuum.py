@@ -41,6 +41,7 @@ from pytket.passes import (  # type: ignore
     RemoveRedundancies,
     FullPeepholeOptimise,
     DecomposeBoxes,
+    NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
     auto_rebase_pass,
@@ -355,6 +356,7 @@ class QuantinuumBackend(Backend):
                 passlist
                 + [
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
+                    NormaliseTK2(),
                     DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     RemoveRedundancies(),
