@@ -533,9 +533,6 @@ class QuantinuumBackend(Backend):
                     group=group,
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
-                    options={"parametrized_zz": True}
-                    if circ.n_gates_of_type(OpType.ZZPhase) > 0
-                    else None,
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})
                     ),
