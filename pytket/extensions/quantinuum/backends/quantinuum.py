@@ -374,7 +374,7 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        parametrized_zz: bool = False,
+        options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
     ) -> ResultHandle:
         """Submit a qasm program directly to the backend.
@@ -397,6 +397,8 @@ class QuantinuumBackend(Backend):
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :type pytket_pass: Optional[BasePass], optional
+        :param options: Items to add to the "options" dictionary of the request body
+        :type options: Optional[Dict[str, Any]], optional
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
         :type request_options: Optional[Dict[str, Any]], optional
@@ -433,8 +435,8 @@ class QuantinuumBackend(Backend):
                 raise WasmUnsupported("Backend does not support wasm calls.")
             body["cfl"] = wasm_file_handler._wasm_file_encoded.decode("utf-8")
 
-        if parametrized_zz:
-            body["options"]["compiler-options"] = {"parametrized_zz": True}
+        if options is not None:
+            body["options"].update(options)
 
         # apply any overrides or extra options
         body.update(request_options or {})
@@ -531,7 +533,9 @@ class QuantinuumBackend(Backend):
                     group=group,
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
-                    parametrized_zz=circ.n_gates_of_type(OpType.ZZPhase) > 0,
+                    options={"parametrized_zz": True}
+                    if circ.n_gates_of_type(OpType.ZZPhase) > 0
+                    else None,
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})
                     ),
