@@ -479,6 +479,8 @@ class QuantinuumBackend(Backend):
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
+        * `options`: items to add to the "options" dictionary of the request body, as a
+          json-sytyle dictionary
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
 
@@ -533,6 +535,7 @@ class QuantinuumBackend(Backend):
                     group=group,
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
+                    options=cast(Dict[str, Any], kwargs.get("options", {})),
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})
                     ),
