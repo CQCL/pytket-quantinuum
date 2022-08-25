@@ -656,8 +656,8 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(1).H(0).measure_all()
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c0, 0)
-    h = b.process_circuit(c, n_shots=1, options={"ignoreme": 0})
-    r = b.get_result(h)
+    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0})
+    r = b.get_results(h)[0]
     shots = r.get_shots()
     assert len(shots) == 1
     assert len(shots[0]) == 1
