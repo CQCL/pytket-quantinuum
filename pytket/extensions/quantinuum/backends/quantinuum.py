@@ -324,7 +324,7 @@ class QuantinuumBackend(Backend):
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
 
         # use default (perfect fidelities) for supported gates
-        fidelities = {}
+        fidelities: Dict[str, Any] = {}
         if OpType.ZZMax in self._gate_set:
             fidelities["ZZMax_fidelity"] = 1.0
         if OpType.ZZPhase in self._gate_set:
