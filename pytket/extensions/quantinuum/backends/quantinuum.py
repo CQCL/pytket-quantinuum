@@ -341,6 +341,7 @@ class QuantinuumBackend(Backend):
                 passlist
                 + [
                     SynthesiseTK(),
+                    NormaliseTK2(),
                     DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     ZZPhaseToRz(),
