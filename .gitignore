@@ -9,3 +9,4 @@ dist
 obj
 docs/extensions
 .ipynb_checkpoints
+pytket/extensions/quantinuum/_metadata.py

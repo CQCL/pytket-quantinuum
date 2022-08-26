@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+0.8.0 (unreleased)
+------------------
+
+* Add ``options`` parameter to ``process_circuits()`` and ``submit_qasm()``.
+
 0.7.0 (August 2022)
 -------------------
 

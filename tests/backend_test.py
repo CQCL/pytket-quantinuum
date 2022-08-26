@@ -645,3 +645,19 @@ def test_submit_qasm(
     b = authenticated_quum_backend
     h = b.submit_qasm(qasm, 10)
     assert b.get_result(h)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
+    # Unrecognized options are ignored
+    c0 = Circuit(1).H(0).measure_all()
+    b = authenticated_quum_backend
+    c = b.get_compiled_circuit(c0, 0)
+    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0})
+    r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 1
