@@ -580,7 +580,10 @@ def test_zzphase_support(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c)
 
-    assert c0.n_gates_of_type(OpType.ZZPhase) == 1
+    if OpType.ZZPhase in backend._gate_set:
+        assert c0.n_gates_of_type(OpType.ZZPhase) == 1
+    else:
+        assert c0.n_gates_of_type(OpType.ZZMax) == 2
 
 
 def test_zzphase_support_opti2(
@@ -595,7 +598,10 @@ def test_zzphase_support_opti2(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 2)
 
-    assert c0.n_gates_of_type(OpType.ZZPhase) == 1
+    if OpType.ZZPhase in backend._gate_set:
+        assert c0.n_gates_of_type(OpType.ZZPhase) == 1
+    else:
+        assert c0.n_gates_of_type(OpType.ZZMax) == 2
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
