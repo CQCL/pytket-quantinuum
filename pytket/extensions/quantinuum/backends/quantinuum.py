@@ -35,11 +35,13 @@ from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
     BasePass,
+    DecomposeTK2,
     SequencePass,
-    SynthesiseTket,
+    SynthesiseTK,
     RemoveRedundancies,
     FullPeepholeOptimise,
     DecomposeBoxes,
+    NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
     auto_rebase_pass,
@@ -320,15 +322,29 @@ class QuantinuumBackend(Backend):
         assert optimisation_level in range(3)
         passlist = [DecomposeBoxes()]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
+
+        # use default (perfect fidelities) for supported gates
+        fidelities: Dict[str, Any] = {}
+        if OpType.ZZMax in self._gate_set:
+            fidelities["ZZMax_fidelity"] = 1.0
+        if OpType.ZZPhase in self._gate_set:
+            fidelities["ZZPhase_fidelity"] = lambda x: 1.0
+        if len(fidelities) == 0:
+            raise QuantinuumAPIError(
+                "Either ZZMax or ZZPhase gate must be supported by device"
+            )
+
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
         elif optimisation_level == 1:
             return SequencePass(
                 passlist
                 + [
-                    ZZPhaseToRz(),
-                    SynthesiseTket(),
+                    SynthesiseTK(),
+                    NormaliseTK2(),
+                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
+                    ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
@@ -340,8 +356,9 @@ class QuantinuumBackend(Backend):
             return SequencePass(
                 passlist
                 + [
-                    ZZPhaseToRz(),
-                    FullPeepholeOptimise(),
+                    FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
+                    NormaliseTK2(),
+                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
@@ -360,7 +377,7 @@ class QuantinuumBackend(Backend):
 
         :param handle: result handle.
         :type handle: ResultHandle
-        :return: Qunatinuum API Job ID string.
+        :return: Quantinuum API Job ID string.
         :rtype: str
         """
         return cast(str, handle[0])
