@@ -5,6 +5,7 @@ Changelog
 ------------------
 
 * Add ``options`` parameter to ``process_circuits()`` and ``submit_qasm()``.
+* Updated pytket version requirement to 1.6.0rc0.
 
 0.7.0 (August 2022)
 -------------------
