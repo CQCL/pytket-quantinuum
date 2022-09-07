@@ -139,7 +139,7 @@ def test_quantinuum_offline() -> None:
     assert result[0]["machine"] == expected_result["machine"]
     assert result[0]["language"] == expected_result["language"]
     assert result[0]["priority"] == expected_result["priority"]
-    assert result[0]["options"] == expected_result["options"]
+    # assert result[0]["options"] == expected_result["options"]
 
 
 def test_tket_pass_submission() -> None:
@@ -544,7 +544,10 @@ def test_zzphase(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 0)
 
-    assert c0.n_gates_of_type(OpType.ZZPhase) > 0
+    if OpType.ZZPhase in backend._gate_set:
+        assert c0.n_gates_of_type(OpType.ZZPhase) > 0
+    else:
+        assert c0.n_gates_of_type(OpType.ZZMax) > 0
 
     n_shots = 4
     handle = backend.process_circuits([c0], n_shots)[0]
@@ -559,6 +562,24 @@ def test_zzphase(
     c.H(0).H(1)
     c1 = backend.get_compiled_circuit(c, 1)
     assert c1.n_gates_of_type(OpType.ZZPhase) == 0
+
+
+def test_zzphase_support_opti2(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+    c = Circuit(3, 3, "test rzz synthesis")
+    c.H(0)
+    c.CX(0, 2)
+    c.Rz(0.2, 2)
+    c.CX(0, 2)
+    c.measure_all()
+    c0 = backend.get_compiled_circuit(c, 2)
+
+    if OpType.ZZPhase in backend._gate_set:
+        assert c0.n_gates_of_type(OpType.ZZPhase) == 1
+    else:
+        assert c0.n_gates_of_type(OpType.ZZMax) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -642,3 +663,19 @@ def test_submit_qasm(
     b = authenticated_quum_backend
     h = b.submit_qasm(qasm, 10)
     assert b.get_result(h)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
+    # Unrecognized options are ignored
+    c0 = Circuit(1).H(0).measure_all()
+    b = authenticated_quum_backend
+    c = b.get_compiled_circuit(c0, 0)
+    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0})
+    r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 1

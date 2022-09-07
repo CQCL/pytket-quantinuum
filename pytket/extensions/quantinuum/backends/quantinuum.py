@@ -35,11 +35,13 @@ from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
     BasePass,
+    DecomposeTK2,
     SequencePass,
-    SynthesiseTket,
+    SynthesiseTK,
     RemoveRedundancies,
     FullPeepholeOptimise,
     DecomposeBoxes,
+    NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
     auto_rebase_pass,
@@ -320,15 +322,29 @@ class QuantinuumBackend(Backend):
         assert optimisation_level in range(3)
         passlist = [DecomposeBoxes()]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
+
+        # use default (perfect fidelities) for supported gates
+        fidelities: Dict[str, Any] = {}
+        if OpType.ZZMax in self._gate_set:
+            fidelities["ZZMax_fidelity"] = 1.0
+        if OpType.ZZPhase in self._gate_set:
+            fidelities["ZZPhase_fidelity"] = lambda x: 1.0
+        if len(fidelities) == 0:
+            raise QuantinuumAPIError(
+                "Either ZZMax or ZZPhase gate must be supported by device"
+            )
+
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
         elif optimisation_level == 1:
             return SequencePass(
                 passlist
                 + [
-                    ZZPhaseToRz(),
-                    SynthesiseTket(),
+                    SynthesiseTK(),
+                    NormaliseTK2(),
+                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
+                    ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
@@ -340,8 +356,9 @@ class QuantinuumBackend(Backend):
             return SequencePass(
                 passlist
                 + [
-                    ZZPhaseToRz(),
-                    FullPeepholeOptimise(),
+                    FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
+                    NormaliseTK2(),
+                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
@@ -360,7 +377,7 @@ class QuantinuumBackend(Backend):
 
         :param handle: result handle.
         :type handle: ResultHandle
-        :return: Qunatinuum API Job ID string.
+        :return: Quantinuum API Job ID string.
         :rtype: str
         """
         return cast(str, handle[0])
@@ -374,7 +391,7 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        parametrized_zz: bool = False,
+        options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
     ) -> ResultHandle:
         """Submit a qasm program directly to the backend.
@@ -397,6 +414,8 @@ class QuantinuumBackend(Backend):
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :type pytket_pass: Optional[BasePass], optional
+        :param options: Items to add to the "options" dictionary of the request body
+        :type options: Optional[Dict[str, Any]], optional
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
         :type request_options: Optional[Dict[str, Any]], optional
@@ -433,8 +452,8 @@ class QuantinuumBackend(Backend):
                 raise WasmUnsupported("Backend does not support wasm calls.")
             body["cfl"] = wasm_file_handler._wasm_file_encoded.decode("utf-8")
 
-        if parametrized_zz:
-            body["options"]["compiler-options"] = {"parametrized_zz": True}
+        if options is not None:
+            body["options"].update(options)
 
         # apply any overrides or extra options
         body.update(request_options or {})
@@ -477,6 +496,8 @@ class QuantinuumBackend(Backend):
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
+        * `options`: items to add to the "options" dictionary of the request body, as a
+          json-sytyle dictionary
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
 
@@ -531,7 +552,7 @@ class QuantinuumBackend(Backend):
                     group=group,
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
-                    parametrized_zz=circ.n_gates_of_type(OpType.ZZPhase) > 0,
+                    options=cast(Dict[str, Any], kwargs.get("options", {})),
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})
                     ),

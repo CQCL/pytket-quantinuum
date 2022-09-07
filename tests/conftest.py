@@ -212,7 +212,7 @@ def fixture_authenticated_quum_backend(
     # By default, the backend is created with device_name="H1-1SC" only,
     # but other params can be specified when parametrizing the
     # authenticated_quum_backend
-    if request.param is None:
+    if (not hasattr(request, "param")) or request.param is None:
         backend = QuantinuumBackend("H1-1SC", api_handler=authenticated_quum_handler)
     else:
         backend = QuantinuumBackend(
