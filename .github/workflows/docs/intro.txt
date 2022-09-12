@@ -1,8 +1,8 @@
 pytket-extensions
 =================
 
-.. image:: CQCLogo.png
-   :width: 120px
+.. image:: Quantinuum_logo.png
+   :width: 200px
    :align: right
 
 

@@ -1,8 +1,8 @@
 pytket-quantinuum
 ==================================
 
-.. image:: CQCLogo.png
-   :width: 120px
+.. image:: Quantinuum_logo.png
+   :width: 200px
    :align: right
 
 ``pytket-quantinuum`` is an extension to ``pytket`` that allows ``pytket`` circuits to
@@ -18,7 +18,7 @@ and Windows. To install, run:
 .. note::   Using the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
 
-**Web interface:**
+**Web Interface:**
 https://um.qapi.quantinuum.com/
 
 Devices
