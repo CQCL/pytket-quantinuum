@@ -47,7 +47,6 @@ from pytket.circuit import (  # type: ignore
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.quantinuum import (
     DEVICE_FAMILY,
-    GetResultFailed,
     _GATE_SET,
 )
 from pytket.extensions.quantinuum.backends.api_wrappers import (
