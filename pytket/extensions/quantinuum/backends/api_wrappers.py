@@ -22,7 +22,7 @@ from typing import Optional, Dict, Tuple
 import asyncio
 import json
 import getpass
-import requests
+from requests import Session
 from requests.models import Response
 from websockets import connect, exceptions  # type: ignore
 import nest_asyncio  # type: ignore
@@ -90,6 +90,7 @@ class QuantinuumAPI:
         use_websocket: bool = True,
         provider: Optional[str] = None,
         support_mfa: bool = True,
+        session: Optional[Session] = None,
         __user_name: Optional[str] = None,
         __pwd: Optional[str] = None,
     ):
@@ -113,6 +114,11 @@ class QuantinuumAPI:
         self.online = True
 
         self.url = f"{api_url if api_url else self.DEFAULT_API_URL}v{api_version}/"
+
+        if session is None:
+            self.session = Session()
+        else:
+            self.session = session
 
         if token_store is None:
             self._cred_store = MemoryCredentialStorage()
@@ -143,7 +149,7 @@ class QuantinuumAPI:
         body = {"email": user, "password": pwd}
         try:
             # send request to login
-            response = requests.post(
+            response = self.session.post(
                 f"{self.url}login",
                 json.dumps(body),
             )
@@ -161,7 +167,7 @@ class QuantinuumAPI:
                     body["code"] = mfa_code
 
                     # resend request to login
-                    response = requests.post(
+                    response = self.session.post(
                         f"{self.url}login",
                         json.dumps(body),
                     )
@@ -190,7 +196,7 @@ class QuantinuumAPI:
         body = {"provider-token": token}
 
         try:
-            response = requests.post(
+            response = self.session.post(
                 f"{self.url}login",
                 json.dumps(body),
             )
@@ -207,7 +213,7 @@ class QuantinuumAPI:
         body = {"refresh-token": refresh_token}
         try:
             # send request to login
-            response = requests.post(
+            response = self.session.post(
                 f"{self.url}login",
                 json.dumps(body),
             )
@@ -288,13 +294,13 @@ class QuantinuumAPI:
     def _submit_job(self, body: Dict) -> Response:
         id_token = self.login()
         # send job request
-        return requests.post(
+        return self.session.post(
             f"{self.url}job",
             json.dumps(body),
             headers={"Authorization": id_token},
         )
 
-    def _response_check(self, res: requests.Response, description: str) -> None:
+    def _response_check(self, res: Response, description: str) -> None:
         """Consolidate as much error-checking of response"""
         # check if token has expired or is generally unauthorized
         if res.status_code == HTTPStatus.UNAUTHORIZED:
@@ -330,7 +336,7 @@ class QuantinuumAPI:
         id_token = self.login()
         if use_websocket or (use_websocket is None and self.use_websocket):
             job_url += "?websocket=true"
-        res = requests.get(job_url, headers={"Authorization": id_token})
+        res = self.session.get(job_url, headers={"Authorization": id_token})
 
         jr: Optional[Dict] = None
         # Check for invalid responses, and raise an exception if so
@@ -448,7 +454,7 @@ class QuantinuumAPI:
 
         """
         id_token = self.login()
-        res = requests.get(
+        res = self.session.get(
             f"{self.url}machine/{machine}",
             headers={"Authorization": id_token},
         )
@@ -469,7 +475,7 @@ class QuantinuumAPI:
         """
 
         id_token = self.login()
-        res = requests.post(
+        res = self.session.post(
             f"{self.url}job/{job_id}/cancel", headers={"Authorization": id_token}
         )
         self._response_check(res, "job cancel")
@@ -577,7 +583,7 @@ class QuantinuumAPIOffline:
         """
         return self.submitted
 
-    def _response_check(self, res: requests.Response, description: str) -> None:
+    def _response_check(self, res: Response, description: str) -> None:
         """No _response_check offline"""
 
         jr = res.json()
