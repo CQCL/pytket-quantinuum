@@ -461,7 +461,7 @@ def test_simulator(
     # test non-clifford circuit fails on stabilizer backend
     # unfortunately the job is accepted, then fails, so have to check get_result
     non_stab_circ = (
-        Circuit(2, name="non_stab_circ").H(0).Rz(0.1, 0).CX(0, 1).measure_all()
+        Circuit(2, name="non_stab_circ").H(0).Rx(0.1, 0).CX(0, 1).measure_all()
     )
     non_stab_circ = stabilizer_backend.get_compiled_circuit(non_stab_circ)
     broken_handle = stabilizer_backend.process_circuit(non_stab_circ, n_shots)
