@@ -109,6 +109,10 @@ class QuantinuumAPI:
         :param support_mfa: Whether to wait for the user to input the auth code,
             defaults to True
         :type support_mfa: bool, optional
+        :param session: Session for HTTP requests, defaults to None
+            A new requests.Session will be initialised if None
+            is provided
+        :type session: requests.Session, optional
         """
         self.config = QuantinuumConfig.from_default_config_file()
         self.online = True

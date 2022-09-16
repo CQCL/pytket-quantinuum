@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Add `session` parameter to `QuantinuumAPI`. Creates a new session
+  if `None` is provided.
+
 0.8.0 (September 2022)
 ----------------------
 
