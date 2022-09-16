@@ -1,15 +1,15 @@
 pytket-extensions
 =================
 
-.. image:: CQCLogo.png
-   :width: 120px
+.. image:: Quantinuum_logo.png
+   :width: 160px
    :align: right
 
 
-These extensions enable `CQC`_ `pytket`_ to be used in conjunction with other
+These extensions enable ``pytket` to be used in conjunction with other
 platforms. Each extension adds either new methods to the ``pytket`` package to
 convert between circuit representations, or new backends to which ``pytket``
 circuits can be submitted.
 
 .. _pytket: https://cqcl.github.io/tket/pytket/api/
-.. _CQC: https://cambridgequantum.com
+.. _Quantinuum: https://www.quantinuum.com/

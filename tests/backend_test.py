@@ -564,6 +564,7 @@ def test_zzphase(
     assert c1.n_gates_of_type(OpType.ZZPhase) == 0
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 def test_zzphase_support_opti2(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -576,6 +577,7 @@ def test_zzphase_support_opti2(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 2)
 
+    # backend._gate_set requires API access.
     if OpType.ZZPhase in backend._gate_set:
         assert c0.n_gates_of_type(OpType.ZZPhase) == 1
     else:

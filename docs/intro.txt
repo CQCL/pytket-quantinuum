@@ -1,8 +1,8 @@
 pytket-quantinuum
 ==================================
 
-.. image:: CQCLogo.png
-   :width: 120px
+.. image:: Quantinuum_logo.png
+   :width: 200px
    :align: right
 
 ``pytket-quantinuum`` is an extension to ``pytket`` that allows ``pytket`` circuits to
@@ -17,6 +17,9 @@ and Windows. To install, run:
 
 .. note::   Using the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
+
+**Web Interface:**
+https://um.qapi.quantinuum.com/
 
 Devices
 =======
@@ -34,9 +37,6 @@ The H-series devices and emulators produce shots-based results and therefore req
 By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying ``noisy_simulation=False``.  
 
 For examples demonstrating the ``QuantinuumBackend`` see the `example notebooks <https://github.com/CQCL/pytket-quantinuum/tree/main/examples>`_ .
-
-**Web portal:**
-https://um.qapi.honeywell.com/user
 
 Default Compilation
 ===================
