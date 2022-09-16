@@ -37,9 +37,9 @@ def build_module_docs():
     mod_docs = MODULES_DIR / "docs"
     mod_build = mod_docs / "build"
     conf_copy = mod_docs / "conf.py"
-    logo_copy = mod_docs / "CQCLogo.png"
+    logo_copy = mod_docs / "Quantinuum_logo.png"
     shutil.copy(DOCS_DIR / "conf.py", conf_copy)
-    shutil.copy(DOCS_DIR / "CQCLogo.png", logo_copy)
+    shutil.copy(DOCS_DIR / "Quantinuum_logo.png", logo_copy)
     remove_dir(mod_build)
     index_rst = mod_docs / "index.rst"
     with open(mod_docs / "intro.txt", "r") as f:
