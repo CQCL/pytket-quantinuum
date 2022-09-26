@@ -158,6 +158,7 @@ class QuantinuumBackend(Backend):
         provider: Optional[str] = None,
         machine_debug: bool = False,
         api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
+        **kwargs: QuumKwargTypes,
     ):
         """Construct a new Quantinuum backend.
 
@@ -176,6 +177,11 @@ class QuantinuumBackend(Backend):
         :type simulator: str, optional
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :type api_handler: QuantinuumAPI
+
+        Supported kwargs:
+
+        * `options`: items to add to the "options" dictionary of the request body, as a
+          json-sytyle dictionary (see :py:meth:`QuantinuumBackend.process_circuits`)
         """
 
         super().__init__()
@@ -191,6 +197,8 @@ class QuantinuumBackend(Backend):
         self.api_handler = api_handler
 
         self.api_handler.provider = provider
+
+        self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
     @classmethod
     def _available_devices(
@@ -256,6 +264,7 @@ class QuantinuumBackend(Backend):
             _machine_info = next(entry for entry in jr if entry["name"] == machine)
         except StopIteration:
             raise DeviceNotAvailable(machine)
+        _machine_info["options"] = self._process_circuits_options
         return self._dict_to_backendinfo(_machine_info)
 
     @classmethod
@@ -454,6 +463,7 @@ class QuantinuumBackend(Backend):
 
         if options is not None:
             body["options"].update(options)
+        body["options"].update(self._process_circuits_options)
 
         # apply any overrides or extra options
         body.update(request_options or {})
@@ -497,7 +507,8 @@ class QuantinuumBackend(Backend):
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
         * `options`: items to add to the "options" dictionary of the request body, as a
-          json-sytyle dictionary
+          json-sytyle dictionary (in addition to any that were set in the backend
+          constructor)
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
 
