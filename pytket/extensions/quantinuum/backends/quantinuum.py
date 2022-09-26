@@ -461,9 +461,9 @@ class QuantinuumBackend(Backend):
                 raise WasmUnsupported("Backend does not support wasm calls.")
             body["cfl"] = wasm_file_handler._wasm_file_encoded.decode("utf-8")
 
+        body["options"].update(self._process_circuits_options)
         if options is not None:
             body["options"].update(options)
-        body["options"].update(self._process_circuits_options)
 
         # apply any overrides or extra options
         body.update(request_options or {})
