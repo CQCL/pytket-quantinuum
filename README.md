@@ -8,7 +8,7 @@ The other pytket extensions can be found [here](https://github.com/CQCL/pytket-e
 # pytket-quantinuum
 
 [Pytket](https://cqcl.github.io/tket/pytket/api/index.html) is a python module for interfacing
-with tket, a quantum computing toolkit and optimising compiler developed by Quantinuum.
+with tket, a quantum computing toolkit and optimisation compiler developed by Quantinuum.
 
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
 be executed on Quantinuum's quantum devices.
@@ -30,7 +30,7 @@ The [example notebooks](https://github.com/CQCL/pytket-quantinuum/tree/develop/e
 Please file bugs and feature requests on the Github
 [issue tracker](https://github.com/CQCL/pytket-quantinuum/issues).
 
-There is also a slack channel for discussion and support. Click [here](https://tketusers.slack.com/join/shared_invite/zt-18qmsamj9-UqQFVdkRzxnXCcKtcarLRA#/shared-invite/email) to join.
+There is also a Slack channel for discussion and support. Click [here](https://tketusers.slack.com/join/shared_invite/zt-18qmsamj9-UqQFVdkRzxnXCcKtcarLRA#/shared-invite/email) to join.
 
 ## Development
 
