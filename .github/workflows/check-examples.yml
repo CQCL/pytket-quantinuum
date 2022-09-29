@@ -9,6 +9,10 @@ on:
     # 04:00 every Saturday morning
     - cron: '0 4 * * 6'
 
+env:
+  PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+  PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
+
 jobs:
 
   changes:
