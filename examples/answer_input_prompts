@@ -1,0 +1,20 @@
+#!/usr/bin/expect -f
+
+# 30 mins of timeout
+set timeout 1800
+
+# notebook generator filename, username and password
+# are provided provided as arguments (in that order)
+set PYTHON_FILE [lindex $argv 0].py
+set QUANTINUUM_EMAIL [lindex $argv 1]
+set QUANTINUUM_PASSWORD [lindex $argv 2]
+
+spawn python python/$PYTHON_FILE
+
+expect "*Quantinuum email*"
+send "$QUANTINUUM_EMAIL\n"
+
+expect "*Quantinuum password*"
+send "$QUANTINUUM_PASSWORD\n"
+
+expect eof

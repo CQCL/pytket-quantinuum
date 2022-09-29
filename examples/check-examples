@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+for name in `cat maintained-notebooks.txt`
+do
+    echo "Checking: ${name} ..."
+    # Check that notebook is generated from script:
+    p2j -o -t ${name}-gen.ipynb python/${name}.py
+    cmp ${name}.ipynb ${name}-gen.ipynb
+    rm ${name}-gen.ipynb
+    # Run script:
+    ./answer_input_prompts ${name} $PYTKET_REMOTE_QUANTINUUM_USERNAME $PYTKET_REMOTE_QUANTINUUM_PASSWORD
+done
