@@ -52,7 +52,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install wheel
         python -m pip install -e .
-        python -m pip install p2j
+        python -m pip install p2j jupyter
     - name: test example notebooks
       run: |
         sudo apt-get install expect
