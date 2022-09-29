@@ -1,9 +1,7 @@
 pytket-quantinuum
 ==================================
 
-.. image:: Quantinuum_logo.png
-   :width: 200px
-   :align: right
+<img style="float: right; width: 200px" src="Quantinuum_logo.png">   
 
 ``pytket-quantinuum`` is an extension to ``pytket`` that allows ``pytket`` circuits to
 be executed on Quantinuum's quantum devices.
