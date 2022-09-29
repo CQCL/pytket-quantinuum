@@ -67,7 +67,8 @@ render_circuit_jupyter(circuit)
 # Login to the Quantinuum API using your credentials and check the device status.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
-machine = 'H1-2E'
+
+machine = "H1-2E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -84,16 +85,16 @@ render_circuit_jupyter(compiled_circuit)
 # ## Submit and Run the Circuit
 
 n_shots = 100
-handle = backend.process_circuit(compiled_circuit,
-                                 n_shots=n_shots)
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 print(handle)
 
 status = backend.circuit_status(handle)
 print(status)
 
 import json
+
 result = backend.get_result(handle)
-with open('pytket_mcmr_example.json', 'w') as file:
+with open("pytket_mcmr_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 # ## Analyze Results
@@ -101,14 +102,16 @@ with open('pytket_mcmr_example.json', 'w') as file:
 # We will now take the raw results and apply a majority vote to determine how many times we got 0 vs 1.
 # First, define a majority vote function.
 
+
 def majority(result):
-    """ Returns whether the output should be considered a 0 or 1. """
+    """Returns whether the output should be considered a 0 or 1."""
     if result.count(0) > result.count(1):
         return 0
     elif result.count(0) < result.count(1):
         return 1
     else:
-        raise Exception('count(0) should not equal count(1)')
+        raise Exception("count(0) should not equal count(1)")
+
 
 # Now process the output
 
@@ -127,6 +130,6 @@ for out in result_output_cnts:
 # A logical zero was initialized, so our error rate should be number of ones / total number of shots: `ones/shots`
 
 p = ones / n_shots
-print(f'The error-rate is: p = {p}')
+print(f"The error-rate is: p = {p}")
 
 # <div align="center"> &copy; 2022 by Quantinuum. All Rights Reserved. </div>

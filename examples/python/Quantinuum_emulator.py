@@ -33,7 +33,8 @@ render_circuit_jupyter(circuit)
 # Login to the Quantinuum API using your credentials and check the device status.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
-machine = 'H1-2E'
+
+machine = "H1-2E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -52,8 +53,7 @@ render_circuit_jupyter(compiled_circuit)
 # Now the circuit can be run on an emulator.
 
 n_shots = 100
-handle = backend.process_circuit(compiled_circuit, 
-                                 n_shots=n_shots)
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 print(handle)
 
 # Check the status of the job.
@@ -70,7 +70,8 @@ result
 
 # It is recommended that users save job results as soon as jobs are completed due to the Quantinuum data retention policy.
 import json
-with open('pytket_emulator_example.json', 'w') as file:
+
+with open("pytket_emulator_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 # ### Analyze Results
@@ -87,9 +88,9 @@ print(result.get_counts())
 # The Quantinuum emulators may be run with or without the physical device noise model. We can set `noisy_simulation=False` to do this.
 
 n_shots = 100
-no_error_model_handle = backend.process_circuit(compiled_circuit, 
-                                                n_shots=n_shots,
-                                                noisy_simulation=False)
+no_error_model_handle = backend.process_circuit(
+    compiled_circuit, n_shots=n_shots, noisy_simulation=False
+)
 print(no_error_model_handle)
 
 no_error_model_status = backend.circuit_status(no_error_model_handle)
@@ -98,7 +99,7 @@ print(no_error_model_status)
 no_error_model_result = backend.get_result(no_error_model_handle)
 no_error_model_result
 
-with open('pytket_emulator_no_error_model_example.json', 'w') as file:
+with open("pytket_emulator_no_error_model_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 no_error_model_result = backend.get_result(no_error_model_handle)
@@ -107,16 +108,17 @@ print(no_error_model_result.get_counts())
 
 # ## Stabilizer Emulator <a class="anchor" id="stabilizer"></a>
 
-# By default, emulations are run using a state-vector emulator, which simulates any quantum operation. However, if the quantum operations are all Clifford gates, it can be faster for complex circuits to use the `stabilizer` emulator. The stabilizer emulator is requested in the setup of the `QuantinuumBackend` with the `simulator` input option. This only applies to Quantinuum emulators. 
+# By default, emulations are run using a state-vector emulator, which simulates any quantum operation. However, if the quantum operations are all Clifford gates, it can be faster for complex circuits to use the `stabilizer` emulator. The stabilizer emulator is requested in the setup of the `QuantinuumBackend` with the `simulator` input option. This only applies to Quantinuum emulators.
 
-machine = 'H1-2E'
-stabilizer_backend = QuantinuumBackend(device_name=machine, simulator='stabilizer')
+machine = "H1-2E"
+stabilizer_backend = QuantinuumBackend(device_name=machine, simulator="stabilizer")
 print(machine, "status:", QuantinuumBackend.device_state(device_name=machine))
 print("Simulation type:", stabilizer_backend.simulator_type)
 
 n_shots = 100
-stabilizer_handle = stabilizer_backend.process_circuit(compiled_circuit, 
-                                                       n_shots=n_shots)
+stabilizer_handle = stabilizer_backend.process_circuit(
+    compiled_circuit, n_shots=n_shots
+)
 print(stabilizer_handle)
 
 stabilizer_status = stabilizer_backend.circuit_status(stabilizer_handle)
@@ -125,7 +127,7 @@ print(stabilizer_status)
 stabilizer_result = stabilizer_backend.get_result(stabilizer_handle)
 stabilizer_result
 
-with open('pytket_emulator_stabilizer_example.json', 'w') as file:
+with open("pytket_emulator_stabilizer_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 stabilizer_result = stabilizer_backend.get_result(stabilizer_handle)

@@ -51,7 +51,8 @@ render_circuit_jupyter(circuit)
 # Select a machine and login to the Quantinuum API using your credentials. You will need to login once per session, in Jupyter you will get a dialogue asking for credentials, or if running a script you will be prompted at your shell. You can also [save your email in the pytket config](https://cqcl.github.io/pytket-quantinuum/api/api.html#pytket.extensions.quantinuum.backends.config.set_quantinuum_config).
 
 from pytket.extensions.quantinuum import QuantinuumBackend
-machine = 'H1-1E'
+
+machine = "H1-1E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -77,14 +78,13 @@ render_circuit_jupyter(compiled_circuit)
 # Note that in this case because an emulator is used, the specific syntax checker the emulator uses is specified. This is an optional parameter not needed if you are using a quantum computer target.
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker='H1-1SC')
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
 # ### Run the Circuit
 
 # Now the circuit can be run on Quantinuum systems.
 
-handle = backend.process_circuit(compiled_circuit, 
-                                 n_shots=n_shots)
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 print(handle)
 
 # The status of a submitted job can be viewed at any time, indicating if a job is in the queue or completed. Additional information is also provided, such as queue position, start time, completion time, and circuit cost in HQCs.
@@ -104,13 +104,15 @@ result
 # It is recommended that users save job results as soon as jobs are completed due to the Quantinuum data retention policy.
 
 import json
-with open('pytket_example.json', 'w') as file:
+
+with open("pytket_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 # Results can be loaded to their original format using `BackendResult.from_dict`.
 
 from pytket.backends.backendresult import BackendResult
-with open('pytket_example.json') as file:
+
+with open("pytket_example.json") as file:
     data = json.load(file)
 result = BackendResult.from_dict(data)
 result
@@ -148,11 +150,13 @@ backend.cancel(handle)
 # The capability exists to batch job submissions. For more information on this feature, see [Batching](https://cqcl.github.io/pytket-quantinuum/api/index.html#batching).<br>
 # To start a batch, use the `start_batch` function, specifying the `max_batch_cost` in HQCs to enforce.
 
-machine = 'H1-1E'
+machine = "H1-1E"
 n_shots = 100
 max_batch_cost = 100
 backend = QuantinuumBackend(device_name=machine)
-batch1 = backend.start_batch(max_batch_cost=max_batch_cost, circuit=compiled_circuit, n_shots=n_shots)
+batch1 = backend.start_batch(
+    max_batch_cost=max_batch_cost, circuit=compiled_circuit, n_shots=n_shots
+)
 
 # Additional jobs can be added to the batch using the `add_to_batch` function. The end of a batch can optionally be specified with the `batch_end` flag.
 
@@ -178,12 +182,12 @@ from pytket.circuit import fresh_symbol
 
 # Set up parametrized circuit
 
-a = fresh_symbol('a')
+a = fresh_symbol("a")
 circuit = Circuit(3, name="Parametrized Circuit")
 circuit.X(0)
-circuit.CX(0,1).CX(1,2)
+circuit.CX(0, 1).CX(1, 2)
 circuit.Rz(a, 2)
-circuit.CX(1,2).CX(0,1)
+circuit.CX(1, 2).CX(0, 1)
 render_circuit_jupyter(circuit)
 
 # Create a version of the circuit that utilizes a specific value for the variable `a`. Note the substitution of an actual value to the `a` variable below.
@@ -198,8 +202,7 @@ compiled_circuit = backend.get_compiled_circuit(simulation_circuit)
 render_circuit_jupyter(compiled_circuit)
 
 n_shots = 100
-handle = backend.process_circuit(compiled_circuit, 
-                                 n_shots=n_shots)
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
 status = backend.circuit_status(handle)
 print(status)
@@ -246,19 +249,15 @@ from pytket.circuit import ProjectorAssertionBox
 import numpy as np
 
 # Projector $| - \rangle \langle - |$
-proj = np.array([
-    [0.5, -0.5],
-    [-0.5, 0.5]
-])
+proj = np.array([[0.5, -0.5], [-0.5, 0.5]])
 circ.add_assertion(ProjectorAssertionBox(proj), [qreg[2]], name="debug")
 render_circuit_jupyter(circ)
 
-machine = 'H1-1E'
+machine = "H1-1E"
 n_shots = 100
 backend = QuantinuumBackend(device_name=machine)
 compiled_circuit = backend.get_compiled_circuit(circ)
-handle = backend.process_circuit(compiled_circuit, 
-                                 n_shots=n_shots)
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
 status = backend.circuit_status(handle)
 status
