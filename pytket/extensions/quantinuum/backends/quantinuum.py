@@ -342,7 +342,8 @@ class QuantinuumBackend(Backend):
             raise QuantinuumAPIError(
                 "Either ZZMax or ZZPhase gate must be supported by device"
             )
-        # If you make changes to the default_compilation_pass, then please update this page accordingly
+        # If you make changes to the default_compilation_pass,
+        # then please update this page accordingly
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
