@@ -61,25 +61,36 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `SynthesiseTket <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket>`_
      - `FullPeepholeOptimise <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * -
+     - `NormaliseTK2`
+     - `NormaliseTK2`
+   * -
+     - `DecomposeTK2(**fidelities)`
+     - `DecomposeTK2(**fidelities)`
+   * -
      - self.rebase_pass [2]
-     - `SynthesiseTket <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket>`_
+     - self.rebase_pass [2]
+   * -
+     - `ZZPhaseToRz`
+     - `RemoveRedundancies`
+   * -
+     - `RemoveRedundancies`
+     - `auto_squash_pass [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
      - `auto_squash_pass [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-     - self.rebase_pass [2]
+     - `SimplifyInitial [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
    * -
      - `SimplifyInitial [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
-     - `auto_squash_pass [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-   * -
      -
-     - `SimplifyInitial [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 1.
 
-* [2] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
+* [2] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
-* [3] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX,OpType.Rz})``
+* [3] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
 
-* [4] ``SimplifyInitial`` has arguments  ``SimplifyInitial(allow_classical=False, create_all_qubits=True, xcirc=_xcirc)``. Here ``_xcirc`` is a single qubit circuit that implements the ``X`` gate using the native ``PhasedX`` gate.
+* [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX,OpType.Rz})``
+
+* [5] ``SimplifyInitial`` has arguments  ``SimplifyInitial(allow_classical=False, create_all_qubits=True, xcirc=_xcirc)``. Here ``_xcirc`` is a single qubit circuit that implements the ``X`` gate using the native ``PhasedX`` gate. Note that this pass will generally not preserve the unitary of the circuit.
 
 .. note::   If ``optimisation_level = 0`` the device constraints are solved but no additional optimisation is applied. Setting ``optimisation_level = 1`` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
 
