@@ -32,9 +32,9 @@ setup(
     author_email="tket-support@cambridgequantum.com",
     python_requires=">=3.8",
     project_urls={
-        'Documentation': 'https://cqcl.github.io/pytket-quantinuum/api/index.html',
-        'Source': 'https://github.com/CQCL/pytket-quantinuum',
-        'Tracker': 'https://github.com/CQCL/pytket-quantinuum/issues',
+        "Documentation": "https://cqcl.github.io/pytket-quantinuum/api/index.html",
+        "Source": "https://github.com/CQCL/pytket-quantinuum",
+        "Tracker": "https://github.com/CQCL/pytket-quantinuum/issues",
     },
     description="Extension for pytket, providing access to Quantinuum backends",
     long_description=open("README.md").read(),
