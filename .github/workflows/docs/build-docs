@@ -52,11 +52,11 @@ def build_module_docs():
         content.append(f"\tpytket <{PYTKET_DOCS_LINK}>\n")
         content.append(f"\tpytket extensions <{PYTKET_EX_DOCS_LINK}>\n")
         content.append(
-            "\n.. toctree::\n\t:caption: other:\n\t:maxdepth: 1\n\n"
+            "\n.. toctree::\n\t:caption: Links:\n\t:maxdepth: 1\n\n"
         )
         content.append(f"\tbug tracker <{PYTKET_QUANTINUUM_GITHUB}/issues>\n")
-        content.append(f"\tsource code <{PYTKET_QUANTINUUM_GITHUB}>\n")
-        content.append(f"\tpypi <{PYTKET_QUANTINUUM_PYPI_LINK}>\n")        
+        content.append(f"\tGitHub <{PYTKET_QUANTINUUM_GITHUB}>\n")
+        content.append(f"\tPyPi <{PYTKET_QUANTINUUM_PYPI_LINK}>\n")        
 
     with open(index_rst, "w") as f:
         f.writelines(content)
