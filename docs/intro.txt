@@ -164,6 +164,12 @@ argument `batch_end` to signal the end of a batch (default `False`).
   h2 = backend.add_to_batch(h1, circuit_2, n_shots=100)
   h3 = backend.add_to_batch(h1, circuit_3, n_shots=100, batch_end=True)
 
+The batch feature on Quantinuum systems gives users the ability to create "ad-hoc" reservations. Circuits submitted together in a batch will run at one time. The benefit to users is that once a batch hits the front of the queue, jobs in a batch will run uninterrupted until they are completed.
+
+Once a batch is submitted, jobs can continue to be added to the batch, ending either when the user signifies the end of a batch or after 1 minute of inactivity. Batches cannot exceed the maximum limit of 500 H-System Quantum Credits (HQCs) total.
+
+If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs *will not be cancelled*. Instead, they will continue to run as regular jobs in the queue instead of as a batch.
+
 
 
 .. toctree::
