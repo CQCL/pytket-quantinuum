@@ -16,12 +16,12 @@ env:
 jobs:
 
   changes:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       examples: ${{ steps.filter.outputs.examples }}
     steps:
     - uses: actions/checkout@v3
-    - uses: dorny/paths-filter@v2
+    - uses: dorny/paths-filter@v2.10.2
       id: filter
       with:
         base: ${{ github.ref }}
@@ -34,17 +34,14 @@ jobs:
     name: Check notebooks
     needs: changes
     if: github.event_name == 'schedule' || needs.changes.outputs.examples == 'true'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10']
     steps:
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: '0'
-    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install required python packages
@@ -53,8 +50,10 @@ jobs:
         python -m pip install wheel
         python -m pip install -e .
         python -m pip install p2j jupyter
-    - name: test example notebooks
+    - name: Install expect tool
       run: |
         sudo apt-get install expect
+    - name: test example notebooks
+      run: |
         cd examples
         ./check-examples
