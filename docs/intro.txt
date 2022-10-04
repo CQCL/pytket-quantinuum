@@ -57,9 +57,9 @@ The passes applied by different levels of optimisation are specified in the tabl
    * - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
-   * - self.rebase_pass [3]
+   * - self.rebase_pass [2]
      - `SynthesiseTket <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket>`_
-     - `FullPeepholeOptimise [2] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
+     - `FullPeepholeOptimise [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * -
      - `NormaliseTK2 [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
      - `NormaliseTK2 [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
@@ -67,8 +67,8 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
      - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
    * -
-     - self.rebase_pass [3]
-     - self.rebase_pass [3]
+     - self.rebase_pass [2]
+     - self.rebase_pass [2]
    * -
      - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
      - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
@@ -84,9 +84,9 @@ The passes applied by different levels of optimisation are specified in the tabl
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 1.
 
-* [2] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
+* [2] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
 
-* [3] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
+* [3] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
 * [4] Gate fidelity information is passed into ``DecomposeTK2`` as ``DecomposeTK2(**fidelities)``. This allows for noise aware decompositions of TK2 gates. 
 
