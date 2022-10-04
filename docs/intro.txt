@@ -57,18 +57,18 @@ The passes applied by different levels of optimisation are specified in the tabl
    * - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
-   * - self.rebase_pass [2]
+   * - self.rebase_pass [3]
      - `SynthesiseTket <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket>`_
-     - `FullPeepholeOptimise <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
+     - `FullPeepholeOptimise [2] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * -
-     - `NormaliseTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
-     - `NormaliseTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2 [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2 [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
    * -
      - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
      - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
    * -
-     - self.rebase_pass [2]
-     - self.rebase_pass [2]
+     - self.rebase_pass [3]
+     - self.rebase_pass [3]
    * -
      - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
      - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
@@ -76,19 +76,19 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
      - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
-     - `auto_squash_pass [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-     - `auto_squash_pass [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `auto_squash_pass [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `auto_squash_pass [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
-     - `SimplifyInitial [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
-     - `SimplifyInitial [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
+     - `SimplifyInitial [6] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
+     - `SimplifyInitial [6] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 1.
 
 * [2] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
-* [3] Gate fidelity information is passed into ``DecomposeTK2`` as ``DecomposeTK2(**fidelities)``. This allows for noise aware decompositions of TK2 gates. 
+* [3] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
 
-* [4] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
+* [4] Gate fidelity information is passed into ``DecomposeTK2`` as ``DecomposeTK2(**fidelities)``. This allows for noise aware decompositions of TK2 gates. 
 
 * [5] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX,OpType.Rz})``
 
