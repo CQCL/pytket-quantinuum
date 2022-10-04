@@ -2,11 +2,12 @@
 
 set -e
 
-for name in $(ls -1 python/)
+for file in $(ls -1 python/)
 do
     echo "========================================"
     echo "Checking: ${name}"
     echo "========================================"
+    set name=$(basename $file .py)
     # Check that notebook is generated from script:
     p2j -o -t ${name}-gen.ipynb python/${name}
     cmp ${name}.ipynb ${name}-gen.ipynb
