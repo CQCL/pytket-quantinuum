@@ -8,7 +8,7 @@ do
     echo "Checking: ${name}"
     echo "========================================"
     # Check that notebook is generated from script:
-    p2j -o -t ${name}-gen.ipynb python/${name}.py
+    p2j -o -t ${name}-gen.ipynb python/${name}
     cmp ${name}.ipynb ${name}-gen.ipynb
     rm ${name}-gen.ipynb
     # Run script:
