@@ -22,7 +22,6 @@ enable=
     line-too-long,
     lost-exception,
     missing-kwoa,
-    mixed-indentation,
     mixed-line-endings,
     not-callable,
     no-value-for-parameter,
@@ -30,7 +29,6 @@ enable=
     not-in-loop,
     pointless-statement,
     redefined-builtin,
-    relative-import,
     return-arg-in-generator,
     return-in-init,
     return-outside-function,
@@ -57,4 +55,4 @@ enable=
 ignore-long-lines=^(.*#\w*pylint: disable.*|.*# type: ignore.*|\s*(# )?<?https?://\S+>?)$
 
 # Ignore python scripts that generate example notebooks
-ignore-patterns=Quantinuum_.*.py
+ignore-paths=^examples/python/.*.py$
