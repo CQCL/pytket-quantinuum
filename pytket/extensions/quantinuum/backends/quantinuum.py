@@ -142,6 +142,8 @@ QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any]]
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
+    More information about the QuantinuumBackend can be found on this page
+    https://cqcl.github.io/pytket-quantinuum/api/index.html
     """
 
     _supports_shots = True
