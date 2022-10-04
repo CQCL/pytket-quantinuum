@@ -4,14 +4,14 @@ set -e
 
 for file in $(ls -1 python/)
 do
-    echo "========================================"
-    echo "Checking: ${name}"
-    echo "========================================"
-    set name=$(basename $file .py)
+    echo "============================================================"
+    echo "Checking: ${file}"
+    echo "============================================================"
+    name=`basename $file .py`
     # Check that notebook is generated from script:
-    p2j -o -t ${name}-gen.ipynb python/${name}
+    p2j -o -t ${name}-gen.ipynb python/${file}
     cmp ${name}.ipynb ${name}-gen.ipynb
     rm ${name}-gen.ipynb
     # Run script:
-    ./answer_input_prompts ${name} $PYTKET_REMOTE_QUANTINUUM_USERNAME $PYTKET_REMOTE_QUANTINUUM_PASSWORD
+    ./answer_input_prompts ${file} $PYTKET_REMOTE_QUANTINUUM_USERNAME $PYTKET_REMOTE_QUANTINUUM_PASSWORD
 done

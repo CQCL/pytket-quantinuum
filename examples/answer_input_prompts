@@ -3,9 +3,9 @@
 # 30 mins of timeout
 set timeout 1800
 
-# notebook generator filename, username and password
-# are provided provided as arguments (in that order)
-set PYTHON_FILE [lindex $argv 0].py
+# The notebook generator filename, username and password
+# are provided as arguments (in that order)
+set PYTHON_FILE [lindex $argv 0]
 set QUANTINUUM_EMAIL [lindex $argv 1]
 set QUANTINUUM_PASSWORD [lindex $argv 2]
 
