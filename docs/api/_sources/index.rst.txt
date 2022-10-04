@@ -1,9 +1,18 @@
 pytket-quantinuum
 ==================================
 
-.. image:: CQCLogo.png
-   :width: 120px
-   :align: right
+.. raw:: html
+
+    <embed>
+    <div style="width:100%; display:flex; align-items:center; justify-content:end; transform: translateY(-85px); margin-bottom: -75px">
+        <img src="_images/Quantinuum_logo.png" width="100" height="100"></img>
+    </div>
+    </embed>
+
+.. image:: Quantinuum_logo.png
+   :width: 0px
+   :height: 0px
+   :align: right 
 
 ``pytket-quantinuum`` is an extension to ``pytket`` that allows ``pytket`` circuits to
 be executed on Quantinuum's quantum devices.
@@ -17,6 +26,9 @@ and Windows. To install, run:
 
 .. note::   Using the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
+
+**Web Interface:**
+https://um.qapi.quantinuum.com/
 
 Devices
 =======
@@ -34,9 +46,6 @@ The H-series devices and emulators produce shots-based results and therefore req
 By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying ``noisy_simulation=False``.  
 
 For examples demonstrating the ``QuantinuumBackend`` see the `example notebooks <https://github.com/CQCL/pytket-quantinuum/tree/main/examples>`_ .
-
-**Web portal:**
-https://um.qapi.honeywell.com/user
 
 Default Compilation
 ===================
@@ -158,9 +167,18 @@ argument `batch_end` to signal the end of a batch (default `False`).
 .. toctree::
     api.rst
     changelog.rst
+
 .. toctree::
 	:caption: More documentation:
 	:maxdepth: 1
 
 	pytket <https://cqcl.github.io/tket/pytket/api/index.html>
 	pytket extensions <https://cqcl.github.io/pytket-extensions/api/index.html>
+
+.. toctree::
+	:caption: Links:
+	:maxdepth: 1
+
+	bug tracker <https://github.com/CQCL/pytket-quantinuum/issues>
+	GitHub <https://github.com/CQCL/pytket-quantinuum>
+	PyPi <https://pypi.org/project/pytket-quantinuum/>

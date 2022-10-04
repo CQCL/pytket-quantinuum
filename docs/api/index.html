@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.8.0 documentation</title>
+  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.9.0rc0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -29,7 +29,7 @@
             <a href="#" class="icon icon-home"> pytket-quantinuum
           </a>
               <div class="version">
-                0.8
+                0.9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -47,6 +47,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/index.html">pytket</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/pytket-extensions/api/index.html">pytket extensions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Links:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/CQCL/pytket-quantinuum/issues">bug tracker</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/CQCL/pytket-quantinuum">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pytket-quantinuum/">PyPi</a></li>
 </ul>
 
         </div>
@@ -75,7 +81,11 @@
              
   <section id="pytket-quantinuum">
 <h1>pytket-quantinuum<a class="headerlink" href="#pytket-quantinuum" title="Permalink to this headline"></a></h1>
-<a class="reference internal image-reference" href="_images/CQCLogo.png"><img alt="_images/CQCLogo.png" class="align-right" src="_images/CQCLogo.png" style="width: 120px;" /></a>
+<embed>
+<div style="width:100%; display:flex; align-items:center; justify-content:end; transform: translateY(-85px); margin-bottom: -75px">
+    <img src="_images/Quantinuum_logo.png" width="100" height="100"></img>
+</div>
+</embed><a class="reference internal image-reference" href="_images/Quantinuum_logo.png"><img alt="_images/Quantinuum_logo.png" class="align-right" src="_images/Quantinuum_logo.png" style="width: 0px; height: 0px;" /></a>
 <p><code class="docutils literal notranslate"><span class="pre">pytket-quantinuum</span></code> is an extension to <code class="docutils literal notranslate"><span class="pre">pytket</span></code> that allows <code class="docutils literal notranslate"><span class="pre">pytket</span></code> circuits to
 be executed on Quantinuum’s quantum devices.</p>
 <p><code class="docutils literal notranslate"><span class="pre">pytket-quantinuum</span></code> is available for Python 3.8, 3.9 and 3.10, on Linux, MacOS
@@ -88,6 +98,8 @@ and Windows. To install, run:</p>
 <p>Using the <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend</span></code> requires a <a class="reference external" href="https://www.quantinuum.com/">Quantinuum</a> account.
 The user will be prompted for their login credentials when making API calls such as calling the <code class="docutils literal notranslate"><span class="pre">process_circuits</span></code> method or querying <code class="docutils literal notranslate"><span class="pre">backend_info</span></code>.</p>
 </div>
+<p><strong>Web Interface:</strong>
+<a class="reference external" href="https://um.qapi.quantinuum.com/">https://um.qapi.quantinuum.com/</a></p>
 </section>
 <section id="devices">
 <h1>Devices<a class="headerlink" href="#devices" title="Permalink to this headline"></a></h1>
@@ -102,8 +114,6 @@ The user will be prompted for their login credentials when making API calls such
 <p>The H-series devices and emulators produce shots-based results and therefore require measurements. It is also possible to use a stabilizer simulator by specifying <code class="docutils literal notranslate"><span class="pre">simulator='stabilizer'</span></code>. This option may be preferable for simulating Clifford circuits.</p>
 <p>By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying <code class="docutils literal notranslate"><span class="pre">noisy_simulation=False</span></code>.</p>
 <p>For examples demonstrating the <code class="docutils literal notranslate"><span class="pre">QuantinuumBackend</span></code> see the <a class="reference external" href="https://github.com/CQCL/pytket-quantinuum/tree/main/examples">example notebooks</a> .</p>
-<p><strong>Web portal:</strong>
-<a class="reference external" href="https://um.qapi.honeywell.com/user">https://um.qapi.honeywell.com/user</a></p>
 </section>
 <section id="default-compilation">
 <h1>Default Compilation<a class="headerlink" href="#default-compilation" title="Permalink to this headline"></a></h1>
@@ -225,6 +235,7 @@ argument <cite>batch_end</cite> to signal the end of a batch (default <cite>Fals
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#rc0-september-2022">0.9.0 rc0 (September 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#september-2022">0.8.0 (September 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#august-2022">0.7.0 (August 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#july-2022">0.6.0 (July 2022)</a></li>
@@ -259,6 +270,14 @@ argument <cite>batch_end</cite> to signal the end of a batch (default <cite>Fals
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/index.html">pytket</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://cqcl.github.io/pytket-extensions/api/index.html">pytket extensions</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Links:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/CQCL/pytket-quantinuum/issues">bug tracker</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/CQCL/pytket-quantinuum">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://pypi.org/project/pytket-quantinuum/">PyPi</a></li>
 </ul>
 </div>
 </section>
