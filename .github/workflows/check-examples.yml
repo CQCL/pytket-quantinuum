@@ -52,6 +52,7 @@ jobs:
         python -m pip install p2j jupyter
     - name: Install expect tool
       run: |
+        sudo apt-get update
         sudo apt-get install expect
     - name: test example notebooks
       run: |
