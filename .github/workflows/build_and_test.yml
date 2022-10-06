@@ -37,6 +37,7 @@ jobs:
         python-version: '3.8'
     - name: Build and test (3.8)
       if: github.event_name == 'push'
+      shell: bash
       run: |
         ./.github/workflows/build-test nomypy
     - name: Set up Python 3.9
@@ -45,13 +46,15 @@ jobs:
       with:
         python-version: '3.9'
     - name: Build and test including remote checks (3.9) mypy
+      shell: bash
       if:  (matrix.os == 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel'))
       run: |
         ./.github/workflows/build-test mypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
     - name: Build and test including remote checks (3.9) nomypy
-      if:  (matrix.os != 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel'))    
+      if:  (matrix.os != 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel'))
+      shell: bash
       run: |
         ./.github/workflows/build-test nomypy
       env:
@@ -63,6 +66,7 @@ jobs:
         python-version: '3.10'
     - name: Build and test (3.10)
       if: github.event_name == 'push' || github.event_name == 'pull_request'
+      shell: bash
       run: |
         ./.github/workflows/build-test nomypy
     - uses: actions/upload-artifact@v3
