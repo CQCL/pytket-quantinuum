@@ -1,14 +1,15 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.9.0rc0 (October 2022)
+-----------------------
 
 * Add `session` parameter to `QuantinuumAPI`. Creates a new session
   if `None` is provided.
 * Add facility to specify default ``options`` paramater to
   ``process_circuits()`` and ``submit_qasm()`` when constructing backend, and
   include this information in ``backend_info``.
+* Updated pytket version requirement to 1.7.
 
 0.8.0 (September 2022)
 ----------------------
