@@ -2,8 +2,6 @@
 
 This repository contains the pytket-quantinuum extension, using Quantinuum's
 [pytket](https://cqcl.github.io/tket/pytket/api/index.html) quantum SDK.
-The other pytket extensions can be found [here](https://github.com/CQCL/pytket-extensions)
-
 
 # pytket-quantinuum
 
