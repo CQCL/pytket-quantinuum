@@ -1,0 +1,60 @@
+name: Check example notebooks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # 04:00 every Saturday morning
+    - cron: '0 4 * * 6'
+
+env:
+  PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+  PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
+
+jobs:
+
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      examples: ${{ steps.filter.outputs.examples }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dorny/paths-filter@v2.10.2
+      id: filter
+      with:
+        base: ${{ github.ref }}
+        filters: |
+          examples:
+            - 'examples/**'
+            - '.github/workflows/check-examples.yml'
+
+  check:
+    name: Check notebooks
+    needs: changes
+    if: github.event_name == 'schedule' || needs.changes.outputs.examples == 'true'
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10']
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install required python packages
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install wheel
+        python -m pip install -e .
+        python -m pip install p2j jupyter
+    - name: Install expect tool
+      run: |
+        sudo apt-get update
+        sudo apt-get install expect
+    - name: test example notebooks
+      run: |
+        cd examples
+        ./check-examples

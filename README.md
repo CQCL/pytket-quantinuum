@@ -1,14 +1,12 @@
 # Pytket Extensions
 
-This repository contains the pytket-quantinuum extension, using CQC's
+This repository contains the pytket-quantinuum extension, using Quantinuum's
 [pytket](https://cqcl.github.io/tket/pytket/api/index.html) quantum SDK.
-The other pytket extensions can be found [here](https://github.com/CQCL/pytket-extensions)
-
 
 # pytket-quantinuum
 
 [Pytket](https://cqcl.github.io/tket/pytket/api/index.html) is a python module for interfacing
-with CQC tket, a set of quantum programming tools.
+with tket, a quantum computing toolkit and optimisation compiler developed by Quantinuum.
 
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
 be executed on Quantinuum's quantum devices.
@@ -23,10 +21,14 @@ and Windows. To install, run:
 This will install `pytket` if it isn't already installed, and add new classes
 and methods into the `pytket.extensions` namespace.
 
-## Bugs and feature requests
+The [example notebooks](https://github.com/CQCL/pytket-quantinuum/tree/develop/examples) also demonstrate some of the key features of pytket-quantinuum.
+
+## Bugs, support and feature requests
 
 Please file bugs and feature requests on the Github
 [issue tracker](https://github.com/CQCL/pytket-quantinuum/issues).
+
+There is also a Slack channel for discussion and support. Click [here](https://tketusers.slack.com/join/shared_invite/zt-18qmsamj9-UqQFVdkRzxnXCcKtcarLRA#/shared-invite/email) to join.
 
 ## Development
 
@@ -64,9 +66,8 @@ script requires `mypy` 0.800 or above.
 #### Linting
 
 We use [pylint](https://pypi.org/project/pylint/) on the CI to check compliance
-with a set of style requirements (listed in `modules/.pylintrc`). You should run
-`pylint` over any changed files from the `modules` directory before submitting a
-PR, to catch any issues.
+with a set of style requirements (listed in `.pylintrc`). You should run
+`pylint` over any changed files before submitting a PR, to catch any issues.
 
 ### Tests
 
