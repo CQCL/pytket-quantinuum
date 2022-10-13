@@ -13,6 +13,9 @@ on:
     types:
       - created
       - edited
+  schedule:
+    # 04:00 every Tuesday morning
+    - cron: '0 4 * * 2'
 
 env:
   PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
@@ -31,41 +34,41 @@ jobs:
         fetch-depth: '0'
     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
     - name: Set up Python 3.8
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' || github.event_name == 'schedule'
       uses: actions/setup-python@v3
       with:
         python-version: '3.8'
     - name: Build and test (3.8)
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' || github.event_name == 'schedule'
       shell: bash
       run: |
         ./.github/workflows/build-test nomypy
     - name: Set up Python 3.9
-      if: github.event_name == 'pull_request' || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
+      if: github.event_name == 'pull_request' || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule'
       uses: actions/setup-python@v3
       with:
         python-version: '3.9'
     - name: Build and test including remote checks (3.9) mypy
       shell: bash
-      if:  (matrix.os == 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel'))
+      if:  (matrix.os == 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule' )
       run: |
         ./.github/workflows/build-test mypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
     - name: Build and test including remote checks (3.9) nomypy
-      if:  (matrix.os != 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel'))
+      if:  (matrix.os != 'macos-11') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule')
       shell: bash
       run: |
         ./.github/workflows/build-test nomypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
     - name: Set up Python 3.10
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
+      if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'schedule'
       uses: actions/setup-python@v3
       with:
         python-version: '3.10'
     - name: Build and test (3.10)
-      if: github.event_name == 'push' || github.event_name == 'pull_request'
+      if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'schedule'
       shell: bash
       run: |
         ./.github/workflows/build-test nomypy
@@ -75,11 +78,11 @@ jobs:
         name: artefacts
         path: wheelhouse/
     - name: Install docs dependencies
-      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request')
+      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
       run: |
         pip install -r .github/workflows/docs/requirements.txt
     - name: Build docs
-      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request')
+      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
       timeout-minutes: 20
       run: |
         ./.github/workflows/docs/check-build-docs
