@@ -142,6 +142,8 @@ QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any]]
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
+    More information about the QuantinuumBackend can be found on this page
+    https://cqcl.github.io/pytket-quantinuum/api/index.html
     """
 
     _supports_shots = True
@@ -342,7 +344,10 @@ class QuantinuumBackend(Backend):
             raise QuantinuumAPIError(
                 "Either ZZMax or ZZPhase gate must be supported by device"
             )
-
+        # If you make changes to the default_compilation_pass,
+        # then please update this page accordingly
+        # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
+        # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
         elif optimisation_level == 1:
