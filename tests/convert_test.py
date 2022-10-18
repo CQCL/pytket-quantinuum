@@ -14,8 +14,8 @@
 
 import pytest
 
-from pytket.circuit import Circuit, OpType  # type: ignore
-from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
+from pytket.circuit import Circuit, OpType, reg_eq  # type: ignore
+from pytket._tket.circuit import _TEMP_BIT_NAME, _TEMP_BIT_REG_BASE  # type: ignore
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.quantinuum import scratch_reg_resize_pass
 from pytket.qasm import circuit_to_qasm_str
@@ -110,4 +110,14 @@ def test_resize_scratch_registers() -> None:
         circ.add_gate(OpType.PhasedX, [1, 0], [0], condition=reg_a[0] ^ reg_b[0])
     c_compiled = circ.copy()
     scratch_reg_resize_pass(40).apply(c_compiled)
+    assert circ == c_compiled
+
+    # Test _TEMP_BIT_REG_BASE is ignored
+    circ = Circuit(1, name="test_classical")
+    reg_a = circ.add_c_register("a", 1)
+    reg_b = circ.add_c_register("b", 1)
+    circ.X(0, condition=reg_eq(reg_a ^ reg_b, 1))
+    assert circ.get_c_register(f"{_TEMP_BIT_REG_BASE}_0").size == 32
+    c_compiled = circ.copy()
+    scratch_reg_resize_pass(10).apply(c_compiled)
     assert circ == c_compiled

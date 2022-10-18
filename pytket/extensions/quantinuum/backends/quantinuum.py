@@ -112,7 +112,12 @@ def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
     def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
         # Find all scratch bits
         scratch_bits = [
-            bit for bit in circ.bits if bit.reg_name.startswith(_TEMP_BIT_NAME)
+            bit
+            for bit in circ.bits
+            if (
+                bit.reg_name == _TEMP_BIT_NAME
+                or bit.reg_name.startswith(f"{_TEMP_BIT_NAME}_")
+            )
         ]
         # If the total number of scratch bits exceeds the max width, rename them
         if len(scratch_bits) > max_size:
