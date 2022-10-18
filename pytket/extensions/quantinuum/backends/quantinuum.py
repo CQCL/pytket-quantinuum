@@ -347,6 +347,7 @@ class QuantinuumBackend(Backend):
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
+        # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
         elif optimisation_level == 1:
