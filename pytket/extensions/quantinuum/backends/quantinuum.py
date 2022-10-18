@@ -17,7 +17,7 @@ from ast import literal_eval
 from dataclasses import dataclass
 import json
 from http import HTTPStatus
-from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Callable
+from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast
 import warnings
 
 import numpy as np
