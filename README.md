@@ -2,8 +2,6 @@
 
 This repository contains the pytket-quantinuum extension, using Quantinuum's
 [pytket](https://cqcl.github.io/tket/pytket/api/index.html) quantum SDK.
-The other pytket extensions can be found [here](https://github.com/CQCL/pytket-extensions)
-
 
 # pytket-quantinuum
 
@@ -68,9 +66,8 @@ script requires `mypy` 0.800 or above.
 #### Linting
 
 We use [pylint](https://pypi.org/project/pylint/) on the CI to check compliance
-with a set of style requirements (listed in `modules/.pylintrc`). You should run
-`pylint` over any changed files from the `modules` directory before submitting a
-PR, to catch any issues.
+with a set of style requirements (listed in `.pylintrc`). You should run
+`pylint` over any changed files before submitting a PR, to catch any issues.
 
 ### Tests
 

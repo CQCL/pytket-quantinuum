@@ -374,6 +374,7 @@ class QuantinuumBackend(Backend):
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
                     self.rebase_pass(),
+                    ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
