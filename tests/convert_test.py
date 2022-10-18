@@ -12,8 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
+
 from pytket.circuit import Circuit, OpType  # type: ignore
+from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum import QuantinuumBackend
+from pytket.extensions.quantinuum.backends.quantinuum import scratch_reg_resize_pass
 from pytket.qasm import circuit_to_qasm_str
 
 
@@ -49,3 +53,61 @@ def test_convert_rzz() -> None:
         any(com.startswith(gate) for gate in ("rz", "U1q", "ZZ", "measure", "RZZ"))
         for com in qasm_str
     )
+
+
+def test_resize_scratch_registers() -> None:
+    max_c_reg_width_list = [30, 40]
+    for max_c_reg_width in max_c_reg_width_list:
+        circ = Circuit(1)
+        reg_a = circ.add_c_register("a", 1)
+        reg_b = circ.add_c_register("b", 1)
+        n_scratch_bits = max_c_reg_width * 2 + 2
+        for _ in range(n_scratch_bits):
+            circ.add_gate(OpType.PhasedX, [1, 0], [0], condition=reg_a[0] ^ reg_b[0])
+        original_scratch_reg = circ.get_c_register(_TEMP_BIT_NAME)
+        # check the scratch reg size is max_c_reg_width
+        assert original_scratch_reg.size == n_scratch_bits
+
+        # apply the resize pass
+        c_compiled = circ.copy()
+        scratch_reg_resize_pass(max_c_reg_width).apply(c_compiled)
+
+        # check the old register is replaced
+        with pytest.raises(RuntimeError) as e:
+            c_compiled.get_c_register(_TEMP_BIT_NAME)
+        err_msg = "Cannot find classical register"
+        assert err_msg in str(e.value)
+
+        # check the new registers have the correct sizes
+        scratch_reg1 = c_compiled.get_c_register(f"{_TEMP_BIT_NAME}_0")
+        scratch_reg2 = c_compiled.get_c_register(f"{_TEMP_BIT_NAME}_1")
+        scratch_reg3 = c_compiled.get_c_register(f"{_TEMP_BIT_NAME}_2")
+        assert scratch_reg1.size == max_c_reg_width
+        assert scratch_reg2.size == max_c_reg_width
+        assert scratch_reg3.size == 2
+        args_map = dict()
+        original_cmds = circ.get_commands()
+        for cmd in original_cmds:
+            for arg in cmd.args:
+                args_map[arg] = arg
+
+        for i in range(n_scratch_bits):
+            args_map[original_scratch_reg[i]] = c_compiled.get_c_register(
+                f"{_TEMP_BIT_NAME}_{int(i/max_c_reg_width)}"
+            )[i % max_c_reg_width]
+
+        # Check the compiled circuit is equivalent to the original one up to renaming
+        compiled_cmds = c_compiled.get_commands()
+        for i, cmd in enumerate(original_cmds):
+            for j, arg in enumerate(cmd.args):
+                assert compiled_cmds[i].args[j] == args_map[arg]
+
+    # If the max width is not exceeded, do nothing
+    circ = Circuit(1)
+    reg_a = circ.add_c_register("a", 1)
+    reg_b = circ.add_c_register("b", 1)
+    for _ in range(30):
+        circ.add_gate(OpType.PhasedX, [1, 0], [0], condition=reg_a[0] ^ reg_b[0])
+    c_compiled = circ.copy()
+    scratch_reg_resize_pass(40).apply(c_compiled)
+    assert circ == c_compiled
