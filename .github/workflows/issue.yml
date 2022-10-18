@@ -21,7 +21,7 @@ jobs:
       with:
         project: TKET
         issuetype: Bug
-        summary: «${{ github.event.issue.title }}»
+        summary: « [pytket-quantinuum] ${{ github.event.issue.title }}»
         description: ${{ github.event.issue.html_url }}
     - name: Create Task
       uses: atlassian/gajira-create@v2.0.1
@@ -29,5 +29,5 @@ jobs:
       with:
         project: TKET
         issuetype: Task
-        summary: «${{ github.event.issue.title }}»
+        summary: « [pytket-quantinuum] ${{ github.event.issue.title }}»
         description: ${{ github.event.issue.html_url }}
