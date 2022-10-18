@@ -70,8 +70,8 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `SynthesiseTket <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket>`_
      - `FullPeepholeOptimise [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * -
-     - `NormaliseTK2 [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
-     - `NormaliseTK2 [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2  <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2  <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
    * -
      - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
      - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
@@ -85,11 +85,11 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
      - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
-     - `auto_squash_pass [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-     - `auto_squash_pass [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
-     - `SimplifyInitial [6] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
-     - `SimplifyInitial [6] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
+     - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
+     - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 1.
 
