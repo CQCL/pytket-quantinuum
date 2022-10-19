@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Break up `pytket` internal scratch registers if their widths exceed limit.
+
 0.9.0 (October 2022)
 --------------------
 
