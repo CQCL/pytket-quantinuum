@@ -123,7 +123,7 @@ def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
         if len(scratch_bits) > max_size:
             bits_map = {}
             for i, bit in enumerate(scratch_bits):
-                bits_map[bit] = Bit(f"{_TEMP_BIT_NAME}_{int(i/max_size)}", i % max_size)
+                bits_map[bit] = Bit(f"{_TEMP_BIT_NAME}_{i//max_size}", i % max_size)
             circ.rename_units(bits_map)
         return circ
 
