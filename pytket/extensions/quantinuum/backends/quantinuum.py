@@ -212,7 +212,7 @@ class QuantinuumBackend(Backend):
         Supported kwargs:
 
         * `options`: items to add to the "options" dictionary of the request body, as a
-          json-sytyle dictionary (see :py:meth:`QuantinuumBackend.process_circuits`)
+          json-style dictionary (see :py:meth:`QuantinuumBackend.process_circuits`)
         """
 
         super().__init__()
@@ -545,7 +545,7 @@ class QuantinuumBackend(Backend):
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
         * `options`: items to add to the "options" dictionary of the request body, as a
-          json-sytyle dictionary (in addition to any that were set in the backend
+          json-style dictionary (in addition to any that were set in the backend
           constructor)
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
