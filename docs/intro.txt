@@ -56,7 +56,7 @@ This default compilation will ensure that the circuit meets all the constraints 
 The passes applied by different levels of optimisation are specified in the table below.
 
 
-.. list-table:: **Default compilation pass for the Quantinuum backends**
+.. list-table:: **Default compilation pass for the QuantinuumBackend**
    :widths: 25 25 25
    :header-rows: 1
 
