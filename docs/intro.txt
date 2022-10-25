@@ -56,7 +56,7 @@ This default compilation will ensure that the circuit meets all the constraints 
 The passes applied by different levels of optimisation are specified in the table below.
 
 
-.. list-table:: **Default compilation pass for the Quantinuum backends**
+.. list-table:: **Default compilation pass for the QuantinuumBackend**
    :widths: 25 25 25
    :header-rows: 1
 
@@ -80,16 +80,16 @@ The passes applied by different levels of optimisation are specified in the tabl
      - self.rebase_pass [2]
    * -
      - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
-     - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
-   * -
-     - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
      - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
-     - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
      - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
+     - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
      - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
+   * -
      - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
+     - 
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 1.
 
@@ -102,7 +102,7 @@ The passes applied by different levels of optimisation are specified in the tabl
 * [5] ``SimplifyInitial`` has arguments  ``SimplifyInitial(allow_classical=False, create_all_qubits=True, xcirc=_xcirc)``. Here ``_xcirc`` is a single qubit circuit that implements the ``X`` gate using the native ``PhasedX`` gate. Note that this pass will generally not preserve the unitary of the circuit.
 
 .. note::   If ``optimisation_level = 0`` the device constraints are solved but no additional optimisation is applied. Setting ``optimisation_level = 1`` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
-
+.. note::   The pass ``ZZPhaseToRz`` is left out of ``optimisation_level=2`` as the passes applied by ``FullPeepholeOptimise`` will already cover these optimisations.
 Device Predicates
 =================
 
