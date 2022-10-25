@@ -26,7 +26,7 @@ jobs:
     name: Quantinuum - Build and test module
     strategy:
       matrix:
-        os: ['ubuntu-20.04', 'macos-12', 'windows-2019']
+        os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -78,11 +78,11 @@ jobs:
         name: artefacts
         path: wheelhouse/
     - name: Install docs dependencies
-      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+      if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
       run: |
         pip install -r .github/workflows/docs/requirements.txt
     - name: Build docs
-      if:  (matrix.os == 'ubuntu-20.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+      if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
       timeout-minutes: 20
       run: |
         ./.github/workflows/docs/check-build-docs
@@ -92,7 +92,7 @@ jobs:
     name: Publish to pypi
     if: github.event_name == 'release'
     needs: quantinuum-checks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Download all wheels
       uses: actions/download-artifact@v3
@@ -113,7 +113,7 @@ jobs:
     name: Build and publish docs
     if: github.event_name == 'release'
     needs: publish_to_pypi
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
       with:
