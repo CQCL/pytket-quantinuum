@@ -31,6 +31,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
+from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
@@ -44,6 +45,7 @@ from pytket.passes import (  # type: ignore
     NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
+    CustomPass,
     auto_rebase_pass,
     auto_squash_pass,
 )
@@ -66,6 +68,7 @@ from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 QUANTINUUM_URL_PREFIX = "https://qapi.quantinuum.com/"
 DEVICE_FAMILY = "H1"
+MAX_C_REG_WIDTH = 32
 
 _STATUS_MAP = {
     "queued": StatusEnum.QUEUED,
@@ -99,6 +102,32 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     if "RZZ" in gates:
         gs.add(OpType.ZZPhase)
     return gs
+
+
+def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
+    """Given a max scratch register width, return a compiler pass that
+    breaks up the internal scratch bit registers into smaller registers
+    """
+
+    def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
+        # Find all scratch bits
+        scratch_bits = [
+            bit
+            for bit in circ.bits
+            if (
+                bit.reg_name == _TEMP_BIT_NAME
+                or bit.reg_name.startswith(f"{_TEMP_BIT_NAME}_")
+            )
+        ]
+        # If the total number of scratch bits exceeds the max width, rename them
+        if len(scratch_bits) > max_size:
+            bits_map = {}
+            for i, bit in enumerate(scratch_bits):
+                bits_map[bit] = Bit(f"{_TEMP_BIT_NAME}_{i//max_size}", i % max_size)
+            circ.rename_units(bits_map)
+        return circ
+
+    return CustomPass(trans, label="resize scratch bits")
 
 
 class GetResultFailed(Exception):
@@ -142,6 +171,8 @@ QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any]]
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
+    More information about the QuantinuumBackend can be found on this page
+    https://cqcl.github.io/pytket-quantinuum/api/index.html
     """
 
     _supports_shots = True
@@ -181,7 +212,7 @@ class QuantinuumBackend(Backend):
         Supported kwargs:
 
         * `options`: items to add to the "options" dictionary of the request body, as a
-          json-sytyle dictionary (see :py:meth:`QuantinuumBackend.process_circuits`)
+          json-style dictionary (see :py:meth:`QuantinuumBackend.process_circuits`)
         """
 
         super().__init__()
@@ -329,7 +360,10 @@ class QuantinuumBackend(Backend):
 
     def default_compilation_pass(self, optimisation_level: int = 1) -> BasePass:
         assert optimisation_level in range(3)
-        passlist = [DecomposeBoxes()]
+        passlist = [
+            DecomposeBoxes(),
+            scratch_reg_resize_pass(),
+        ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
 
         # use default (perfect fidelities) for supported gates
@@ -342,7 +376,10 @@ class QuantinuumBackend(Backend):
             raise QuantinuumAPIError(
                 "Either ZZMax or ZZPhase gate must be supported by device"
             )
-
+        # If you make changes to the default_compilation_pass,
+        # then please update this page accordingly
+        # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
+        # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             return SequencePass(passlist + [self.rebase_pass()])
         elif optimisation_level == 1:
@@ -369,7 +406,6 @@ class QuantinuumBackend(Backend):
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
                     self.rebase_pass(),
-                    ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
@@ -508,7 +544,7 @@ class QuantinuumBackend(Backend):
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
         * `options`: items to add to the "options" dictionary of the request body, as a
-          json-sytyle dictionary (in addition to any that were set in the backend
+          json-style dictionary (in addition to any that were set in the backend
           constructor)
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
