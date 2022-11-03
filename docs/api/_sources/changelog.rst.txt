@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+0.10.0 (November 2022)
+----------------------
+
+* Break up `pytket` internal scratch registers if their widths exceed limit.
+* Updated pytket version requirement to 1.8.
+
 0.9.0 (October 2022)
 --------------------
 

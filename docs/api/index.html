@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.9.0 documentation</title>
+  <title>pytket-quantinuum &mdash; pytket-quantinuum 0.10.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -29,7 +29,7 @@
             <a href="#" class="icon icon-home"> pytket-quantinuum
           </a>
               <div class="version">
-                0.9
+                0.10
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -68,8 +68,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>pytket-quantinuum</li>
+      <li><a href="#" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">pytket-quantinuum</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -121,8 +121,8 @@ The user will be prompted for their login credentials when making API calls such
 This method applies a sequence of optimisations to a circuit depending on the value of an <code class="docutils literal notranslate"><span class="pre">optimisation_level</span></code> parameter.
 This default compilation will ensure that the circuit meets all the constraints required to run on the <code class="docutils literal notranslate"><span class="pre">Backend</span></code>.
 The passes applied by different levels of optimisation are specified in the table below.</p>
-<table class="colwidths-given docutils align-default" id="id6">
-<caption><span class="caption-text"><strong>Default compilation pass for the Quantinuum backends</strong></span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
+<table class="colwidths-given docutils align-default" id="id8">
+<caption><span class="caption-text"><strong>Default compilation pass for the QuantinuumBackend</strong></span><a class="headerlink" href="#id8" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -141,35 +141,52 @@ The passes applied by different levels of optimisation are specified in the tabl
 </tr>
 <tr class="row-odd"><td><p>self.rebase_pass [2]</p></td>
 <td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket">SynthesiseTket</a></p></td>
-<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise">FullPeepholeOptimise</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise">FullPeepholeOptimise [3]</a></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2">NormaliseTK2</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2">NormaliseTK2</a></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2">DecomposeTK2</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2">DecomposeTK2</a></p></td>
 </tr>
 <tr class="row-even"><td></td>
 <td><p>self.rebase_pass [2]</p></td>
-<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket">SynthesiseTket</a></p></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass">auto_squash_pass [3]</a></p></td>
 <td><p>self.rebase_pass [2]</p></td>
 </tr>
+<tr class="row-odd"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz">ZZPhaseToRz</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies">RemoveRedundancies</a></p></td>
+</tr>
 <tr class="row-even"><td></td>
-<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial">SimplifyInitial [4]</a></p></td>
-<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass">auto_squash_pass [3]</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies">RemoveRedundancies</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass">auto_squash_pass [4]</a></p></td>
 </tr>
 <tr class="row-odd"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass">auto_squash_pass [4]</a></p></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial">SimplifyInitial [5]</a></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial">SimplifyInitial [5]</a></p></td>
 <td></td>
-<td><p><a class="reference external" href="https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial">SimplifyInitial [4]</a></p></td>
 </tr>
 </tbody>
 </table>
 <ul class="simple">
 <li><p>[1] If no value is specified then <code class="docutils literal notranslate"><span class="pre">optimisation_level</span></code> defaults to a value of 1.</p></li>
 <li><p>[2] <code class="docutils literal notranslate"><span class="pre">self.rebase_pass</span></code> is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).</p></li>
-<li><p>[3] <code class="docutils literal notranslate"><span class="pre">auto_squash_pass</span></code> has arguments <code class="docutils literal notranslate"><span class="pre">auto_squash_pass({OpType.PhasedX,OpType.Rz})</span></code></p></li>
-<li><p>[4] <code class="docutils literal notranslate"><span class="pre">SimplifyInitial</span></code> has arguments  <code class="docutils literal notranslate"><span class="pre">SimplifyInitial(allow_classical=False,</span> <span class="pre">create_all_qubits=True,</span> <span class="pre">xcirc=_xcirc)</span></code>. Here <code class="docutils literal notranslate"><span class="pre">_xcirc</span></code> is a single qubit circuit that implements the <code class="docutils literal notranslate"><span class="pre">X</span></code> gate using the native <code class="docutils literal notranslate"><span class="pre">PhasedX</span></code> gate.</p></li>
+<li><p>[3] <code class="docutils literal notranslate"><span class="pre">FullPeepholeOptimise</span></code> has the argument <code class="docutils literal notranslate"><span class="pre">target_2qb_gate=OpType.TK2</span></code>.</p></li>
+<li><p>[4] <code class="docutils literal notranslate"><span class="pre">auto_squash_pass</span></code> has arguments <code class="docutils literal notranslate"><span class="pre">auto_squash_pass({OpType.PhasedX,OpType.Rz})</span></code></p></li>
+<li><p>[5] <code class="docutils literal notranslate"><span class="pre">SimplifyInitial</span></code> has arguments  <code class="docutils literal notranslate"><span class="pre">SimplifyInitial(allow_classical=False,</span> <span class="pre">create_all_qubits=True,</span> <span class="pre">xcirc=_xcirc)</span></code>. Here <code class="docutils literal notranslate"><span class="pre">_xcirc</span></code> is a single qubit circuit that implements the <code class="docutils literal notranslate"><span class="pre">X</span></code> gate using the native <code class="docutils literal notranslate"><span class="pre">PhasedX</span></code> gate. Note that this pass will generally not preserve the unitary of the circuit.</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">optimisation_level</span> <span class="pre">=</span> <span class="pre">0</span></code> the device constraints are solved but no additional optimisation is applied. Setting <code class="docutils literal notranslate"><span class="pre">optimisation_level</span> <span class="pre">=</span> <span class="pre">1</span></code> applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The pass <code class="docutils literal notranslate"><span class="pre">ZZPhaseToRz</span></code> is left out of <code class="docutils literal notranslate"><span class="pre">optimisation_level=2</span></code> as the passes applied by <code class="docutils literal notranslate"><span class="pre">FullPeepholeOptimise</span></code> will already cover these optimisations.</p>
 </div>
 </section>
 <section id="device-predicates">
@@ -231,10 +248,14 @@ argument <cite>batch_end</cite> to signal the end of a batch (default <cite>Fals
 <span class="n">h3</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">add_to_batch</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">circuit_3</span><span class="p">,</span> <span class="n">n_shots</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The batch feature on Quantinuum systems gives users the ability to create “ad-hoc” reservations. Circuits submitted together in a batch will run at one time. The benefit to users is that once a batch hits the front of the queue, jobs in a batch will run uninterrupted until they are completed.</p>
+<p>Once a batch is submitted, jobs can continue to be added to the batch, ending either when the user signifies the end of a batch or after 1 minute of inactivity. Batches cannot exceed the maximum limit of 500 H-System Quantum Credits (HQCs) total.</p>
+<p>If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs <em>will not be cancelled</em>. Instead, they will continue to run as regular jobs in the queue instead of as a batch.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#november-2022">0.10.0 (November 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#october-2022">0.9.0 (October 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#september-2022">0.8.0 (September 2022)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#august-2022">0.7.0 (August 2022)</a></li>
