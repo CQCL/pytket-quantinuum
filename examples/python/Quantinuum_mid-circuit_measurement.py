@@ -1,5 +1,3 @@
-# ![Quantinuum%20Logos_primary_blue_small.svg](attachment:Quantinuum%20Logos_primary_blue_small.svg)
-
 # # Mid-Circuit Measurement
 
 # This notebook contains an example using mid-circuit measurement using the Quantinuum machines.

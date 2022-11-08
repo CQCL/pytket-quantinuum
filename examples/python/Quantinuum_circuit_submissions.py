@@ -1,5 +1,3 @@
-# ![Quantinuum%20Logos_primary_blue_small.svg](attachment:Quantinuum%20Logos_primary_blue_small.svg)
-
 # # Quantinuum Circuit Submissions via pytket
 
 # This notebook contains basic circuit submission examples to Quantinuum quantum hardware via `pytket`.
