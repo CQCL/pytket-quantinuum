@@ -27,6 +27,7 @@ jobs:
         base: ${{ github.ref }}
         filters: |
           examples:
+            - 'setup.py'
             - 'examples/**'
             - '.github/workflows/check-examples.yml'
 
