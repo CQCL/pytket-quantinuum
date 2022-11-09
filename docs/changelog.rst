@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+0.11.0 (unreleased)
+-------------------
+
+* Require pytket 1.9.0rc0.
+
 0.10.0 (November 2022)
 ----------------------
 
