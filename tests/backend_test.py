@@ -363,6 +363,7 @@ def test_classical(
     c.X(0, condition=reg_lt(a, 1))
     c.X(0, condition=reg_geq(a, 1))
     c.X(0, condition=reg_leq(a, 1))
+    c.Phase(0, condition=a[0])
 
     b = authenticated_quum_backend
 
