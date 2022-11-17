@@ -45,19 +45,19 @@ jobs:
       run: |
         ./.github/workflows/build-test nomypy
     - name: Set up Python 3.9
-      if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule'
+      if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'release' || github.event_name == 'schedule'
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
     - name: Build and test including remote checks (3.9) mypy
       shell: bash
-      if:  (matrix.os == 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule' )
+      if:  (matrix.os == 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule' )
       run: |
         ./.github/workflows/build-test mypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
     - name: Build and test including remote checks (3.9) nomypy
-      if:  (matrix.os != 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule')
+      if:  (matrix.os != 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule')
       shell: bash
       run: |
         ./.github/workflows/build-test nomypy
