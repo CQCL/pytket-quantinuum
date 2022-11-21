@@ -682,3 +682,18 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 1
     assert len(shots[0]) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
+    c0 = Circuit(1).H(0).measure_all()
+    b = authenticated_quum_backend
+    c = b.get_compiled_circuit(c0, 0)
+    h = b.process_circuits([c], n_shots=1, no_opt=True)
+    r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 1
