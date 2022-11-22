@@ -1,6 +1,6 @@
 # pytket-quantinuum example notebooks
 
-Here reside the example notebooks of the `pytket-quantinuum` extension.
+Here resides the example notebooks of the `pytket-quantinuum` extension.
 The `*.ipynb` notebooks are generated from the scripts in `examples/python`
 using the [p2j](https://github.com/remykarem/python2jupyter) tool.
 
