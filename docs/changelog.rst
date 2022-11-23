@@ -4,9 +4,11 @@ Changelog
 0.11.0 (unreleased)
 -------------------
 
-* Require pytket 1.9.0rc0.
+* Require pytket 1.9.0rc1.
 * Add optional ``no_opt`` argument to ``process_circuits()`` and
   ``submit_qasm()``, requesting no optimization.
+* Change default optimization level in
+  ``QuantinuumBackend.default_compilation_pass()`` to 2.
 
 0.10.0 (November 2022)
 ----------------------
