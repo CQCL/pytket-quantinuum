@@ -222,12 +222,19 @@ def test_default_pass(
     for ol in range(3):
         comp_pass = b.default_compilation_pass(ol)
         c = Circuit(3, 3)
+        q0 = Qubit("test0", 5)
+        q1 = Qubit("test1", 6)
+        c.add_qubit(q0)
+        c.add_qubit(q1)
+
+        c.H(q0)
         c.H(0)
         c.CX(0, 1)
         c.CSWAP(1, 0, 2)
         c.ZZPhase(0.84, 2, 0)
         c.measure_all()
         comp_pass.apply(c)
+        assert c.qubits == [Qubit(0), Qubit(1), Qubit(2), Qubit(3)]
         for pred in b.required_predicates:
             assert pred.verify(c)
 

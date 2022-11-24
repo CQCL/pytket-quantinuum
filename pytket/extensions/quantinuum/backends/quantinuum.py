@@ -366,6 +366,11 @@ class QuantinuumBackend(Backend):
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
 
+        def flatten_registers(c: "Circuit") -> "Circuit":
+            c.remove_blank_wires()
+            c.flatten_registers()
+            return c
+
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
         if OpType.ZZMax in self._gate_set:
@@ -381,7 +386,13 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            return SequencePass(passlist + [self.rebase_pass()])
+            return SequencePass(
+                passlist
+                + [
+                    self.rebase_pass(),
+                    CustomPass(flatten_registers),
+                ]
+            )
         elif optimisation_level == 1:
             return SequencePass(
                 passlist
@@ -396,6 +407,7 @@ class QuantinuumBackend(Backend):
                     SimplifyInitial(
                         allow_classical=False, create_all_qubits=True, xcirc=_xcirc
                     ),
+                    CustomPass(flatten_registers),
                 ]
             )
         else:
@@ -411,6 +423,7 @@ class QuantinuumBackend(Backend):
                     SimplifyInitial(
                         allow_classical=False, create_all_qubits=True, xcirc=_xcirc
                     ),
+                    CustomPass(flatten_registers),
                 ]
             )
 
