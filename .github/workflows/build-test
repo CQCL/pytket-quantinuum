@@ -51,6 +51,9 @@ cd ${GITHUB_WORKSPACE}/tests
 
 python -m pip install --pre -r test-requirements.txt
 
+# update the pytket version to the lastest (pre) release
+python -m pip install --upgrade --pre pytket~=1.0
+
 pytest --doctest-modules
 
 cd ..
