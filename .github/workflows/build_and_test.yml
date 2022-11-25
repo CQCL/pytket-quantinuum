@@ -128,7 +128,7 @@ jobs:
         path: wheelhouse
     - name: Install pip, wheel
       run: pip install -U pip wheel
-    - name: Install extensions
+    - name: Install extension
       run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do pip install $w ; done
     - name: Install docs dependencies
       run: |
