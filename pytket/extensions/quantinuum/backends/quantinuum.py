@@ -358,7 +358,7 @@ class QuantinuumBackend(Backend):
     def rebase_pass(self) -> BasePass:
         return auto_rebase_pass(self._gate_set)
 
-    def default_compilation_pass(self, optimisation_level: int = 1) -> BasePass:
+    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
         assert optimisation_level in range(3)
         passlist = [
             DecomposeBoxes(),
@@ -437,6 +437,7 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
+        no_opt: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
     ) -> ResultHandle:
@@ -450,13 +451,15 @@ class QuantinuumBackend(Backend):
         :type name: Optional[str], optional
         :param noisy_simulation: Boolean flag to specify whether the simulator should
           perform noisy simulation with an error model defaults to True
-        :type noisy_simulation: bool, optional
+        :type noisy_simulation: bool
         :param group: String identifier of a collection of jobs, can be used for usage
           tracking. Overrides the instance variable `group`, defaults to None
         :type group: Optional[str], optional
         :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
             module, defaults to None
         :type wasm_file_handler: Optional[WasmFileHandler], optional
+        :param no_opt: if true, requests that the backend perform no optimizations
+        :type no_opt: bool, defaults to False
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :type pytket_pass: Optional[BasePass], optional
@@ -481,6 +484,7 @@ class QuantinuumBackend(Backend):
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
+                "no-opt": no_opt,
                 "error-model": noisy_simulation,
                 "tket": dict(),
             },
@@ -543,6 +547,7 @@ class QuantinuumBackend(Backend):
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
+        * `no_opt`: if true, requests that the backend perform no optimizations
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -568,6 +573,8 @@ class QuantinuumBackend(Backend):
         wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
+
+        no_opt = cast(bool, kwargs.get("no_opt", False))
 
         handle_list = []
 
@@ -600,6 +607,7 @@ class QuantinuumBackend(Backend):
                     group=group,
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
+                    no_opt=no_opt,
                     options=cast(Dict[str, Any], kwargs.get("options", {})),
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})

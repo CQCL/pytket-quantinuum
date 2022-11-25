@@ -1,5 +1,3 @@
-# ![Quantinuum%20Logos_primary_blue_small.svg](attachment:Quantinuum%20Logos_primary_blue_small.svg)
-
 # # Quantinuum Circuit Submissions via pytket
 
 # This notebook contains basic circuit submission examples to Quantinuum quantum hardware via `pytket`.
@@ -139,6 +137,7 @@ print(compiled_circuit.qubit_to_bit_map)
 
 # Jobs that have been submitted can also be cancelled if needed.
 
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 backend.cancel(handle)
 
 # ## Additional Features <a class="anchor" id="additional-features"></a>

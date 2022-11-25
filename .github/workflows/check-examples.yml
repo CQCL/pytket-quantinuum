@@ -21,12 +21,14 @@ jobs:
       examples: ${{ steps.filter.outputs.examples }}
     steps:
     - uses: actions/checkout@v3
-    - uses: dorny/paths-filter@v2.10.2
+    - uses: dorny/paths-filter@v2.11.1
       id: filter
       with:
         base: ${{ github.ref }}
         filters: |
           examples:
+            - 'setup.py'
+            - 'pytket/**'
             - 'examples/**'
             - '.github/workflows/check-examples.yml'
 

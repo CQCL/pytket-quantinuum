@@ -1,5 +1,3 @@
-# ![Quantinuum%20Logos_primary_blue_small.svg](attachment:Quantinuum%20Logos_primary_blue_small.svg)
-
 # # Submitting to Quantinuum Emulators via pytket
 
 # This notebook contains examples for running quantum circuits on Quantinuum's emulators.<br>

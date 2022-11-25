@@ -9,6 +9,7 @@ on:
     branches:
       - develop
       - 'wheel/**'
+      - 'runci/**'
   release:
     types:
       - created
@@ -44,19 +45,18 @@ jobs:
       run: |
         ./.github/workflows/build-test nomypy
     - name: Set up Python 3.9
-      if: github.event_name == 'pull_request' || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule'
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
     - name: Build and test including remote checks (3.9) mypy
       shell: bash
-      if:  (matrix.os == 'macos-12') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule' )
+      if:  (matrix.os == 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule' )
       run: |
         ./.github/workflows/build-test mypy
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
     - name: Build and test including remote checks (3.9) nomypy
-      if:  (matrix.os != 'macos-12') && ((github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel') || github.event_name == 'schedule')
+      if:  (matrix.os != 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule')
       shell: bash
       run: |
         ./.github/workflows/build-test nomypy
@@ -109,8 +109,8 @@ jobs:
         password: ${{ secrets.PYPI_PYTKET_QUANTINUUM_API_TOKEN }}
         verbose: true
 
-  docs:
-    name: Build and publish docs
+  build_docs:
+    name: Build docs
     if: github.event_name == 'release'
     needs: publish_to_pypi
     runs-on: ubuntu-22.04
@@ -128,7 +128,7 @@ jobs:
         path: wheelhouse
     - name: Install pip, wheel
       run: pip install -U pip wheel
-    - name: Install extensions
+    - name: Install extension
       run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do pip install $w ; done
     - name: Install docs dependencies
       run: |
@@ -138,20 +138,24 @@ jobs:
       run: |
         cd .github/workflows/docs
         mkdir extensions
-        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions
-    - name: Configure git
-      run: |
-        git config --global user.email "tket-bot@cambridgequantum.com"
-        git config --global user.name  "«$GITHUB_WORKFLOW» github action"
-    - name: Check out gh-pages branch
-      run: git checkout gh-pages
-    - name: Remove old docs
-      run: git rm -r --ignore-unmatch docs/api
-    - name: Add generated docs to repository
-      run: |
-        mkdir -p docs
-        mv .github/workflows/docs/extensions docs/api
-        git add -f docs/api
-        git commit --allow-empty -m "Add generated documentation."
-    - name: Publish docs
-      run:  git push origin gh-pages:gh-pages
+        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
+    - name: Upload docs as artefact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: .github/workflows/docs/extensions
+
+  publish_docs:
+    name: Publish docs
+    if: github.event_name == 'release'
+    needs: build_docs
+    runs-on: ubuntu-22.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
