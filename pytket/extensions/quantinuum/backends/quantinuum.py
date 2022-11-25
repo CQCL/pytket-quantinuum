@@ -49,6 +49,7 @@ from pytket.passes import (  # type: ignore
     auto_rebase_pass,
     auto_squash_pass,
 )
+from pytket.placement import place_with_map  # type: ignore
 from pytket.predicates import (  # type: ignore
     GateSetPredicate,
     MaxNQubitsPredicate,
@@ -368,7 +369,7 @@ class QuantinuumBackend(Backend):
 
         def flatten_registers(c: "Circuit") -> "Circuit":
             c.remove_blank_wires()
-            c.flatten_registers()
+            place_with_map(c, {c.qubits[i]: Qubit(i) for i in range(c.qubits)})
             return c
 
         # use default (perfect fidelities) for supported gates
