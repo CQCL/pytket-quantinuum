@@ -369,7 +369,7 @@ class QuantinuumBackend(Backend):
 
         def flatten_registers(c: "Circuit") -> "Circuit":
             c.remove_blank_wires()
-            place_with_map(c, {c.qubits[i]: Qubit(i) for i in range(c.qubits)})
+            place_with_map(c, {c.qubits[i]: Qubit(i) for i in range(len(c.qubits))})
             return c
 
         # use default (perfect fidelities) for supported gates
