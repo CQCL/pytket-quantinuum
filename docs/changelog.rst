@@ -1,10 +1,10 @@
 Changelog
 ~~~~~~~~~
 
-0.11.0 (unreleased)
--------------------
+0.11.0 (November 2022)
+----------------------
 
-* Require pytket 1.9.0rc1.
+* Updated pytket version requirement to 1.9.
 * Add optional ``no_opt`` argument to ``process_circuits()`` and
   ``submit_qasm()``, requesting no optimization.
 * Change default optimization level in
