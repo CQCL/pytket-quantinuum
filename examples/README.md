@@ -12,7 +12,7 @@ to change the `examples/python/Quantinuum_emulator.py`. After that, you can upda
 actual notebook by running the `p2j` command (still using the same example):
 
 ```bash
-p2j -o -t Quantinuum_emulator.ipynb python/Quantinuum_emulator.ipynb
+p2j -o -t examples/Quantinuum_emulator.ipynb examples/python/Quantinuum_emulator.py
 ```
 
 ## Embedding the quantinuum logo
