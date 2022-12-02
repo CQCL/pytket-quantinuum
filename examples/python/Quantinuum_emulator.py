@@ -132,7 +132,7 @@ print(no_error_model_result.get_counts())
 # See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for information on these parameters.
 
 handle = backend.process_circuit(
-    circ,
+    compiled_circuit,
     n_shots=100,
     request_options={
         "options": {
@@ -159,7 +159,7 @@ print(result.get_distribution())
 # See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for information on these parameters.
 
 handle = backend.process_circuit(
-    circ,
+    compiled_circuit,
     n_shots=100,
     request_options={
         "options": {
@@ -183,7 +183,7 @@ print(result.get_distribution())
 # See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for information on these parameters.
 
 handle = backend.process_circuit(
-    circ,
+    compiled_circuit,
     n_shots=100,
     request_options={
         "options": {
@@ -206,7 +206,7 @@ print(result.get_distribution())
 # All the error rates can be scaled linearly using the `scale` parameter. See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for more information.
 
 handle = backend.process_circuit(
-    circ,
+    compiled_circuit,
     n_shots=100,
     request_options={
         "options": {
@@ -224,7 +224,7 @@ print(result.get_distribution())
 # Other aspects of the noise model can scale specific error rates in the error model, which are modeled here.
 
 handle = backend.process_circuit(
-    circ,
+    compiled_circuit,
     n_shots=100,
     request_options={
         "options": {
@@ -286,7 +286,7 @@ print(stabilizer_result.get_counts())
 # - `error-model`: whether to run with or without the physical device noise model on or off. The default is `True`, which means the physical noise model is turned on. If set to `False`, the physical noise model is turned off, performing noiseless simulation.
 
 handle = backend.process_circuit(
-    circ,
+    compiled_circuit,
     n_shots=100,
     request_options={
         "options": {
