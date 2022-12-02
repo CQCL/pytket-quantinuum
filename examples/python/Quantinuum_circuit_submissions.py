@@ -167,8 +167,8 @@ print(compiled_circuit.qubit_to_bit_map)
 
 # Jobs that have been submitted can also be cancelled if needed.
 
-handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
-backend.cancel(handle)
+# handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
+# backend.cancel(handle)
 
 # ## Additional Features <a class="anchor" id="additional-features"></a>
 
