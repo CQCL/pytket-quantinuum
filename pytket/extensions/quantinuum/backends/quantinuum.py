@@ -403,12 +403,7 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.extend(
-                [
-                    self.rebase_pass(),
-                    CustomPass(flatten_registers),
-                ]
-            )
+            passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
             passlist.extend(
                 [
@@ -422,7 +417,6 @@ class QuantinuumBackend(Backend):
                     SimplifyInitial(
                         allow_classical=False, create_all_qubits=True, xcirc=_xcirc
                     ),
-                    CustomPass(flatten_registers),
                 ]
             )
         else:
@@ -437,7 +431,6 @@ class QuantinuumBackend(Backend):
                     SimplifyInitial(
                         allow_classical=False, create_all_qubits=True, xcirc=_xcirc
                     ),
-                    CustomPass(flatten_registers),
                 ]
             )
         passlist.append(CustomPass(flatten_registers))
