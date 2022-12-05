@@ -399,14 +399,14 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(
+            passlist.extend(
                 [
                     self.rebase_pass(),
                     CustomPass(flatten_registers),
                 ]
             )
         elif optimisation_level == 1:
-            passlist.append(
+            passlist.extend(
                 [
                     SynthesiseTK(),
                     NormaliseTK2(),
@@ -422,7 +422,7 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
-            passlist.append(
+            passlist.extend(
                 [
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
