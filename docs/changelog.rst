@@ -9,6 +9,7 @@ Changelog
   ``submit_qasm()``, requesting no optimization.
 * Change default optimization level in
   ``QuantinuumBackend.default_compilation_pass()`` to 2.
+* ``default_compilation_pass`` now flattens qubit registers when compiling Circuits.
 
 0.10.0 (November 2022)
 ----------------------
