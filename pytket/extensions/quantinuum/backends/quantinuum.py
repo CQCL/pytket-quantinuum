@@ -379,9 +379,13 @@ class QuantinuumBackend(Backend):
         # By flattening the Circuit qubit registers, we make sure
         # that the produced QASM has one "qreg", with the exact number
         # of qubits actually used in the Circuit.
+        # The Circuit qubits attribute is iterated through, with the ith
+        # Qubit being assigned to the ith qubit of a new "quantinuum" register
         def flatten_registers(c: "Circuit") -> "Circuit":
             c.remove_blank_wires()
-            c.rename_units({c.qubits[i]: Qubit(i) for i in range(len(c.qubits))})
+            c.rename_units(
+                {c.qubits[i]: Qubit("quantinuum", i) for i in range(len(c.qubits))}
+            )
             return c
 
         # use default (perfect fidelities) for supported gates
