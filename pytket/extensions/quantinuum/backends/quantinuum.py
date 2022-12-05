@@ -30,7 +30,7 @@ from pytket.architecture import FullyConnected  # type: ignore
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
-from pytket.circuit import Circuit, OpType, Bit  # type: ignore
+from pytket.circuit import Circuit, OpType, Bit, Qubit  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
@@ -102,6 +102,12 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     if "RZZ" in gates:
         gs.add(OpType.ZZPhase)
     return gs
+
+
+def _flatten_registers(c: "Circuit") -> "Circuit":
+    c.remove_blank_wires()
+    c.rename_units({qb: Qubit("quantinuum", i) for i, qb in enumerate(c.qubits)})
+    return c
 
 
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
@@ -381,11 +387,10 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            return SequencePass(passlist + [self.rebase_pass()])
+            passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
-            return SequencePass(
-                passlist
-                + [
+            passlist.extend(
+                [
                     SynthesiseTK(),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
@@ -399,9 +404,8 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
-            return SequencePass(
-                passlist
-                + [
+            passlist.extend(
+                [
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
@@ -413,6 +417,23 @@ class QuantinuumBackend(Backend):
                     ),
                 ]
             )
+        # In TKET, a qubit register with N qubits can have qubits
+        # indexed with a a value greater than N, i.e. a single
+        # qubit register can exist with index "7" or similar.
+        # Similarly, a qubit register with N qubits could be defined
+        # in a Circuit, but fewer than N qubits in the register
+        # have operations.
+        # Both of these cases can causes issues when converting to QASM,
+        # as the size of the defined "qreg" can be larger than the
+        # number of Qubits actually used, or at times larger than the
+        # number of device Qubits, even if fewer are really used.
+        # By flattening the Circuit qubit registers, we make sure
+        # that the produced QASM has one "qreg", with the exact number
+        # of qubits actually used in the Circuit.
+        # The Circuit qubits attribute is iterated through, with the ith
+        # Qubit being assigned to the ith qubit of a new "quantinuum" register
+        passlist.append(CustomPass(_flatten_registers))
+        return SequencePass(passlist)
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
