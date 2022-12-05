@@ -104,6 +104,12 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     return gs
 
 
+def _flatten_registers(c: "Circuit") -> "Circuit":
+    c.remove_blank_wires()
+    c.rename_units({c.qubits[i]: Qubit("quantinuum", i) for i in range(len(c.qubits))})
+    return c
+
+
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
     """Given a max scratch register width, return a compiler pass that
     breaks up the internal scratch bit registers into smaller registers
@@ -366,28 +372,6 @@ class QuantinuumBackend(Backend):
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
 
-        # In TKET, a qubit register with N qubits can have qubits
-        # indexed with a a value greater than N, i.e. a single
-        # qubit register can exist with index "7" or similar.
-        # Similarly, a qubit register with N qubits could be defined
-        # in a Circuit, but fewer than N qubits in the register
-        # have operations.
-        # Both of these cases can causes issues when converting to QASM,
-        # as the size of the defined "qreg" can be larger than the
-        # number of Qubits actually used, or at times larger than the
-        # number of device Qubits, even if fewer are really used.
-        # By flattening the Circuit qubit registers, we make sure
-        # that the produced QASM has one "qreg", with the exact number
-        # of qubits actually used in the Circuit.
-        # The Circuit qubits attribute is iterated through, with the ith
-        # Qubit being assigned to the ith qubit of a new "quantinuum" register
-        def flatten_registers(c: "Circuit") -> "Circuit":
-            c.remove_blank_wires()
-            c.rename_units(
-                {c.qubits[i]: Qubit("quantinuum", i) for i in range(len(c.qubits))}
-            )
-            return c
-
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
         if OpType.ZZMax in self._gate_set:
@@ -433,7 +417,22 @@ class QuantinuumBackend(Backend):
                     ),
                 ]
             )
-        passlist.append(CustomPass(flatten_registers))
+        # In TKET, a qubit register with N qubits can have qubits
+        # indexed with a a value greater than N, i.e. a single
+        # qubit register can exist with index "7" or similar.
+        # Similarly, a qubit register with N qubits could be defined
+        # in a Circuit, but fewer than N qubits in the register
+        # have operations.
+        # Both of these cases can causes issues when converting to QASM,
+        # as the size of the defined "qreg" can be larger than the
+        # number of Qubits actually used, or at times larger than the
+        # number of device Qubits, even if fewer are really used.
+        # By flattening the Circuit qubit registers, we make sure
+        # that the produced QASM has one "qreg", with the exact number
+        # of qubits actually used in the Circuit.
+        # The Circuit qubits attribute is iterated through, with the ith
+        # Qubit being assigned to the ith qubit of a new "quantinuum" register
+        passlist.append(CustomPass(_flatten_registers))
         return SequencePass(passlist)
 
     @property
