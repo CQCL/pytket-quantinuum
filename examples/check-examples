@@ -2,7 +2,7 @@
 
 set -e
 
-for file in $(ls -1 python/)
+for file in $(ls python/*py | xargs -n 1 basename)
 do
     echo "============================================================"
     echo "Checking: ${file}"

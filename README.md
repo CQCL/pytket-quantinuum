@@ -32,8 +32,7 @@ There is also a Slack channel for discussion and support. Click [here](https://t
 
 ## Development
 
-To install an extension in editable mode, simply change to its subdirectory
-within the `modules` directory, and run:
+To install this extension in editable mode, simply change to this directory, and run:
 
 ```shell
 pip install -e .
@@ -71,9 +70,9 @@ with a set of style requirements (listed in `.pylintrc`). You should run
 
 ### Tests
 
-To run the tests for a module:
+To run the tests:
 
-1. `cd` into that module's `tests` directory;
+1. `cd` into the `tests` directory;
 2. ensure you have installed `pytest`, `hypothesis`, and any modules listed in
 the `test-requirements.txt` file (all via `pip`);
 3. run `pytest`.

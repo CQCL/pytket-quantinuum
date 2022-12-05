@@ -1,19 +1,28 @@
 # pytket-quantinuum example notebooks
 
-Here reside the example notebooks of the `pytket-quantinuum` extension.
+Here resides the example notebooks of the `pytket-quantinuum` extension.
 The `*.ipynb` notebooks are generated from the scripts in `examples/python`
 using the [p2j](https://github.com/remykarem/python2jupyter) tool.
 
 
 ## How to modify the notebooks
+
 Any change should be done to the corresponding `.py` file in `examples/python`.
 For example, in order to modify the `examples/Quantinuum_emulator.ipynb` notebook, you need
 to change the `examples/python/Quantinuum_emulator.py`. After that, you can update the
 actual notebook by running the `p2j` command (still using the same example):
 
 ```bash
-p2j -o -t Quantinuum_emulator.ipynb python/Quantinuum_emulator.ipynb
+p2j -o -t examples/Quantinuum_emulator.ipynb examples/python/Quantinuum_emulator.py
 ```
+
+## Adding new notebooks
+
+To add a new notebook:
+1. Create a python file in the `examples/python` folder with the source code for the new notebook. 
+2. Run the `p2j` command above to create the notebook
+3. Add the notebook name to the `maintained-notebooks.txt` file.
+
 
 ## Embedding the quantinuum logo
 
