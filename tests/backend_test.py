@@ -233,6 +233,7 @@ def test_default_pass(
         c.measure_all()
         c.add_qubit(q1)
         comp_pass.apply(c)
+        # 5 qubits added to Circuit, one is removed when flattening registers
         assert c.qubits == [Qubit(0), Qubit(1), Qubit(2), Qubit(3)]
         for pred in b.required_predicates:
             assert pred.verify(c)

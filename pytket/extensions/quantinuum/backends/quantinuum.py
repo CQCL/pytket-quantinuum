@@ -366,6 +366,19 @@ class QuantinuumBackend(Backend):
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
 
+        # In TKET, a qubit register with N qubits can have qubits
+        # indexed with a a value greater than N, i.e. a single
+        # qubit register can exist with index "7" or similar.
+        # Similarly, a qubit register with N qubits could be defined
+        # in a Circuit, but fewer than N qubits in the register
+        # have operations.
+        # Both of these cases can causes issues when converting to QASM,
+        # as the size of the defined "qreg" can be larger than the
+        # number of Qubits actually used, or at times larger than the
+        # number of device Qubits, even if fewer are really used.
+        # By flattening the Circuit qubit registers, we make sure
+        # that the produced QASM has one "qreg", with the exact number
+        # of qubits actually used in the Circuit.
         def flatten_registers(c: "Circuit") -> "Circuit":
             c.remove_blank_wires()
             c.rename_units({c.qubits[i]: Qubit(i) for i in range(len(c.qubits))})
@@ -386,17 +399,15 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            return SequencePass(
-                passlist
-                + [
+            passlist.append(
+                [
                     self.rebase_pass(),
                     CustomPass(flatten_registers),
                 ]
             )
         elif optimisation_level == 1:
-            return SequencePass(
-                passlist
-                + [
+            passlist.append(
+                [
                     SynthesiseTK(),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
@@ -411,9 +422,8 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
-            return SequencePass(
-                passlist
-                + [
+            passlist.append(
+                [
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
@@ -426,6 +436,7 @@ class QuantinuumBackend(Backend):
                     CustomPass(flatten_registers),
                 ]
             )
+        return SequencePass(passlist + [CustomPass(flatten_registers)])
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
