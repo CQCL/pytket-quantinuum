@@ -436,7 +436,8 @@ class QuantinuumBackend(Backend):
                     CustomPass(flatten_registers),
                 ]
             )
-        return SequencePass(passlist + [CustomPass(flatten_registers)])
+        passlist.append(CustomPass(flatten_registers))
+        return SequencePass(passlist)
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
