@@ -106,7 +106,7 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
 
 def _flatten_registers(c: "Circuit") -> "Circuit":
     c.remove_blank_wires()
-    c.rename_units({c.qubits[i]: Qubit("quantinuum", i) for i in range(len(c.qubits))})
+    c.rename_units({qb: Qubit("quantinuum", i) for i, qb in enumerate(c.qubits)})
     return c
 
 
