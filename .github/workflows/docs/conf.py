@@ -26,7 +26,7 @@ html_static_path = ["_static"]
 
 html_css_files = ["custom.css"]
 
-html_logo = "_static/Quantinuum_logo2.png"
+html_logo = "Quantinuum_logo2.png"
 # -- Extension configuration -------------------------------------------------
 
 pytketdoc_base = "https://cqcl.github.io/tket/pytket/api/"
