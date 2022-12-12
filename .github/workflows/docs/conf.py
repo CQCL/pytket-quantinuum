@@ -12,7 +12,7 @@ extensions = [
     "sphinx.ext.mathjax",
 ]
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
 
 # -- Extension configuration -------------------------------------------------
 
