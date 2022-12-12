@@ -17,7 +17,7 @@ pygments_style = "pastie"
 html_theme = "sphinx_book_theme"
 
 html_theme_options = {
-    "repository_url": "https://github.com/CQCL/tket",
+    "repository_url": "https://github.com/CQCL/pytket-quantinuum",
     "use_repository_button": True,
     "use_issues_button": True,
 }
