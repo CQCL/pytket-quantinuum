@@ -2,11 +2,11 @@
 
 import argparse
 import datetime
-from importlib import import_module
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from importlib import import_module
+from pathlib import Path
 
 DOCS_DIR = Path(sys.argv[0]).absolute().parent
 MODULES_DIR = DOCS_DIR.parent.parent.parent
@@ -15,6 +15,7 @@ PYTKET_EX_DOCS_LINK = "https://cqcl.github.io/pytket-extensions/api/index.html"
 PYTKET_QUANTINUUM_PYPI_LINK = "https://pypi.org/project/pytket-quantinuum/"
 PYTKET_QUANTINUUM_GITHUB = "https://github.com/CQCL/pytket-quantinuum"
 MODULE = "quantinuum"
+
 
 def get_module_version():
     m = import_module(f"pytket.extensions.{MODULE}")
@@ -39,9 +40,9 @@ def build_module_docs():
     mod_docs = MODULES_DIR / "docs"
     mod_build = mod_docs / "build"
     conf_copy = mod_docs / "conf.py"
-    logo_copy = mod_docs / "Quantinuum_logo.png"
+    logo_copy = mod_docs / "Quantinuum_logo2.png"
     shutil.copy(DOCS_DIR / "conf.py", conf_copy)
-    shutil.copy(DOCS_DIR / "Quantinuum_logo.png", logo_copy)
+    shutil.copy(DOCS_DIR / "Quantinuum_logo2.png", logo_copy)
     remove_dir(mod_build)
     index_rst = mod_docs / "index.rst"
     with open(mod_docs / "intro.txt", "r") as f:
@@ -51,12 +52,10 @@ def build_module_docs():
         )
         content.append(f"\tpytket <{PYTKET_DOCS_LINK}>\n")
         content.append(f"\tpytket extensions <{PYTKET_EX_DOCS_LINK}>\n")
-        content.append(
-            "\n.. toctree::\n\t:caption: Links:\n\t:maxdepth: 1\n\n"
-        )
+        content.append("\n.. toctree::\n\t:caption: Links:\n\t:maxdepth: 1\n\n")
         content.append(f"\tbug tracker <{PYTKET_QUANTINUUM_GITHUB}/issues>\n")
         content.append(f"\tGitHub <{PYTKET_QUANTINUUM_GITHUB}>\n")
-        content.append(f"\tPyPi <{PYTKET_QUANTINUUM_PYPI_LINK}>\n")        
+        content.append(f"\tPyPi <{PYTKET_QUANTINUUM_PYPI_LINK}>\n")
 
     with open(index_rst, "w") as f:
         f.writelines(content)
@@ -102,4 +101,4 @@ if __name__ == "__main__":
             MODULES_DIR / "docs" / "build",
             dest,
             dirs_exist_ok=True,
-            )
+        )
