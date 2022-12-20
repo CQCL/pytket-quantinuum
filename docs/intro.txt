@@ -1,19 +1,6 @@
 pytket-quantinuum
 ==================================
 
-.. raw:: html
-
-    <embed>
-    <div style="width:100%; display:flex; align-items:center; justify-content:end; transform: translateY(-85px); margin-bottom: -75px">
-        <img src="_images/Quantinuum_logo.png" width="100" height="100"></img>
-    </div>
-    </embed>
-
-.. image:: Quantinuum_logo.png
-   :width: 0px
-   :height: 0px
-   :align: right 
-
 ``pytket-quantinuum`` is an extension to ``pytket`` that allows ``pytket`` circuits to
 be executed on Quantinuum's quantum devices.
 
@@ -53,16 +40,35 @@ Default Compilation
 Every ``Backend`` in pytket has its own ``default_compilation_pass`` method. 
 This method applies a sequence of optimisations to a circuit depending on the value of an ``optimisation_level`` parameter. 
 This default compilation will ensure that the circuit meets all the constraints required to run on the ``Backend``. 
-The passes applied by different levels of optimisation are specified in the table below.
 
+The default pass can be applied in place as follows
+
+::
+
+  from pytket import Circuit
+  from pytket.extensions.quantinuum import QuantinuumBackend
+
+  circ = Circuit(2).H(0).CX(0, 1).CZ(0, 1)
+  backend = QuantinuumBackend('H1-1E')
+
+  # Compile the circuit in place. The optimisation level is set to 2 by default.
+  backend.default_compilation_pass().apply(circ)
+
+Alternatively the default pass can be applied using the ``get_compiled_circuit`` method.
+
+::
+
+  compiled_circ = backend.get_compiled_circuit(circ)
+
+The passes applied by different levels of optimisation are specified in the table below.
 
 .. list-table:: **Default compilation pass for the QuantinuumBackend**
    :widths: 25 25 25
    :header-rows: 1
 
    * - optimisation_level = 0
-     - optimisation_level = 1 [1]
-     - optimisation_level = 2
+     - optimisation_level = 1 
+     - optimisation_level = 2 [1]
    * - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
@@ -91,18 +97,19 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
      - 
 
-* [1] If no value is specified then ``optimisation_level`` defaults to a value of 1.
+* [1] If no value is specified then ``optimisation_level`` defaults to a value of 2.
 
 * [2] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
 
 * [3] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
-* [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX,OpType.Rz})``
+* [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX, OpType.Rz})``
 
 * [5] ``SimplifyInitial`` has arguments  ``SimplifyInitial(allow_classical=False, create_all_qubits=True, xcirc=_xcirc)``. Here ``_xcirc`` is a single qubit circuit that implements the ``X`` gate using the native ``PhasedX`` gate. Note that this pass will generally not preserve the unitary of the circuit.
 
 .. note::   If ``optimisation_level = 0`` the device constraints are solved but no additional optimisation is applied. Setting ``optimisation_level = 1`` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
 .. note::   The pass ``ZZPhaseToRz`` is left out of ``optimisation_level=2`` as the passes applied by ``FullPeepholeOptimise`` will already cover these optimisations.
+
 Device Predicates
 =================
 

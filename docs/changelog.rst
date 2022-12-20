@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+
+0.12.0 (December 2022)
+----------------------
+
+* Updated pytket version requirement to 1.10.
+* Default compilation pass update to flatten registers
+
 0.11.0 (November 2022)
 ----------------------
 
@@ -9,6 +16,7 @@ Changelog
   ``submit_qasm()``, requesting no optimization.
 * Change default optimization level in
   ``QuantinuumBackend.default_compilation_pass()`` to 2.
+* ``default_compilation_pass`` now flattens qubit registers when compiling Circuits.
 
 0.10.0 (November 2022)
 ----------------------

@@ -45,11 +45,7 @@ from pytket.circuit import (  # type: ignore
     if_not_bit,
 )
 from pytket.extensions.quantinuum import QuantinuumBackend
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    DEVICE_FAMILY,
-    GetResultFailed,
-    _GATE_SET,
-)
+from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _GATE_SET
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
@@ -222,12 +218,24 @@ def test_default_pass(
     for ol in range(3):
         comp_pass = b.default_compilation_pass(ol)
         c = Circuit(3, 3)
+        q0 = Qubit("test0", 5)
+        q1 = Qubit("test1", 6)
+        c.add_qubit(q0)
+        c.H(q0)
         c.H(0)
         c.CX(0, 1)
         c.CSWAP(1, 0, 2)
         c.ZZPhase(0.84, 2, 0)
         c.measure_all()
+        c.add_qubit(q1)
         comp_pass.apply(c)
+        # 5 qubits added to Circuit, one is removed when flattening registers
+        assert c.qubits == [
+            Qubit("quantinuum", 0),
+            Qubit("quantinuum", 1),
+            Qubit("quantinuum", 2),
+            Qubit("quantinuum", 3),
+        ]
         for pred in b.required_predicates:
             assert pred.verify(c)
 
@@ -312,11 +320,11 @@ def test_cost_estimate(
 ) -> None:
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c)
-    if b._device_name == DEVICE_FAMILY:
+    if b._device_name in ["H1", "H2"]:
         with pytest.raises(ValueError) as e:
             _ = b.cost(c, n_shots)
         assert "Cannot find syntax checker" in str(e.value)
-        estimate = b.cost(c, n_shots, syntax_checker="H1-1SC")
+        estimate = b.cost(c, n_shots, syntax_checker=f"{b._device_name}-1SC")
     else:
         estimate = b.cost(c, n_shots)
     if estimate is None:
