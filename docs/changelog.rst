@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+
+0.12.0 (December 2022)
+----------------------
+
+* Updated pytket version requirement to 1.10.
+* Default compilation pass update to flatten registers
+
 0.11.0 (November 2022)
 ----------------------
 
