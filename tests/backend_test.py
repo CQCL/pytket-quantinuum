@@ -45,11 +45,7 @@ from pytket.circuit import (  # type: ignore
     if_not_bit,
 )
 from pytket.extensions.quantinuum import QuantinuumBackend
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    DEVICE_FAMILY,
-    GetResultFailed,
-    _GATE_SET,
-)
+from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _GATE_SET
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
@@ -324,11 +320,11 @@ def test_cost_estimate(
 ) -> None:
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c)
-    if b._device_name == DEVICE_FAMILY:
+    if b._device_name in ["H1", "H2"]:
         with pytest.raises(ValueError) as e:
             _ = b.cost(c, n_shots)
         assert "Cannot find syntax checker" in str(e.value)
-        estimate = b.cost(c, n_shots, syntax_checker="H1-1SC")
+        estimate = b.cost(c, n_shots, syntax_checker=f"{b._device_name}-1SC")
     else:
         estimate = b.cost(c, n_shots)
     if estimate is None:
