@@ -66,7 +66,6 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
-QUANTINUUM_URL_PREFIX = "https://qapi.quantinuum.com/"
 DEVICE_FAMILY = "H1"
 MAX_C_REG_WIDTH = 32
 
