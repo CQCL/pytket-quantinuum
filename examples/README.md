@@ -16,7 +16,6 @@ actual notebook by running the `gen-nb` script.
 ## Adding new notebooks
 
 To add a new notebook:
-1. Create a python file in the `examples/python` folder with the source code for the new notebook. 
-2. Add the notebook name to the `maintained-notebooks.txt` file.
-3. Run the `gen-nb` script to generate the notebook.
-4. Commit both the python file and the generated notebook.
+1. Create a python file in the `examples/python` folder with the source code for the new notebook.
+2. Run the `gen-nb` script to generate the notebook.
+3. Commit both the python file and the generated notebook.
