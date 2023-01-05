@@ -542,6 +542,19 @@ class QuantinuumAPIOffline:
                     "batching": True,
                     "wasm": True,
                 },
+                {
+                    "name": "H2-1",
+                    "n_qubits": 32,
+                    "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                    "n_classical_registers": 50,
+                    "n_shots": 10000,
+                    "system_family": "H2",
+                    "system_type": "hardware",
+                    "emulator": "H2-1E",
+                    "syntax_checker": "H2-1SC",
+                    "batching": True,
+                    "wasm": True,
+                },
             ]
         self.provider = ""
         self.url = ""

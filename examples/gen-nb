@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+for file in $(ls python/*py | xargs -n 1 basename)
+do
+    echo "============================================================"
+    echo "Checking: ${file}"
+    echo "============================================================"
+    name=`basename $file .py`
+
+    # Save copy of original python file
+    cp python/${file} python/${name}-original.py
+    # Append embedded quantinuum logo markup to the beginning of the python file
+    logo=`cat logo_header_markdown.md`
+    sed -i "1i${logo}" python/${file}
+    # Generate the script
+    p2j -o -t ${name}.ipynb python/${file}
+    # Remove modified python script
+    rm python/${file}
+    # Restore original
+    mv python/${name}-original.py python/${file}
+done
