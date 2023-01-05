@@ -28,5 +28,5 @@ do
     mv python/${name}-original.py python/${file}
 
     # Run script
-    # ./answer_input_prompts ${file} $PYTKET_REMOTE_QUANTINUUM_USERNAME $PYTKET_REMOTE_QUANTINUUM_PASSWORD
+    ./answer_input_prompts ${file} $PYTKET_REMOTE_QUANTINUUM_USERNAME $PYTKET_REMOTE_QUANTINUUM_PASSWORD
 done
