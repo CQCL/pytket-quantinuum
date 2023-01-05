@@ -11,10 +11,14 @@ set QUANTINUUM_PASSWORD [lindex $argv 2]
 
 spawn python python/$PYTHON_FILE
 
-expect "*Quantinuum email*"
-send "$QUANTINUUM_EMAIL\n"
-
-expect "*Quantinuum password*"
-send "$QUANTINUUM_PASSWORD\n"
-
-expect eof
+expect {
+    "*Quantinuum email*" {
+        send "$QUANTINUUM_EMAIL\n"
+        exp_continue
+    }
+    "*Quantinuum password*" {
+        send "$QUANTINUUM_PASSWORD\n"
+        exp_continue
+    }
+    eof
+}
