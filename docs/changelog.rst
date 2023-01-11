@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 * Drop support for Python 3.8; add support for 3.11.
+* The backend now works in threads other than the main.
 
 0.12.0 (December 2022)
 ----------------------

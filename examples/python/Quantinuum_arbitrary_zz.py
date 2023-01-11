@@ -261,4 +261,4 @@ print(
     qft_fid_arbZZ_compiled_distro[(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)],
 )
 
-# <div align="center"> &copy; 2022 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

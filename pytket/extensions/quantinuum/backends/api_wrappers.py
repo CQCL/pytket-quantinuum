@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Cambridge Quantum Computing
+# Copyright 2020-2023 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -372,7 +372,13 @@ class QuantinuumAPI:
 
         if "websocket" in jr:
             # wait for job completion using websocket
-            jr = asyncio.get_event_loop().run_until_complete(self._wait_results(job_id))
+            try:
+                loop = asyncio.get_event_loop()
+                jr = loop.run_until_complete(self._wait_results(job_id))
+            except RuntimeError:
+                # no event loop in thread, call asyncio.run to use a new loop
+                jr = asyncio.run(self._wait_results(job_id))
+
         else:
             # poll for job completion
             jr = self._poll_results(job_id)
