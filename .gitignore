@@ -3,6 +3,7 @@
 build
 dist
 *.pyc
+.venv
 .vscode
 .mypy_cache
 .hypothesis
