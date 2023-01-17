@@ -13,7 +13,7 @@ extensions = [
     "sphinx_copybutton",
 ]
 
-pygments_style = "pastie"
+pygments_style = "borland"
 
 html_theme = "sphinx_book_theme"
 
