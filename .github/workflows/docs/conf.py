@@ -10,9 +10,10 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
+    "sphinx_copybutton",
 ]
 
-pygments_style = "pastie"
+pygments_style = "borland"
 
 html_theme = "sphinx_book_theme"
 
@@ -26,7 +27,7 @@ html_static_path = ["_static"]
 
 html_css_files = ["custom.css"]
 
-html_logo = "Quantinuum_logo2.png"
+html_logo = "Quantinuum_logo.png"
 
 # -- Extension configuration -------------------------------------------------
 

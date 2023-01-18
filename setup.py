@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Cambridge Quantum Computing
+# Copyright 2020-2023 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ setup(
     version=metadata["__extension_version__"],
     author="TKET development team",
     author_email="tket-support@cambridgequantum.com",
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     project_urls={
         "Documentation": "https://cqcl.github.io/pytket-quantinuum/api/index.html",
         "Source": "https://github.com/CQCL/pytket-quantinuum",
@@ -43,7 +43,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket ~= 1.10",
+        "pytket ~= 1.11",
         "requests >= 2.2",
         "types-requests",
         "websockets >= 7.0",
@@ -53,9 +53,9 @@ setup(
     ],
     classifiers=[
         "Environment :: Console",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: POSIX :: Linux",

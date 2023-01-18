@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+0.13.0 (January 2023)
+---------------------
+
+* Drop support for Python 3.8; add support for 3.11.
+* The backend now works in threads other than the main.
+* Updated pytket version requirement to 1.11.
 
 0.12.0 (December 2022)
 ----------------------

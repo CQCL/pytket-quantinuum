@@ -300,4 +300,4 @@ result = backend.get_result(handle)
 
 print(result.get_distribution())
 
-# <div align="center"> &copy; 2022 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
