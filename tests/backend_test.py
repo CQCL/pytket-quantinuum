@@ -35,6 +35,7 @@ from pytket.circuit import (  # type: ignore
     Circuit,
     Qubit,
     Bit,
+    Node,
     OpType,
     reg_eq,
     reg_neq,
@@ -230,12 +231,7 @@ def test_default_pass(
         c.add_qubit(q1)
         comp_pass.apply(c)
         # 5 qubits added to Circuit, one is removed when flattening registers
-        assert c.qubits == [
-            Qubit("quantinuum", 0),
-            Qubit("quantinuum", 1),
-            Qubit("quantinuum", 2),
-            Qubit("quantinuum", 3),
-        ]
+        assert c.qubits == [Node(0), Node(1), Node(2), Node(3)]
         for pred in b.required_predicates:
             assert pred.verify(c)
 
