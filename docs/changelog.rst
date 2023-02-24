@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 * Use default ``Node`` register for flattening in default compilation pass.
+* Prefer ``ZZPhase`` to ``ZZMax`` gates if available.
 
 0.13.0 (January 2023)
 ---------------------
