@@ -372,11 +372,12 @@ class QuantinuumBackend(Backend):
 
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
-        if OpType.ZZMax in self._gate_set:
-            fidelities["ZZMax_fidelity"] = 1.0
+        # If ZZPhase is available we should prefer it to ZZMax.
         if OpType.ZZPhase in self._gate_set:
             fidelities["ZZPhase_fidelity"] = lambda x: 1.0
-        if len(fidelities) == 0:
+        elif OpType.ZZMax in self._gate_set:
+            fidelities["ZZMax_fidelity"] = 1.0
+        else:
             raise QuantinuumAPIError(
                 "Either ZZMax or ZZPhase gate must be supported by device"
             )
