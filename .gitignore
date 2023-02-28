@@ -5,6 +5,7 @@ dist
 *.pyc
 .venv
 .vscode
+.venv
 .mypy_cache
 .hypothesis
 obj
