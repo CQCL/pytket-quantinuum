@@ -590,6 +590,31 @@ def test_zzphase_support_opti2(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+def test_prefer_zzphase(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    # We should prefer small-angle ZZPhase to alternative ZZMax decompositions
+    backend = authenticated_quum_backend
+    c = (
+        Circuit(2)
+        .H(0)
+        .H(1)
+        .ZZPhase(0.1, 0, 1)
+        .Rx(0.2, 0)
+        .Ry(0.3, 1)
+        .ZZPhase(0.1, 0, 1)
+        .H(0)
+        .H(1)
+        .measure_all()
+    )
+    c0 = backend.get_compiled_circuit(c)
+    if OpType.ZZPhase in backend._gate_set:
+        assert c0.n_gates_of_type(OpType.ZZPhase) == 2
+    else:
+        assert c0.n_gates_of_type(OpType.ZZMax) == 2
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("device_name", ALL_DEVICE_NAMES)
 def test_device_state(
     device_name: str, authenticated_quum_handler: QuantinuumAPI
