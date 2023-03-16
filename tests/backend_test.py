@@ -656,7 +656,7 @@ def test_custom_api_handler(device_name: str) -> None:
 def test_wasm(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
-    wasfile = WasmFileHandler(str(Path(__file__).parent / "sample_wasm.wasm"))
+    wasfile = WasmFileHandler(str(Path(__file__).parent / "testfile.wasm"))
     c = Circuit(1)
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
