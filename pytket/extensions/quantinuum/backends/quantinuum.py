@@ -30,7 +30,7 @@ from pytket.architecture import FullyConnected  # type: ignore
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
-from pytket.circuit import Circuit, OpType, Bit, Qubit  # type: ignore
+from pytket.circuit import Circuit, OpType, Bit, Node  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
@@ -104,7 +104,7 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
 
 def _flatten_registers(c: "Circuit") -> "Circuit":
     c.remove_blank_wires()
-    c.rename_units({qb: Qubit("quantinuum", i) for i, qb in enumerate(c.qubits)})
+    c.rename_units({qb: Node(i) for i, qb in enumerate(c.qubits)})
     return c
 
 
@@ -372,11 +372,12 @@ class QuantinuumBackend(Backend):
 
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
-        if OpType.ZZMax in self._gate_set:
-            fidelities["ZZMax_fidelity"] = 1.0
+        # If ZZPhase is available we should prefer it to ZZMax.
         if OpType.ZZPhase in self._gate_set:
             fidelities["ZZPhase_fidelity"] = lambda x: 1.0
-        if len(fidelities) == 0:
+        elif OpType.ZZMax in self._gate_set:
+            fidelities["ZZMax_fidelity"] = 1.0
+        else:
             raise QuantinuumAPIError(
                 "Either ZZMax or ZZPhase gate must be supported by device"
             )
@@ -429,7 +430,7 @@ class QuantinuumBackend(Backend):
         # that the produced QASM has one "qreg", with the exact number
         # of qubits actually used in the Circuit.
         # The Circuit qubits attribute is iterated through, with the ith
-        # Qubit being assigned to the ith qubit of a new "quantinuum" register
+        # qubit being assigned to the ith qubit of a new "node" register
         passlist.append(CustomPass(_flatten_registers))
         return SequencePass(passlist)
 
