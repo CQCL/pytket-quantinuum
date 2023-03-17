@@ -1,11 +1,12 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.14.0 (March 2023)
+-------------------
 
 * Use default ``Node`` register for flattening in default compilation pass.
 * Prefer ``ZZPhase`` to ``ZZMax`` gates if available.
+* Updated pytket version requirement to 1.13.
 
 0.13.0 (January 2023)
 ---------------------
