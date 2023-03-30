@@ -30,7 +30,7 @@ from pytket.architecture import FullyConnected  # type: ignore
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
-from pytket.circuit import Circuit, OpType, Bit, Node  # type: ignore
+from pytket.circuit import Circuit, OpType, Bit  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.qasm import circuit_to_qasm_str
