@@ -46,6 +46,7 @@ from pytket.passes import (  # type: ignore
     SimplifyInitial,
     ZZPhaseToRz,
     CustomPass,
+    FlattenRelabelRegistersPass,
     auto_rebase_pass,
     auto_squash_pass,
 )
@@ -100,12 +101,6 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     if "RZZ" in gates:
         gs.add(OpType.ZZPhase)
     return gs
-
-
-def _flatten_registers(c: "Circuit") -> "Circuit":
-    c.remove_blank_wires()
-    c.rename_units({qb: Node(i) for i, qb in enumerate(c.qubits)})
-    return c
 
 
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
@@ -271,7 +266,7 @@ class QuantinuumBackend(Backend):
             name=cls.__name__,
             device_name=name,
             version=__extension_version__,
-            architecture=FullyConnected(n_qubits),
+            architecture=FullyConnected(n_qubits, "node"),
             gate_set=_get_gateset(gate_set),
             supports_fast_feedforward=True,
             supports_midcircuit_measurement=True,
@@ -431,7 +426,7 @@ class QuantinuumBackend(Backend):
         # of qubits actually used in the Circuit.
         # The Circuit qubits attribute is iterated through, with the ith
         # qubit being assigned to the ith qubit of a new "node" register
-        passlist.append(CustomPass(_flatten_registers))
+        passlist.append(FlattenRelabelRegistersPass("node"))
         return SequencePass(passlist)
 
     @property
