@@ -29,7 +29,7 @@ from pytket.passes import (  # type: ignore
     FullPeepholeOptimise,
     OptimisePhaseGadgets,
 )
-from pytket.predicates import CompilationUnit
+from pytket.predicates import CompilationUnit  # type: ignore
 
 
 from pytket.circuit import (  # type: ignore
