@@ -83,7 +83,8 @@ def build_module_docs():
         fix_links(htmlfile)
     fix_links(mod_build / "searchindex.js")
     conf_copy.unlink()
-    logo_copy.unlink()
+    logo_copy_black.unlink()
+    logo_copy_white.unlink()
     index_rst.unlink()
 
 
