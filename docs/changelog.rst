@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+0.15.0 (April 2023)
+-------------------
+
+* Darkmode added to the documentation
+* Updated pytket version requirement to 1.13.2
+* Default compilation passes update to correctly track initial and final maps during compilation
+
 0.14.0 (March 2023)
 -------------------
 
