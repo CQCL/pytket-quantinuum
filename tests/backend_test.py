@@ -29,6 +29,7 @@ from pytket.passes import (  # type: ignore
     FullPeepholeOptimise,
     OptimisePhaseGadgets,
 )
+from pytket.predicates import CompilationUnit  # type: ignore
 
 
 from pytket.circuit import (  # type: ignore
@@ -229,11 +230,17 @@ def test_default_pass(
         c.ZZPhase(0.84, 2, 0)
         c.measure_all()
         c.add_qubit(q1)
-        comp_pass.apply(c)
+        cu = CompilationUnit(c)
+        comp_pass.apply(cu)
         # 5 qubits added to Circuit, one is removed when flattening registers
-        assert c.qubits == [Node(0), Node(1), Node(2), Node(3)]
+        assert cu.circuit.qubits == [Node(0), Node(1), Node(2), Node(3)]
+        assert cu.initial_map[Qubit(0)] == Node(0)
+        assert cu.initial_map[Qubit(1)] == Node(1)
+        assert cu.initial_map[Qubit(2)] == Node(2)
+        assert cu.initial_map[q0] == Node(3)
+        assert cu.initial_map[q1] == q1
         for pred in b.required_predicates:
-            assert pred.verify(c)
+            assert pred.verify(cu.circuit)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
