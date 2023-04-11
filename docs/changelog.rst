@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+0.16.0 (unreleased)
+-------------------
+
+* cost function now takes the same kwargs as process_circuits
+
 0.15.0 (April 2023)
 -------------------
 

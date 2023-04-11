@@ -828,6 +828,7 @@ class QuantinuumBackend(Backend):
         n_shots: int,
         syntax_checker: Optional[str] = None,
         use_websocket: Optional[bool] = None,
+        **kwargs: QuumKwargTypes,
     ) -> Optional[float]:
         """
         Return the cost in HQC to complete this `circuit` with `n_shots`
@@ -838,6 +839,9 @@ class QuantinuumBackend(Backend):
         Sometimes it may not be possible to find the relevant syntax checker,
         for example for device families. In which case you may need to set
         the ``syntax_checker`` kwarg to the appropriate syntax checker name.
+
+        See :py:meth:`QuantinuumBackend.process_circuits` for the
+        supported kwargs.
 
         :param circuit: Circuit to calculate runtime estimate for. Must be valid for
             backend.
@@ -875,7 +879,7 @@ class QuantinuumBackend(Backend):
             cast(str, syntax_checker), api_handler=self.api_handler
         )
         try:
-            handle = backend.process_circuit(circuit, n_shots)
+            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)  # type: ignore
         except DeviceNotAvailable as e:
             raise ValueError(
                 f"Cannot find syntax checker for device {self._device_name}. "
