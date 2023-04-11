@@ -879,7 +879,7 @@ class QuantinuumBackend(Backend):
             cast(str, syntax_checker), api_handler=self.api_handler
         )
         try:
-            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)
+            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)  # type: ignore
         except DeviceNotAvailable as e:
             raise ValueError(
                 f"Cannot find syntax checker for device {self._device_name}. "
