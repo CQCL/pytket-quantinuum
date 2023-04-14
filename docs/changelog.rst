@@ -5,6 +5,8 @@ Changelog
 -------------------
 
 * cost function now takes the same kwargs as process_circuits
+* add check for the number of classical registers to the backend
+* Updated pytket version requirement to 1.14.1rc0
 
 0.15.0 (April 2023)
 -------------------
