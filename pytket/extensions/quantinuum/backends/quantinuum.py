@@ -262,9 +262,7 @@ class QuantinuumBackend(Backend):
     def _dict_to_backendinfo(cls, dct: Dict[str, Any]) -> BackendInfo:
         name: str = dct.pop("name")
         n_qubits: int = dct.pop("n_qubits")
-        n_cl_reg: Optional[int] = None
-        if "n_classical_registers" in dct:
-            n_cl_reg = dct.pop("n_classical_registers")
+        n_cl_reg: int = dct.pop("n_classical_registers")
         gate_set: List[str] = dct.pop("gateset", [])
         return BackendInfo(
             name=cls.__name__,

@@ -138,7 +138,11 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "batching": True,
             "wasm": True,
         },
-        {"name": "H1", "n_qubits": 20},
+        {
+            "name": "H1",
+            "n_qubits": 20,
+            "n_classical_registers": 120,
+        },
     ]
 
 
