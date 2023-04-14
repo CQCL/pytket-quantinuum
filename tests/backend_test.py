@@ -23,6 +23,7 @@ import pytest
 import hypothesis.strategies as st
 from hypothesis.strategies._internal import SearchStrategy
 from hypothesis import HealthCheck
+from pytket.backends import CircuitNotValidError
 from pytket.passes import (  # type: ignore
     SequencePass,
     RemoveRedundancies,
@@ -138,6 +139,57 @@ def test_quantinuum_offline() -> None:
     assert result[0]["language"] == expected_result["language"]
     assert result[0]["priority"] == expected_result["priority"]
     # assert result[0]["options"] == expected_result["options"]
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_max_classical_register(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+
+    c = Circuit(4, 4, "test 1")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    c = backend.get_compiled_circuit(c)
+    assert backend._check_all_circuits([c])
+    for i in range(0, 20):
+        c.add_c_register(f"creg-{i}", 32)
+
+    assert backend._check_all_circuits([c])
+
+    for i in range(20, 200):
+        c.add_c_register(f"creg-{i}", 32)
+
+    with pytest.raises(CircuitNotValidError) as e:
+        backend._check_all_circuits([c])
+
+
+def test_max_classical_register_ii() -> None:
+    qapioffline = QuantinuumAPIOffline()
+    backend = QuantinuumBackend(
+        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+    )
+
+    c = Circuit(4, 4, "test 1")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    c = backend.get_compiled_circuit(c)
+    assert backend._check_all_circuits([c])
+    for i in range(0, 20):
+        c.add_c_register(f"creg-{i}", 32)
+
+    assert backend._check_all_circuits([c])
+
+    for i in range(20, 200):
+        c.add_c_register(f"creg-{i}", 32)
+
+    with pytest.raises(CircuitNotValidError) as e:
+        backend._check_all_circuits([c])
 
 
 def test_tket_pass_submission() -> None:
