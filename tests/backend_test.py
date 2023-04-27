@@ -23,6 +23,7 @@ import pytest
 import hypothesis.strategies as st
 from hypothesis.strategies._internal import SearchStrategy
 from hypothesis import HealthCheck
+from pytket.backends import CircuitNotValidError
 from pytket.passes import (  # type: ignore
     SequencePass,
     RemoveRedundancies,
@@ -138,6 +139,57 @@ def test_quantinuum_offline() -> None:
     assert result[0]["language"] == expected_result["language"]
     assert result[0]["priority"] == expected_result["priority"]
     # assert result[0]["options"] == expected_result["options"]
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_max_classical_register(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+
+    c = Circuit(4, 4, "test 1")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    c = backend.get_compiled_circuit(c)
+    assert backend._check_all_circuits([c])
+    for i in range(0, 20):
+        c.add_c_register(f"creg-{i}", 32)
+
+    assert backend._check_all_circuits([c])
+
+    for i in range(20, 200):
+        c.add_c_register(f"creg-{i}", 32)
+
+    with pytest.raises(CircuitNotValidError):
+        backend._check_all_circuits([c])
+
+
+def test_max_classical_register_ii() -> None:
+    qapioffline = QuantinuumAPIOffline()
+    backend = QuantinuumBackend(
+        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+    )
+
+    c = Circuit(4, 4, "test 1")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    c = backend.get_compiled_circuit(c)
+    assert backend._check_all_circuits([c])
+    for i in range(0, 20):
+        c.add_c_register(f"creg-{i}", 32)
+
+    assert backend._check_all_circuits([c])
+
+    for i in range(20, 200):
+        c.add_c_register(f"creg-{i}", 32)
+
+    with pytest.raises(CircuitNotValidError):
+        backend._check_all_circuits([c])
 
 
 def test_tket_pass_submission() -> None:
@@ -327,9 +379,11 @@ def test_cost_estimate(
         with pytest.raises(ValueError) as e:
             _ = b.cost(c, n_shots)
         assert "Cannot find syntax checker" in str(e.value)
-        estimate = b.cost(c, n_shots, syntax_checker=f"{b._device_name}-1SC")
+        estimate = b.cost(
+            c, n_shots, syntax_checker=f"{b._device_name}-1SC", no_opt=False
+        )
     else:
-        estimate = b.cost(c, n_shots)
+        estimate = b.cost(c, n_shots, no_opt=False)
     if estimate is None:
         pytest.skip("API is flaky, sometimes returns None unexpectedly.")
     assert isinstance(estimate, float)
@@ -674,6 +728,29 @@ def test_wasm(
     c = b.get_compiled_circuit(c)
     h = b.process_circuits([c], n_shots=10, wasm_file_handler=wasfile)[0]
     assert b.get_result(h)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_wasm_costs(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    wasfile = WasmFileHandler(str(Path(__file__).parent / "testfile.wasm"))
+    c = Circuit(1)
+    c.name = "test_wasm"
+    a = c.add_c_register("a", 8)
+    c.add_wasm_to_reg("add_one", wasfile, [a], [a])
+
+    b = authenticated_quum_backend
+
+    c = b.get_compiled_circuit(c)
+    costs = b.cost(c, n_shots=10, syntax_checker="H1-1SC", wasm_file_handler=wasfile)
+    if costs is None:
+        pytest.skip("API is flaky, sometimes returns None unexpectedly.")
+    assert isinstance(costs, float)
+    assert costs > 0.0
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)

@@ -453,8 +453,8 @@ def test_available_devices(
     assert backinfo.supports_fast_feedforward == True
     assert backinfo.supports_midcircuit_measurement == True
     assert backinfo.supports_reset == True
+    assert backinfo.n_cl_reg == 120
     assert backinfo.misc == {
-        "n_classical_registers": 50,
         "n_shots": 10000,
         "system_family": "mock_family",
         "system_type": "hardware",

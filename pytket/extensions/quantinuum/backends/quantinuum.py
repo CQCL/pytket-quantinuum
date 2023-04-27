@@ -53,6 +53,7 @@ from pytket.passes import (  # type: ignore
 from pytket.predicates import (  # type: ignore
     GateSetPredicate,
     MaxNQubitsPredicate,
+    MaxNClRegPredicate,
     Predicate,
     NoSymbolsPredicate,
 )
@@ -261,6 +262,9 @@ class QuantinuumBackend(Backend):
     def _dict_to_backendinfo(cls, dct: Dict[str, Any]) -> BackendInfo:
         name: str = dct.pop("name")
         n_qubits: int = dct.pop("n_qubits")
+        n_cl_reg: Optional[int] = None
+        if "n_classical_registers" in dct:
+            n_cl_reg = dct.pop("n_classical_registers")
         gate_set: List[str] = dct.pop("gateset", [])
         return BackendInfo(
             name=cls.__name__,
@@ -268,6 +272,7 @@ class QuantinuumBackend(Backend):
             version=__extension_version__,
             architecture=FullyConnected(n_qubits, "node"),
             gate_set=_get_gateset(gate_set),
+            n_cl_reg=n_cl_reg,
             supports_fast_feedforward=True,
             supports_midcircuit_measurement=True,
             supports_reset=True,
@@ -351,6 +356,7 @@ class QuantinuumBackend(Backend):
         if not self._MACHINE_DEBUG:
             assert self.backend_info is not None
             preds.append(MaxNQubitsPredicate(self.backend_info.n_nodes))
+            preds.append(MaxNClRegPredicate(self.backend_info.n_cl_reg))
 
         return preds
 
@@ -828,6 +834,7 @@ class QuantinuumBackend(Backend):
         n_shots: int,
         syntax_checker: Optional[str] = None,
         use_websocket: Optional[bool] = None,
+        **kwargs: QuumKwargTypes,
     ) -> Optional[float]:
         """
         Return the cost in HQC to complete this `circuit` with `n_shots`
@@ -838,6 +845,9 @@ class QuantinuumBackend(Backend):
         Sometimes it may not be possible to find the relevant syntax checker,
         for example for device families. In which case you may need to set
         the ``syntax_checker`` kwarg to the appropriate syntax checker name.
+
+        See :py:meth:`QuantinuumBackend.process_circuits` for the
+        supported kwargs.
 
         :param circuit: Circuit to calculate runtime estimate for. Must be valid for
             backend.
@@ -875,7 +885,7 @@ class QuantinuumBackend(Backend):
             cast(str, syntax_checker), api_handler=self.api_handler
         )
         try:
-            handle = backend.process_circuit(circuit, n_shots)
+            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)  # type: ignore
         except DeviceNotAvailable as e:
             raise ValueError(
                 f"Cannot find syntax checker for device {self._device_name}. "
