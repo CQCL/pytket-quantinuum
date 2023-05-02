@@ -63,7 +63,17 @@ REASON = (
     "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
 )
 
-ALL_DEVICE_NAMES = ["H1-1SC", "H1-2SC", "H1", "H1-1", "H1-2", "H1-1E", "H1-2E"]
+ALL_DEVICE_NAMES = [
+    "H1-1SC",
+    "H1-2SC",
+    "H1-1",
+    "H1-2",
+    "H1-1E",
+    "H1-2E",
+    "H2-1",
+    "H2-1E",
+    "H2-1SC",
+]
 
 
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
