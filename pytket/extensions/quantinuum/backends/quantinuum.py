@@ -101,6 +101,8 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     gs = _GATE_SET.copy()
     if "RZZ" in gates:
         gs.add(OpType.ZZPhase)
+    if "Rxxyyzz" in gates:
+        gs.add(OpType.TK2)
     return gs
 
 
