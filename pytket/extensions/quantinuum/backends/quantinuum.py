@@ -788,7 +788,8 @@ class QuantinuumBackend(Backend):
         :param handle: handle to results
         :type handle: ResultHandle
 
-        :return: A tuple containing the results and circuit status. If no results are available, the first element is None.
+        :return: A tuple containing the results and circuit status.
+        If no results are available, the first element is None.
         :rtype: Tuple[Optional[BackendResult], CircuitStatus]
         """
         job_id = str(handle[0])
