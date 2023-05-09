@@ -193,7 +193,7 @@ class QuantinuumBackend(Backend):
     ):
         """Construct a new Quantinuum backend.
 
-        :param device_name: Name of device, e.g. "H1"
+        :param device_name: Name of device, e.g. "H1-1"
         :type device_name: str
         :param label: Job labels used if Circuits have no name, defaults to "job"
         :type label: Optional[str], optional
