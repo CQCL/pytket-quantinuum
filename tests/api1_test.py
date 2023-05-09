@@ -433,7 +433,6 @@ def test_available_devices(
     mock_quum_api_handler: QuantinuumAPI,
     mock_machine_info: Dict[str, Any],
 ) -> None:
-
     requests_mock.register_uri(
         "GET",
         f"https://qapi.quantinuum.com/v1/machine/?config=true",
@@ -456,7 +455,6 @@ def test_available_devices(
     assert backinfo.n_cl_reg == 120
     assert backinfo.misc == {
         "n_shots": 10000,
-        "system_family": "mock_family",
         "system_type": "hardware",
         "emulator": "H9-27E",
         "syntax_checker": "H9-27SC",

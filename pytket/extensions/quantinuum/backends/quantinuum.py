@@ -325,13 +325,7 @@ class QuantinuumBackend(Backend):
             headers={"Authorization": api_handler.login()},
         )
         api_handler._response_check(res, "get machine status")
-        jr = res.json()
-        try:
-            return str(jr["state"])
-        except KeyError:
-            # for family backends the response dictionary is different
-            # {"<device_name>": <state>}
-            return str(jr)
+        return str(res.json()["state"])
 
     @property
     def backend_info(self) -> Optional[BackendInfo]:
@@ -842,9 +836,6 @@ class QuantinuumBackend(Backend):
         If the backend is not a syntax checker (backend name does not end with
         "SC"), it is automatically appended
         to check against the relevant syntax checker.
-        Sometimes it may not be possible to find the relevant syntax checker,
-        for example for device families. In which case you may need to set
-        the ``syntax_checker`` kwarg to the appropriate syntax checker name.
 
         See :py:meth:`QuantinuumBackend.process_circuits` for the
         supported kwargs.
@@ -891,10 +882,7 @@ class QuantinuumBackend(Backend):
                 f"Cannot find syntax checker for device {self._device_name}. "
                 "Try setting the `syntax_checker` key word argument"
                 " to the appropriate syntax checker for"
-                " your device explicitly. "
-                "For device families, you may need to pick the"
-                " syntax checker for the specific device,"
-                " e.g. 'H1-1SC' as opposed to 'H1SC'"
+                " your device explicitly."
             ) from e
         _ = backend.get_result(handle, use_websocket=use_websocket)
 
