@@ -8,6 +8,7 @@ Changelog
 * cost function now takes the same kwargs as process_circuits
 * add check for the number of classical registers to the backend
 * add ``get_partial_result`` method to ``QuantinuumBackend``.
+* add ``Rxxyyzz`` gate support.
 
 0.15.0 (April 2023)
 -------------------
