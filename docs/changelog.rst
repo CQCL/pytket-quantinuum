@@ -8,6 +8,7 @@ Changelog
 * add check for the number of classical registers to the backend
 * Updated pytket version requirement to 1.14.1rc0
 * add ``get_partial_result`` method to ``QuantinuumBackend``.
+* add ``Rxxyyzz`` gate support.
 
 0.15.0 (April 2023)
 -------------------
