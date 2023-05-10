@@ -17,7 +17,7 @@ from ast import literal_eval
 from dataclasses import dataclass
 import json
 from http import HTTPStatus
-from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast
+from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 import warnings
 
 import numpy as np
@@ -101,6 +101,8 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     gs = _GATE_SET.copy()
     if "RZZ" in gates:
         gs.add(OpType.ZZPhase)
+    if "Rxxyyzz" in gates:
+        gs.add(OpType.TK2)
     return gs
 
 
@@ -193,7 +195,7 @@ class QuantinuumBackend(Backend):
     ):
         """Construct a new Quantinuum backend.
 
-        :param device_name: Name of device, e.g. "H1"
+        :param device_name: Name of device, e.g. "H1-1"
         :type device_name: str
         :param label: Job labels used if Circuits have no name, defaults to "job"
         :type label: Optional[str], optional
@@ -325,13 +327,7 @@ class QuantinuumBackend(Backend):
             headers={"Authorization": api_handler.login()},
         )
         api_handler._response_check(res, "get machine status")
-        jr = res.json()
-        try:
-            return str(jr["state"])
-        except KeyError:
-            # for family backends the response dictionary is different
-            # {"<device_name>": <state>}
-            return str(jr)
+        return str(res.json()["state"])
 
     @property
     def backend_info(self) -> Optional[BackendInfo]:
@@ -779,6 +775,32 @@ class QuantinuumBackend(Backend):
                 )
         return circ_status
 
+    def get_partial_result(
+        self, handle: ResultHandle
+    ) -> Tuple[Optional[BackendResult], CircuitStatus]:
+        """
+        Retrieve partial results for a given job, regardless of its current state.
+
+        :param handle: handle to results
+        :type handle: ResultHandle
+
+        :return: A tuple containing the results and circuit status.
+            If no results are available, the first element is None.
+        :rtype: Tuple[Optional[BackendResult], CircuitStatus]
+        """
+        job_id = str(handle[0])
+        jr = self.api_handler.retrieve_job_status(job_id)
+        if not jr:
+            raise QuantinuumAPIError(f"Unable to retrive job {job_id}")
+        res = jr.get("results")
+        circ_status = _parse_status(jr)
+        if res is None:
+            return None, circ_status
+        ppcirc_rep = json.loads(cast(str, handle[1]))
+        ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
+        backres = _convert_result(res, ppcirc)
+        return backres, circ_status
+
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
         """
         See :py:meth:`pytket.backends.Backend.get_result`.
@@ -842,9 +864,6 @@ class QuantinuumBackend(Backend):
         If the backend is not a syntax checker (backend name does not end with
         "SC"), it is automatically appended
         to check against the relevant syntax checker.
-        Sometimes it may not be possible to find the relevant syntax checker,
-        for example for device families. In which case you may need to set
-        the ``syntax_checker`` kwarg to the appropriate syntax checker name.
 
         See :py:meth:`QuantinuumBackend.process_circuits` for the
         supported kwargs.
@@ -891,10 +910,7 @@ class QuantinuumBackend(Backend):
                 f"Cannot find syntax checker for device {self._device_name}. "
                 "Try setting the `syntax_checker` key word argument"
                 " to the appropriate syntax checker for"
-                " your device explicitly. "
-                "For device families, you may need to pick the"
-                " syntax checker for the specific device,"
-                " e.g. 'H1-1SC' as opposed to 'H1SC'"
+                " your device explicitly."
             ) from e
         _ = backend.get_result(handle, use_websocket=use_websocket)
 

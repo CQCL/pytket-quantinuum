@@ -25,6 +25,7 @@ import pytest
 import requests
 from requests_mock.mocker import Mocker
 
+from pytket.backends import ResultHandle, StatusEnum
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends import QuantinuumBackend
 from pytket.circuit import Circuit  # type: ignore
@@ -433,7 +434,6 @@ def test_available_devices(
     mock_quum_api_handler: QuantinuumAPI,
     mock_machine_info: Dict[str, Any],
 ) -> None:
-
     requests_mock.register_uri(
         "GET",
         f"https://qapi.quantinuum.com/v1/machine/?config=true",
@@ -456,7 +456,6 @@ def test_available_devices(
     assert backinfo.n_cl_reg == 120
     assert backinfo.misc == {
         "n_shots": 10000,
-        "system_family": "mock_family",
         "system_type": "hardware",
         "emulator": "H9-27E",
         "syntax_checker": "H9-27SC",
@@ -515,3 +514,38 @@ def test_submit_qasm_api(
 
     assert submitted_json["program"] == qasm
     assert submitted_json["count"] == 10
+
+
+def test_get_partial_result(
+    requests_mock: Mocker,
+    mock_quum_api_handler: QuantinuumAPI,
+) -> None:
+    queued_job_id = "abc-123"
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/job/{queued_job_id}?websocket=true",
+        json={"job": "abc-123", "name": "job", "status": "queued"},
+        headers={"Content-Type": "application/json"},
+    )
+    running_job_id = "abc-456"
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/job/{running_job_id}?websocket=true",
+        json={
+            "job": "abc-123",
+            "name": "job",
+            "status": "running",
+            "results": {"c": ["10110", "10000", "10110", "01100", "10000"]},
+        },
+        headers={"Content-Type": "application/json"},
+    )
+    backend = QuantinuumBackend(device_name="H1-2SC", api_handler=mock_quum_api_handler)
+    h1 = ResultHandle(queued_job_id, "null")
+    res, status = backend.get_partial_result(h1)
+    assert res is None
+    assert status.status == StatusEnum.QUEUED
+
+    h2 = ResultHandle(running_job_id, "null")
+    res, status = backend.get_partial_result(h2)
+    assert res is not None
+    assert status.status == StatusEnum.RUNNING
