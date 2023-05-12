@@ -15,5 +15,5 @@
 """Backends for processing pytket circuits with Quantinuum devices
 """
 
-from .quantinuum import QuantinuumBackend
+from .quantinuum import QuantinuumBackend, Language
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline

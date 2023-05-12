@@ -14,7 +14,9 @@
 """Pytket Backend for Quantinuum devices."""
 
 from ast import literal_eval
+from base64 import b64encode
 from dataclasses import dataclass
+from enum import Enum
 import json
 from http import HTTPStatus
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
@@ -64,6 +66,8 @@ from pytket.wasm import WasmFileHandler
 from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
+
+from pytket_qir.converter import circuit_to_qir
 
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
@@ -155,6 +159,13 @@ class BatchingUnsupported(Exception):
 @dataclass
 class DeviceNotAvailable(Exception):
     device_name: str
+
+
+class Language(Enum):
+    """Language used for submission of circuits."""
+
+    QASM = "OPENQASM 2.0"
+    QIR = "QIR 1.0"
 
 
 # DEFAULT_CREDENTIALS_STORAGE for use with the DEFAULT_API_HANDLER.
@@ -445,9 +456,10 @@ class QuantinuumBackend(Backend):
         """
         return cast(str, handle[0])
 
-    def submit_qasm(
+    def submit_program(
         self,
-        qasm: str,
+        language: Language,
+        program: str,
         n_shots: int,
         name: Optional[str] = None,
         noisy_simulation: bool = True,
@@ -458,10 +470,12 @@ class QuantinuumBackend(Backend):
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
     ) -> ResultHandle:
-        """Submit a qasm program directly to the backend.
+        """Submit a program directly to the backend.
 
-        :param qasm: QASM 2.0 program.
-        :type qasm: str
+        :param program: program (encoded as string)
+        :type program: str
+        :param language: language
+        :type language: Language
         :param n_shots: Number of shots
         :type n_shots: int
         :param name: Job name, defaults to None
@@ -496,8 +510,8 @@ class QuantinuumBackend(Backend):
             "name": name or f"{self._label}",
             "count": n_shots,
             "machine": self._device_name,
-            "language": "OPENQASM 2.0",
-            "program": qasm,
+            "language": language.value,
+            "program": program,
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
@@ -570,6 +584,8 @@ class QuantinuumBackend(Backend):
           constructor)
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
+        * `language`: languange for submission, of type :py:class:`Language`, default
+          QASM.
 
         """
         circuits = list(circuits)
@@ -593,6 +609,8 @@ class QuantinuumBackend(Backend):
 
         no_opt = cast(bool, kwargs.get("no_opt", False))
 
+        language = kwargs.get("language", Language.QASM)
+
         handle_list = []
 
         max_shots = self.backend_info.misc.get("n_shots") if self.backend_info else None
@@ -606,7 +624,14 @@ class QuantinuumBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circ, None
-            quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+            if language == Language.QASM:
+                quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+            else:
+                assert language == Language.QIR
+                warnings.warn(
+                    "Support for Language.QIR is experimental; this will probably fail!"
+                )
+                quantinuum_circ = b64encode(circuit_to_qir(c0)).decode("utf-8")
 
             if self._MACHINE_DEBUG:
                 handle_list.append(
@@ -616,7 +641,8 @@ class QuantinuumBackend(Backend):
                     )
                 )
             else:
-                handle = self.submit_qasm(
+                handle = self.submit_program(
+                    language,
                     quantinuum_circ,
                     n_shots,
                     name=circ.name or None,

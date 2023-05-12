@@ -27,7 +27,7 @@ from requests_mock.mocker import Mocker
 
 from pytket.backends import ResultHandle, StatusEnum
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
-from pytket.extensions.quantinuum.backends import QuantinuumBackend
+from pytket.extensions.quantinuum.backends import QuantinuumBackend, Language
 from pytket.circuit import Circuit  # type: ignore
 from pytket.architecture import FullyConnected  # type: ignore
 from pytket.extensions.quantinuum.backends.quantinuum import (
@@ -503,7 +503,7 @@ def test_submit_qasm_api(
     OPENQASM 2.0;
     include "hqslib1.inc";
     """
-    h1 = backend.submit_qasm(qasm, n_shots=10)
+    h1 = backend.submit_program(Language.QASM, qasm, n_shots=10)
 
     assert h1[0] == fake_job_id
 

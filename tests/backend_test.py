@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from base64 import b64encode
 from pathlib import Path
 from collections import Counter
 from typing import cast, Callable, Any  # pylint: disable=unused-import
@@ -23,6 +24,7 @@ import pytest
 import hypothesis.strategies as st
 from hypothesis.strategies._internal import SearchStrategy
 from hypothesis import HealthCheck
+from llvmlite.binding import create_context, parse_assembly
 from pytket.backends import CircuitNotValidError
 from pytket.passes import (  # type: ignore
     SequencePass,
@@ -47,7 +49,7 @@ from pytket.circuit import (  # type: ignore
     reg_geq,
     if_not_bit,
 )
-from pytket.extensions.quantinuum import QuantinuumBackend
+from pytket.extensions.quantinuum import QuantinuumBackend, Language
 from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _GATE_SET
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
@@ -476,7 +478,6 @@ def test_postprocess(
     n_bits=strategies.integers(min_value=0, max_value=10),
 )
 def test_shots_bits_edgecases(n_shots, n_bits) -> None:
-
     quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
 
@@ -787,7 +788,7 @@ def test_submit_qasm(
     """
 
     b = authenticated_quum_backend
-    h = b.submit_qasm(qasm, 10)
+    h = b.submit_program(Language.QASM, qasm, n_shots=10)
     assert b.get_result(h)
 
 
@@ -820,3 +821,78 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 1
     assert len(shots[0]) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend
+    qir = """; ModuleID = 'result_tag.bc'
+source_filename = "qat-link"
+
+%Qubit = type opaque
+%Result = type opaque
+
+@0 = internal constant [5 x i8] c"0_t0\\00"
+@1 = internal constant [5 x i8] c"0_t1\\00"
+
+define void @Quantinuum__EntangledState() #0 {
+entry:
+  call void @__quantum__qis__h__body(%Qubit* null)
+  call void @__quantum__qis__cnot__body(%Qubit* null, %Qubit* nonnull inttoptr (i64 1 to %Qubit*))
+  call void @__quantum__qis__mz__body(%Qubit* null, %Result* null)
+  call void @__quantum__qis__reset__body(%Qubit* null)
+  call void @__quantum__qis__mz__body(%Qubit* nonnull inttoptr (i64 1 to %Qubit*), %Result* nonnull inttoptr (i64 1 to %Result*))
+  call void @__quantum__qis__reset__body(%Qubit* nonnull inttoptr (i64 1 to %Qubit*))
+  call void @__quantum__rt__tuple_start_record_output()
+  call void @__quantum__rt__result_record_output(%Result* null, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @0, i32 0, i32 0))
+  call void @__quantum__rt__result_record_output(%Result* nonnull inttoptr (i64 1 to %Result*), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0))
+  call void @__quantum__rt__tuple_end_record_output()
+  ret void
+}
+
+declare %Qubit* @__quantum__rt__qubit_allocate()
+
+declare void @__quantum__qis__h__body(%Qubit*)
+
+declare void @__quantum__qis__cnot__body(%Qubit*, %Qubit*)
+
+declare %Result* @__quantum__qis__m__body(%Qubit*)
+
+declare void @__quantum__qis__reset__body(%Qubit*)
+
+declare void @__quantum__rt__qubit_release(%Qubit*)
+
+declare void @__quantum__rt__tuple_start_record_output()
+
+declare void @__quantum__rt__result_record_output(%Result*, i8*)
+
+declare void @__quantum__rt__tuple_end_record_output()
+
+declare void @__quantum__qis__mz__body(%Qubit*, %Result*)
+
+attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "requiredQubits"="2" "requiredResults"="2" }
+"""
+    ctx = create_context()
+    module = parse_assembly(qir, context=ctx)
+    ir = module.as_bitcode()
+    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    r = b.get_result(h)
+    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
+    assert len(r.get_shots()) == 10
+
+
+@pytest.mark.skip(reason="`Language.QIR` not yet working with `process_circuit()`")
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
+    c0 = Circuit(2).H(0).CX(0, 1).measure_all()
+    b = authenticated_quum_backend
+    c = b.get_compiled_circuit(c0)
+    h = b.process_circuit(c, n_shots=10, language=Language.QIR)
+    r = b.get_result(h)
+    assert len(r.get_shots()) == 10
