@@ -25,6 +25,7 @@ import warnings
 import numpy as np
 import requests
 
+from pytket_qir.converter import circuit_to_qir
 from pytket.backends import Backend, ResultHandle, CircuitStatus, StatusEnum
 from pytket.backends.backend import KwargTypes
 from pytket.backends.resulthandle import _ResultIdTuple
@@ -66,8 +67,6 @@ from pytket.wasm import WasmFileHandler
 from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
-
-from pytket_qir.converter import circuit_to_qir
 
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
