@@ -1,6 +1,19 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Add ``Language`` enum to control language used for circuit submission, with
+  values ``Language.QASM`` and ``Language.QIR``.
+* Renamed ``QuantinuumBackend.submit_qasm()`` to
+  ``QuantinuumBackend.submit_program()``, with a ``language`` argument.
+* Add a ``language`` kwarg to ``QuantinuumBackend.process_circuits()``,
+  defaulting to ``Language.QASM``. (Support for ``Language.QIR`` is
+  experimental and its use is not recommended; a warning will be emitted. You
+  must install the ``pytket-qir`` package separately in order to use this
+  feature.)
+
 0.16.0 (May 2023)
 -----------------
 
