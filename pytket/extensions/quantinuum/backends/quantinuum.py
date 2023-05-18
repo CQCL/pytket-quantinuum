@@ -35,7 +35,11 @@ from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
-from pytket.extensions.qir import pytket_to_qir
+
+try:
+    from pytket.extensions.qir import pytket_to_qir
+except:
+    pass
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
     BasePass,
@@ -630,6 +634,11 @@ class QuantinuumBackend(Backend):
                 warnings.warn(
                     "Support for Language.QIR is experimental; this will probably fail!"
                 )
+                if "pytket_to_qir" not in locals():
+                    raise RuntimeError(
+                        "You must install the `pytket-qir` package in order to use QIR "
+                        "submission."
+                    )
                 # TODO `pytket_to_qir()` returns a string, but we want the bitcode as
                 # bytes. For the moment, just encode the string to bytes to make the
                 # type correct at least. We don't expect this to work yet, hence the
