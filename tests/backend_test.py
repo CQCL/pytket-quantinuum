@@ -24,7 +24,7 @@ import pytest
 import hypothesis.strategies as st
 from hypothesis.strategies._internal import SearchStrategy
 from hypothesis import HealthCheck
-from llvmlite.binding import create_context, parse_assembly
+from llvmlite.binding import create_context, parse_assembly  # type: ignore
 from pytket.backends import CircuitNotValidError
 from pytket.passes import (  # type: ignore
     SequencePass,
@@ -893,6 +893,6 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c0)
-    h = b.process_circuit(c, n_shots=10, language=Language.QIR)
+    h = b.process_circuit(c, n_shots=10, language=Language.QIR)  # type: ignore
     r = b.get_result(h)
     assert len(r.get_shots()) == 10

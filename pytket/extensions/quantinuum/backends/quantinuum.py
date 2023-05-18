@@ -608,7 +608,7 @@ class QuantinuumBackend(Backend):
 
         no_opt = cast(bool, kwargs.get("no_opt", False))
 
-        language = kwargs.get("language", Language.QASM)
+        language = cast(Language, kwargs.get("language", Language.QASM))
 
         handle_list = []
 
