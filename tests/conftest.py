@@ -26,7 +26,17 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
+
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
+
+
+def pytest_make_parametrize_id(config, val, argname):
+    """Custom ids for the parametrized tests."""
+    if isinstance(val, QuantinuumBackend):
+        return val._device_name
+    if isinstance(val, Dict):
+        return val["device_name"] if "device_name" in val.keys() else None
+    return None
 
 
 @pytest.fixture()
