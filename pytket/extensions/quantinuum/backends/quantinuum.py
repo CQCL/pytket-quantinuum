@@ -641,7 +641,7 @@ class QuantinuumBackend(Backend):
                     )
                 # TODO We don't expect this to work yet, hence the
                 # warning above.
-                quantinuum_circ = b64encode(pytket_to_qir(c0)).decode("utf-8")
+                quantinuum_circ = b64encode(pytket_to_qir(c0)).decode("utf-8")  # type: ignore
 
             if self._MACHINE_DEBUG:
                 handle_list.append(
