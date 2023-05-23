@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+0.17.0
+----------
+
+* Add checks for H2-1E in `tests/backend_test.py`.
+
 0.16.0 (May 2023)
 -----------------
 
