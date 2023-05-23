@@ -37,7 +37,7 @@ from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 
 try:
-    from pytket.extensions.qir import pytket_to_qir
+    from pytket.qir import pytket_to_qir
 except:
     pass
 from pytket.qasm import circuit_to_qasm_str
@@ -639,13 +639,9 @@ class QuantinuumBackend(Backend):
                         "You must install the `pytket-qir` package in order to use QIR "
                         "submission."
                     )
-                # TODO `pytket_to_qir()` returns a string, but we want the bitcode as
-                # bytes. For the moment, just encode the string to bytes to make the
-                # type correct at least. We don't expect this to work yet, hence the
+                # TODO We don't expect this to work yet, hence the
                 # warning above.
-                quantinuum_circ = b64encode(pytket_to_qir(c0).encode("utf-8")).decode(
-                    "utf-8"
-                )
+                quantinuum_circ = b64encode(pytket_to_qir(c0))
 
             if self._MACHINE_DEBUG:
                 handle_list.append(
