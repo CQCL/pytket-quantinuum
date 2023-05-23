@@ -48,7 +48,7 @@ from pytket.circuit import (  # type: ignore
     reg_geq,
     if_not_bit,
 )
-from pytket.extensions.quantinuum import QuantinuumBackend
+from pytket.extensions.quantinuum import QuantinuumBackend, Language
 from pytket.extensions.quantinuum.backends.quantinuum import (
     GetResultFailed,
     _GATE_SET,
