@@ -14,7 +14,9 @@
 """Pytket Backend for Quantinuum devices."""
 
 from ast import literal_eval
+from base64 import b64encode
 from dataclasses import dataclass
+from enum import Enum
 import json
 from http import HTTPStatus
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
@@ -33,6 +35,11 @@ from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
+
+try:
+    from pytket.extensions.qir import pytket_to_qir
+except:
+    pass
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
     BasePass,
@@ -155,6 +162,13 @@ class BatchingUnsupported(Exception):
 @dataclass
 class DeviceNotAvailable(Exception):
     device_name: str
+
+
+class Language(Enum):
+    """Language used for submission of circuits."""
+
+    QASM = "OPENQASM 2.0"
+    QIR = "QIR 1.0"
 
 
 # DEFAULT_CREDENTIALS_STORAGE for use with the DEFAULT_API_HANDLER.
@@ -445,9 +459,10 @@ class QuantinuumBackend(Backend):
         """
         return cast(str, handle[0])
 
-    def submit_qasm(
+    def submit_program(
         self,
-        qasm: str,
+        language: Language,
+        program: str,
         n_shots: int,
         name: Optional[str] = None,
         noisy_simulation: bool = True,
@@ -458,10 +473,12 @@ class QuantinuumBackend(Backend):
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
     ) -> ResultHandle:
-        """Submit a qasm program directly to the backend.
+        """Submit a program directly to the backend.
 
-        :param qasm: QASM 2.0 program.
-        :type qasm: str
+        :param program: program (encoded as string)
+        :type program: str
+        :param language: language
+        :type language: Language
         :param n_shots: Number of shots
         :type n_shots: int
         :param name: Job name, defaults to None
@@ -496,8 +513,8 @@ class QuantinuumBackend(Backend):
             "name": name or f"{self._label}",
             "count": n_shots,
             "machine": self._device_name,
-            "language": "OPENQASM 2.0",
-            "program": qasm,
+            "language": language.value,
+            "program": program,
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
@@ -570,6 +587,8 @@ class QuantinuumBackend(Backend):
           constructor)
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
+        * `language`: languange for submission, of type :py:class:`Language`, default
+          QASM.
 
         """
         circuits = list(circuits)
@@ -593,6 +612,8 @@ class QuantinuumBackend(Backend):
 
         no_opt = cast(bool, kwargs.get("no_opt", False))
 
+        language = cast(Language, kwargs.get("language", Language.QASM))
+
         handle_list = []
 
         max_shots = self.backend_info.misc.get("n_shots") if self.backend_info else None
@@ -606,7 +627,25 @@ class QuantinuumBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circ, None
-            quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+            if language == Language.QASM:
+                quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+            else:
+                assert language == Language.QIR
+                warnings.warn(
+                    "Support for Language.QIR is experimental; this will probably fail!"
+                )
+                if "pytket_to_qir" not in locals():
+                    raise RuntimeError(
+                        "You must install the `pytket-qir` package in order to use QIR "
+                        "submission."
+                    )
+                # TODO `pytket_to_qir()` returns a string, but we want the bitcode as
+                # bytes. For the moment, just encode the string to bytes to make the
+                # type correct at least. We don't expect this to work yet, hence the
+                # warning above.
+                quantinuum_circ = b64encode(pytket_to_qir(c0).encode("utf-8")).decode(
+                    "utf-8"
+                )
 
             if self._MACHINE_DEBUG:
                 handle_list.append(
@@ -616,7 +655,8 @@ class QuantinuumBackend(Backend):
                     )
                 )
             else:
-                handle = self.submit_qasm(
+                handle = self.submit_program(
+                    language,
                     quantinuum_circ,
                     n_shots,
                     name=circ.name or None,
