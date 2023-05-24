@@ -632,15 +632,13 @@ class QuantinuumBackend(Backend):
             else:
                 assert language == Language.QIR
                 warnings.warn(
-                    "Support for Language.QIR is experimental; this will probably fail!"
+                    "Support for Language.QIR is experimental; this may fail!"
                 )
                 if "pytket_to_qir" not in locals():
                     raise RuntimeError(
                         "You must install the `pytket-qir` package in order to use QIR "
                         "submission."
                     )
-                # TODO We don't expect this to work yet, hence the
-                # warning above.
                 quantinuum_circ = b64encode(pytket_to_qir(c0)).decode("utf-8")  # type: ignore
 
             if self._MACHINE_DEBUG:
