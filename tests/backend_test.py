@@ -327,10 +327,7 @@ def test_default_pass(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [
-        {"device_name": name, "label": "test cancel"}
-        for name in ALL_SIMULATOR_NAMES
-    ],
+    [{"device_name": name, "label": "test cancel"} for name in ALL_SIMULATOR_NAMES],
     indirect=True,
 )
 def test_cancel(
@@ -840,7 +837,9 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": name} for name in ALL_SYNTAX_CHECKER_NAMES], indirect=True
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in ALL_SYNTAX_CHECKER_NAMES],
+    indirect=True,
 )
 def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(1).H(0).measure_all()
