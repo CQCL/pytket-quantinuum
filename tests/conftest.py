@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 import pytest
 from _pytest.fixtures import SubRequest
@@ -30,7 +30,9 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 
 
-def pytest_make_parametrize_id(config, val, argname):
+def pytest_make_parametrize_id(
+    config: pytest.Config, val: object, argname: str
+) -> Optional[str]:
     """Custom ids for the parametrized tests."""
     if isinstance(val, QuantinuumBackend):
         return val._device_name
@@ -51,7 +53,7 @@ def mock_token() -> str:
     # A mock token that expires in 2073
     token_payload = {"exp": 3278815149.143694}
     mock_token = jwt.encode(token_payload, key="", algorithm="HS256")
-    return mock_token
+    return str(mock_token)
 
 
 @pytest.fixture()
