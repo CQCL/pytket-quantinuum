@@ -13,6 +13,8 @@ Unreleased
   experimental and its use is not recommended; a warning will be emitted. You
   must install the ``pytket-qir`` package separately in order to use this
   feature.)
+* Use "q" instead of "node" as the name of the single qubit register in compiled
+  circuits.
 
 0.16.0 (May 2023)
 -----------------
