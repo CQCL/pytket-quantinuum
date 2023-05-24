@@ -18,6 +18,7 @@ from collections import Counter
 from typing import cast, Callable, Any  # pylint: disable=unused-import
 import json
 import os
+import time
 from hypothesis import given, settings, strategies
 import numpy as np
 import pytest
@@ -254,7 +255,6 @@ def test_bell(
     c = b.get_compiled_circuit(c)
     n_shots = 10
     shots = b.run_circuit(c, n_shots=n_shots).get_shots()
-    print(shots)
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -329,7 +329,7 @@ def test_default_pass(
     "authenticated_quum_backend",
     [
         {"device_name": name, "label": "test cancel"}
-        for name in ALL_SYNTAX_CHECKER_NAMES
+        for name in ALL_SIMULATOR_NAMES
     ],
     indirect=True,
 )
@@ -343,13 +343,13 @@ def test_cancel(
     try:
         # will raise HTTP error if job is already completed
         b.cancel(handle)
+        time.sleep(1.0)
+        assert b.circuit_status(handle).status in [StatusEnum.CANCELLED]
     except QuantinuumAPIError as err:
         check_completed = "job has completed already" in str(err)
         assert check_completed
         if not check_completed:
             raise err
-
-    print(b.circuit_status(handle))
 
 
 @st.composite
@@ -529,6 +529,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     assert res.get_counts() == correct_counts
 
 
+@pytest.mark.skip("Will be moved to a set of long running integration tests")
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
@@ -589,6 +590,7 @@ def test_retrieve_available_devices(
     assert len(backend_infos) > 0
 
 
+@pytest.mark.skip("Will be moved to a set of long running integration tests")
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
@@ -625,7 +627,6 @@ def test_submission_with_group(
     c = b.get_compiled_circuit(c)
     n_shots = 10
     shots = b.run_circuit(c, n_shots=n_shots, group="DEFAULT").get_shots()  # type: ignore
-    print(shots)
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -839,7 +840,7 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": name} for name in ALL_SYNTAX_CHECKER_NAMES], indirect=True
 )
 def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(1).H(0).measure_all()
