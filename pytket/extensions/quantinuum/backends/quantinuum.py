@@ -636,8 +636,8 @@ class QuantinuumBackend(Backend):
                     "Support for Language.QIR is experimental; this may fail!"
                 )
                 try:
-                    pytket_qir_version_components = map(
-                        int, pytket_qir_version.split(".")[:2]
+                    pytket_qir_version_components = list(
+                        map(int, pytket_qir_version.split(".")[:2])
                     )
                     if (
                         pytket_qir_version_components[0] == 0
