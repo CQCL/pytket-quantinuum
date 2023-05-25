@@ -38,6 +38,7 @@ from pytket.extensions.quantinuum._metadata import __extension_version__
 
 try:
     from pytket.qir import pytket_to_qir
+    from pytket.qir import __extension_version__ as pytket_qir_version
 except:
     pass
 from pytket.qasm import circuit_to_qasm_str
@@ -632,16 +633,25 @@ class QuantinuumBackend(Backend):
             else:
                 assert language == Language.QIR
                 warnings.warn(
-                    "Support for Language.QIR is experimental; this will probably fail!"
+                    "Support for Language.QIR is experimental; this may fail!"
                 )
-                if "pytket_to_qir" not in locals():
+                try:
+                    pytket_qir_version_components = list(
+                        map(int, pytket_qir_version.split(".")[:2])
+                    )
+                    if (
+                        pytket_qir_version_components[0] == 0
+                        and pytket_qir_version_components[1] < 2
+                    ):
+                        raise RuntimeError(
+                            "Please install `pytket-qir` version 0.2 or above."
+                        )
+                    quantinuum_circ = b64encode(pytket_to_qir(c0)).decode("utf-8")  # type: ignore
+                except NameError:
                     raise RuntimeError(
                         "You must install the `pytket-qir` package in order to use QIR "
                         "submission."
                     )
-                # TODO We don't expect this to work yet, hence the
-                # warning above.
-                quantinuum_circ = b64encode(pytket_to_qir(c0)).decode("utf-8")  # type: ignore
 
             if self._MACHINE_DEBUG:
                 handle_list.append(
