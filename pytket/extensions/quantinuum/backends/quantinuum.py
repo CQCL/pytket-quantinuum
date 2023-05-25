@@ -656,9 +656,7 @@ class QuantinuumBackend(Backend):
                                 True,
                             ),
                         )
-                    ).decode(
-                        "utf-8"
-                    )  # type: ignore
+                    ).decode("utf-8")
                 except NameError:
                     raise RuntimeError(
                         "You must install the `pytket-qir` package in order to use QIR "
