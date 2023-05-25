@@ -13,7 +13,6 @@ Unreleased
   experimental and its use is not recommended; a warning will be emitted. You
   must install the ``pytket-qir`` package separately in order to use this
   feature.)
-* Add checks for H2-1E in ``tests/backend_test.py``.
 
 0.16.0 (May 2023)
 -----------------
