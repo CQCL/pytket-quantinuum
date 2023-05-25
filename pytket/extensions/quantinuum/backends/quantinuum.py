@@ -441,8 +441,8 @@ class QuantinuumBackend(Backend):
         # that the produced QASM has one "qreg", with the exact number
         # of qubits actually used in the Circuit.
         # The Circuit qubits attribute is iterated through, with the ith
-        # qubit being assigned to the ith qubit of a new "node" register
-        passlist.append(FlattenRelabelRegistersPass("node"))
+        # qubit being assigned to the ith qubit of a new "q" register
+        passlist.append(FlattenRelabelRegistersPass("q"))
         return SequencePass(passlist)
 
     @property
