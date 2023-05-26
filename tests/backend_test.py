@@ -314,11 +314,16 @@ def test_default_pass(
         cu = CompilationUnit(c)
         comp_pass.apply(cu)
         # 5 qubits added to Circuit, one is removed when flattening registers
-        assert cu.circuit.qubits == [Node(0), Node(1), Node(2), Node(3)]
-        assert cu.initial_map[Qubit(0)] == Node(0)
-        assert cu.initial_map[Qubit(1)] == Node(1)
-        assert cu.initial_map[Qubit(2)] == Node(2)
-        assert cu.initial_map[q0] == Node(3)
+        assert cu.circuit.qubits == [
+            Node("q", 0),
+            Node("q", 1),
+            Node("q", 2),
+            Node("q", 3),
+        ]
+        assert cu.initial_map[Qubit(0)] == Node("q", 0)
+        assert cu.initial_map[Qubit(1)] == Node("q", 1)
+        assert cu.initial_map[Qubit(2)] == Node("q", 2)
+        assert cu.initial_map[q0] == Node("q", 3)
         assert cu.initial_map[q1] == q1
         for pred in b.required_predicates:
             assert pred.verify(cu.circuit)
