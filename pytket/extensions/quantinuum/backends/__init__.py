@@ -17,3 +17,4 @@
 
 from .quantinuum import QuantinuumBackend, Language
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline
+from .leakage_gadget import remove_leaked_results, get_detection_circuit
