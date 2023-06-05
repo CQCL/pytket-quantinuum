@@ -14,13 +14,14 @@
 
 
 from pytket import Circuit, Qubit, Bit, OpType
-from pytket.backends.backendresult import BackendResult # type: ignore
+from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_detection_circuit,
     remove_leaked_results,
 )
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
 from typing import Counter, Sequence, cast
+
 
 def test_postselection_circuits_1qb_task_gen() -> None:
     comparison_circuit: Circuit = Circuit(1, 1)
