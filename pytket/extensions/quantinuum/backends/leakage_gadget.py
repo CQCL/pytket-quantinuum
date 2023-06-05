@@ -15,9 +15,10 @@
 
 
 from pytket import Circuit, Qubit, Bit, OpType
-from pytket.backends.backendresult import BackendResult # type: ignore
+from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
 from typing import List, Dict, Tuple, Counter, cast, Sequence
+
 
 def get_leakage_gadget_circuit(
     circuit_qubit: Qubit, postselection_qubit: Qubit, postselection_bit: Bit
@@ -145,14 +146,28 @@ def remove_leaked_results(result: BackendResult) -> BackendResult:
     :return: Shots with leakage cases removed.
     :rtype: BackendResult
     """
-    regular_bits: List[Bit] = [b for b in result.c_bits if b.reg_name != "leakage_detection_bit"]
-    leakage_bits: List[Bit] = [b for b in result.c_bits if b.reg_name == "leakage_detection_bit"]
-    received_counts: Counter[Tuple[int, ...]] = result.get_counts(cbits = regular_bits + leakage_bits)
-    discarded_counts: Counter[Tuple[int, ...]] = Counter({tuple(state[:len(regular_bits)]): received_counts[state] for state in received_counts if not any(state[-len(leakage_bits):])})
+    regular_bits: List[Bit] = [
+        b for b in result.c_bits if b.reg_name != "leakage_detection_bit"
+    ]
+    leakage_bits: List[Bit] = [
+        b for b in result.c_bits if b.reg_name == "leakage_detection_bit"
+    ]
+    received_counts: Counter[Tuple[int, ...]] = result.get_counts(
+        cbits=regular_bits + leakage_bits
+    )
+    discarded_counts: Counter[Tuple[int, ...]] = Counter(
+        {
+            tuple(state[: len(regular_bits)]): received_counts[state]
+            for state in received_counts
+            if not any(state[-len(leakage_bits) :])
+        }
+    )
     return BackendResult(
         counts=Counter(
-            {OutcomeArray.from_readouts([key]): val for key, val in discarded_counts.items()}
+            {
+                OutcomeArray.from_readouts([key]): val
+                for key, val in discarded_counts.items()
+            }
         ),
         c_bits=cast(Sequence[Bit], cast(Sequence[Bit], regular_bits)),
     )
-

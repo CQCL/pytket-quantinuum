@@ -603,7 +603,9 @@ class QuantinuumBackend(Backend):
         )
 
         if kwargs.get("leakage_detection", False):
-            circuits = [get_detection_circuit(c, self.backend_info.n_nodes) for c in circuits]
+            circuits = [
+                get_detection_circuit(c, self.backend_info.n_nodes) for c in circuits
+            ]
 
         if valid_check:
             self._check_all_circuits(circuits)
