@@ -13,8 +13,6 @@ extensions = [
     "sphinx_copybutton",
 ]
 
-pygments_style = "borland"
-
 html_theme = "sphinx_book_theme"
 
 html_theme_options = {
@@ -116,7 +114,6 @@ def correct_signature(
     signature: str,
     return_annotation: str,
 ) -> (str, str):
-
     new_signature = signature
     new_return_annotation = return_annotation
     for k, v in app.config.custom_internal_mapping.items():
