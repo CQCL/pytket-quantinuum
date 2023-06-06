@@ -19,6 +19,9 @@ from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
 from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
 
+LEAKAGE_DETECTION_BIT_NAME_ = "leakage_detection_bit"
+LEAKAGE_DETECTION_QUBIT_NAME_ = "leakage_detection_qubit"
+
 
 def get_leakage_gadget_circuit(
     circuit_qubit: Qubit, postselection_qubit: Qubit, postselection_bit: Bit
@@ -79,7 +82,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     # construct detection circuit
     detection_circuit: Circuit = Circuit()
     postselection_qubits: List[Qubit] = [
-        Qubit("leakage_detection_qubit", i) for i in range(n_spare_qubits)
+        Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, i) for i in range(n_spare_qubits)
     ]
     for q in circuit.qubits + postselection_qubits:
         detection_circuit.add_qubit(q)
@@ -112,14 +115,14 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     q_ps_index: int = 0
     b_ps_index: int = 0
     for q in end_circuit_measures:
-        if q.reg_name == "leakage_detection_qubit":
+        if q.reg_name == LEAKAGE_DETECTION_QUBIT_NAME_:
             raise ValueError(
                 "Leakage Gadget scheme makes a qubit register named "
                 "'leakage_detection_qubit' but this already exists in"
                 " the passed circuit."
             )
         q_ps_index = 0 if q_ps_index == n_spare_qubits else q_ps_index
-        leakage_detection_bit: Bit = Bit("leakage_detection_bit", b_ps_index)
+        leakage_detection_bit: Bit = Bit(LEAKAGE_DETECTION_BIT_NAME_, b_ps_index)
         if leakage_detection_bit in circuit.bits:
             raise ValueError(
                 "Leakage Gadget scheme makes a new Bit named 'leakage_detection_bit'"
@@ -152,10 +155,10 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
     :rtype: BackendResult
     """
     regular_bits: List[Bit] = [
-        b for b in result.c_bits if b.reg_name != "leakage_detection_bit"
+        b for b in result.c_bits if b.reg_name != LEAKAGE_DETECTION_BIT_NAME_
     ]
     leakage_bits: List[Bit] = [
-        b for b in result.c_bits if b.reg_name == "leakage_detection_bit"
+        b for b in result.c_bits if b.reg_name == LEAKAGE_DETECTION_BIT_NAME_
     ]
     received_counts: Counter[Tuple[int, ...]] = result.get_counts(
         cbits=regular_bits + leakage_bits
@@ -174,5 +177,5 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
                 for key, val in discarded_counts.items()
             }
         ),
-        c_bits=cast(Sequence[Bit], regular_bits),  # type: ignore
+        c_bits=cast(Sequence[Bit], regular_bits),
     )

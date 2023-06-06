@@ -20,14 +20,16 @@ from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_detection_circuit,
     prune_shots_detected_as_leaky,
+    LEAKAGE_DETECTION_BIT_NAME_,
+    LEAKAGE_DETECTION_QUBIT_NAME_,
 )
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
 
 
 def test_postselection_circuits_1qb_task_gen() -> None:
     comparison_circuit: Circuit = Circuit(1, 1)
-    lg_qb = Qubit("leakage_detection_qubit", 0)
-    lg_b = Bit("leakage_detection_bit", 0)
+    lg_qb = Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, 0)
+    lg_b = Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
     comparison_circuit.add_qubit(lg_qb)
     comparison_circuit.add_bit(lg_b)
     comparison_circuit.X(lg_qb).H(0)
@@ -45,10 +47,10 @@ def test_postselection_circuits_1qb_task_gen() -> None:
 
 def test_postselection_circuits_2qb_2_spare_task_gen() -> None:
     comparison_circuit = Circuit(2, 2)
-    lg_qb0 = Qubit("leakage_detection_qubit", 0)
-    lg_b0 = Bit("leakage_detection_bit", 0)
-    lg_qb1 = Qubit("leakage_detection_qubit", 1)
-    lg_b1 = Bit("leakage_detection_bit", 1)
+    lg_qb0 = Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, 0)
+    lg_b0 = Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
+    lg_qb1 = Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, 1)
+    lg_b1 = Bit(LEAKAGE_DETECTION_BIT_NAME_, 1)
     comparison_circuit.add_qubit(lg_qb0)
     comparison_circuit.add_bit(lg_b0)
     comparison_circuit.add_qubit(lg_qb1)
@@ -78,9 +80,9 @@ def test_postselection_circuits_2qb_2_spare_task_gen() -> None:
 
 def test_postselection_circuits_2qb_1_spare_task_gen() -> None:
     comparison_circuit = Circuit(2, 2)
-    lg_qb = Qubit("leakage_detection_qubit", 0)
-    lg_b0 = Bit("leakage_detection_bit", 0)
-    lg_b1 = Bit("leakage_detection_bit", 1)
+    lg_qb = Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, 0)
+    lg_b0 = Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
+    lg_b1 = Bit(LEAKAGE_DETECTION_BIT_NAME_, 1)
     comparison_circuit.add_qubit(lg_qb)
     comparison_circuit.add_bit(lg_b0)
     comparison_circuit.add_bit(lg_b1)
@@ -118,7 +120,7 @@ def test_postselection_not_enough_device_qubits() -> None:
 
 
 def test_postselection_existing_qubit() -> None:
-    lg_qb = Qubit("leakage_detection_qubit", 0)
+    lg_qb = Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, 0)
     c = Circuit(1, 2).X(0)
     c.add_qubit(lg_qb)
     c.X(lg_qb)
@@ -129,7 +131,7 @@ def test_postselection_existing_qubit() -> None:
 
 
 def test_postselection_existing_bit() -> None:
-    lg_b = Bit("leakage_detection_bit", 0)
+    lg_b = Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
     c = Circuit(2, 1).CX(0, 1)
     c.add_bit(lg_b)
     c.Measure(0, 0)
@@ -148,7 +150,7 @@ def test_postselection_discard_0() -> None:
     discard_result = prune_shots_detected_as_leaky(
         BackendResult(
             counts=counts,
-            c_bits=cast(Sequence[Bit], [Bit(0), Bit("leakage_detection_bit", 0)]),
+            c_bits=cast(Sequence[Bit], [Bit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)]),
         )
     ).get_counts()
     assert discard_result[(0,)] == 100
@@ -168,9 +170,9 @@ def test_postselection_discard_1() -> None:
         shots=outcomes,
         c_bits=[
             Bit(3),
-            Bit("leakage_detection_bit", 23),
+            Bit(LEAKAGE_DETECTION_BIT_NAME_, 23),
             Bit("a", 7),
-            Bit("leakage_detection_bit", 3),
+            Bit(LEAKAGE_DETECTION_BIT_NAME_, 3),
         ],
     )
     discard_result = prune_shots_detected_as_leaky(backres_shots).get_counts()
