@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from typing import Counter, Sequence, cast
 from pytket import Circuit, Qubit, Bit, OpType
 from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
@@ -20,7 +21,6 @@ from pytket.extensions.quantinuum.backends.leakage_gadget import (
     prune_shots_detected_as_leaky,
 )
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
-from typing import Counter, Sequence, cast
 
 
 def test_postselection_circuits_1qb_task_gen() -> None:
