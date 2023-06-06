@@ -29,7 +29,7 @@ setup(
     name="pytket-quantinuum",
     version=metadata["__extension_version__"],
     author="TKET development team",
-    author_email="tket-support@cambridgequantum.com",
+    author_email="tket-support@quantinuum.com",
     python_requires=">=3.9",
     project_urls={
         "Documentation": "https://cqcl.github.io/pytket-quantinuum/api/index.html",
