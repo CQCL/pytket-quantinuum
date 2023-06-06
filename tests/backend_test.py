@@ -522,10 +522,10 @@ def test_leakage_detection(
     h = b.process_circuit(c, n_shots=10, leakage_detection=True)
     r = b.get_result(h)
     assert len(r.c_bits) == 4
-    assert len(r.get_shots()) == 10
+    assert sum(r.get_counts().values()) == 10
     r_discarded = prune_shots_detected_as_leaky(r)
     assert len(r_discarded.c_bits) == 2
-    assert len(r_discarded.get_shots()) == 10
+    assert sum(r_discarded.get_counts().values()) == 10
 
 
 @given(
