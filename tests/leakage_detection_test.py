@@ -17,7 +17,7 @@ from pytket import Circuit, Qubit, Bit, OpType
 from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_detection_circuit,
-    remove_leaked_results,
+    prune_shots_detected_as_leaky,
 )
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
 from typing import Counter, Sequence, cast
@@ -112,7 +112,7 @@ def test_postselection_discard_0() -> None:
         {OutcomeArray.from_readouts([key]): val for key, val in counter_dict.items()}
     )
 
-    discard_result = remove_leaked_results(
+    discard_result = prune_shots_detected_as_leaky(
         BackendResult(
             counts=counts,
             c_bits=cast(Sequence[Bit], [Bit(0), Bit("leakage_detection_bit", 0)]),
@@ -140,7 +140,7 @@ def test_postselection_discard_1() -> None:
             Bit("leakage_detection_bit", 3),
         ],
     )
-    discard_result = remove_leaked_results(backres_shots).get_counts()
+    discard_result = prune_shots_detected_as_leaky(backres_shots).get_counts()
     assert discard_result[(0, 0)] == 100
     assert discard_result[(1, 1)] == 33
 
