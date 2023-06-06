@@ -49,7 +49,11 @@ from pytket.circuit import (  # type: ignore
     reg_geq,
     if_not_bit,
 )
-from pytket.extensions.quantinuum import QuantinuumBackend, Language
+from pytket.extensions.quantinuum import (
+    QuantinuumBackend,
+    Language,
+    prune_shots_detected_as_leaky,
+)
 from pytket.extensions.quantinuum.backends.quantinuum import (
     GetResultFailed,
     _GATE_SET,
@@ -502,6 +506,26 @@ def test_postprocess(
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 10
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in ALL_SYNTAX_CHECKER_NAMES],
+    indirect=True,
+)
+def test_leakage_detection(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
+    c = Circuit(2, 2).H(0).CZ(0, 1).Measure(0, 0).Measure(1, 1)
+    h = b.process_circuit(c, n_shots=10, leakage_detection=True)
+    r = b.get_result(h)
+    assert len(r.cbits) == 4
+    assert len(r.get_shots()) == 10
+    r_discarded = prune_shots_detected_as_leaky(r)
+    assert len(r_discarded.cbits) == 2
+    assert len(r_discarded.get_shots()) == 10
 
 
 @given(
