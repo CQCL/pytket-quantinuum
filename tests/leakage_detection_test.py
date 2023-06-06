@@ -107,6 +107,16 @@ def test_postselection_circuits_2qb_1_spare_task_gen() -> None:
     )
 
 
+def test_postselection_no_qubits() -> None:
+    with pytest.raises(ValueError):
+        get_detection_circuit(Circuit(0), 1)
+
+
+def test_postselection_not_enough_device_qubits() -> None:
+    with pytest.raises(ValueError):
+        get_detection_circuit(Circuit(2, 2).CX(0, 1).measure_all(), 2)
+
+
 def test_postselection_existing_qubit() -> None:
     lg_qb = Qubit("leakage_detection_qubit", 0)
     c = Circuit(1, 2).X(0)
@@ -176,3 +186,5 @@ if __name__ == "__main__":
     test_postselection_discard_1()
     test_postselection_existing_qubit()
     test_postselection_existing_bit()
+    test_postselection_no_qubits()
+    test_postselection_not_enough_device_qubits()
