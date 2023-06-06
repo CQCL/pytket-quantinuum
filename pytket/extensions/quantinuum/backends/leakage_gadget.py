@@ -14,10 +14,10 @@
 """Methods for generating a leakage detection Pytket Circuit."""
 
 
+from typing import List, Dict, Tuple, Counter, cast, Sequence
 from pytket import Circuit, Qubit, Bit, OpType
 from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
-from typing import List, Dict, Tuple, Counter, cast, Sequence
 
 
 def get_leakage_gadget_circuit(
@@ -86,7 +86,8 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     for b in circuit.bits:
         detection_circuit.add_bit(b)
 
-    # construct a Circuit that is the original Circuit without end of Circuit Measure gates
+    # construct a Circuit that is the original Circuit without
+    # end of Circuit Measure gates
     end_circuit_measures: Dict[Qubit, Bit] = {}
     for com in circuit:
         if com.op.type == OpType.Barrier:
@@ -94,7 +95,8 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
             continue
         # first check if a mid circuit measure needs to be readded
         for q in com.qubits:
-            # this condition only true if this Qubit has previously had a "mid-circuit" measure operation
+            # this condition only true if this Qubit has previously had a
+            # "mid-circuit" measure operation
             if q in end_circuit_measures:
                 detection_circuit.Measure(q, end_circuit_measures.pop(q))
         if com.op.type == OpType.Measure:
@@ -112,13 +114,16 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     for q in end_circuit_measures:
         if q.reg_name == "leakage_detection_qubit":
             raise ValueError(
-                "Leakage Gadget scheme makes a qubit register named 'leakage_detection_qubit' but this already exists in the passed circuit."
+                "Leakage Gadget scheme makes a qubit register named "
+                "'leakage_detection_qubit' but this already exists in"
+                " the passed circuit."
             )
         q_ps_index = 0 if q_ps_index == n_spare_qubits else q_ps_index
         leakage_detection_bit: Bit = Bit("leakage_detection_bit", b_ps_index)
         if leakage_detection_bit in circuit.bits:
             raise ValueError(
-                "Leakage Gadget scheme makes a new Bit named 'leakage_detection_bit' but this already exists in the passed circuit."
+                "Leakage Gadget scheme makes a new Bit named 'leakage_detection_bit'"
+                " but this already exists in the passed circuit."
             )
         leakage_gadget_circuit: Circuit = get_leakage_gadget_circuit(
             q, postselection_qubits[q_ps_index], leakage_detection_bit
