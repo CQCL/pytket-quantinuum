@@ -136,7 +136,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     return detection_circuit
 
 
-def remove_leaked_results(result: BackendResult) -> BackendResult:
+def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
     """
     For all states with a Bit with name "leakage_detection_bit"
     in a state 1 sets the counts to 0.
