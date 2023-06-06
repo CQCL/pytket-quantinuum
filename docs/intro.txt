@@ -168,7 +168,7 @@ This can be done as follows.
   compiled_circ = backend.get_compiled_circuit(circ) # circ defined elsewhere
   handle = backend.process_circuit(compiled_circ, n_shots=3000)
 
-  # Retrieve partial shots:counts from an unfinished job
+  # Retrieve partial shots:counts from the handle of an unfinished job
   partial_result, job_status = backend.get_partial_result(handle)
   print(partial_result.get_counts()) 
 
