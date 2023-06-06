@@ -592,7 +592,8 @@ class QuantinuumBackend(Backend):
         * `language`: languange for submission, of type :py:class:`Language`, default
           QASM.
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
-          to detect leakage errors
+          to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
+          BackendResult to get counts with leakage errors removed.
 
         """
         circuits = list(circuits)
@@ -604,7 +605,11 @@ class QuantinuumBackend(Backend):
 
         if kwargs.get("leakage_detection", False):
             circuits = [
-                get_detection_circuit(c, self.backend_info.n_nodes) for c in circuits
+                self.get_compiled_circuit(
+                    get_detection_circuit(c, self.backend_info.n_nodes),
+                    optimisation_level=0,
+                )
+                for c in circuits
             ]
 
         if valid_check:
