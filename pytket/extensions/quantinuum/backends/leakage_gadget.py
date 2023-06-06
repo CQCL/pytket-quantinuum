@@ -15,7 +15,7 @@
 
 
 from typing import List, Dict, Tuple, Counter, cast, Sequence
-from pytket import Circuit, Qubit, Bit, OpType
+from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
 from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
 
@@ -27,7 +27,7 @@ def get_leakage_gadget_circuit(
     Returns a two qubit Circuit for detecting leakage errors.
 
     :param circuit_qubit: Generated circuit detects whether leakage errors
-    have occurred in this qubit.
+        have occurred in this qubit.
     :type circuit_qubit: Qubit
     :param postselection_qubit: Measured qubit to detect leakage error.
     :type postselection_qubit: Qubit
@@ -62,7 +62,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     :param circuit: Circuit to have leakage detection added.
     :type circuit: Circuit
     :param n_device_qubits: Total number of qubits supported by the device
-    being compiled to.
+        being compiled to.
     :type n_device_qubits: int
 
     :return: Circuit with leakage detection circuitry added.
@@ -174,5 +174,5 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
                 for key, val in discarded_counts.items()
             }
         ),
-        c_bits=cast(Sequence[Bit], cast(Sequence[Bit], regular_bits)),
+        c_bits=cast(Sequence[Bit], regular_bits),  # type: ignore
     )

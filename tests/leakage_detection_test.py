@@ -15,7 +15,7 @@
 
 from typing import Counter, Sequence, cast
 import pytest  # type: ignore
-from pytket import Circuit, Qubit, Bit, OpType
+from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
 from pytket.backends.backendresult import BackendResult  # type: ignore
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_detection_circuit,

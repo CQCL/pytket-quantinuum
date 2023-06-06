@@ -606,7 +606,7 @@ class QuantinuumBackend(Backend):
         if kwargs.get("leakage_detection", False):
             circuits = [
                 self.get_compiled_circuit(
-                    get_detection_circuit(c, self.backend_info.n_nodes),
+                    get_detection_circuit(c, self.backend_info.n_nodes),  # type: ignore
                     optimisation_level=0,
                 )
                 for c in circuits
