@@ -21,6 +21,7 @@ from pytket.extensions.quantinuum.backends.leakage_gadget import (
     prune_shots_detected_as_leaky,
 )
 from pytket.utils.outcomearray import OutcomeArray  # type: ignore
+import pytest  # type: ignore
 
 
 def test_postselection_circuits_1qb_task_gen() -> None:
@@ -106,6 +107,28 @@ def test_postselection_circuits_2qb_1_spare_task_gen() -> None:
     )
 
 
+def test_postselection_existing_qubit() -> None:
+    lg_qb = Qubit("leakage_detection_qubit", 0)
+    c = Circuit(1, 2).X(0)
+    c.add_qubit(lg_qb)
+    c.X(lg_qb)
+    c.Measure(0, 0)
+    c.Measure(lg_qb, Bit(1))
+    with pytest.raises(ValueError):
+        get_detection_circuit(c, 2)
+
+
+def test_postselection_existing_bit() -> None:
+    lg_b = Bit("leakage_detection_bit", 0)
+    c = Circuit(2, 1).CX(0, 1)
+    c.add_bit(lg_b)
+    c.Measure(0, 0)
+    c.Measure(Qubit(1), lg_b)
+
+    with pytest.raises(ValueError):
+        get_detection_circuit(c, 2)
+
+
 def test_postselection_discard_0() -> None:
     counter_dict = {(0, 0): 100, (0, 1): 75, (1, 0): 50, (1, 1): 25}
     counts = Counter(
@@ -151,3 +174,5 @@ if __name__ == "__main__":
     test_postselection_circuits_2qb_1_spare_task_gen()
     test_postselection_discard_0()
     test_postselection_discard_1()
+    test_postselection_existing_qubit()
+    test_postselection_existing_bit()
