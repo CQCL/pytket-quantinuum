@@ -69,7 +69,7 @@ def build_module_docs():
             "-D",
             f"project=pytket-{MODULE}",
             "-D",
-            f"copyright={datetime.date.today().year} Cambridge Quantum Computing",
+            f"copyright={datetime.date.today().year} Quantinuum",
             "-D",
             f"version={'.'.join(v[:2])}",
             "-D",
