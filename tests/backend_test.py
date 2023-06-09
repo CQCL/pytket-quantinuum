@@ -928,4 +928,6 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = b.get_compiled_circuit(c0)
     h = b.process_circuit(c, n_shots=10, language=Language.QIR)  # type: ignore
     r = b.get_result(h)
-    assert len(r.get_shots()) == 10
+    shots = r.get_shots()
+    assert len(shots) == 10
+    assert all(len(shot) == 2 for shot in shots)
