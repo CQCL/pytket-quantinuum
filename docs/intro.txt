@@ -153,6 +153,34 @@ For the Quantinuum ``Backend``, ``process_circuits`` returns a ``ResultHandle`` 
 
 The ``logout()`` method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.
 
+Partial Results Retrieval 
+-------------------------
+
+The :py:class:`QuantinuumBackend` also supports giving the user partial results from unfinished jobs.
+This can be done as follows.
+
+:: 
+
+  from pytket.extensions.quantinuum import QuantinuumBackend
+
+  # Submit circuit to QuantinuumBackend
+  backend = QuantinuumBackend('H1-1')
+  compiled_circ = backend.get_compiled_circuit(circ) # circ defined elsewhere
+  handle = backend.process_circuit(compiled_circ, n_shots=3000)
+
+  # Retrieve partial shots:counts from the handle of an unfinished job
+  partial_result, job_status = backend.get_partial_result(handle)
+  print(partial_result.get_counts()) 
+
+
+This feature has a number of potential use cases. 
+
+Firstly partial results can be used to diagnose potential faults with submitted jobs.
+For instance if the partial results look worse than expected this could indicate a bug in the submitted circuit(s). If this is the case the user may want to cancel the job to avoid using machine time and resubmit once the issue is resolved.
+If partial results indicate that a job is taking longer run than anticipated then the user can cancel the job and consider redesigning their experiment.
+
+Also partial results enable users to quickly validate basic execution for very large jobs which may take days to complete.  
+
 Batching
 --------
 Quantinuum backends (except syntax checkers) support batching of jobs (circuits). To create

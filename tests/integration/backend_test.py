@@ -918,7 +918,6 @@ attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "require
     assert len(r.get_shots()) == 10
 
 
-@pytest.mark.skip(reason="`Language.QIR` not yet working with `process_circuit()`")
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
@@ -929,4 +928,6 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = b.get_compiled_circuit(c0)
     h = b.process_circuit(c, n_shots=10, language=Language.QIR)  # type: ignore
     r = b.get_result(h)
-    assert len(r.get_shots()) == 10
+    shots = r.get_shots()
+    assert len(shots) == 10
+    assert all(len(shot) == 2 for shot in shots)
