@@ -542,12 +542,12 @@ def test_get_partial_result(
         headers={"Content-Type": "application/json"},
     )
     backend = QuantinuumBackend(device_name="H1-2SC", api_handler=mock_quum_api_handler)
-    h1 = ResultHandle(queued_job_id, "null")
+    h1 = ResultHandle(queued_job_id, "null", -1)
     res, status = backend.get_partial_result(h1)
     assert res is None
     assert status.status == StatusEnum.QUEUED
 
-    h2 = ResultHandle(running_job_id, "null")
+    h2 = ResultHandle(running_job_id, "null", -1)
     res, status = backend.get_partial_result(h2)
     assert res is not None
     assert status.status == StatusEnum.RUNNING
