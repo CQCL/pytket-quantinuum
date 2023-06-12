@@ -1,6 +1,9 @@
 name: Check example notebooks
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -27,8 +30,6 @@ jobs:
         base: ${{ github.ref }}
         filters: |
           examples:
-            - 'setup.py'
-            - 'pytket/**'
             - 'examples/**'
             - '.github/workflows/check-examples.yml'
 
