@@ -14,7 +14,6 @@
 
 from base64 import b64encode
 from pathlib import Path
-from collections import Counter
 from typing import cast, Callable, Any  # pylint: disable=unused-import
 import json
 import os
@@ -27,12 +26,6 @@ from hypothesis.strategies._internal import SearchStrategy
 from hypothesis import HealthCheck
 from llvmlite.binding import create_context, parse_assembly  # type: ignore
 from pytket.backends import CircuitNotValidError
-from pytket.passes import (  # type: ignore
-    SequencePass,
-    RemoveRedundancies,
-    FullPeepholeOptimise,
-    OptimisePhaseGadgets,
-)
 from pytket.predicates import CompilationUnit  # type: ignore
 
 from pytket.circuit import (  # type: ignore
