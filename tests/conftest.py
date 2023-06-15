@@ -26,8 +26,36 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
+ALL_QUANTUM_HARDWARE_NAMES = [
+    "H1-1",
+    "H1-2",
+    "H2-1",
+]
 
-skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
+ALL_SIMULATOR_NAMES = [
+    "H1-1E",
+    "H1-2E",
+    "H2-1E",
+]
+
+ALL_SYNTAX_CHECKER_NAMES = [
+    "H1-1SC",
+    "H1-2SC",
+    "H2-1SC",
+]
+
+ALL_DEVICE_NAMES = [
+    *ALL_QUANTUM_HARDWARE_NAMES,
+    *ALL_SIMULATOR_NAMES,
+    *ALL_SYNTAX_CHECKER_NAMES,
+]
+
+
+def pytest_configure():
+    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
+    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
+    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
+    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
 
 
 def pytest_make_parametrize_id(
