@@ -23,8 +23,8 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIOffline,
 )
-from pytket.passes import (
-    FullPeepholeOptimise,  # type: ignore
+from pytket.passes import (  # type: ignore
+    FullPeepholeOptimise,
     OptimisePhaseGadgets,
     RemoveRedundancies,
     SequencePass,
@@ -139,7 +139,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     assert res.get_counts() == correct_counts
 
 
-@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
 def test_defaultapi_handler(device_name: str) -> None:
     """Test that the default API handler is used on backend construction."""
     backend_1 = QuantinuumBackend(device_name)
@@ -148,7 +148,7 @@ def test_defaultapi_handler(device_name: str) -> None:
     assert backend_1.api_handler is backend_2.api_handler
 
 
-@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
 def test_custom_api_handler(device_name: str) -> None:
     """Test that custom API handlers are used when used on backend construction."""
     handler_1 = QuantinuumAPI()

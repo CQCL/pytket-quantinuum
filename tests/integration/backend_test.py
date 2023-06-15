@@ -179,7 +179,7 @@ def test_multireg(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_default_pass(
@@ -222,7 +222,7 @@ def test_default_pass(
     "authenticated_quum_backend",
     [
         {"device_name": name, "label": "test cancel"}
-        for name in pytest.ALL_SIMULATOR_NAMES
+        for name in pytest.ALL_SIMULATOR_NAMES  # type: ignore
     ],
     indirect=True,
 )
@@ -284,8 +284,8 @@ def circuits(
     [
         {"device_name": name}
         for name in [
-            *pytest.ALL_QUANTUM_HARDWARE_NAMES,
-            *pytest.ALL_SYNTAX_CHECKER_NAMES,
+            *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
+            *pytest.ALL_SYNTAX_CHECKER_NAMES,  # type: ignore
         ]
     ],
     indirect=True,
@@ -326,7 +326,7 @@ def test_cost_estimate(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_classical(
@@ -374,7 +374,7 @@ def test_classical(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_postprocess(
@@ -480,7 +480,7 @@ def test_batching(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_submission_with_group(
@@ -580,7 +580,7 @@ def test_prefer_zzphase(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
 def test_device_state(
     device_name: str, authenticated_quum_handler: QuantinuumAPI
 ) -> None:
@@ -638,7 +638,7 @@ def test_wasm_costs(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_submit_qasm(
@@ -668,7 +668,7 @@ def test_submit_qasm(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
@@ -686,7 +686,7 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:

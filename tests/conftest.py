@@ -51,7 +51,13 @@ ALL_DEVICE_NAMES = [
 ]
 
 
-def pytest_configure():
+def pytest_configure() -> None:
+    """Define global symbols used by the tests.
+
+    Note: we need to do this as part of the pytest_configure as these symbols
+    are used while parametrizing the tests and not as fixtures."""
+
+    #
     pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
     pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
     pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
