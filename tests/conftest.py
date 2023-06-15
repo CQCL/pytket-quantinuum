@@ -26,8 +26,42 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
+ALL_QUANTUM_HARDWARE_NAMES = [
+    "H1-1",
+    "H1-2",
+    "H2-1",
+]
 
-skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
+ALL_SIMULATOR_NAMES = [
+    "H1-1E",
+    "H1-2E",
+    "H2-1E",
+]
+
+ALL_SYNTAX_CHECKER_NAMES = [
+    "H1-1SC",
+    "H1-2SC",
+    "H2-1SC",
+]
+
+ALL_DEVICE_NAMES = [
+    *ALL_QUANTUM_HARDWARE_NAMES,
+    *ALL_SIMULATOR_NAMES,
+    *ALL_SYNTAX_CHECKER_NAMES,
+]
+
+
+def pytest_configure() -> None:
+    """Define global symbols used by the tests.
+
+    Note: we need to do this as part of the pytest_configure as these symbols
+    are used while parametrizing the tests and not as fixtures."""
+
+    #
+    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
+    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
+    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
+    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
 
 
 def pytest_make_parametrize_id(
@@ -147,7 +181,30 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "batching": True,
             "wasm": True,
         },
+        {
+            "name": "H2-1E",
+            "n_qubits": 32,
+            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "n_classical_registers": 50,
+            "n_shots": 10000,
+            "system_type": "emulator",
+            "batching": True,
+            "wasm": True,
+        },
+        {
+            "name": "H2-1",
+            "n_qubits": 32,
+            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "n_classical_registers": 50,
+            "n_shots": 10000,
+            "system_type": "hardware",
+            "emulator": "H2-1E",
+            "syntax_checker": "H2-1SC",
+            "batching": True,
+            "wasm": True,
+        },
         {"name": "H1", "n_qubits": 20},
+        {"name": "H2", "n_qubits": 32},
     ]
 
 

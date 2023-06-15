@@ -3,10 +3,12 @@ set -evu
 
 # Usage:
 #
-# build-test [mypy|nomypy]
+# build-test [mypy|nomypy] {integration}
 #
 # Arguments:
 # - mypy: include mypy check ("mypy" or "nomypy")
+# - integration (optional): run integration tests too
+#                           (unit tests are always run)
 #
 # Environment variables used:
 # - GITHUB_WORKSPACE: workspace directory
@@ -17,6 +19,12 @@ set -evu
 MODULE=pytket-quantinuum
 
 MYPY=$1
+
+INTEGRATION=''
+if [[ $# -gt 1 ]]
+then
+    INTEGRATION=$2
+fi
 
 PLAT=`python -c 'import platform; print(platform.system())'`
 
@@ -54,7 +62,13 @@ python -m pip install --pre -r test-requirements.txt
 # update the pytket version to the lastest (pre) release
 python -m pip install --upgrade --pre pytket~=1.0
 
-pytest --doctest-modules
+pytest --doctest-modules unit/
+
+# integration tests are run if specified
+if  [[ -z "${INTEGRATION}" ]]
+then
+    pytest --doctest-modules integration/
+fi
 
 cd ..
 

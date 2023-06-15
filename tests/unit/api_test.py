@@ -46,7 +46,7 @@ def test_machine_status(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
 ) -> None:
-    """Test that we can retrieve the machine state via  Quantinuum endpoint."""
+    """Test that we can retrieve the machine state via Quantinuum endpoint."""
 
     machine_name = "quum-LT-S1-APIVAL"
     mock_machine_state = "online"
@@ -72,6 +72,7 @@ def test_full_login(
     mock_token: str,
     monkeypatch: Any,
 ) -> None:
+    """Test that we can perform the login flow."""
     username, pwd = mock_credentials
 
     mock_url = "https://qapi.quantinuum.com/v1/login"
