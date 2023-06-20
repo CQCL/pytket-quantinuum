@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.17.0 (June 2023)
+------------------
 
 * Add ``Language`` enum to control language used for circuit submission, with
   values ``Language.QASM`` and ``Language.QIR``.
@@ -15,6 +15,7 @@ Unreleased
   feature.)
 * Use "q" instead of "node" as the name of the single qubit register in compiled
   circuits.
+  * Updated pytket version requirement to 1.16.
 
 0.16.0 (May 2023)
 -----------------
