@@ -1,6 +1,9 @@
 name: Check example notebooks
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -27,15 +30,19 @@ jobs:
         base: ${{ github.ref }}
         filters: |
           examples:
-            - 'setup.py'
-            - 'pytket/**'
             - 'examples/**'
             - '.github/workflows/check-examples.yml'
 
   check:
     name: Check notebooks
     needs: changes
-    if: github.event_name == 'schedule' || needs.changes.outputs.examples == 'true'
+    if: |
+      github.event_name == 'schedule' ||
+      github.event_name == 'push' ||
+      (
+        github.event_name == 'pull_request' &&
+        needs.changes.outputs.examples == 'true'
+      )
     runs-on: ubuntu-22.04
     strategy:
       matrix:

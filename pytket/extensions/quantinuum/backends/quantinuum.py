@@ -14,7 +14,9 @@
 """Pytket Backend for Quantinuum devices."""
 
 from ast import literal_eval
+from base64 import b64encode
 from dataclasses import dataclass
+from enum import Enum
 import json
 from http import HTTPStatus
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
@@ -33,6 +35,12 @@ from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
+
+try:
+    from pytket.qir import pytket_to_qir, QIRFormat
+    from pytket.qir import __extension_version__ as pytket_qir_version
+except:
+    pass
 from pytket.qasm import circuit_to_qasm_str
 from pytket.passes import (  # type: ignore
     BasePass,
@@ -155,6 +163,13 @@ class BatchingUnsupported(Exception):
 @dataclass
 class DeviceNotAvailable(Exception):
     device_name: str
+
+
+class Language(Enum):
+    """Language used for submission of circuits."""
+
+    QASM = "OPENQASM 2.0"
+    QIR = "QIR 1.0"
 
 
 # DEFAULT_CREDENTIALS_STORAGE for use with the DEFAULT_API_HANDLER.
@@ -427,15 +442,16 @@ class QuantinuumBackend(Backend):
         # that the produced QASM has one "qreg", with the exact number
         # of qubits actually used in the Circuit.
         # The Circuit qubits attribute is iterated through, with the ith
-        # qubit being assigned to the ith qubit of a new "node" register
-        passlist.append(FlattenRelabelRegistersPass("node"))
+        # qubit being assigned to the ith qubit of a new "q" register
+        passlist.append(FlattenRelabelRegistersPass("q"))
         return SequencePass(passlist)
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
-        return tuple((str, str))
+        return tuple((str, str, int))
 
-    def get_jobid(self, handle: ResultHandle) -> str:
+    @staticmethod
+    def get_jobid(handle: ResultHandle) -> str:
         """Return the corresponding Quantinuum Job ID from a ResultHandle.
 
         :param handle: result handle.
@@ -445,9 +461,34 @@ class QuantinuumBackend(Backend):
         """
         return cast(str, handle[0])
 
-    def submit_qasm(
+    @staticmethod
+    def get_ppcirc_rep(handle: ResultHandle) -> Any:
+        """Return the JSON serialization of the classiocal postprocessing circuit
+        attached to a handle, if any.
+
+        :param handle: result handle
+        :return: serialized post-processing circuit, if any
+        """
+        return json.loads(cast(str, handle[1]))
+
+    @staticmethod
+    def get_results_width(handle: ResultHandle) -> Optional[int]:
+        """Return the truncation width of the results, if any.
+
+        :param handle: result handle
+        :return: truncation width of results, if any
+        """
+        n = cast(int, handle[2])
+        if n == -1:
+            return None
+        else:
+            assert n >= 0
+            return n
+
+    def submit_program(
         self,
-        qasm: str,
+        language: Language,
+        program: str,
         n_shots: int,
         name: Optional[str] = None,
         noisy_simulation: bool = True,
@@ -457,11 +498,14 @@ class QuantinuumBackend(Backend):
         no_opt: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
+        results_width: Optional[int] = None,
     ) -> ResultHandle:
-        """Submit a qasm program directly to the backend.
+        """Submit a program directly to the backend.
 
-        :param qasm: QASM 2.0 program.
-        :type qasm: str
+        :param program: program (encoded as string)
+        :type program: str
+        :param language: language
+        :type language: Language
         :param n_shots: Number of shots
         :type n_shots: int
         :param name: Job name, defaults to None
@@ -485,6 +529,9 @@ class QuantinuumBackend(Backend):
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
         :type request_options: Optional[Dict[str, Any]], optional
+        :param results_width: Number of bits to retain in returned results (if unset,
+            retain all)
+        :type results_width: Optional[int]
         :raises WasmUnsupported: WASM submitted to backend that does not support it.
         :raises QuantinuumAPIError: API error.
         :raises ConnectionError: Connection to remote API failed
@@ -496,8 +543,8 @@ class QuantinuumBackend(Backend):
             "name": name or f"{self._label}",
             "count": n_shots,
             "machine": self._device_name,
-            "language": "OPENQASM 2.0",
-            "program": qasm,
+            "language": language.value,
+            "program": program,
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
@@ -526,6 +573,8 @@ class QuantinuumBackend(Backend):
         # apply any overrides or extra options
         body.update(request_options or {})
 
+        n_bits: int = -1 if results_width is None else results_width
+
         try:
             res = self.api_handler._submit_job(body)
             if self.api_handler.online:
@@ -535,14 +584,14 @@ class QuantinuumBackend(Backend):
                         f'HTTP error submitting job, {jobdict["error"]}'
                     )
             else:
-                return ResultHandle(cast(str, ""), "null")
+                return ResultHandle(cast(str, ""), "null", n_bits)
         except ConnectionError:
             raise ConnectionError(
                 f"{self._label} Connection Error: Error during submit..."
             )
 
         # extract job ID from response
-        return ResultHandle(cast(str, jobdict["job"]), "null")
+        return ResultHandle(cast(str, jobdict["job"]), "null", n_bits)
 
     def process_circuits(
         self,
@@ -570,6 +619,8 @@ class QuantinuumBackend(Backend):
           constructor)
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
+        * `language`: languange for submission, of type :py:class:`Language`, default
+          QASM.
 
         """
         circuits = list(circuits)
@@ -593,6 +644,8 @@ class QuantinuumBackend(Backend):
 
         no_opt = cast(bool, kwargs.get("no_opt", False))
 
+        language = cast(Language, kwargs.get("language", Language.QASM))
+
         handle_list = []
 
         max_shots = self.backend_info.misc.get("n_shots") if self.backend_info else None
@@ -606,17 +659,53 @@ class QuantinuumBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circ, None
-            quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+            n_bits = c0.n_bits
+            if language == Language.QASM:
+                quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+            else:
+                assert language == Language.QIR
+                warnings.warn(
+                    "Support for Language.QIR is experimental; this may fail!"
+                )
+                try:
+                    pytket_qir_version_components = list(
+                        map(int, pytket_qir_version.split(".")[:2])
+                    )
+                    if (
+                        pytket_qir_version_components[0] == 0
+                        and pytket_qir_version_components[1] < 2
+                    ):
+                        raise RuntimeError(
+                            "Please install `pytket-qir` version 0.2 or above."
+                        )
+                    quantinuum_circ = b64encode(
+                        cast(
+                            bytes,
+                            pytket_to_qir(
+                                c0,
+                                "circuit generated by pytket-qir",
+                                QIRFormat.BINARY,
+                                True,
+                            ),
+                        )
+                    ).decode("utf-8")
+                except NameError:
+                    raise RuntimeError(
+                        "You must install the `pytket-qir` package in order to use QIR "
+                        "submission."
+                    )
 
             if self._MACHINE_DEBUG:
                 handle_list.append(
                     ResultHandle(
                         _DEBUG_HANDLE_PREFIX + str((circ.n_qubits, n_shots)),
                         json.dumps(ppcirc_rep),
+                        n_bits,
                     )
                 )
             else:
-                handle = self.submit_qasm(
+                handle = self.submit_program(
+                    language,
                     quantinuum_circ,
                     n_shots,
                     name=circ.name or None,
@@ -631,7 +720,9 @@ class QuantinuumBackend(Backend):
                     ),
                 )
 
-                handle = ResultHandle(handle[0], json.dumps(ppcirc_rep))
+                handle = ResultHandle(
+                    self.get_jobid(handle), json.dumps(ppcirc_rep), n_bits
+                )
                 handle_list.append(handle)
                 self._cache[handle] = dict()
 
@@ -665,14 +756,12 @@ class QuantinuumBackend(Backend):
         self._check_batchable()
 
         kwargs["request_options"] = {"batch-exec": max_batch_cost}
-        [
-            h1,
-        ] = self.process_circuits([circuit], n_shots, valid_check, **kwargs)
+        [h1] = self.process_circuits([circuit], n_shots, valid_check, **kwargs)
 
         # make sure the starting job is received, such that subsequent addtions
         # to batch will be recognised as being added to an existing batch
         self.api_handler.retrieve_job_status(
-            str(h1[0]),
+            self.get_jobid(h1),
             use_websocket=cast(bool, kwargs.get("use_websocket", True)),
         )
         return h1
@@ -731,7 +820,7 @@ class QuantinuumBackend(Backend):
 
     def cancel(self, handle: ResultHandle) -> None:
         if self.api_handler is not None:
-            jobid = str(handle[0])
+            jobid = self.get_jobid(handle)
             self.api_handler.cancel(jobid)
 
     def _update_cache_result(self, handle: ResultHandle, res: BackendResult) -> None:
@@ -746,7 +835,7 @@ class QuantinuumBackend(Backend):
         self, handle: ResultHandle, **kwargs: KwargTypes
     ) -> CircuitStatus:
         self._check_handle_type(handle)
-        jobid = str(handle[0])
+        jobid = self.get_jobid(handle)
         if self._MACHINE_DEBUG or jobid.startswith(_DEBUG_HANDLE_PREFIX):
             return CircuitStatus(StatusEnum.COMPLETED)
         use_websocket = cast(bool, kwargs.get("use_websocket", True))
@@ -766,12 +855,13 @@ class QuantinuumBackend(Backend):
         circ_status = _parse_status(response)
         if circ_status.status is StatusEnum.COMPLETED:
             if "results" in response:
-                ppcirc_rep = json.loads(cast(str, handle[1]))
+                ppcirc_rep = self.get_ppcirc_rep(handle)
+                n_bits = self.get_results_width(handle)
                 ppcirc = (
                     Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
                 )
                 self._update_cache_result(
-                    handle, _convert_result(response["results"], ppcirc)
+                    handle, _convert_result(response["results"], ppcirc, n_bits)
                 )
         return circ_status
 
@@ -788,7 +878,7 @@ class QuantinuumBackend(Backend):
             If no results are available, the first element is None.
         :rtype: Tuple[Optional[BackendResult], CircuitStatus]
         """
-        job_id = str(handle[0])
+        job_id = self.get_jobid(handle)
         jr = self.api_handler.retrieve_job_status(job_id)
         if not jr:
             raise QuantinuumAPIError(f"Unable to retrive job {job_id}")
@@ -796,9 +886,10 @@ class QuantinuumBackend(Backend):
         circ_status = _parse_status(jr)
         if res is None:
             return None, circ_status
-        ppcirc_rep = json.loads(cast(str, handle[1]))
+        ppcirc_rep = self.get_ppcirc_rep(handle)
         ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
-        backres = _convert_result(res, ppcirc)
+        n_bits = self.get_results_width(handle)
+        backres = _convert_result(res, ppcirc, n_bits)
         return backres, circ_status
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
@@ -809,14 +900,18 @@ class QuantinuumBackend(Backend):
         try:
             return super().get_result(handle)
         except CircuitNotRunError:
-            jobid = str(handle[0])
-            ppcirc_rep = json.loads(cast(str, handle[1]))
+            jobid = self.get_jobid(handle)
+            ppcirc_rep = self.get_ppcirc_rep(handle)
+            n_bits = self.get_results_width(handle)
+
             ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
 
             if self._MACHINE_DEBUG or jobid.startswith(_DEBUG_HANDLE_PREFIX):
                 debug_handle_info = jobid[len(_DEBUG_HANDLE_PREFIX) :]
                 n_qubits, shots = literal_eval(debug_handle_info)
-                return _convert_result({"c": (["0" * n_qubits] * shots)}, ppcirc)
+                return _convert_result(
+                    {"c": (["0" * n_qubits] * shots)}, ppcirc, n_bits
+                )
             # TODO exception handling when jobid not found on backend
             timeout = kwargs.get("timeout")
             if timeout is not None:
@@ -837,7 +932,7 @@ class QuantinuumBackend(Backend):
             except KeyError:
                 raise GetResultFailed("Results missing in device return data.")
 
-            backres = _convert_result(res, ppcirc)
+            backres = _convert_result(res, ppcirc, n_bits)
             self._update_cache_result(handle, backres)
             return backres
 
@@ -939,7 +1034,9 @@ _xcirc.add_phase(0.5)
 
 
 def _convert_result(
-    resultdict: Dict[str, List[str]], ppcirc: Optional[Circuit] = None
+    resultdict: Dict[str, List[str]],
+    ppcirc: Optional[Circuit] = None,
+    n_bits: Optional[int] = None,
 ) -> BackendResult:
     array_dict = {
         creg: np.array([list(a) for a in reslist]).astype(np.uint8)
@@ -951,6 +1048,11 @@ def _convert_result(
         for name in reversed_creg_names
         for ind in range(array_dict[name].shape[-1] - 1, -1, -1)
     ]
+    if n_bits is not None:
+        assert n_bits >= 0 and n_bits <= len(c_bits)
+        c_bits = c_bits[:n_bits]
+        for creg in array_dict.keys():
+            array_dict[creg] = array_dict[creg][:, :n_bits]
 
     stacked_array = np.hstack([array_dict[name] for name in reversed_creg_names])
     return BackendResult(

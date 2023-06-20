@@ -27,7 +27,7 @@ from requests_mock.mocker import Mocker
 
 from pytket.backends import ResultHandle, StatusEnum
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
-from pytket.extensions.quantinuum.backends import QuantinuumBackend
+from pytket.extensions.quantinuum.backends import QuantinuumBackend, Language
 from pytket.circuit import Circuit  # type: ignore
 from pytket.architecture import FullyConnected  # type: ignore
 from pytket.extensions.quantinuum.backends.quantinuum import (
@@ -316,7 +316,7 @@ def test_federated_login_wrong_provider(
 
 @pytest.mark.parametrize(
     "chosen_device",
-    ["H1", "H1-1", "H1-2"],
+    ["H1", "H2", "H1-1", "H1-2", "H2-1"],
 )
 def test_device_family(
     requests_mock: Mocker,
@@ -360,7 +360,7 @@ def test_device_family(
     circ = backend.get_compiled_circuit(circ)
 
     max_batch_cost = 20
-    if chosen_device == "H1":
+    if chosen_device in ["H1", "H2"]:
         with pytest.raises(BatchingUnsupported):
             backend.start_batch(max_batch_cost, circ, 10)
     else:
@@ -434,6 +434,7 @@ def test_available_devices(
     mock_quum_api_handler: QuantinuumAPI,
     mock_machine_info: Dict[str, Any],
 ) -> None:
+    """Test that we can get a list of available devices."""
     requests_mock.register_uri(
         "GET",
         f"https://qapi.quantinuum.com/v1/machine/?config=true",
@@ -470,7 +471,7 @@ def test_submit_qasm_api(
     mock_quum_api_handler: QuantinuumAPI,
     sample_machine_infos: Dict[str, Any],
 ) -> None:
-    """Test that you can resume using a batch."""
+    """Test that we can submit a QASM program."""
 
     fake_job_id = "abc-123"
 
@@ -503,7 +504,7 @@ def test_submit_qasm_api(
     OPENQASM 2.0;
     include "hqslib1.inc";
     """
-    h1 = backend.submit_qasm(qasm, n_shots=10)
+    h1 = backend.submit_program(Language.QASM, qasm, n_shots=10)
 
     assert h1[0] == fake_job_id
 
@@ -520,6 +521,7 @@ def test_get_partial_result(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
 ) -> None:
+    """Test that we can get partial results."""
     queued_job_id = "abc-123"
     requests_mock.register_uri(
         "GET",
@@ -540,12 +542,12 @@ def test_get_partial_result(
         headers={"Content-Type": "application/json"},
     )
     backend = QuantinuumBackend(device_name="H1-2SC", api_handler=mock_quum_api_handler)
-    h1 = ResultHandle(queued_job_id, "null")
+    h1 = ResultHandle(queued_job_id, "null", -1)
     res, status = backend.get_partial_result(h1)
     assert res is None
     assert status.status == StatusEnum.QUEUED
 
-    h2 = ResultHandle(running_job_id, "null")
+    h2 = ResultHandle(running_job_id, "null", -1)
     res, status = backend.get_partial_result(h2)
     assert res is not None
     assert status.status == StatusEnum.RUNNING

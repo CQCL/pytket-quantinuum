@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 
 import pytest
 from _pytest.fixtures import SubRequest
@@ -26,7 +26,53 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
-skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
+ALL_QUANTUM_HARDWARE_NAMES = [
+    "H1-1",
+    "H1-2",
+    "H2-1",
+]
+
+ALL_SIMULATOR_NAMES = [
+    "H1-1E",
+    "H1-2E",
+    "H2-1E",
+]
+
+ALL_SYNTAX_CHECKER_NAMES = [
+    "H1-1SC",
+    "H1-2SC",
+    "H2-1SC",
+]
+
+ALL_DEVICE_NAMES = [
+    *ALL_QUANTUM_HARDWARE_NAMES,
+    *ALL_SIMULATOR_NAMES,
+    *ALL_SYNTAX_CHECKER_NAMES,
+]
+
+
+def pytest_configure() -> None:
+    """Define global symbols used by the tests.
+
+    Note: we need to do this as part of the pytest_configure as these symbols
+    are used while parametrizing the tests and not as fixtures."""
+
+    #
+    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
+    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
+    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
+    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
+
+
+def pytest_make_parametrize_id(
+    config: pytest.Config, val: object, argname: str
+) -> Optional[str]:
+    """Custom ids for the parametrized tests."""
+    if isinstance(val, QuantinuumBackend):
+        return val._device_name
+    if isinstance(val, Dict):
+        return val["device_name"] if "device_name" in val.keys() else None
+    return None
 
 
 @pytest.fixture()
@@ -41,7 +87,7 @@ def mock_token() -> str:
     # A mock token that expires in 2073
     token_payload = {"exp": 3278815149.143694}
     mock_token = jwt.encode(token_payload, key="", algorithm="HS256")
-    return mock_token
+    return str(mock_token)
 
 
 @pytest.fixture()
@@ -135,7 +181,30 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "batching": True,
             "wasm": True,
         },
+        {
+            "name": "H2-1E",
+            "n_qubits": 32,
+            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "n_classical_registers": 50,
+            "n_shots": 10000,
+            "system_type": "emulator",
+            "batching": True,
+            "wasm": True,
+        },
+        {
+            "name": "H2-1",
+            "n_qubits": 32,
+            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "n_classical_registers": 50,
+            "n_shots": 10000,
+            "system_type": "hardware",
+            "emulator": "H2-1E",
+            "syntax_checker": "H2-1SC",
+            "batching": True,
+            "wasm": True,
+        },
         {"name": "H1", "n_qubits": 20},
+        {"name": "H2", "n_qubits": 32},
     ]
 
 
