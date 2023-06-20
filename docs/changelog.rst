@@ -15,7 +15,7 @@ Changelog
   feature.)
 * Use "q" instead of "node" as the name of the single qubit register in compiled
   circuits.
-  * Updated pytket version requirement to 1.16.
+* Updated pytket version requirement to 1.16.
 
 0.16.0 (May 2023)
 -----------------
