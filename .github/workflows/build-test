@@ -65,7 +65,7 @@ python -m pip install --upgrade --pre pytket~=1.0
 pytest --doctest-modules unit/
 
 # integration tests are run if specified
-if  [[ -z "${INTEGRATION}" ]]
+if  [[ ! -z "${INTEGRATION}" ]]
 then
     pytest --doctest-modules integration/
 fi
