@@ -513,7 +513,7 @@ class QuantinuumAPIOffline:
             One short example:
             {
             "name": "H1-2",
-            "n_qubits": 12,
+            "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
             "n_shots": 10000,
             "batching": True,
@@ -536,7 +536,7 @@ class QuantinuumAPIOffline:
                 },
                 {
                     "name": "H1-2",
-                    "n_qubits": 12,
+                    "n_qubits": 20,
                     "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
                     "n_classical_registers": 120,
                     "n_shots": 10000,
