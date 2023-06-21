@@ -62,6 +62,9 @@ python -m pip install --pre -r test-requirements.txt
 # update the pytket version to the lastest (pre) release
 python -m pip install --upgrade --pre pytket~=1.0
 
+# update the pytket-qir version to the lastest (pre) release
+python -m pip install --upgrade --pre pytket-qir
+
 pytest --doctest-modules unit/
 
 # integration tests are run if specified
