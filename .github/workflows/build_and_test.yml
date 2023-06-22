@@ -51,7 +51,7 @@ jobs:
       if: github.event_name == 'push' || github.event_name == 'schedule'
       shell: bash
       run: |
-        ./.github/workflows/build-test nomypy
+        ./.github/workflows/build-test nomypy integration
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
@@ -73,7 +73,7 @@ jobs:
           )
         )
       run: |
-        ./.github/workflows/build-test mypy
+        ./.github/workflows/build-test mypy integration
     - name: Build and test including integration (3.10) mypy
       shell: bash
       if: |
@@ -90,6 +90,11 @@ jobs:
           (
             github.event_name == 'workflow_dispatch' &&
             github.event.inputs.run-integration-tests == 'yes'
+          ) ||
+          (
+            github.event_name == 'pull_request' &&
+            github.event.pull_request.head.repo.full_name == github.repository &&
+            github.ref == 'refs/heads/main'
           )
         )
       run: |
@@ -113,7 +118,7 @@ jobs:
         )
       shell: bash
       run: |
-        ./.github/workflows/build-test nomypy
+        ./.github/workflows/build-test nomypy integration
     - name: Build and test including integration (3.10) nomypy
       if: |
         matrix.os != 'macos-12' &&
@@ -153,7 +158,7 @@ jobs:
         github.event_name == 'workflow_dispatch'
       shell: bash
       run: |
-        ./.github/workflows/build-test nomypy
+        ./.github/workflows/build-test nomypy integration
     - uses: actions/upload-artifact@v3
       if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
       with:
