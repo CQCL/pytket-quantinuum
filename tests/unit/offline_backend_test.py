@@ -18,7 +18,7 @@ import pytest
 from hypothesis import given, strategies
 from pytket.backends import CircuitNotValidError
 from pytket.circuit import Circuit  # type: ignore
-from pytket.extensions.quantinuum import QuantinuumBackend
+from pytket.extensions.quantinuum import QuantinuumBackend, Language
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIOffline,
@@ -31,7 +31,8 @@ from pytket.passes import (  # type: ignore
 )
 
 
-def test_quantinuum_offline() -> None:
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+def test_quantinuum_offline(language: Language) -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
         device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
@@ -48,12 +49,12 @@ def test_quantinuum_offline() -> None:
     c.measure_all()
     c = backend.get_compiled_circuit(c)
     n_shots = 4
-    _ = backend.process_circuits([c], n_shots)[0]
+    _ = backend.process_circuits([c], n_shots, language=language)[0]  # type: ignore
     expected_result = {
         "name": "test 1",
         "count": 4,
         "machine": "H1-1",
-        "language": "OPENQASM 2.0",
+        "language": language.value,
         "program": "...",  # not checked
         "priority": "normal",
         "options": {"simulator": "state-vector", "error-model": True, "tket": {}},
@@ -92,7 +93,8 @@ def test_max_classical_register_ii() -> None:
         backend._check_all_circuits([c])
 
 
-def test_tket_pass_submission() -> None:
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+def test_tket_pass_submission(language: Language) -> None:
     backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
 
     sequence_pass = SequencePass(
@@ -109,19 +111,26 @@ def test_tket_pass_submission() -> None:
     c.measure_all()
     c = backend.get_compiled_circuit(c)
     n_shots = 4
-    backend.process_circuits([c], n_shots, pytketpass=sequence_pass)
+    backend.process_circuits([c], n_shots, pytketpass=sequence_pass, language=language)  # type: ignore
 
 
 @given(
     n_shots=strategies.integers(min_value=1, max_value=10),  # type: ignore
     n_bits=strategies.integers(min_value=0, max_value=10),
 )
-def test_shots_bits_edgecases(n_shots, n_bits) -> None:
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # Language.QIR, # FIXME QIR converter assumes at least 1 quantum register
+    ],
+)
+def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
     quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
 
     # TODO TKET-813 add more shot based backends and move to integration tests
-    h = quantinuum_backend.process_circuit(c, n_shots)
+    h = quantinuum_backend.process_circuit(c, n_shots, language=language)  # type: ignore
     res = quantinuum_backend.get_result(h)
 
     correct_shots = np.zeros((n_shots, n_bits), dtype=int)
@@ -133,7 +142,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     assert res.get_counts() == correct_counts
 
     # Direct
-    res = quantinuum_backend.run_circuit(c, n_shots=n_shots)
+    res = quantinuum_backend.run_circuit(c, n_shots=n_shots, language=language)  # type: ignore
     assert np.array_equal(res.get_shots(), correct_shots)
     assert res.get_shots().shape == correct_shape
     assert res.get_counts() == correct_counts

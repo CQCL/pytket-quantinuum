@@ -64,8 +64,9 @@ REASON = (
 
 
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_quantinuum(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     if skip_remote_tests:
         backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
@@ -92,7 +93,7 @@ def test_quantinuum(
     assert backend.circuit_status(handle).status is StatusEnum.COMPLETED
     assert np.all(shots == correct_shots)
     assert counts == correct_counts
-    res = backend.run_circuit(c, n_shots=4, timeout=49)
+    res = backend.run_circuit(c, n_shots=4, timeout=49, language=language)  # type: ignore
     newshots = res.get_shots()
     assert np.all(newshots == correct_shots)
     newcounts = res.get_counts()
@@ -132,8 +133,9 @@ def test_max_classical_register(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_bell(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     b = authenticated_quum_backend
     c = Circuit(2, 2, "test 2")
@@ -142,7 +144,7 @@ def test_bell(
     c.measure_all()
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots).get_shots()
+    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()  # type: ignore
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -152,8 +154,15 @@ def test_bell(
     [{"device_name": "H1-1SC", "label": "test 3"}],
     indirect=True,
 )
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # Language.QIR, # FIXME enable when multiregister circuits supported
+    ],
+)
 def test_multireg(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     b = authenticated_quum_backend
     c = Circuit()
@@ -172,7 +181,7 @@ def test_multireg(
     c = b.get_compiled_circuit(c)
 
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots).get_shots()
+    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()  # type: ignore
     assert np.array_equal(shots, np.zeros((10, 2)))
 
 
@@ -329,8 +338,15 @@ def test_cost_estimate(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # Language.QIR, # FIXME "ValueError: SetBitOp must act on entire registers."
+    ],
+)
 def test_classical(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     # circuit to cover capabilities covered in example notebook
     c = Circuit(1, name="test_classical")
@@ -368,7 +384,7 @@ def test_classical(
     b = authenticated_quum_backend
 
     c = b.get_compiled_circuit(c)
-    assert b.run_circuit(c, n_shots=10).get_counts()
+    assert b.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -377,8 +393,9 @@ def test_classical(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_postprocess(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     b = authenticated_quum_backend
     assert b.supports_contextual_optimisation
@@ -388,7 +405,7 @@ def test_postprocess(
     c.add_gate(OpType.ZZMax, [0, 1])
     c.measure_all()
     c = b.get_compiled_circuit(c)
-    h = b.process_circuit(c, n_shots=10, postprocess=True)
+    h = b.process_circuit(c, n_shots=10, postprocess=True, language=language)  # type: ignore
     ppcirc = Circuit.from_dict(json.loads(cast(str, h[1])))
     ppcmds = ppcirc.get_commands()
     assert len(ppcmds) > 0
@@ -402,9 +419,11 @@ def test_postprocess(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
 )
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
     authenticated_quum_backend: QuantinuumBackend,
+    language: Language,
 ) -> None:
     circ = Circuit(2, name="sim_test").H(0).CX(0, 1).measure_all()
     n_shots = 1000
@@ -415,10 +434,12 @@ def test_simulator(
 
     circ = state_backend.get_compiled_circuit(circ)
 
-    noisy_handle = state_backend.process_circuit(circ, n_shots)
-    pure_handle = state_backend.process_circuit(circ, n_shots, noisy_simulation=False)
+    noisy_handle = state_backend.process_circuit(circ, n_shots, language=language)  # type: ignore
+    pure_handle = state_backend.process_circuit(
+        circ, n_shots, noisy_simulation=False, language=language  # type: ignore
+    )
     stab_handle = stabilizer_backend.process_circuit(
-        circ, n_shots, noisy_simulation=False
+        circ, n_shots, noisy_simulation=False, language=language  # type: ignore
     )
 
     noisy_counts = state_backend.get_result(noisy_handle).get_counts()
@@ -439,7 +460,9 @@ def test_simulator(
         Circuit(2, name="non_stab_circ").H(0).Rx(0.1, 0).CX(0, 1).measure_all()
     )
     non_stab_circ = stabilizer_backend.get_compiled_circuit(non_stab_circ)
-    broken_handle = stabilizer_backend.process_circuit(non_stab_circ, n_shots)
+    broken_handle = stabilizer_backend.process_circuit(
+        non_stab_circ, n_shots, language=language  # type: ignore
+    )
 
     with pytest.raises(GetResultFailed) as _:
         _ = stabilizer_backend.get_result(broken_handle)
@@ -483,8 +506,9 @@ def test_batching(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_submission_with_group(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     b = authenticated_quum_backend
     c = Circuit(2, 2, "test 2")
@@ -493,7 +517,7 @@ def test_submission_with_group(
     c.measure_all()
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots, group="DEFAULT").get_shots()  # type: ignore
+    shots = b.run_circuit(c, n_shots=n_shots, group="DEFAULT", language=language).get_shots()  # type: ignore
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -501,8 +525,9 @@ def test_submission_with_group(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_zzphase(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     backend = authenticated_quum_backend
     c = Circuit(2, 2, "test rzz")
@@ -520,7 +545,7 @@ def test_zzphase(
         assert c0.n_gates_of_type(OpType.ZZMax) > 0
 
     n_shots = 4
-    handle = backend.process_circuits([c0], n_shots)[0]
+    handle = backend.process_circuits([c0], n_shots, language=language)[0]  # type: ignore
     correct_counts = {(0, 0): 4}
     res = backend.get_result(handle, timeout=49)
     counts = res.get_counts()
@@ -596,8 +621,16 @@ def test_device_state(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # Language.QIR, # FIXME QIR converter assumes at least 1 quantum register
+        # (also need WASM support)
+    ],
+)
 def test_wasm(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent / "testfile.wasm"))
     c = Circuit(1)
@@ -608,7 +641,9 @@ def test_wasm(
     b = authenticated_quum_backend
 
     c = b.get_compiled_circuit(c)
-    h = b.process_circuits([c], n_shots=10, wasm_file_handler=wasfile)[0]
+    h = b.process_circuits(
+        [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+    )[0]
     assert b.get_result(h)
 
 
@@ -671,12 +706,15 @@ def test_submit_qasm(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+def test_options(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
     # Unrecognized options are ignored
     c0 = Circuit(1).H(0).measure_all()
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c0, 0)
-    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0})
+    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0}, language=language)  # type: ignore
     r = b.get_results(h)[0]
     shots = r.get_shots()
     assert len(shots) == 1
@@ -689,11 +727,14 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+def test_no_opt(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
     c0 = Circuit(1).H(0).measure_all()
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c0, 0)
-    h = b.process_circuits([c], n_shots=1, no_opt=True)
+    h = b.process_circuits([c], n_shots=1, no_opt=True, language=language)  # type: ignore
     r = b.get_results(h)[0]
     shots = r.get_shots()
     assert len(shots) == 1
