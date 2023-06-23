@@ -16,6 +16,7 @@ from base64 import b64encode
 from pathlib import Path
 from typing import cast, Callable, Any  # pylint: disable=unused-import
 import json
+import gc
 import os
 import time
 from hypothesis import given, settings
@@ -705,6 +706,7 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
 def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
+    gc.disable()
     b = authenticated_quum_backend
     qir = """; ModuleID = 'result_tag.bc'
 source_filename = "qat-link"
