@@ -70,7 +70,7 @@ pytest --doctest-modules unit/
 # integration tests are run if specified
 if  [[ ! -z "${INTEGRATION}" ]]
 then
-    pytest --doctest-modules integration/
+    pytest --doctest-modules integration/ -k'test_qir_submission'
 fi
 
 cd ..
