@@ -399,6 +399,7 @@ def test_postprocess(
     assert len(shots) == 10
 
 
+@pytest.mark.flaky(reruns=4, reruns_delay=100)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
@@ -459,6 +460,7 @@ def test_retrieve_available_devices(
     assert len(backend_infos) > 0
 
 
+@pytest.mark.flaky(reruns=4, reruns_delay=100)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
