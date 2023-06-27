@@ -16,6 +16,7 @@ from base64 import b64encode
 from pathlib import Path
 from typing import cast, Callable, Any  # pylint: disable=unused-import
 import json
+import gc
 import os
 import time
 from hypothesis import given, settings
@@ -398,9 +399,10 @@ def test_postprocess(
     assert len(shots) == 10
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -410,7 +412,7 @@ def test_simulator(
     n_shots = 1000
     state_backend = authenticated_quum_backend
     stabilizer_backend = QuantinuumBackend(
-        "H2-1E", simulator="stabilizer", api_handler=authenticated_quum_handler
+        "H1-1E", simulator="stabilizer", api_handler=authenticated_quum_handler
     )
 
     circ = state_backend.get_compiled_circuit(circ)
@@ -458,9 +460,10 @@ def test_retrieve_available_devices(
     assert len(backend_infos) > 0
 
 
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 def test_batching(
     authenticated_quum_backend: QuantinuumBackend,
@@ -705,6 +708,7 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
 def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
+    gc.disable()
     b = authenticated_quum_backend
     qir = """; ModuleID = 'result_tag.bc'
 source_filename = "qat-link"
