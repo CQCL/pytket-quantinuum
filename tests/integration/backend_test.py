@@ -402,7 +402,7 @@ def test_postprocess(
 @pytest.mark.flaky(reruns=4, reruns_delay=100)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -412,7 +412,7 @@ def test_simulator(
     n_shots = 1000
     state_backend = authenticated_quum_backend
     stabilizer_backend = QuantinuumBackend(
-        "H2-1E", simulator="stabilizer", api_handler=authenticated_quum_handler
+        "H1-1E", simulator="stabilizer", api_handler=authenticated_quum_handler
     )
 
     circ = state_backend.get_compiled_circuit(circ)
@@ -463,7 +463,7 @@ def test_retrieve_available_devices(
 @pytest.mark.flaky(reruns=4, reruns_delay=100)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H2-1E"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 def test_batching(
     authenticated_quum_backend: QuantinuumBackend,
