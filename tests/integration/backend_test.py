@@ -708,6 +708,8 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
 def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
+    # disable Garbage Collector because of
+    # https://github.com/CQCL/pytket-quantinuum/issues/170
     gc.disable()
     b = authenticated_quum_backend
     qir = """; ModuleID = 'result_tag.bc'
