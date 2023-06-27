@@ -16,7 +16,6 @@ from base64 import b64encode
 from pathlib import Path
 from typing import cast, Callable, Any  # pylint: disable=unused-import
 import json
-
 import gc
 import os
 import time
@@ -400,7 +399,7 @@ def test_postprocess(
     assert len(shots) == 10
 
 
-@pytest.mark.flaky(reruns=4, reruns_delay=100)
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
@@ -461,7 +460,7 @@ def test_retrieve_available_devices(
     assert len(backend_infos) > 0
 
 
-@pytest.mark.flaky(reruns=4, reruns_delay=100)
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
