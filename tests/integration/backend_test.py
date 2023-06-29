@@ -158,7 +158,7 @@ def test_bell(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME enable when multiregister circuits supported
+        Language.QIR, # FIXME enable when multiregister circuits supported
     ],
 )
 def test_multireg(
