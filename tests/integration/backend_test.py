@@ -165,6 +165,7 @@ def test_bell(
 def test_multireg(
     authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
+    gc.disable()
     b = authenticated_quum_backend
     c = Circuit()
     q1 = Qubit("q1", 0)
