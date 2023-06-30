@@ -122,7 +122,7 @@ def test_tket_pass_submission(language: Language) -> None:
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME QIR converter assumes at least 1 quantum register
+        Language.QIR,
     ],
 )
 def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
