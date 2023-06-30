@@ -365,7 +365,6 @@ def test_classical(
 
     c.add_classicalexpbox_register(a + b, d)
     c.add_classicalexpbox_register(a - b, d)
-    # c.add_classicalexpbox_register(a * b // d, d) # division unsupported in QIR
     c.add_classicalexpbox_register(a << 1, a)
     c.add_classicalexpbox_register(a >> 1, b)
 
