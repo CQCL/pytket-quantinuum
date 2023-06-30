@@ -159,7 +159,7 @@ def test_bell(
     "language",
     [
         Language.QASM,
-        Language.QIR, # FIXME enable when multiregister circuits supported
+        Language.QIR,
     ],
 )
 def test_multireg(
@@ -344,7 +344,7 @@ def test_cost_estimate(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME "ValueError: SetBitOp must act on entire registers."
+        Language.QIR,
     ],
 )
 def test_classical(
@@ -629,8 +629,7 @@ def test_device_state(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME QIR converter assumes at least 1 quantum register
-        # (also need WASM support)
+        # Language.QIR, # FIXME needs WASM support
     ],
 )
 def test_wasm(
