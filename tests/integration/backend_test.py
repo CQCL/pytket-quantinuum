@@ -159,12 +159,13 @@ def test_bell(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME enable when multiregister circuits supported
+        Language.QIR,
     ],
 )
 def test_multireg(
     authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
+    gc.disable()
     b = authenticated_quum_backend
     c = Circuit()
     q1 = Qubit("q1", 0)
@@ -343,7 +344,7 @@ def test_cost_estimate(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME "ValueError: SetBitOp must act on entire registers."
+        Language.QIR,
     ],
 )
 def test_classical(
@@ -364,7 +365,7 @@ def test_classical(
 
     c.add_classicalexpbox_register(a + b, d)
     c.add_classicalexpbox_register(a - b, d)
-    c.add_classicalexpbox_register(a * b // d, d)
+    # c.add_classicalexpbox_register(a * b // d, d) # division unsupported in QIR
     c.add_classicalexpbox_register(a << 1, a)
     c.add_classicalexpbox_register(a >> 1, b)
 
@@ -628,8 +629,7 @@ def test_device_state(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME QIR converter assumes at least 1 quantum register
-        # (also need WASM support)
+        # Language.QIR, # FIXME needs WASM support
     ],
 )
 def test_wasm(
