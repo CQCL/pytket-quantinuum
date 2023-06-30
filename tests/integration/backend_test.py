@@ -447,7 +447,7 @@ def test_simulator(
 
     noisy_counts = state_backend.get_result(noisy_handle).get_counts()
     assert sum(noisy_counts.values()) == n_shots
-    assert len(noisy_counts) > 2
+assert len(noisy_counts) > 2  # some noisy results likely
 
     pure_counts = state_backend.get_result(pure_handle).get_counts()
     assert sum(pure_counts.values()) == n_shots
