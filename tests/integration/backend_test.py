@@ -395,6 +395,61 @@ def test_classical(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # Language.QIR, # add this when division supported in QIR
+    ],
+)
+def test_classical_div(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    # circuit to cover capabilities covered in example notebook
+    c = Circuit(1, name="test_classical")
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 10)
+    d = c.add_c_register("d", 10)
+
+    c.add_c_setbits([True], [a[0]])
+    c.add_c_setbits([False, True] + [False] * 6, list(a))
+    c.add_c_setbits([True, True] + [False] * 8, list(b))
+
+    c.add_c_setreg(23, a)
+    c.add_c_copyreg(a, b)
+
+    c.add_classicalexpbox_register(a + b, d)
+    c.add_classicalexpbox_register(a - b, d)
+    c.add_classicalexpbox_register(a * b // d, d)
+    c.add_classicalexpbox_register(a << 1, a)
+    c.add_classicalexpbox_register(a >> 1, b)
+
+    c.X(0, condition=reg_eq(a ^ b, 1))
+    c.X(0, condition=(a[0] ^ b[0]))
+    c.X(0, condition=reg_eq(a & b, 1))
+    c.X(0, condition=reg_eq(a | b, 1))
+
+    c.X(0, condition=a[0])
+    c.X(0, condition=reg_neq(a, 1))
+    c.X(0, condition=if_not_bit(a[0]))
+    c.X(0, condition=reg_gt(a, 1))
+    c.X(0, condition=reg_lt(a, 1))
+    c.X(0, condition=reg_geq(a, 1))
+    c.X(0, condition=reg_leq(a, 1))
+    c.Phase(0, condition=a[0])
+
+    b = authenticated_quum_backend
+
+    c = b.get_compiled_circuit(c)
+    assert b.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_postprocess(
     authenticated_quum_backend: QuantinuumBackend, language: Language
