@@ -407,7 +407,7 @@ def test_postprocess(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  
     indirect=True,
 )
 def test_leakage_detection(
@@ -425,8 +425,8 @@ def test_leakage_detection(
 
 
 @given(
-    n_shots=strategies.integers(min_value=1, max_value=10),  # type: ignore
-    n_bits=strategies.integers(min_value=0, max_value=10),  # type: ignore
+    n_shots=st.integers(min_value=1, max_value=10),  # type: ignore
+    n_bits=st.integers(min_value=0, max_value=10),  # type: ignore
 )
 def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
