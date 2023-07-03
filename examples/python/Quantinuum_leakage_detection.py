@@ -3,11 +3,11 @@
 
 # Quantum computers are known to be *noisy*, with a high chance of errors occurring when executing a sequence of operations. These errors can come from a variety of sources and are typically hard to mitigate. Investigating the source of errors, how they manifest at the Quantum Circuit level, and how to mitigate them is a wide area of research. <br>
 
-# A regular experiment using the `QuantinuumBackend` works as follows: circuits are defined using `pytket`, compiled to the device constraints using `QuantinuumBackend.get_compiled_circuit`, sent to the device provider using `QuantinuumBackend.process_circuits`, and results retrieved using `QuantinuumBackend.get_results`. Results are received in a `BackendResult` object and represented as a series of "shots", a binary string corresponding to the measurement results for each `Qubit` after each execution of the circuit on the device. This set of shots gives a probability distribution over the set of basis states spanned by the device qubits. Broadly, the closer the probability distribution represented by the set of shots matches the ideal probability distribution, the more accurate the computation can be considered (note we are considering noise here but the nuber of shots taken also effects this). <br>
+# A regular experiment using the `QuantinuumBackend` works as follows: circuits are defined using `pytket`, compiled to the device constraints using `QuantinuumBackend.get_compiled_circuit` and sent to the device provider using `QuantinuumBackend.process_circuits`; results are retrieved using `QuantinuumBackend.get_results`. Results are received in a `BackendResult` object and represented as a series of "shots", a binary string corresponding to the measurement results for each `Qubit` after each execution of the circuit on the device. This set of shots gives a probability distribution over the set of basis states spanned by the device qubits. Broadly, the closer the probability distribution represented by the set of shots matches the ideal probability distribution, the more accurate the computation can be considered (note we are considering noise here, but the number of shots taken also affects this). <br>
 
 # One source of error in computation is from "leakage". During execution of hardware level two-qubit gates, there is a small probability for the qubit to experience leakage to electronic states outside the qubit subspace. When a qubit has leaked, none of the remaining gates in the circuit acting on the qubit have any effect, but a measurement on that qubit will falsely result in a '1'. For more information we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz. <br>
 
-# Using a special circuit "gadget" and an ancilla Qubit, it's possible to detect leakage errors at the quantum circuit level and so discard erroneous shots. In this notebook we will show how to automatically run experiments with leakage detection added using `QuantinuumBackend.process_circuits` and how to process `BackendResult` returned from `QuantinuumBackend` to remove leaky results. We will also show how this scheme can improve results using a repeated gate benchmarking experiment.
+# Using a special circuit "gadget" and an ancilla qubit, it's possible to detect leakage errors at the quantum circuit level and so discard erroneous shots. In this notebook we will show how to automatically run experiments with leakage detection added using `QuantinuumBackend.process_circuits` and how to process `BackendResult` returned from `QuantinuumBackend` to remove leaky results. We will also show how this scheme can improve results using a repeated gate benchmarking experiment.
 
 # The leakage detection circuit, or "gadget", looks like so: <br>
 
@@ -29,7 +29,7 @@ render_circuit_jupyter(
 
 # The `pytket-quantinuum` package has methods for automatically modifying a `pytket` `Circuit` to add leakage detection gadgets just before any end of circuit measurement gates. <br>
 
-# Let's create a basic bell pair circuit and then modify it.
+# Let's create a basic Bell pair circuit and then modify it.
 
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from pytket import Circuit
@@ -43,7 +43,7 @@ render_circuit_jupyter(bell_pair_leakage_detection_circuit)
 
 # We can see that for each of the Bell pair qubits a leakage detection gadget has been appended before the final measurement. <br> <br>
 
-# The parameter `n_device_qubits` tells `get_detection_circuit` how many qubits the device has. In this case we stated there were 4 device qubits while the Bell pair circuit had two qubits, meaning a separate qubit was used for each leakage detection gadget. However, if there are too few device qubits then `get_detection_circuit` will reuse ancilla qubits to do multiple leakage detections, assigning the results to different `Bit`. We can see this by setting `n_device_qubits = 3`.
+# The parameter `n_device_qubits` tells `get_detection_circuit` how many qubits the device has. In this case we stated there were 4 device qubits while the Bell pair circuit had 2 qubits, meaning a separate qubit was used for each leakage detection gadget. However, if there are too few device qubits then `get_detection_circuit` will reuse ancilla qubits to do multiple leakage detections, assigning the results to different `Bit`. We can see this by setting `n_device_qubits = 3`.
 
 render_circuit_jupyter(
     get_detection_circuit(circuit=bell_pair_circuit, n_device_qubits=3)
@@ -62,11 +62,11 @@ handle = backend.process_circuit(circuit, n_shots=10000, leakage_detection=True)
 result = backend.get_result(handle)
 
 
-# We can see in the returned results that there are additional Bit for detecting leakage. </br>
+# We can see in the returned results that there are additional `Bit` for detecting leakage. </br>
 
-# By passing an ordering of `Bit` to `result.get_counts()`, the final two entries in each bitstring correspond to the measurement results for the leakage detection Qubit. </br>
+# By passing an ordering of `Bit` to `result.get_counts()`, we ensure that the final two entries in each bitstring correspond to the measurement results for the leakage detection Qubit. </br>
 
-# If each of these entries a "1" then it implies leakage has occurred and these counts should be removed.
+# If each of these entries is a "1" then leakage has occurred and these counts should be removed.
 
 print("Bit with measurement results:", list(result.c_bits.keys()))
 for bitstring, count in result.get_counts(
@@ -85,7 +85,7 @@ for bitstring, count in pruned_result.get_counts([Bit(0), Bit(1)]).items():
 
 # ## Benchmarking circuit improvement with leakage detection
 
-# In this section we will demonstrate how using leakage detection can improve the results of a circuit. Since the probability of a qubit having leaked during a circuit increases with the number of two-qubit gates that the qubit participates in, we use a deep circuit in order to measure a statistically significant improvement. The following circuit repeats the native two-qubit gate many times and such that the final state is ideally $| 00\rangle$.
+# In this section we will demonstrate how using leakage detection can improve the results of a circuit. Since the probability of a qubit having leaked during a circuit increases with the number of two-qubit gates that the qubit participates in, we use a deep circuit in order to measure a statistically significant improvement. The following circuit repeats the native two-qubit gate many times and is such that the final state is ideally $| 00\rangle$.
 
 circuit = Circuit(2, 2)
 for _ in range(200):
@@ -93,7 +93,7 @@ for _ in range(200):
     circuit.add_barrier([0, 1])
 circuit.measure_all()
 
-# We next run the circuit through the Quantinuum H1-2 emulator, which realistically models leakage during the two-qubit gates. We create two circuit handles, one without and the other with using leakage detection.
+# We next run the circuit through the Quantinuum H1-2 emulator, which realistically models leakage during the two-qubit gates. We create two circuit handles, one without and the other with leakage detection.
 
 backend = QuantinuumBackend(device_name="H1-2E")
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=0)
@@ -104,7 +104,7 @@ handle_leakage = backend.process_circuit(
     compiled_circuit, n_shots=10000, leakage_detection=True
 )
 
-# When submitting circuits to the Quantinuum Hardware emulator, it is a good idea to check the status of the circuits.
+# When submitting circuits to the Quantinuum hardware emulator, it is a good idea to check the status of the circuits.
 
 for handle in [handle_no_leakage, handle_leakage]:
     print(backend.circuit_status(handle).status)
