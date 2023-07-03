@@ -407,7 +407,7 @@ def test_postprocess(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 def test_leakage_detection(
