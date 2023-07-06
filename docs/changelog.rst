@@ -5,6 +5,10 @@ Changelog
 ------------------
 
 * Update pytket version requirement to 1.17.
+* Add ``leakage_detection`` option to ``QuantinuumBackend.process_circuits()``
+  that automatically modifies Circuits with ancillas for detecting leakage 
+  errors. Also provides a new method ``prune_shots_detected_as_leaky`` for
+  removing erroneous shots from ``BackendResult``.
 
 0.17.0 (June 2023)
 ------------------
@@ -20,10 +24,6 @@ Changelog
   feature.)
 * Use "q" instead of "node" as the name of the single qubit register in compiled
   circuits.
-* Add ``leakage_detection`` option to ``QuantinuumBackend.process_circuits()``
-  that automatically modifies Circuits with ancillas for detecting leakage 
-  errors. Also provides a new method ``prune_shots_detected_as_leaky`` for
-  removing erroneous shots from ``BackendResult``.
 * Updated pytket version requirement to 1.16.
 
 0.16.0 (May 2023)
