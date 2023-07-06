@@ -73,6 +73,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
+from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
@@ -621,6 +622,9 @@ class QuantinuumBackend(Backend):
           json-style dictionary
         * `language`: languange for submission, of type :py:class:`Language`, default
           QASM.
+        * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
+          to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
+          BackendResult to get counts with leakage errors removed.
 
         """
         circuits = list(circuits)
@@ -629,6 +633,15 @@ class QuantinuumBackend(Backend):
             len(circuits),
             optional=False,
         )
+
+        if kwargs.get("leakage_detection", False):
+            circuits = [
+                self.get_compiled_circuit(
+                    get_detection_circuit(c, self.backend_info.n_nodes),  # type: ignore
+                    optimisation_level=0,
+                )
+                for c in circuits
+            ]
 
         if valid_check:
             self._check_all_circuits(circuits)
