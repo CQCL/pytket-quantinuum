@@ -104,7 +104,7 @@ def mock_ms_provider_token() -> str:
 def mock_machine_info() -> Dict[str, Any]:
     return {
         "name": "H9-27",
-        "n_qubits": 12,
+        "n_qubits": 20,
         "gateset": [],
         "n_classical_registers": 120,
         "n_shots": 10000,
@@ -121,7 +121,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
     return [
         {
             "name": "H1-2SC",
-            "n_qubits": 12,
+            "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
             "n_classical_registers": 120,
             "n_shots": 10000,
@@ -130,7 +130,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         },
         {
             "name": "H1-1SC",
-            "n_qubits": 12,
+            "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
             "n_classical_registers": 120,
             "n_shots": 10000,
@@ -161,7 +161,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         },
         {
             "name": "H1-2",
-            "n_qubits": 12,
+            "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
             "n_classical_registers": 120,
             "n_shots": 10000,
@@ -173,7 +173,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         },
         {
             "name": "H1-2E",
-            "n_qubits": 12,
+            "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
             "n_classical_registers": 120,
             "n_shots": 10000,

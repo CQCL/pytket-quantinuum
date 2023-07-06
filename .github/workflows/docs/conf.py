@@ -11,7 +11,9 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
     "sphinx_copybutton",
+    "enum_tools.autoenum",
 ]
 
 html_theme = "sphinx_book_theme"

@@ -17,4 +17,10 @@
 
 # _metadata.py is copied to the folder after installation.
 from ._metadata import __extension_version__, __extension_name__  # type: ignore
-from .backends import QuantinuumBackend, QuantinuumAPI, QuantinuumAPIOffline, Language
+from .backends import (
+    QuantinuumBackend,
+    QuantinuumAPI,
+    QuantinuumAPIOffline,
+    Language,
+    prune_shots_detected_as_leaky,
+)
