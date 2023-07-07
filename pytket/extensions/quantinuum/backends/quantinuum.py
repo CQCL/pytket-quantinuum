@@ -288,7 +288,7 @@ class QuantinuumBackend(Backend):
             name=cls.__name__,
             device_name=name,
             version=__extension_version__,
-            architecture=FullyConnected(n_qubits, "node"),
+            architecture=FullyConnected(n_qubits, "q"),
             gate_set=_get_gateset(gate_set),
             n_cl_reg=n_cl_reg,
             supports_fast_feedforward=True,
