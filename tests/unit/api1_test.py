@@ -447,9 +447,7 @@ def test_available_devices(
     backinfo = devices[0]
 
     assert backinfo.device_name == mock_machine_info["name"]
-    assert backinfo.architecture == FullyConnected(
-        mock_machine_info["n_qubits"], "q"
-    )
+    assert backinfo.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
     assert backinfo.version == __extension_version__
     assert backinfo.supports_fast_feedforward == True
     assert backinfo.supports_midcircuit_measurement == True
