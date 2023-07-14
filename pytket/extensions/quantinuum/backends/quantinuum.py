@@ -399,7 +399,14 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass())
+            passlist.extend(
+                [
+                auto_rebase_pass({OpType.Rz, OpType.PhasedX, OpType.TK2}),
+                NormaliseTK2(),
+                DecomposeTK2(),
+                self.rebase_pass(),
+                ]
+            )
         elif optimisation_level == 1:
             passlist.extend(
                 [
