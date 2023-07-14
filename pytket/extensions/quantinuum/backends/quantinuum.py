@@ -401,10 +401,10 @@ class QuantinuumBackend(Backend):
         if optimisation_level == 0:
             passlist.extend(
                 [
-                auto_rebase_pass({OpType.Rz, OpType.PhasedX, OpType.TK2}),
-                NormaliseTK2(),
-                DecomposeTK2(),
-                self.rebase_pass(),
+                    auto_rebase_pass({OpType.Rz, OpType.PhasedX, OpType.TK2}),
+                    NormaliseTK2(),
+                    DecomposeTK2(),
+                    self.rebase_pass(),
                 ]
             )
         elif optimisation_level == 1:
