@@ -121,3 +121,51 @@ def test_resize_scratch_registers() -> None:
     c_compiled = circ.copy()
     scratch_reg_resize_pass(10).apply(c_compiled)
     assert circ == c_compiled
+
+def test_implicit_swap_removal() -> None:
+
+    b = QuantinuumBackend("", machine_debug=True)
+    c = Circuit(2).ISWAPMax(0,1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 1
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    c  = Circuit(2).ISWAPMax(0,1)
+    b.rebase_pass().apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 2
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).Sycamore(0,1)
+    compiled = b.get_compiled_circuit(c,0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    c = Circuit(2).Sycamore(0,1)
+    b.rebase_pass().apply(c)
+    assert  c.n_gates_of_type(OpType.ZZMax) == 3
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).ISWAP(0.3, 0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2 
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    c = Circuit(2).ISWAP(0.3,0,1)
+    b.rebase_pass().apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 2
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).ISWAPMax(0,1).ISWAPMax(1,0)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    c = Circuit(2).ISWAPMax(0,1).ISWAPMax(1,0)
+    compiled = b.get_compiled_circuit(c, 1)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 0
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    c = Circuit(2).ISWAPMax(0,1).ISWAPMax(1,0)
+    b.rebase_pass().apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 4
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+    
+
+
+if __name__ == "__main__":
+    test_implicit_swap_removal()
