@@ -408,7 +408,14 @@ class QuantinuumBackend(Backend):
             passlist.extend(
                 [
                     CustomPass(lambda c: replace_swaps(c)),
-                    auto_rebase_pass({OpType.Rz, OpType.PhasedX, OpType.TK2}),
+                    auto_rebase_pass(
+                        {
+                            OpType.Rz,
+                            OpType.PhasedX,
+                            OpType.TK2,
+                            OpType.ZZMax,
+                        }
+                    ),
                     NormaliseTK2(),
                     DecomposeTK2(),
                     self.rebase_pass(),

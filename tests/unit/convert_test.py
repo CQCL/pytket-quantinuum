@@ -191,6 +191,10 @@ def test_implicit_swap_removal() -> None:
     assert c.n_gates_of_type(OpType.ZZMax) == 3
     assert c.n_gates_of_type(OpType.ZZPhase) == 0
 
+    c = Circuit(2).ZZMax(0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates == 1
+
 
 if __name__ == "__main__":
     test_implicit_swap_removal()
