@@ -398,9 +398,16 @@ class QuantinuumBackend(Backend):
         # then please update this page accordingly
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
+
         if optimisation_level == 0:
+
+            def replace_swaps(c: Circuit) -> Circuit:
+                c.replace_SWAPs()
+                return c
+
             passlist.extend(
                 [
+                    CustomPass(lambda c: replace_swaps(c)),
                     auto_rebase_pass({OpType.Rz, OpType.PhasedX, OpType.TK2}),
                     NormaliseTK2(),
                     DecomposeTK2(),
