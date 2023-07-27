@@ -372,10 +372,12 @@ class QuantinuumBackend(Backend):
 
         return preds
 
-    def rebase_pass(self) -> BasePass:
-        return auto_rebase_pass(self._gate_set)
+    def rebase_pass(self, implicit_swaps: bool) -> BasePass:
+        return auto_rebase_pass(self._gate_set, implicit_swaps)
 
-    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
+    def default_compilation_pass(
+        self, optimisation_level: int = 2, implicit_swaps: bool = True
+    ) -> BasePass:
         assert optimisation_level in range(3)
         passlist = [
             DecomposeBoxes(),
@@ -399,14 +401,14 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass())
+            passlist.append(self.rebase_pass(implicit_swaps=implicit_swaps))
         elif optimisation_level == 1:
             passlist.extend(
                 [
                     SynthesiseTK(),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(),
+                    self.rebase_pass(implicit_swaps=implicit_swaps),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -421,7 +423,7 @@ class QuantinuumBackend(Backend):
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(),
+                    self.rebase_pass(implicit_swaps=implicit_swaps),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
