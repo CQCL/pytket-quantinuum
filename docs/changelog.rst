@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+0.19.0 (August 2023)
+--------------------
+
+* Update `FullyConnected` Architecture to label Node with "q", matching
+  compilation by `FlattenRelabelRegistersPass`.
+
 0.18.0 (July 2023)
 ------------------
 
