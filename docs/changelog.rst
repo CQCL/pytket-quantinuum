@@ -1,6 +1,14 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Add ``implicit_swaps`` option to 
+  ``QuantinuumBackend.default_compilation_pass``, which 
+  can use implicit wire swaps (represented in the circuit qubit permutation)
+  to help implement some gates when chosen.
+
 0.19.0 (August 2023)
 --------------------
 
