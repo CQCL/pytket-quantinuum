@@ -372,7 +372,7 @@ class QuantinuumBackend(Backend):
 
         return preds
 
-    def rebase_pass(self, implicit_swaps: bool) -> BasePass:
+    def rebase_pass(self, implicit_swaps: bool = False) -> BasePass:
         return auto_rebase_pass(self._gate_set, implicit_swaps)
 
     def default_compilation_pass(
