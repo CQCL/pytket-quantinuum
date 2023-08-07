@@ -373,11 +373,31 @@ class QuantinuumBackend(Backend):
         return preds
 
     def rebase_pass(self, implicit_swaps: bool = False) -> BasePass:
+        """
+        :param implicit_swaps: If true, allows rebasing of Circuit via TK2 gates
+            to use implicit wire swaps in circuit construction if it reduces
+            the total 2qb qate count.
+        :type implicit_swaps: bool
+        :return: Compilation pass for rebasing circuits
+        :rtype: BasePass
+        """
         return auto_rebase_pass(self._gate_set, implicit_swaps)
 
     def default_compilation_pass(
         self, optimisation_level: int = 2, implicit_swaps: bool = True
     ) -> BasePass:
+        """
+        :param optimisation_level: Allows values of 0,1 or 2, with higher values
+            prompting more computationally heavy optimising compilation that
+            can lead to reduced gate count in circuits.
+        :type optimisation_level: int
+        :param implicit_swaps: If true, allows rebasing of Circuit via TK2 gates
+            to use implicit wire swaps in circuit construction if it reduces
+            the total 2qb qate count.
+        :type implicit_swaps: bool
+        :return: Compilation pass for compiling circuits to Quantinuum devices
+        :rtype: BasePass
+        """
         assert optimisation_level in range(3)
         passlist = [
             DecomposeBoxes(),
