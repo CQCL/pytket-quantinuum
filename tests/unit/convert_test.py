@@ -133,7 +133,7 @@ def test_implicit_swap_removal() -> None:
     assert iqp[Qubit(0)] == Qubit(1)
     assert iqp[Qubit(1)] == Qubit(0)
     c = Circuit(2).ISWAPMax(0, 1)
-    b.rebase_pass().apply(c)
+    b.rebase_pass(False).apply(c)
     assert c.n_gates_of_type(OpType.ZZMax) == 2
     assert c.n_gates_of_type(OpType.ZZPhase) == 0
 
@@ -145,7 +145,7 @@ def test_implicit_swap_removal() -> None:
     assert iqp[Qubit(0)] == Qubit(1)
     assert iqp[Qubit(1)] == Qubit(0)
     c = Circuit(2).Sycamore(0, 1)
-    b.rebase_pass().apply(c)
+    b.rebase_pass(False).apply(c)
     assert c.n_gates_of_type(OpType.ZZMax) == 3
     assert c.n_gates_of_type(OpType.ZZPhase) == 0
 
@@ -157,7 +157,7 @@ def test_implicit_swap_removal() -> None:
     assert iqp[Qubit(0)] == Qubit(0)
     assert iqp[Qubit(1)] == Qubit(1)
     c = Circuit(2).ISWAP(0.3, 0, 1)
-    b.rebase_pass().apply(c)
+    b.rebase_pass(False).apply(c)
     assert c.n_gates_of_type(OpType.ZZMax) == 2
     assert c.n_gates_of_type(OpType.ZZPhase) == 0
 
@@ -175,7 +175,7 @@ def test_implicit_swap_removal() -> None:
     iqp = compiled.implicit_qubit_permutation()
     assert iqp[Qubit(0)] == Qubit(0)
     c = Circuit(2).ISWAPMax(0, 1).ISWAPMax(1, 0)
-    b.rebase_pass().apply(c)
+    b.rebase_pass(False).apply(c)
     assert c.n_gates_of_type(OpType.ZZMax) == 4
     assert c.n_gates_of_type(OpType.ZZPhase) == 0
 
@@ -187,7 +187,7 @@ def test_implicit_swap_removal() -> None:
     assert iqp[Qubit(0)] == Qubit(1)
     assert iqp[Qubit(1)] == Qubit(0)
     c = Circuit(2).SWAP(0, 1)
-    b.rebase_pass().apply(c)
+    b.rebase_pass(False).apply(c)
     assert c.n_gates_of_type(OpType.ZZMax) == 3
     assert c.n_gates_of_type(OpType.ZZPhase) == 0
 
