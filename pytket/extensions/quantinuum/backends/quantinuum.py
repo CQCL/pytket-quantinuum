@@ -372,10 +372,32 @@ class QuantinuumBackend(Backend):
 
         return preds
 
-    def rebase_pass(self) -> BasePass:
-        return auto_rebase_pass(self._gate_set)
+    def rebase_pass(self, implicit_swaps: bool = False) -> BasePass:
+        """
+        :param implicit_swaps: If true, allows rebasing of Circuit via TK2 gates
+            to use implicit wire swaps in circuit construction if it reduces
+            the total 2qb qate count.
+        :type implicit_swaps: bool
+        :return: Compilation pass for rebasing circuits
+        :rtype: BasePass
+        """
+        return auto_rebase_pass(self._gate_set, implicit_swaps)
 
-    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
+    def default_compilation_pass(
+        self, optimisation_level: int = 2, implicit_swaps: bool = True
+    ) -> BasePass:
+        """
+        :param optimisation_level: Allows values of 0,1 or 2, with higher values
+            prompting more computationally heavy optimising compilation that
+            can lead to reduced gate count in circuits.
+        :type optimisation_level: int
+        :param implicit_swaps: If true, allows rebasing of Circuit via TK2 gates
+            to use implicit wire swaps in circuit construction if it reduces
+            the total 2qb qate count.
+        :type implicit_swaps: bool
+        :return: Compilation pass for compiling circuits to Quantinuum devices
+        :rtype: BasePass
+        """
         assert optimisation_level in range(3)
         passlist = [
             DecomposeBoxes(),
@@ -399,14 +421,14 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass())
+            passlist.append(self.rebase_pass(implicit_swaps=implicit_swaps))
         elif optimisation_level == 1:
             passlist.extend(
                 [
                     SynthesiseTK(),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(),
+                    self.rebase_pass(implicit_swaps=implicit_swaps),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -421,7 +443,7 @@ class QuantinuumBackend(Backend):
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(),
+                    self.rebase_pass(implicit_swaps=implicit_swaps),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
