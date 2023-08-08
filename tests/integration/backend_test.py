@@ -833,3 +833,35 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 10
     assert all(len(shot) == 2 for shot in shots)
+
+
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+def test_old_handle(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/189
+    c = Circuit(2, 2, "test")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    b0 = QuantinuumBackend(
+        "H1-1SC",
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
+            _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
+        ),
+    )
+    c = b0.get_compiled_circuit(c)
+    h0 = b0.process_circuit(c, n_shots=10)
+    r0 = b0.get_result(h0)
+    b1 = QuantinuumBackend(
+        "H1-1SC",
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
+            _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
+        ),
+    )
+    h1 = h0[:2]
+    r1 = b1.get_result(h1)  # type: ignore
+    assert (r0.get_shots() == r1.get_shots()).all()
