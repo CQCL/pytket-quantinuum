@@ -1,9 +1,10 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.20.0 (August 2023)
+--------------------
 
+* Update pytket version requirement to 1.18.
 * Add ``implicit_swaps`` option to 
   ``QuantinuumBackend.rebase_pass``, which 
   can use implicit wire swaps (represented in the circuit qubit permutation)
