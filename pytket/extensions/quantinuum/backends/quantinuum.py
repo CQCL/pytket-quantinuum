@@ -474,6 +474,11 @@ class QuantinuumBackend(Backend):
         return tuple((str, str, int))
 
     @staticmethod
+    def _update_result_handle(handle: ResultHandle) -> ResultHandle:
+        """Update a legacy handle to be compatible with current format."""
+        return handle if len(handle) == 3 else ResultHandle(handle[0], handle[1], -1)
+
+    @staticmethod
     def get_jobid(handle: ResultHandle) -> str:
         """Return the corresponding Quantinuum Job ID from a ResultHandle.
 
@@ -869,6 +874,7 @@ class QuantinuumBackend(Backend):
     def circuit_status(
         self, handle: ResultHandle, **kwargs: KwargTypes
     ) -> CircuitStatus:
+        handle = self._update_result_handle(handle)
         self._check_handle_type(handle)
         jobid = self.get_jobid(handle)
         if self._MACHINE_DEBUG or jobid.startswith(_DEBUG_HANDLE_PREFIX):
@@ -913,6 +919,7 @@ class QuantinuumBackend(Backend):
             If no results are available, the first element is None.
         :rtype: Tuple[Optional[BackendResult], CircuitStatus]
         """
+        handle = self._update_result_handle(handle)
         job_id = self.get_jobid(handle)
         jr = self.api_handler.retrieve_job_status(job_id)
         if not jr:
@@ -932,6 +939,7 @@ class QuantinuumBackend(Backend):
         See :py:meth:`pytket.backends.Backend.get_result`.
         Supported kwargs: `timeout`, `wait`, `use_websocket`.
         """
+        handle = self._update_result_handle(handle)
         try:
             return super().get_result(handle)
         except CircuitNotRunError:
