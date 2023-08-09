@@ -112,7 +112,8 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
 
     # for each entry in end_circuit_measures, we want to add a leakage_gadget_circuit
     # we try to use each free architecture qubit as few times as possible
-    ps_index: int = 0
+    ps_q_index: int = 0
+    ps_b_index: int = 0
     for q in end_circuit_measures:
         if q.reg_name == LEAKAGE_DETECTION_QUBIT_NAME_:
             raise ValueError(
@@ -120,21 +121,23 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
                 "'leakage_detection_qubit' but this already exists in"
                 " the passed circuit."
             )
-        ps_index = 0 if ps_index == n_spare_qubits else ps_index
-        leakage_detection_bit: Bit = Bit(LEAKAGE_DETECTION_BIT_NAME_, ps_index)
+        ps_q_index = 0 if ps_q_index == n_spare_qubits else ps_q_index
+        leakage_detection_bit: Bit = Bit(LEAKAGE_DETECTION_BIT_NAME_, ps_b_index)
         if leakage_detection_bit in circuit.bits:
             raise ValueError(
                 "Leakage Gadget scheme makes a new Bit named 'leakage_detection_bit'"
                 " but this already exists in the passed circuit."
             )
         leakage_gadget_circuit: Circuit = get_leakage_gadget_circuit(
-            q, postselection_qubits[ps_index], leakage_detection_bit
+            q, postselection_qubits[ps_q_index], leakage_detection_bit
         )
         detection_circuit.append(leakage_gadget_circuit)
         # increment value for adding postselection to
-        ps_index += 1
+        ps_q_index += 1
+        ps_b_index += 1
 
     # finally measure the original qubits
+
     for q, b in end_circuit_measures.items():
         detection_circuit.Measure(q, b)
 
