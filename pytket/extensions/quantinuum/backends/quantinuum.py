@@ -405,12 +405,12 @@ class QuantinuumBackend(Backend):
         target_2qb_optype: Union[None, OpType] = kwargs.get("target_2qb_gate")
         if target_2qb_optype is None:
             return auto_rebase_pass(
-                self._gate_set, allow_swaps=kwargs.get("implicit_swap", True)
+                self._gate_set, allow_swaps=bool(kwargs.get("implicit_swap", True))
             )
         elif target_2qb_optype in self._two_qubit_gate_set:
             return auto_rebase_pass(
                 self._gate_set - self._two_qubit_gate_set | {target_2qb_optype},
-                allow_swaps=kwargs.get("implicit_swap", True),
+                allow_swaps=bool(kwargs.get("implicit_swap", True)),
             )
         else:
             raise QuantinuumAPIError(
