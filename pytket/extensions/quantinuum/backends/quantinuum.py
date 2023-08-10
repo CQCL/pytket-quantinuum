@@ -414,7 +414,9 @@ class QuantinuumBackend(Backend):
             )
         else:
             raise QuantinuumAPIError(
-                "Requested target_2qb_gate is not supported by the given Device. Please check _two_qubit_gate_set attribute to see which two-qubit gates are supported."
+                "Requested target_2qb_gate is not supported by the given Device. "
+                "Please check _two_qubit_gate_set attribute to see which two-qubit "
+                "gates are supported."
             )
 
     def default_compilation_pass_options(
