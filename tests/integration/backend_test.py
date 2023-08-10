@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from base64 import b64encode
+from collections import Counter
 from pathlib import Path
 from typing import cast, Callable, Any  # pylint: disable=unused-import
 import json
@@ -43,7 +44,11 @@ from pytket.circuit import (  # type: ignore
     reg_geq,
     if_not_bit,
 )
-from pytket.extensions.quantinuum import QuantinuumBackend, Language
+from pytket.extensions.quantinuum import (
+    QuantinuumBackend,
+    Language,
+    prune_shots_detected_as_leaky,
+)
 from pytket.extensions.quantinuum.backends.quantinuum import (
     GetResultFailed,
     _GATE_SET,
@@ -420,6 +425,54 @@ def test_postprocess(
     assert len(shots) == 10
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_leakage_detection(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
+    c = Circuit(2, 2).H(0).CZ(0, 1).Measure(0, 0).Measure(1, 1)
+    h = b.process_circuit(c, n_shots=10, leakage_detection=True)
+    r = b.get_result(h)
+    assert len(r.c_bits) == 4
+    assert sum(r.get_counts().values()) == 10
+    r_discarded = prune_shots_detected_as_leaky(r)
+    assert len(r_discarded.c_bits) == 2
+    assert sum(r_discarded.get_counts().values()) == 10
+
+
+@given(
+    n_shots=st.integers(min_value=1, max_value=10),  # type: ignore
+    n_bits=st.integers(min_value=0, max_value=10),  # type: ignore
+)
+def test_shots_bits_edgecases(n_shots, n_bits) -> None:
+    quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
+    c = Circuit(n_bits, n_bits)
+
+    # TODO TKET-813 add more shot based backends and move to integration tests
+    h = quantinuum_backend.process_circuit(c, n_shots)
+    res = quantinuum_backend.get_result(h)
+
+    correct_shots = np.zeros((n_shots, n_bits), dtype=int)
+    correct_shape = (n_shots, n_bits)
+    correct_counts = Counter({(0,) * n_bits: n_shots})
+    # BackendResult
+    assert np.array_equal(res.get_shots(), correct_shots)
+    assert res.get_shots().shape == correct_shape
+    assert res.get_counts() == correct_counts
+
+    # Direct
+    res = quantinuum_backend.run_circuit(c, n_shots=n_shots)
+    assert np.array_equal(res.get_shots(), correct_shots)
+    assert res.get_shots().shape == correct_shape
+    assert res.get_counts() == correct_counts
+
+
+@pytest.mark.skip("Will be moved to a set of long running integration tests")
 @pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
@@ -824,3 +877,35 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 10
     assert all(len(shot) == 2 for shot in shots)
+
+
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+def test_old_handle(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/189
+    c = Circuit(2, 2, "test")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    b0 = QuantinuumBackend(
+        "H1-1SC",
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
+            _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
+        ),
+    )
+    c = b0.get_compiled_circuit(c)
+    h0 = b0.process_circuit(c, n_shots=10)
+    r0 = b0.get_result(h0)
+    b1 = QuantinuumBackend(
+        "H1-1SC",
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
+            _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
+        ),
+    )
+    h1 = h0[:2]
+    r1 = b1.get_result(h1)  # type: ignore
+    assert (r0.get_shots() == r1.get_shots()).all()
