@@ -513,7 +513,7 @@ class QuantinuumBackend(Backend):
             if OpType.ZZPhase in self._two_qubit_gate_set:
                 target_2qb_gate = OpType.ZZPhase
             elif OpType.ZZMax in self._two_qubit_gate_set:
-                target_2qb_gate = OpType.ZZmax
+                target_2qb_gate = OpType.ZZMax
             else:
                 raise QuantinuumAPIError(
                     "Device does not support either TK2, ZZPhase or ZZMax gates."
