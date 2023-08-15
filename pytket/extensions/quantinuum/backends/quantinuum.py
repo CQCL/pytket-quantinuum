@@ -395,7 +395,7 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
-        target_2qb_optype: OpType = kwargs.get("target_2qb_gate", OpType.ZZPhase)
+        target_2qb_optype: OpType = kwargs.get("target_2qb_gate", OpType.ZZMax)
         if target_2qb_optype not in self._two_qubit_gate_set:
             raise QuantinuumAPIError(
                 "Requested target_2qb_gate is not supported by the given Device. "
@@ -509,7 +509,7 @@ class QuantinuumBackend(Backend):
         :rtype: BasePass
         """
         return self.default_compilation_pass_with_options(
-            optimisation_level, implicit_swap=True, target_2qb_gate=OpType.ZZPhase
+            optimisation_level, implicit_swap=True
         )
 
     def get_compiled_circuit_with_options(
