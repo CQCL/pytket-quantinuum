@@ -395,22 +395,17 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
-        target_2qb_optype: Union[None, OpType] = kwargs.get("target_2qb_gate")
-        if target_2qb_optype is None:
-            return auto_rebase_pass(
-                self._gate_set, allow_swaps=bool(kwargs.get("implicit_swap", True))
-            )
-        elif target_2qb_optype in self._two_qubit_gate_set:
-            return auto_rebase_pass(
-                self._gate_set - self._two_qubit_gate_set | {target_2qb_optype},
-                allow_swaps=bool(kwargs.get("implicit_swap", True)),
-            )
-        else:
+        target_2qb_optype: OpType = kwargs.get("target_2qb_gate", OpType.ZZPhase)
+        if target_2qb_optype not in self._two_qubit_gate_set:
             raise QuantinuumAPIError(
                 "Requested target_2qb_gate is not supported by the given Device. "
                 "Please check _two_qubit_gate_set attribute to see which two-qubit "
                 "gates are supported."
             )
+        return auto_rebase_pass(
+            self._gate_set - self._two_qubit_gate_set | {target_2qb_optype},
+            allow_swaps=bool(kwargs.get("implicit_swap", True)),
+        )
 
     def default_compilation_pass_with_options(
         self, optimisation_level: int = 2, **kwargs: QuumKwargTypes
@@ -514,7 +509,7 @@ class QuantinuumBackend(Backend):
         :rtype: BasePass
         """
         return self.default_compilation_pass_with_options(
-            optimisation_level, implicit_swap=True
+            optimisation_level, implicit_swap=True, target_2qb_gate=OpType.ZZPhase
         )
 
     def get_compiled_circuit_with_options(
