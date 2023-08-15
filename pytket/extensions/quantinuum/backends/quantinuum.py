@@ -381,14 +381,7 @@ class QuantinuumBackend(Backend):
         :return: Set of two-qubit OpType in gateset.
         :rtype: Set[OpType]
         """
-        supported_2qb_gates: Set[OpType] = set()
-        if OpType.ZZPhase in self._gate_set:
-            supported_2qb_gates.add(OpType.ZZPhase)
-        if OpType.ZZMax in self._gate_set:
-            supported_2qb_gates.add(OpType.ZZMax)
-        if OpType.TK2 in self._gate_set:
-            supported_2qb_gates.add(OpType.TK2)
-        return supported_2qb_gates
+        return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])
 
     def rebase_pass(self, **kwargs: QuumKwargTypes) -> BasePass:
         """
@@ -419,7 +412,7 @@ class QuantinuumBackend(Backend):
                 "gates are supported."
             )
 
-    def default_compilation_pass_options(
+    def default_compilation_pass_with_options(
         self, optimisation_level: int = 2, **kwargs: QuumKwargTypes
     ) -> BasePass:
         """
@@ -520,11 +513,11 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for compiling circuits to Quantinuum devices
         :rtype: BasePass
         """
-        return self.default_compilation_pass_options(
+        return self.default_compilation_pass_with_options(
             optimisation_level, implicit_swap=True
         )
 
-    def get_compiled_circuit_options(
+    def get_compiled_circuit_with_options(
         self, circuit: Circuit, optimisation_level: int = 2, **kwargs: KwargTypes
     ) -> Circuit:
         """
@@ -540,12 +533,12 @@ class QuantinuumBackend(Backend):
             provided type.
         """
         return_circuit = circuit.copy()
-        self.default_compilation_pass_options(optimisation_level, **kwargs).apply(
+        self.default_compilation_pass_with_options(optimisation_level, **kwargs).apply(
             return_circuit
         )
         return return_circuit
 
-    def get_compiled_circuits_options(
+    def get_compiled_circuits_with_options(
         self,
         circuits: Sequence[Circuit],
         optimisation_level: int = 2,
@@ -590,7 +583,7 @@ class QuantinuumBackend(Backend):
             provided type.
         """
         return [
-            self.get_compiled_circuit_options(c, optimisation_level, **kwargs)
+            self.get_compiled_circuit_with_options(c, optimisation_level, **kwargs)
             for c in circuits
         ]
 
