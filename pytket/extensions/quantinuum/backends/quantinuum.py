@@ -508,8 +508,18 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for compiling circuits to Quantinuum devices
         :rtype: BasePass
         """
+        target_2qb_gate: OpType = OpType.TK2
+        if OpType.TK2 not in self._two_qubit_gate_set:
+            if OpType.ZZPhase in self._two_qubit_gate_set:
+                target_2qb_gate = OpType.ZZPhase
+            elif OpType.ZZMax in self._two_qubit_gate_set:
+                target_2qb_gate = OpType.ZZmax
+            else:
+                raise QuantinuumAPIError(
+                    "Device does not support either TK2, ZZPhase or ZZMax gates."
+                )
         return self.default_compilation_pass_with_options(
-            optimisation_level, implicit_swap=True
+            optimisation_level, implicit_swap=True, target_2qb_gate=target_2qb_gate
         )
 
     def get_compiled_circuit_with_options(
