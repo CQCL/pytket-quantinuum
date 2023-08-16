@@ -422,7 +422,7 @@ class QuantinuumBackend(Backend):
         * `implicit_swaps`: Boolean flag, which if true, allows rebasing of
             Circuit via TK2 gates to use implicit wire swaps in circuit
             construction if it reduces the total 2qb qate count.
-        * `target_2qb_gate`: pytket OpType, if provided, will rebase
+        * `target_2qb_gate`: :py:class:`OpType`, if provided, will rebase
             circuits such that the only two-qubit gates will be of the
             provided type.
         """
