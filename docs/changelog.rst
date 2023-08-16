@@ -9,7 +9,7 @@ Unreleased
 * Add new methods ``QuantinuumBackend.default_compilation_pass_with_options``,
   ``QuantinuumBackend.get_compiled_circuit_with_options`` and
   ``QuantinuumBackend.get_compiled_circuits_options`` which take kwarg
-  options that effect resulting compilation, currently supporting the 
+  options that affect resulting compilation, currently supporting the 
   use of implicit wire swaps and of targeting a specific two-qubit gate.
 
 0.20.0 (August 2023)
