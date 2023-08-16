@@ -403,7 +403,7 @@ class QuantinuumBackend(Backend):
                 "gates are supported."
             )
         return auto_rebase_pass(
-            self._gate_set - self._two_qubit_gate_set | {target_2qb_optype},
+            (self._gate_set - self._two_qubit_gate_set) | {target_2qb_optype},
             allow_swaps=bool(kwargs.get("implicit_swap", True)),
         )
 
