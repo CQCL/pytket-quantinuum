@@ -399,8 +399,7 @@ class QuantinuumBackend(Backend):
         if target_2qb_optype not in self._two_qubit_gate_set:
             raise QuantinuumAPIError(
                 "Requested target_2qb_gate is not supported by the given Device. "
-                "Please check _two_qubit_gate_set attribute to see which two-qubit "
-                "gates are supported."
+                "The supported gateset is: " + str(self._two_qubit_gate_set)
             )
         return auto_rebase_pass(
             self._gate_set - self._two_qubit_gate_set | {target_2qb_optype},
