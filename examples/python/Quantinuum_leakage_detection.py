@@ -10,7 +10,9 @@
 
 # The leakage detection circuit, or "gadget", looks like so: <br>
 
-from pytket.extensions.quantinuum.backends.leakage_gadget import get_leakage_gadget_circuit
+from pytket.extensions.quantinuum.backends.leakage_gadget import (
+    get_leakage_gadget_circuit,
+)
 from pytket.circuit.display import render_circuit_jupyter
 from pytket import Qubit, Bit
 
@@ -91,8 +93,12 @@ circuit.measure_all()
 
 backend = QuantinuumBackend(device_name="H1-2E")
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=0)
-handle_no_leakage = backend.process_circuit(compiled_circuit, n_shots=10000, leakage_detection=False)
-handle_leakage = backend.process_circuit(compiled_circuit, n_shots=10000, leakage_detection=True)
+handle_no_leakage = backend.process_circuit(
+    compiled_circuit, n_shots=10000, leakage_detection=False
+)
+handle_leakage = backend.process_circuit(
+    compiled_circuit, n_shots=10000, leakage_detection=True
+)
 
 # When submitting circuits to the Quantinuum hardware emulator, it is a good idea to check the status of the circuits.
 
@@ -104,7 +110,9 @@ for handle in [handle_no_leakage, handle_leakage]:
 import numpy as np
 
 counts_no_leakage = backend.get_result(handle_no_leakage).get_counts()
-counts_leakage = prune_shots_detected_as_leaky(backend.get_result(handle_leakage)).get_counts()
+counts_leakage = prune_shots_detected_as_leaky(
+    backend.get_result(handle_leakage)
+).get_counts()
 
 print("Counts without leakage detection:", counts_no_leakage)
 print("Counts with leakage detection:", counts_leakage)
@@ -118,7 +126,11 @@ prob_leakage = counts_leakage.get((0, 0)) / n_shots_leakage
 std_no_leakage = np.sqrt(prob_no_leakage * (1 - prob_no_leakage) / n_shots_no_leakage)
 std_leakage = np.sqrt(prob_leakage * (1 - prob_leakage) / n_shots_leakage)
 
-print(f"Success probability without leakage detection: {round(prob_no_leakage,4)} +/- {round(std_no_leakage,4)}")
-print(f"Success probability with leakage detection:    {round(prob_leakage,4)} +/- {round(std_leakage,4)}")
+print(
+    f"Success probability without leakage detection: {round(prob_no_leakage,4)} +/- {round(std_no_leakage,4)}"
+)
+print(
+    f"Success probability with leakage detection:    {round(prob_leakage,4)} +/- {round(std_leakage,4)}"
+)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

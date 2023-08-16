@@ -73,7 +73,7 @@ render_circuit_jupyter(circuit)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = 'H1-1E'
+machine = "H1-1E"
 
 backend = QuantinuumBackend(device_name=machine)
 
@@ -94,20 +94,22 @@ render_circuit_jupyter(compiled_circuit)
 # ## Submit and Run the Circuit
 
 n_shots = 100
-print("Cost in HQCs:", backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker='H1-1SC'))
+print(
+    "Cost in HQCs:",
+    backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC"),
+)
 
-handle = backend.process_circuit(compiled_circuit, 
-                                 n_shots=n_shots)
+handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 print(handle)
 
 status = backend.circuit_status(handle)
 print(status)
 
-import json 
+import json
 
 result = backend.get_result(handle)
 
-with open('pytket_mcmr_example.json', 'w') as file:
+with open("pytket_mcmr_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 # ## Analyze Results
@@ -116,14 +118,16 @@ with open('pytket_mcmr_example.json', 'w') as file:
 
 # First, define a majority vote function.
 
+
 def majority(result):
-    """ Returns whether the output should be considered a 0 or 1. """
+    """Returns whether the output should be considered a 0 or 1."""
     if result.count(0) > result.count(1):
         return 0
     elif result.count(0) < result.count(1):
         return 1
     else:
-        raise Exception('count(0) should not equal count(1)')
+        raise Exception("count(0) should not equal count(1)")
+
 
 # Now process the output:
 
@@ -136,7 +140,7 @@ ones = 0  # Counts the shots with majority ones
 
 for out in result_output_cnts:
     m = majority(out)
-    
+
     if m == 0:
         zeros += result_output_cnts[out]
     else:
@@ -145,6 +149,6 @@ for out in result_output_cnts:
 # A logical zero was initialized, so our error rate should be number of ones / total number of shots: `ones/shots`
 
 p = ones / n_shots
-print(f'The error-rate is: p = {p}')
+print(f"The error-rate is: p = {p}")
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

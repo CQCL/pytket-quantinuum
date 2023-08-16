@@ -1,10 +1,10 @@
 # # Wasm Calls with pytket
 
-# The Wasm module in pytket allows you to add external classical functions from compiled web assembly (Wasm) to a quantum circuit. To begin, you need a compiled Wasm file that contains functions you'd like to call from your quantum circuit. 
+# The Wasm module in pytket allows you to add external classical functions from compiled web assembly (Wasm) to a quantum circuit. To begin, you need a compiled Wasm file that contains functions you'd like to call from your quantum circuit.
 
 # ## Set up `WasmFileHandler`
 
-# Once you have a compiled Wasm file, you will create a `WasmFileHandler` object to call and use the compiled Wasm within your quantum circuit. The `WasmFileHandler` knows all available functions and the corresponding signatures within the Wasm file. 
+# Once you have a compiled Wasm file, you will create a `WasmFileHandler` object to call and use the compiled Wasm within your quantum circuit. The `WasmFileHandler` knows all available functions and the corresponding signatures within the Wasm file.
 
 from pytket import wasm, Circuit, Bit
 
@@ -19,19 +19,19 @@ print(repr(wfh))
 
 # ## Add classical function calls to your quantum circuit
 
-# Next, we add the classical function calls to our quantum circuit. 
+# Next, we add the classical function calls to our quantum circuit.
 
 # First we use the [add_wasm](https://cqcl.github.io/tket/pytket/api/circuit_class.html#pytket.circuit.Circuit.add_wasm) function and add the function `add_one`, defined in the WASM file. The first parameter will be read from `Bit(0)` and the result written to `Bit(1)`. The length of the two lists giving the number of bits is the number of parameters and the number of results. For more information on the `add_wasm` function, see [add_wasm](https://cqcl.github.io/tket/pytket/api/circuit_class.html#pytket.circuit.Circuit.add_wasm).
 
 c = Circuit(0, 8)
 
 c.add_wasm(
-    funcname="add_one",    # Function in the Wasm file
-    filehandler=wfh,       # Wasm file handler
-    list_i=[1],            # Number of bits in the input variables in i32 format
-    list_o=[1],            # Number of bits in the output variables in i32 format
-    args=[Bit(0), Bit(1)], # List of circuit bits where the wasm op will be added to
-)  
+    funcname="add_one",  # Function in the Wasm file
+    filehandler=wfh,  # Wasm file handler
+    list_i=[1],  # Number of bits in the input variables in i32 format
+    list_o=[1],  # Number of bits in the output variables in i32 format
+    args=[Bit(0), Bit(1)],  # List of circuit bits where the wasm op will be added to
+)
 
 # If you have more than one bit per parameter, you can add as shown below. This will add the function `add_one` to read from `Bit(0)` and `Bit(1)` for the first parameter and write the result to `Bit(2)`, `Bit(3)` and `Bit(4)`.
 
@@ -39,11 +39,19 @@ c.add_wasm("add_one", wfh, [2], [3], [Bit(0), Bit(1), Bit(2), Bit(3), Bit(4)])
 
 # Functions with multiple parameters can be done in the same way.
 
-c.add_wasm("multi",wfh,[2, 1],[3],[Bit(0), Bit(1), Bit(5), Bit(2), Bit(3), Bit(4)],)
+c.add_wasm(
+    "multi",
+    wfh,
+    [2, 1],
+    [3],
+    [Bit(0), Bit(1), Bit(5), Bit(2), Bit(3), Bit(4)],
+)
 
 # If you want to add two parameters with the same bits, that is fine too.
 
-c.add_wasm("multi", wfh, [2, 2], [3], [Bit(0), Bit(1), Bit(0), Bit(1), Bit(2), Bit(3), Bit(4)])
+c.add_wasm(
+    "multi", wfh, [2, 2], [3], [Bit(0), Bit(1), Bit(0), Bit(1), Bit(2), Bit(3), Bit(4)]
+)
 
 # If you are working with registers in your circuit as a means to organize the classical bits, you can add Wasm to your circuit using registers for each parameter and result. For more information on the `add_wasm_to_reg` function, see [add_wasm_to_reg](https://cqcl.github.io/tket/pytket/api/circuit_class.html#pytket.circuit.Circuit.add_wasm_to_reg).
 
