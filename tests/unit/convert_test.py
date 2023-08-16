@@ -14,7 +14,7 @@
 
 import pytest
 
-from pytket.circuit import Circuit, OpType, reg_eq  # type: ignore
+from pytket.circuit import Circuit, OpType, Qubit, reg_eq  # type: ignore
 from pytket._tket.circuit import _TEMP_BIT_NAME, _TEMP_BIT_REG_BASE  # type: ignore
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.quantinuum import scratch_reg_resize_pass
@@ -29,7 +29,7 @@ def test_convert() -> None:
     circ.add_barrier([2])
     circ.measure_all()
 
-    QuantinuumBackend("", machine_debug=True).rebase_pass().apply(circ)
+    QuantinuumBackend("", machine_debug=True).rebase_pass(False).apply(circ)
     circ_quum = circuit_to_qasm_str(circ, header="hqslib1")
     qasm_str = circ_quum.split("\n")[6:-1]
     assert all(
@@ -46,7 +46,7 @@ def test_convert_rzz() -> None:
     circ.add_gate(OpType.ZZMax, [2, 3])
     circ.measure_all()
 
-    QuantinuumBackend("", machine_debug=True).rebase_pass().apply(circ)
+    QuantinuumBackend("", machine_debug=True).rebase_pass(False).apply(circ)
     circ_quum = circuit_to_qasm_str(circ, header="hqslib1")
     qasm_str = circ_quum.split("\n")[6:-1]
     assert all(
@@ -121,3 +121,80 @@ def test_resize_scratch_registers() -> None:
     c_compiled = circ.copy()
     scratch_reg_resize_pass(10).apply(c_compiled)
     assert circ == c_compiled
+
+
+def test_implicit_swap_removal() -> None:
+    b = QuantinuumBackend("", machine_debug=True)
+    c = Circuit(2).ISWAPMax(0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 1
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    iqp = compiled.implicit_qubit_permutation()
+    assert iqp[Qubit(0)] == Qubit(1)
+    assert iqp[Qubit(1)] == Qubit(0)
+    c = Circuit(2).ISWAPMax(0, 1)
+    b.rebase_pass(False).apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 2
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).Sycamore(0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    iqp = compiled.implicit_qubit_permutation()
+    assert iqp[Qubit(0)] == Qubit(1)
+    assert iqp[Qubit(1)] == Qubit(0)
+    c = Circuit(2).Sycamore(0, 1)
+    b.rebase_pass(False).apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 3
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).ISWAP(0.3, 0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    iqp = compiled.implicit_qubit_permutation()
+    assert iqp[Qubit(0)] == Qubit(0)
+    assert iqp[Qubit(1)] == Qubit(1)
+    c = Circuit(2).ISWAP(0.3, 0, 1)
+    b.rebase_pass(False).apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 2
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).ISWAPMax(0, 1).ISWAPMax(1, 0)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    iqp = compiled.implicit_qubit_permutation()
+    assert iqp[Qubit(0)] == Qubit(0)
+    assert iqp[Qubit(1)] == Qubit(1)
+    c = Circuit(2).ISWAPMax(0, 1).ISWAPMax(1, 0)
+    compiled = b.get_compiled_circuit(c, 1)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 0
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    iqp = compiled.implicit_qubit_permutation()
+    assert iqp[Qubit(0)] == Qubit(0)
+    c = Circuit(2).ISWAPMax(0, 1).ISWAPMax(1, 0)
+    b.rebase_pass(False).apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 4
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).SWAP(0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 0
+    assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
+    iqp = compiled.implicit_qubit_permutation()
+    assert iqp[Qubit(0)] == Qubit(1)
+    assert iqp[Qubit(1)] == Qubit(0)
+    c = Circuit(2).SWAP(0, 1)
+    b.rebase_pass(False).apply(c)
+    assert c.n_gates_of_type(OpType.ZZMax) == 3
+    assert c.n_gates_of_type(OpType.ZZPhase) == 0
+
+    c = Circuit(2).ZZMax(0, 1)
+    compiled = b.get_compiled_circuit(c, 0)
+    assert compiled.n_gates == 1
+
+
+if __name__ == "__main__":
+    test_implicit_swap_removal()
