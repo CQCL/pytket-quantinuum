@@ -175,16 +175,18 @@ def test_multireg(
     c = Circuit()
     q1 = Qubit("q1", 0)
     q2 = Qubit("q2", 0)
-    c1 = Bit("c1", 0)
-    c2 = Bit("c2", 0)
+    c1 = c.add_c_register("c1", 32)
+    c2 = c.add_c_register("c2", 32)
+    # c1 = Bit("c1", 0)
+    # c2 = Bit("c2", 0)
     for q in (q1, q2):
         c.add_qubit(q)
-    for cb in (c1, c2):
-        c.add_bit(cb)
+    # for cb in (c1, c2):
+    #    c.add_bit(cb)
     c.H(q1)
     c.CX(q1, q2)
-    c.Measure(q1, c1)
-    c.Measure(q2, c2)
+    c.Measure(q1, c1[0])
+    c.Measure(q2, c2[0])
     c = b.get_compiled_circuit(c)
 
     n_shots = 10
