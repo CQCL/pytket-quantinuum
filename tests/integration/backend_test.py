@@ -358,13 +358,13 @@ def test_classical(
 ) -> None:
     # circuit to cover capabilities covered in example notebook
     c = Circuit(1, name="test_classical")
-    a = c.add_c_register("a", 64)
-    b = c.add_c_register("b", 64)
-    d = c.add_c_register("d", 64)
+    a = c.add_c_register("a", 32)
+    b = c.add_c_register("b", 32)
+    d = c.add_c_register("d", 32)
 
     c.add_c_setbits([True], [a[0]])
-    c.add_c_setbits([False, True] + [False] * 62, list(a))
-    c.add_c_setbits([True, True] + [False] * 62, list(b))
+    c.add_c_setbits([False, True] + [False] * 30, list(a))
+    c.add_c_setbits([True, True] + [False] * 30, list(b))
 
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
