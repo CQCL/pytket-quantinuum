@@ -106,6 +106,7 @@ def test_quantinuum(
     assert newcounts == correct_counts
     if skip_remote_tests:
         assert backend.backend_info is None
+    assert 1 == 2
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
