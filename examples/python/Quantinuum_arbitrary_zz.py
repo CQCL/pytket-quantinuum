@@ -12,7 +12,7 @@
 
 # Quantinuum System Model H1's native gate set includes arbitrary angle ZZ gates. This is beneficial for reducing the 2-qubit gate count for many quantum algorithms and gate sequences.
 
-# $RZZ(\theta) = e^{-i\frac{\theta}{2}\hat{Z} \otimes \hat{Z}}= e^{-i \frac{\theta}{2}} \begin{bmatrix} 1 & 0 & 0 & 0\\ 0 & e^{-i\theta} & 0 & 0\\ 0 & 0 & e^{-i\theta} & 0\\ 0 & 0 & 0 & 1 \end{bmatrix}$
+# $$RZZ(\theta) = e^{-i\frac{\theta}{2}\hat{Z} \otimes \hat{Z}}= e^{-i \frac{\theta}{2}} \begin{bmatrix} 1 & 0 & 0 & 0\\ 0 & e^{-i\theta} & 0 & 0\\ 0 & 0 & e^{-i\theta} & 0\\ 0 & 0 & 0 & 1 \end{bmatrix}$$
 # <br>
 
 # Note that $RZZ(\frac{\pi}{2}) = ZZ()$.
@@ -22,7 +22,7 @@
 # <br>
 
 # <div>
-# <img src="python/rzz.png" width="250"/>
+# <img src="attachment:rzz.png" width="250"/>
 # </div>
 
 # This notebook demonstrates the Quantum Fourier Transform (QFT) with and without the $RZZ$ gate.
@@ -110,8 +110,6 @@ def QFT(n, **kwargs):
 
 # First, create the circuit with fixed-angle gates.
 
-# **Note**: `pytket` renders circuits in ZX-calculus notation. This can be toggled on and off by pressing the top left button.
-
 n_qubits = 12
 
 qft_fixed = QFT(n_qubits, arbZZ=False)
@@ -191,13 +189,19 @@ qft_fid_arbZZ_compiled = backend.get_compiled_circuit(
 )
 render_circuit_jupyter(qft_fid_arbZZ_compiled)
 
-# ### Circuit Depth
+# ### Circuit Depth and Two-Qubit Gates
 
-# Note that the circuit depth for the fixed-angle vs. arbitrary angle is less. The difference increases as more qubits are used.
+# Note that the circuit depth number of two-qubit gates for the fixed-angle vs. arbitrary angle is less. The difference increases as more qubits are used.
 
 print("Circuit Depth for fixed-angle QFT:", qft_fixed.depth())
 print("Circuit Depth for arbitrary-angle QFT:", qft_arbZZ.depth())
-print("Difference:", qft_fixed.depth() - qft_arbZZ.depth())
+print("Circuit Depth Difference:", qft_fixed.depth() - qft_arbZZ.depth())
+
+print("Number of two-qubit gates for fixed-angle QFT:", qft_fixed.n_2qb_gates())
+print("Number of two-qubit gates for arbitrary-angle QFT:", qft_arbZZ.n_2qb_gates())
+print(
+    "Number of two-qubit gates Difference:", qft_fixed.depth() - qft_arbZZ.n_2qb_gates()
+)
 
 # ### Check Circuit Cost
 
@@ -208,7 +212,7 @@ print("Difference:", qft_fixed.depth() - qft_arbZZ.depth())
 n_shots = 1000
 print(
     "Fixed angle QFT:",
-    backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker="H1-2SC"),
+    backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker=machin),
 )
 print(
     "Arbitrary angle ZZ QFT:",
