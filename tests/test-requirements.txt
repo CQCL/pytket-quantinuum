@@ -3,5 +3,5 @@ pytest-timeout ~= 1.4.2
 hypothesis
 requests_mock
 llvmlite ~= 0.40.0
-pytket-qir == 0.2.0rc14
+pytket-qir == 0.2.0rc16
 pytest-rerunfailures
