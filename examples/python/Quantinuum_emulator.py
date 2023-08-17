@@ -42,7 +42,7 @@ render_circuit_jupyter(circuit)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-1E"
+machine = "H1-2E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -57,7 +57,7 @@ render_circuit_jupyter(compiled_circuit)
 # Check the circuit HQC cost before running on the emulator.
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
 
 # Run the circuit on the emulator chosen.
 
@@ -72,8 +72,6 @@ print(status)
 # Once a job's status returns completed, return results with the `get_result` function.
 
 result = backend.get_result(handle)
-
-result
 
 # It is recommended to save job results as soon as jobs are completed due to the Quantinuum data retention policy.
 
@@ -103,8 +101,6 @@ no_error_model_status = backend.circuit_status(no_error_model_handle)
 print(no_error_model_status)
 
 no_error_model_result = backend.get_result(no_error_model_handle)
-
-no_error_model_result
 
 with open("pytket_emulator_noiseless_example.json", "w") as file:
     json.dump(result.to_dict(), file)
@@ -143,8 +139,8 @@ handle = backend.process_circuit(
                 "p_init": 4e-5,
                 "p_crosstalk_meas": 1e-5,
                 "p_crosstalk_init": 3e-5,
-                "p1_emission": 6e-6,
-                "p2_emission": 2e-4,
+                "p1_emission_ratio": 0.15,
+                "p2_emission_ratio": 0.3,
             }
         }
     },
@@ -164,11 +160,12 @@ handle = backend.process_circuit(
     request_options={
         "options": {
             "error-params": {
-                "coherent_dephasing_rate": 0.2,
-                "incoherent_dephasing_rate": 0.3,
+                "quadratic_dephasing_rate": 0.2,
+                "linear_dephasing_rate": 0.3,
+                "coherent_to_incoherent_factor": 2.0,
                 "coherent_dephasing": False,  # False => run the incoherent noise model
                 "transport_dephasing": False,  # False => turn off transport dephasing error
-                "idle_dephasing": False,  # False => turn off idel dephasing error
+                "idle_dephasing": False,  # False => turn off idle dephasing error
             },
         }
     },
@@ -189,9 +186,10 @@ handle = backend.process_circuit(
         "options": {
             "error-params": {
                 "przz_a": 1.09,
-                "przz_b": 0.051,
-                "przz_c": 1.365,
+                "przz_b": 0.035,
+                "przz_c": 1.09,
                 "przz_d": 0.035,
+                "przz_power": 1 / 2,
             },
         }
     },
@@ -250,7 +248,7 @@ print(result.get_distribution())
 
 # By default, emulations are run using a state-vector emulator, which simulates any quantum operation. However, if the quantum operations are all Clifford gates, it can be faster for complex circuits to use the `stabilizer` emulator. The stabilizer emulator is requested in the setup of the `QuantinuumBackend` with the `simulator` input option. This only applies to Quantinuum emulators.
 
-machine = "H1-1E"
+machine = "H1-2E"
 
 stabilizer_backend = QuantinuumBackend(device_name=machine, simulator="stabilizer")
 
@@ -267,8 +265,6 @@ stabilizer_status = stabilizer_backend.circuit_status(stabilizer_handle)
 print(stabilizer_status)
 
 stabilizer_result = stabilizer_backend.get_result(stabilizer_handle)
-
-stabilizer_result
 
 with open("pytket_emulator_stabilizer_example.json", "w") as file:
     json.dump(result.to_dict(), file)
