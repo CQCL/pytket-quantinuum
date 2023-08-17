@@ -1,4 +1,4 @@
-# # Discarding leaky results: automatic leakage error detection with `QuantinuumBackend`
+# # Discarding leaky results: Automatic leakage error detection with `QuantinuumBackend`
 
 # Quantum computers are known to be *noisy*, with a high chance of errors occurring when executing a sequence of operations. These errors can come from a variety of sources and are typically hard to mitigate. Investigating the source of errors, how they manifest at the quantum circuit level, and how to mitigate them, is a wide area of research. <br>
 
@@ -44,9 +44,7 @@ render_circuit_jupyter(bell_pair_leakage_detection_circuit)
 
 # The parameter `n_device_qubits` tells `get_detection_circuit` how many qubits the device has. In this case we stated there were 4 device qubits while the Bell pair circuit had 2 qubits, meaning a separate qubit was used for each leakage detection gadget. However, if there are too few device qubits then `get_detection_circuit` will reuse ancilla qubits to do multiple leakage detections, assigning the results to different `Bit`. We can see this by setting `n_device_qubits = 3`.
 
-render_circuit_jupyter(
-    get_detection_circuit(circuit=bell_pair_circuit, n_device_qubits=3)
-)
+# render_circuit_jupyter(get_detection_circuit(circuit=bell_pair_circuit, n_device_qubits=3))
 
 # The `QuantinuumBackend.process_circuits` method takes an optional `kwarg` `leakage_detection` which when `True`, will pass every circuit through `get_detection_circuit` before passing it to the hardware. This means all circuits will be executed with leakage detection added. <br>
 
@@ -59,7 +57,6 @@ circuit = Circuit(2, 2).H(0).CX(0, 1).measure_all()
 backend = QuantinuumBackend(device_name="H1-2E")
 handle = backend.process_circuit(circuit, n_shots=10000, leakage_detection=True)
 result = backend.get_result(handle)
-
 
 # We can see in the returned results that there are additional `Bit` for detecting leakage. </br>
 
@@ -135,3 +132,5 @@ print(
 print(
     f"Success probability with leakage detection:    {round(prob_leakage,4)} +/- {round(std_leakage,4)}"
 )
+
+# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

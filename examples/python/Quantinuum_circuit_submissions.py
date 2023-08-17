@@ -2,7 +2,7 @@
 
 # This notebook contains basic circuit submission examples to Quantinuum quantum hardware via `pytket`.
 
-# * [What is TKET?](#tket)
+# * [What is TKET?]((#tket)
 # * [Step by Step](#step-by-step)
 #     * [Circuit Preparation](#circuit-preparation)
 #     * [Select Device](#select-device)
@@ -23,12 +23,12 @@
 
 # The TKET framework (pronounced "ticket") is a software platform for the development and execution of gate-level quantum computation, providing state-of-the-art performance in circuit compilation. It was created and is maintained by Quantinuum. The toolset is designed to extract the most out of the available NISQ devices of today and is platform-agnostic.
 
-# In python, the `pytket` packages is available for python 3.9+. The `pytket` and `pytket-quantinuum` packages are included as part of the installation instructions on the user portal.
+# In python, the `pytket` packages is available for python 3.8+. The `pytket` and `pytket-quantinuum` packages are included as part of the installation instructions on the user portal.
 
 # For more information on TKET, see the following links:
-# - [TKET manual](https://cqcl.github.io/pytket/manual/manual_intro.html)
+# - [TKET user manual](https://cqcl.github.io/pytket/manual/manual_intro.html)
 # - [TKET overview and demo video](https://www.youtube.com/watch?v=yXKSpvgAtrk)
-# - [Introduction to Quantum Compilation with TKET](https://github.com/CalMacCQ/tket_blog/blob/main/blog1_intro_to_qc.ipynb)
+# - [Quantum Compilation with TKET](https://calmaccq.github.io/tket_blog/tket_compilation.html)
 
 # This notebook covers how to use `pytket` in conjunction with `pytket-quantinuum` to submit to Quantinuum devices. The quantum compilation step is demonstrated, but for a full overview of quantum compilation with TKET, the last link above is recommended.
 
@@ -41,9 +41,6 @@
 # ### Circuit Preparation <a class="anchor" id="circuit-preparation"></a>
 
 # Create your circuit via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://cqcl.github.io/tket/pytket/api/getting_started.html) page.
-
-# **Note**: `pytket` renders circuits in ZX-calculus notation. This can be toggled on and off by pressing the top left button in the circuit display.
-
 from pytket.circuit import Circuit, fresh_symbol
 from pytket.circuit.display import render_circuit_jupyter
 
@@ -59,11 +56,11 @@ render_circuit_jupyter(circuit)
 
 # Select a machine and login to the Quantinuum API using your credentials. See the *Quantinuum Systems User Guide* in the *Examples* tab on the *Quantinuum User Portal* for information and target names for each of the H-Series systems available.
 
-# Users need to login once per session. In the notebook, a dialogue box will ask for credentials. If running a script, users be prompted at the shell. You can also [save your email in the pytket config](https://cqcl.github.io/pytket-extensions/api/quantinuum/api.html#pytket.extensions.quantinuum.backends.config.set_quantinuum_config).
+# Users need to login once per session. In the notebook, a dialogue box will ask for credentials. If running a script, users be prompted at the shell. You can also [save your email in the pytket config](https://cqcl.github.io/tket/pytket/api/config.html?highlight=pytket%20config#module-pytket.config).
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-1E"
+machine = "H1-2E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -101,7 +98,7 @@ render_circuit_jupyter(compiled_circuit)
 # Note that in this case because an emulator is used, the specific syntax checker the emulator uses is specified. This is an optional parameter not needed if you are using a quantum computer target.
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
 
 # ### Run the Circuit <a class="anchor" id="run-circuit"></a>
 
@@ -123,7 +120,11 @@ print(status)
 
 result = backend.get_result(handle)
 
-result
+# For large jobs, there is also the ability to return partial results for unfinished jobs. For more information on this feature, see [Partial Results Retrieval](https://cqcl.github.io/pytket-quantinuum/api/#partial-results-retrieval).
+
+partial_result, job_status = backend.get_partial_result(handle)
+
+print(partial_result.get_counts())
 
 # ### Save Results <a class="anchor" id="save-results"></a>
 
@@ -143,8 +144,6 @@ with open("pytket_example.json") as file:
 
 result = BackendResult.from_dict(data)
 
-result
-
 # ### Analyze Results <a class="anchor" id="analyze-results"></a>
 
 # There are multiple options for analyzing results with pytket. A few examples are highlighted here. More can be seen at [Interpreting Results](https://cqcl.github.io/pytket/manual/manual_backend.html#interpreting-results).
@@ -154,21 +153,11 @@ print(result.get_distribution())
 
 print(result.get_counts())
 
-# Map from bit to position in the measured state
-print(compiled_circuit.bit_readout)
-
-# Map from qubit to position in the measured state
-print(compiled_circuit.qubit_readout)
-
-# Map from qubits to the bits to which their measurement values were written
-print(compiled_circuit.qubit_to_bit_map)
-
 # ### Canceling jobs <a class="anchor" id="cancel-jobs"></a>
 
 # Jobs that have been submitted can also be cancelled if needed.
 
-# handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
-# backend.cancel(handle)
+backend.cancel(handle)
 
 # ## Additional Features <a class="anchor" id="additional-features"></a>
 
@@ -207,11 +196,11 @@ print(handle)
 
 # Once a batch is submitted, jobs can continue to be added to the batch, ending either when the user signifies the end of a batch or after 1 minute of inactivity.
 
-# Batches cannot exceed the maximum limit of 500 H-System Quantum Credits (HQCs) total. If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs *will not be cancelled*. Instead, they will continue to run as regular jobs in the queue instead of as a batch.
+# Batches cannot exceed the maximum limit of 2,000 H-System Quantum Credits (HQCs) total. If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs *will not be cancelled*. Instead, they will continue to run as regular jobs in the queue instead of as a batch.
 
 # Currently only the quantum computer and emulator targets support the batching feature. Batching is not supported on the syntax checkers.
 
-# For more information on using this feature in `pytket`, see [Batch Submission](https://cqcl.github.io/pytket-quantinuum/api/index.html#batching).
+# For more information on using this feature in `pytket-quantinuum`, see [Batching](https://cqcl.github.io/pytket-quantinuum/api/index.html#batching).
 
 # To start a batch, use the `start_batch` function, specifying the `max_batch_cost` in HQCs to enforce.
 
@@ -240,9 +229,10 @@ status_list
 
 # Results for batch submissions can be returned using `get_results` (note the plural).
 
-result = backend.get_results(handle_list)
+results = backend.get_results(handle_list)
 
-result
+for result in results:
+    print(result.get_counts())
 
 # ### Parametrized Circuits <a class="anchor" id="parametrized-circuits"></a>
 
@@ -273,7 +263,7 @@ compiled_circuit = backend.get_compiled_circuit(simulation_circuit)
 render_circuit_jupyter(compiled_circuit)
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
 
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
@@ -282,11 +272,9 @@ print(status)
 
 result = backend.get_result(handle)
 
-result
-
 # ### Conditional Gates <a class="anchor" id="conditional-gates"></a>
 
-# Pytket supports conditional gates. This may be for implementing error correction or reducing noise. This capability is well-supported by Quantinuum hardware, which supports mid-circuit measurement and qubit reuse. See [Conditional Gates](https://cqcl.github.io/pytket/manual/manual_circuit.html#conditional-gates) for more information on pytket's implementation. The following example demonstrates the quantum teleportation protocol.
+# Pytket supports conditional gates. This may be for implementing error correction or reducing noise. This capability is well-supported by Quantinuum hardware, which supports mid-circuit measurement and qubit reuse. See [Conditional Gates](https://cqcl.github.io/pytket/manual/manual_circuit.html#classical-and-conditional-operations) for more information on pytket's implementation. The following example demonstrates the quantum teleportation protocol.
 
 from pytket.circuit import Circuit, if_bit
 
@@ -327,11 +315,11 @@ circ.add_assertion(ProjectorAssertionBox(proj), [qreg[2]], name="debug")
 
 render_circuit_jupyter(circ)
 
-machine = "H1-1E"
+machine = "H1-2E"
 n_shots = 100
 backend = QuantinuumBackend(device_name=machine)
 compiled_circuit = backend.get_compiled_circuit(circ)
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
 
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
