@@ -74,7 +74,7 @@ class QuantinuumAPI:
 
     JOB_DONE = ["failed", "completed", "canceled"]
 
-    DEFAULT_API_URL = "https://qapi.quantinuum.com/"
+    DEFAULT_API_URL = "https://hqapi.quantinuum.com/"
 
     AZURE_PROVIDER = "microsoft"
 
