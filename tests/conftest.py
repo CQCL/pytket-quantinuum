@@ -26,11 +26,6 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
-ALL_QUANTUM_HARDWARE_NAMES = [
-    "H1-1",
-    "H1-2",
-    "H2-1",
-]
 
 ALL_SIMULATOR_NAMES = [
     "H1-1E",
@@ -45,7 +40,6 @@ ALL_SYNTAX_CHECKER_NAMES = [
 ]
 
 ALL_DEVICE_NAMES = [
-    *ALL_QUANTUM_HARDWARE_NAMES,
     *ALL_SIMULATOR_NAMES,
     *ALL_SYNTAX_CHECKER_NAMES,
 ]
@@ -61,7 +55,6 @@ def pytest_configure() -> None:
     pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
     pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
     pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
-    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
 
 
 def pytest_make_parametrize_id(

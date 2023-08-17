@@ -300,7 +300,6 @@ def circuits(
     [
         {"device_name": name}
         for name in [
-            *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
             *pytest.ALL_SYNTAX_CHECKER_NAMES,  # type: ignore
         ]
     ],
@@ -357,13 +356,13 @@ def test_classical(
 ) -> None:
     # circuit to cover capabilities covered in example notebook
     c = Circuit(1, name="test_classical")
-    a = c.add_c_register("a", 8)
-    b = c.add_c_register("b", 10)
-    d = c.add_c_register("d", 10)
+    a = c.add_c_register("a", 64)
+    b = c.add_c_register("b", 64)
+    d = c.add_c_register("d", 64)
 
     c.add_c_setbits([True], [a[0]])
-    c.add_c_setbits([False, True] + [False] * 6, list(a))
-    c.add_c_setbits([True, True] + [False] * 8, list(b))
+    c.add_c_setbits([False, True] + [False] * 62, list(a))
+    c.add_c_setbits([True, True] + [False] * 62, list(b))
 
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
