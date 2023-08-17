@@ -223,7 +223,7 @@ def fixture_mock_quum_api_handler(
 
     username, pwd = mock_credentials
 
-    mock_url = "https://qapi.quantinuum.com/v1/login"
+    mock_url = "https://hqapi.quantinuum.com/v1/login"
 
     requests_mock.register_uri(
         "POST",
