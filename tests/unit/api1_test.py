@@ -59,7 +59,7 @@ def test_default_login_flow(
 
     login_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/login",
+        "https://hqapi.quantinuum.com/v1/login",
         json={
             "id-token": mock_token,
             "refresh-token": mock_token,
@@ -69,20 +69,20 @@ def test_default_login_flow(
 
     job_submit_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/job",
+        "https://hqapi.quantinuum.com/v1/job",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
 
     job_status_route = requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        f"https://hqapi.quantinuum.com/v1/machine/?config=true",
         json=[mock_machine_info],
         headers={"Content-Type": "application/json"},
     )
@@ -137,7 +137,7 @@ def test_custom_login_flow(
 
     login_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/login",
+        "https://hqapi.quantinuum.com/v1/login",
         json={
             "id-token": mock_token,
             "refresh-token": mock_token,
@@ -147,20 +147,20 @@ def test_custom_login_flow(
 
     job_submit_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/job",
+        "https://hqapi.quantinuum.com/v1/job",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
 
     job_status_route = requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        f"https://hqapi.quantinuum.com/v1/machine/?config=true",
         json=[mock_machine_info],
         headers={"Content-Type": "application/json"},
     )
@@ -223,7 +223,7 @@ def test_mfa_login_flow(
 
     mfa_login_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/login",
+        "https://hqapi.quantinuum.com/v1/login",
         json={
             "id-token": mock_token,
             "refresh-token": mock_token,
@@ -233,7 +233,7 @@ def test_mfa_login_flow(
     )
     normal_login_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/login",
+        "https://hqapi.quantinuum.com/v1/login",
         json={
             "error": {"code": 73},
         },
@@ -280,7 +280,7 @@ def test_federated_login(
     )
     login_route = requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/login",
+        "https://hqapi.quantinuum.com/v1/login",
         json={
             "id-token": mock_token,
             "refresh-token": mock_token,
@@ -332,21 +332,21 @@ def test_device_family(
 
     requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/job",
+        "https://hqapi.quantinuum.com/v1/job",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
 
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
 
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        f"https://hqapi.quantinuum.com/v1/machine/?config=true",
         json=sample_machine_infos,
         headers={"Content-Type": "application/json"},
     )
@@ -384,20 +384,20 @@ def test_resumed_batching(
 
     requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/job",
+        "https://hqapi.quantinuum.com/v1/job",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
 
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        f"https://hqapi.quantinuum.com/v1/machine/?config=true",
         json=sample_machine_infos,
         headers={"Content-Type": "application/json"},
     )
@@ -437,7 +437,7 @@ def test_available_devices(
     """Test that we can get a list of available devices."""
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        f"https://hqapi.quantinuum.com/v1/machine/?config=true",
         json=[mock_machine_info],
         headers={"Content-Type": "application/json"},
     )
@@ -475,20 +475,20 @@ def test_submit_qasm_api(
 
     requests_mock.register_uri(
         "POST",
-        "https://qapi.quantinuum.com/v1/job",
+        "https://hqapi.quantinuum.com/v1/job",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
 
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
         json={"job": fake_job_id},
         headers={"Content-Type": "application/json"},
     )
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        f"https://hqapi.quantinuum.com/v1/machine/?config=true",
         json=sample_machine_infos,
         headers={"Content-Type": "application/json"},
     )
@@ -523,14 +523,14 @@ def test_get_partial_result(
     queued_job_id = "abc-123"
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{queued_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{queued_job_id}?websocket=true",
         json={"job": "abc-123", "name": "job", "status": "queued"},
         headers={"Content-Type": "application/json"},
     )
     running_job_id = "abc-456"
     requests_mock.register_uri(
         "GET",
-        f"https://qapi.quantinuum.com/v1/job/{running_job_id}?websocket=true",
+        f"https://hqapi.quantinuum.com/v1/job/{running_job_id}?websocket=true",
         json={
             "job": "abc-123",
             "name": "job",

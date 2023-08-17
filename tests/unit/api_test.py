@@ -51,7 +51,7 @@ def test_machine_status(
     machine_name = "quum-LT-S1-APIVAL"
     mock_machine_state = "online"
 
-    mock_url = f"https://qapi.quantinuum.com/v1/machine/{machine_name}"
+    mock_url = f"https://hqapi.quantinuum.com/v1/machine/{machine_name}"
 
     requests_mock.register_uri(
         "GET",
@@ -75,7 +75,7 @@ def test_full_login(
     """Test that we can perform the login flow."""
     username, pwd = mock_credentials
 
-    mock_url = "https://qapi.quantinuum.com/v1/login"
+    mock_url = "https://hqapi.quantinuum.com/v1/login"
 
     requests_mock.register_uri(
         "POST",
