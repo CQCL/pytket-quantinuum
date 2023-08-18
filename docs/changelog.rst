@@ -11,6 +11,7 @@ Unreleased
   ``QuantinuumBackend.get_compiled_circuits_with_options`` which take kwarg
   options that affect resulting compilation, currently supporting the 
   use of implicit wire swaps and of targeting a specific two-qubit gate.
+* Fix handling of multiple classical registers when submitting QIR.
 
 0.20.0 (August 2023)
 --------------------
