@@ -640,7 +640,7 @@ class QuantinuumBackend(Backend):
             return n
 
     @staticmethod
-    def get_results_selection(handle: ResultHandle) -> Optional[List[Tuple[str, int]]]:
+    def get_results_selection(handle: ResultHandle) -> Any:
         """Return a list of pairs (register name, register index) representing the order
         of the expected results in the response. If None, then all results in the
         response are used, in lexicographic order.
@@ -754,7 +754,7 @@ class QuantinuumBackend(Backend):
                     "",
                     "null",
                     -1 if results_selection is None else len(results_selection),
-                    "" if results_selection is None else results_selection,
+                    "" if results_selection is None else json.dumps(results_selection),
                 )
         except ConnectionError:
             raise ConnectionError(
@@ -766,7 +766,7 @@ class QuantinuumBackend(Backend):
             cast(str, jobdict["job"]),
             "null",
             -1 if results_selection is None else len(results_selection),
-            results_selection,
+            json.dumps(results_selection),
         )
 
     def process_circuits(
@@ -1260,7 +1260,10 @@ def _convert_result(
             for creg in array_dict.keys():
                 array_dict[creg] = array_dict[creg][:, :n_bits]
 
-        stacked_array = np.hstack([array_dict[name] for name in reversed_creg_names])
+        stacked_array = cast(
+            Sequence[Sequence[int]],
+            np.hstack([array_dict[name] for name in reversed_creg_names]),
+        )
     else:
         assert n_bits == len(results_selection)
 
@@ -1278,7 +1281,7 @@ def _convert_result(
         ]
     return BackendResult(
         c_bits=c_bits,
-        shots=OutcomeArray.from_readouts(cast(Sequence[Sequence[int]], stacked_array)),
+        shots=OutcomeArray.from_readouts(stacked_array),
         ppcirc=ppcirc,
     )
 
