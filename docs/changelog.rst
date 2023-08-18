@@ -12,6 +12,8 @@ Unreleased
   options that affect resulting compilation, currently supporting the 
   use of implicit wire swaps and of targeting a specific two-qubit gate.
 * Fix handling of multiple classical registers when submitting QIR.
+* Change ``ResultHandle`` format. (Old ``ResultHandle`` objects will continue to
+  work after upgrading.)
 
 0.20.0 (August 2023)
 --------------------
