@@ -15,6 +15,7 @@
 
 from ast import literal_eval
 from base64 import b64encode
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 import json
@@ -591,12 +592,17 @@ class QuantinuumBackend(Backend):
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
-        return tuple((str, str, int))
+        return tuple((str, str, int, str))
 
     @staticmethod
     def _update_result_handle(handle: ResultHandle) -> ResultHandle:
         """Update a legacy handle to be compatible with current format."""
-        return handle if len(handle) == 3 else ResultHandle(handle[0], handle[1], -1)
+        if len(handle) == 2:
+            return ResultHandle(handle[0], handle[1], -1, "")
+        elif len(handle) == 3:
+            return ResultHandle(handle[0], handle[1], handle[2], "")
+        else:
+            return handle
 
     @staticmethod
     def get_jobid(handle: ResultHandle) -> str:
@@ -633,6 +639,19 @@ class QuantinuumBackend(Backend):
             assert n >= 0
             return n
 
+    @staticmethod
+    def get_results_selection(handle: ResultHandle) -> Any:
+        """Return a list of pairs (register name, register index) representing the order
+        of the expected results in the response. If None, then all results in the
+        response are used, in lexicographic order.
+        """
+        s = cast(str, handle[3])
+        if s == "":
+            return None
+        bits = json.loads(s)
+        assert all(isinstance(name, str) and isinstance(idx, int) for name, idx in bits)
+        return bits
+
     def submit_program(
         self,
         language: Language,
@@ -646,7 +665,7 @@ class QuantinuumBackend(Backend):
         no_opt: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
-        results_width: Optional[int] = None,
+        results_selection: Optional[List[Tuple[str, int]]] = None,
     ) -> ResultHandle:
         """Submit a program directly to the backend.
 
@@ -677,9 +696,10 @@ class QuantinuumBackend(Backend):
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
         :type request_options: Optional[Dict[str, Any]], optional
-        :param results_width: Number of bits to retain in returned results (if unset,
-            retain all)
-        :type results_width: Optional[int]
+        :param results_selection: Ordered list of register names and indices used to
+            construct final :py:class:`BackendResult`. If None, all all results are used
+            in lexicographic order.
+        :type results_selection: Optional[List[Tuple[str, int]]]
         :raises WasmUnsupported: WASM submitted to backend that does not support it.
         :raises QuantinuumAPIError: API error.
         :raises ConnectionError: Connection to remote API failed
@@ -721,8 +741,6 @@ class QuantinuumBackend(Backend):
         # apply any overrides or extra options
         body.update(request_options or {})
 
-        n_bits: int = -1 if results_width is None else results_width
-
         try:
             res = self.api_handler._submit_job(body)
             if self.api_handler.online:
@@ -732,14 +750,24 @@ class QuantinuumBackend(Backend):
                         f'HTTP error submitting job, {jobdict["error"]}'
                     )
             else:
-                return ResultHandle(cast(str, ""), "null", n_bits)
+                return ResultHandle(
+                    "",
+                    "null",
+                    -1 if results_selection is None else len(results_selection),
+                    "" if results_selection is None else json.dumps(results_selection),
+                )
         except ConnectionError:
             raise ConnectionError(
                 f"{self._label} Connection Error: Error during submit..."
             )
 
         # extract job ID from response
-        return ResultHandle(cast(str, jobdict["job"]), "null", n_bits)
+        return ResultHandle(
+            cast(str, jobdict["job"]),
+            "null",
+            -1 if results_selection is None else len(results_selection),
+            json.dumps(results_selection),
+        )
 
     def process_circuits(
         self,
@@ -819,7 +847,10 @@ class QuantinuumBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circ, None
-            n_bits = c0.n_bits
+            results_selection = []
+            for name, count in Counter(bit.reg_name for bit in c0.bits).items():
+                for i in range(count):
+                    results_selection.append((name, i))
             if language == Language.QASM:
                 quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
             else:
@@ -860,7 +891,8 @@ class QuantinuumBackend(Backend):
                     ResultHandle(
                         _DEBUG_HANDLE_PREFIX + str((circ.n_qubits, n_shots)),
                         json.dumps(ppcirc_rep),
-                        n_bits,
+                        len(results_selection),
+                        json.dumps(results_selection),
                     )
                 )
             else:
@@ -881,7 +913,10 @@ class QuantinuumBackend(Backend):
                 )
 
                 handle = ResultHandle(
-                    self.get_jobid(handle), json.dumps(ppcirc_rep), n_bits
+                    self.get_jobid(handle),
+                    json.dumps(ppcirc_rep),
+                    len(results_selection),
+                    json.dumps(results_selection),
                 )
                 handle_list.append(handle)
                 self._cache[handle] = dict()
@@ -1018,11 +1053,15 @@ class QuantinuumBackend(Backend):
             if "results" in response:
                 ppcirc_rep = self.get_ppcirc_rep(handle)
                 n_bits = self.get_results_width(handle)
+                results_selection = self.get_results_selection(handle)
                 ppcirc = (
                     Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
                 )
                 self._update_cache_result(
-                    handle, _convert_result(response["results"], ppcirc, n_bits)
+                    handle,
+                    _convert_result(
+                        response["results"], ppcirc, n_bits, results_selection
+                    ),
                 )
         return circ_status
 
@@ -1051,7 +1090,8 @@ class QuantinuumBackend(Backend):
         ppcirc_rep = self.get_ppcirc_rep(handle)
         ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
         n_bits = self.get_results_width(handle)
-        backres = _convert_result(res, ppcirc, n_bits)
+        results_selection = self.get_results_selection(handle)
+        backres = _convert_result(res, ppcirc, n_bits, results_selection)
         return backres, circ_status
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
@@ -1066,6 +1106,7 @@ class QuantinuumBackend(Backend):
             jobid = self.get_jobid(handle)
             ppcirc_rep = self.get_ppcirc_rep(handle)
             n_bits = self.get_results_width(handle)
+            results_selection = self.get_results_selection(handle)
 
             ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
 
@@ -1073,7 +1114,7 @@ class QuantinuumBackend(Backend):
                 debug_handle_info = jobid[len(_DEBUG_HANDLE_PREFIX) :]
                 n_qubits, shots = literal_eval(debug_handle_info)
                 return _convert_result(
-                    {"c": (["0" * n_qubits] * shots)}, ppcirc, n_bits
+                    {"c": (["0" * n_qubits] * shots)}, ppcirc, n_bits, results_selection
                 )
             # TODO exception handling when jobid not found on backend
             timeout = kwargs.get("timeout")
@@ -1095,7 +1136,7 @@ class QuantinuumBackend(Backend):
             except KeyError:
                 raise GetResultFailed("Results missing in device return data.")
 
-            backres = _convert_result(res, ppcirc, n_bits)
+            backres = _convert_result(res, ppcirc, n_bits, results_selection)
             self._update_cache_result(handle, backres)
             return backres
 
@@ -1200,27 +1241,47 @@ def _convert_result(
     resultdict: Dict[str, List[str]],
     ppcirc: Optional[Circuit] = None,
     n_bits: Optional[int] = None,
+    results_selection: Optional[List[Tuple[str, int]]] = None,
 ) -> BackendResult:
-    array_dict = {
-        creg: np.array([list(a) for a in reslist]).astype(np.uint8)
-        for creg, reslist in resultdict.items()
-    }
-    reversed_creg_names = sorted(array_dict.keys(), reverse=True)
-    c_bits = [
-        Bit(name, ind)
-        for name in reversed_creg_names
-        for ind in range(array_dict[name].shape[-1] - 1, -1, -1)
-    ]
-    if n_bits is not None:
-        assert n_bits >= 0 and n_bits <= len(c_bits)
-        c_bits = c_bits[:n_bits]
-        for creg in array_dict.keys():
-            array_dict[creg] = array_dict[creg][:, :n_bits]
+    if results_selection is None:
+        array_dict = {
+            creg: np.array([list(a) for a in reslist]).astype(np.uint8)
+            for creg, reslist in resultdict.items()
+        }
+        reversed_creg_names = sorted(array_dict.keys(), reverse=True)
+        c_bits = [
+            Bit(name, ind)
+            for name in reversed_creg_names
+            for ind in range(array_dict[name].shape[-1] - 1, -1, -1)
+        ]
+        if n_bits is not None:
+            assert n_bits >= 0 and n_bits <= len(c_bits)
+            c_bits = c_bits[:n_bits]
+            for creg in array_dict.keys():
+                array_dict[creg] = array_dict[creg][:, :n_bits]
 
-    stacked_array = np.hstack([array_dict[name] for name in reversed_creg_names])
+        stacked_array = cast(
+            Sequence[Sequence[int]],
+            np.hstack([array_dict[name] for name in reversed_creg_names]),
+        )
+    else:
+        assert n_bits == len(results_selection)
+
+        # Figure out the number of shots and sanity-check the results list.
+        n_shots_per_reg = [len(reslist) for reslist in resultdict.values()]
+        n_shots = n_shots_per_reg[0] if n_shots_per_reg else 0
+        assert all(n == n_shots for n in n_shots_per_reg)
+
+        c_bits = [Bit(name, ind) for name, ind in results_selection]
+
+        # Construct the shots table
+        stacked_array = [
+            [int(resultdict[name][i][-1 - ind]) for name, ind in results_selection]
+            for i in range(n_shots)
+        ]
     return BackendResult(
         c_bits=c_bits,
-        shots=OutcomeArray.from_readouts(cast(Sequence[Sequence[int]], stacked_array)),
+        shots=OutcomeArray.from_readouts(stacked_array),
         ppcirc=ppcirc,
     )
 
