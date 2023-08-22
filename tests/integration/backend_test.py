@@ -573,10 +573,7 @@ def test_zzphase(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 0)
 
-    if OpType.ZZPhase in backend._gate_set:
-        assert c0.n_gates_of_type(OpType.ZZPhase) > 0
-    else:
-        assert c0.n_gates_of_type(OpType.ZZMax) > 0
+    assert c0.n_gates_of_type(backend.default_two_qubit_gate) > 0
 
     n_shots = 4
     handle = backend.process_circuits([c0], n_shots)[0]
@@ -606,11 +603,7 @@ def test_zzphase_support_opti2(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 2)
 
-    # backend._gate_set requires API access.
-    if OpType.ZZPhase in backend._gate_set:
-        assert c0.n_gates_of_type(OpType.ZZPhase) == 1
-    else:
-        assert c0.n_gates_of_type(OpType.ZZMax) == 1
+    assert c0.n_gates_of_type(backend.default_two_qubit_gate) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
