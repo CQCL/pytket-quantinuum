@@ -757,6 +757,23 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> None:
+    c0 = Circuit(2).H(0).CX(0, 1).measure_all()
+    b = authenticated_quum_backend
+    c = b.get_compiled_circuit_with_options(c0, 0, target_2qb_gate=OpType.ZZMax)
+    h = b.process_circuits([c], n_shots=1, allow_2q_gate_rebase=True)
+    r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
 def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
