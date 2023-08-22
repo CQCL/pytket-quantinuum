@@ -511,6 +511,9 @@ def test_retrieve_available_devices(
         api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
+    assert all(
+        OpType.ZZPhase in backend_info.gate_set for backend_info in backend_infos
+    )
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=10)
