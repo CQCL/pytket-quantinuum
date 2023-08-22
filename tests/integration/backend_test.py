@@ -625,10 +625,13 @@ def test_prefer_zzphase(
         .measure_all()
     )
     c0 = backend.get_compiled_circuit(c)
-    if OpType.ZZPhase in backend._gate_set:
+    if backend.default_two_qubit_gate == OpType.ZZPhase:
         assert c0.n_gates_of_type(OpType.ZZPhase) == 2
-    else:
+    elif backend.default_two_qubit_gate == OpType.ZZMax:
         assert c0.n_gates_of_type(OpType.ZZMax) == 2
+    else:
+        assert backend.default_two_qubit_gate == OpType.TK2
+        assert c0.n_gates_of_type(OpType.TK2) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
