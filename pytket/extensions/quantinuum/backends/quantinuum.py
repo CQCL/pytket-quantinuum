@@ -93,6 +93,7 @@ _GATE_SET = {
     OpType.Rz,
     OpType.PhasedX,
     OpType.ZZMax,
+    OpType.ZZPhase,
     OpType.Reset,
     OpType.Measure,
     OpType.Barrier,
@@ -107,10 +108,14 @@ _GATE_SET = {
 }
 
 
+def _default_2q_gate(device_name: str) -> OpType:
+    # If we change this, we should update the main documentation page and highlight it
+    # in the changelog.
+    return OpType.ZZPhase
+
+
 def _get_gateset(gates: List[str]) -> Set[OpType]:
     gs = _GATE_SET.copy()
-    if "RZZ" in gates:
-        gs.add(OpType.ZZPhase)
     if "Rxxyyzz" in gates:
         gs.add(OpType.TK2)
     return gs
@@ -250,6 +255,8 @@ class QuantinuumBackend(Backend):
 
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
+        self._default_2q_gate = _default_2q_gate(device_name)
+
     @classmethod
     def _available_devices(
         cls,
@@ -374,13 +381,15 @@ class QuantinuumBackend(Backend):
         return preds
 
     @property
-    def _two_qubit_gate_set(self) -> Set[OpType]:
-        """
-        Assumes that only possibly supported two-qubit gates are
-        ZZPhase, ZZMax and TK2.
+    def default_two_qubit_gate(self) -> OpType:
+        """Returns the default two-qubit gate for the device."""
+        return self._default_2q_gate
 
-        :return: Set of two-qubit OpType in gateset.
-        :rtype: Set[OpType]
+    @property
+    def two_qubit_gate_set(self) -> Set[OpType]:
+        """Returns the set of supported two-qubit gates.
+
+        Submitted circuits must contain only one of these.
         """
         return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])
 
@@ -392,18 +401,19 @@ class QuantinuumBackend(Backend):
             Default False.
         * `target_2qb_gate`: pytket OpType, if provided, will
             return a rebasing pass that only allows given
-            two-qubit gate type.
+            two-qubit gate type. By default, the rebase will target the default
+            two-qubit gate for the device.
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
-        target_2qb_optype: OpType = kwargs.get("target_2qb_gate", OpType.ZZMax)
-        if target_2qb_optype not in self._two_qubit_gate_set:
+        target_2qb_optype: OpType = kwargs.get("target_2qb_gate", self._default_2q_gate)
+        if target_2qb_optype not in self.two_qubit_gate_set:
             raise QuantinuumAPIError(
                 "Requested target_2qb_gate is not supported by the given Device. "
-                "The supported gateset is: " + str(self._two_qubit_gate_set)
+                "The supported gateset is: " + str(self.two_qubit_gate_set)
             )
         return auto_rebase_pass(
-            (self._gate_set - self._two_qubit_gate_set) | {target_2qb_optype},
+            (self._gate_set - self.two_qubit_gate_set) | {target_2qb_optype},
             allow_swaps=bool(kwargs.get("implicit_swap", True)),
         )
 
@@ -424,7 +434,8 @@ class QuantinuumBackend(Backend):
             construction if it reduces the total 2qb qate count.
         * `target_2qb_gate`: :py:class:`OpType`, if provided, will rebase
             circuits such that the only two-qubit gates will be of the
-            provided type.
+            provided type. By default, the pass will target the default two-qubit gate
+            for the device.
         """
         assert optimisation_level in range(3)
         passlist = [
@@ -437,12 +448,8 @@ class QuantinuumBackend(Backend):
         # If ZZPhase is available we should prefer it to ZZMax.
         if OpType.ZZPhase in self._gate_set:
             fidelities["ZZPhase_fidelity"] = lambda x: 1.0
-        elif OpType.ZZMax in self._gate_set:
-            fidelities["ZZMax_fidelity"] = 1.0
         else:
-            raise QuantinuumAPIError(
-                "Either ZZMax or ZZPhase gate must be supported by device"
-            )
+            fidelities["ZZMax_fidelity"] = 1.0
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
@@ -508,18 +515,10 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for compiling circuits to Quantinuum devices
         :rtype: BasePass
         """
-        target_2qb_gate: OpType = OpType.TK2
-        if OpType.TK2 not in self._two_qubit_gate_set:
-            if OpType.ZZPhase in self._two_qubit_gate_set:
-                target_2qb_gate = OpType.ZZPhase
-            elif OpType.ZZMax in self._two_qubit_gate_set:
-                target_2qb_gate = OpType.ZZMax
-            else:
-                raise QuantinuumAPIError(
-                    "Device does not support either TK2, ZZPhase or ZZMax gates."
-                )
         return self.default_compilation_pass_with_options(
-            optimisation_level, implicit_swap=True, target_2qb_gate=target_2qb_gate
+            optimisation_level,
+            implicit_swap=True,
+            target_2qb_gate=self._default_2q_gate,
         )
 
     def get_compiled_circuit_with_options(
@@ -534,7 +533,8 @@ class QuantinuumBackend(Backend):
             Circuit via TK2 gates to use implicit wire swaps in circuit
             construction if it reduces the total 2qb qate count.
         * `target_2qb_gate`: :py:class:`OpType`, if provided, will ensure that
-            the rebased circuit contains only two-qubit gates of this type.
+            the rebased circuit contains only two-qubit gates of this type. By default,
+            the rebase will target the default two-qubit gate for the device.
         """
         return_circuit = circuit.copy()
         self.default_compilation_pass_with_options(optimisation_level, **kwargs).apply(
@@ -663,6 +663,7 @@ class QuantinuumBackend(Backend):
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
         no_opt: bool = False,
+        allow_2q_gate_rebase: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
         results_selection: Optional[List[Tuple[str, int]]] = None,
@@ -688,6 +689,9 @@ class QuantinuumBackend(Backend):
         :type wasm_file_handler: Optional[WasmFileHandler], optional
         :param no_opt: if true, requests that the backend perform no optimizations
         :type no_opt: bool, defaults to False
+        :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
+           a higher-fidelity alternative gate at the discretion of the backend
+        :type allow_2q_gate_rebase: bool, defaults to False
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :type pytket_pass: Optional[BasePass], optional
@@ -717,6 +721,7 @@ class QuantinuumBackend(Backend):
             "options": {
                 "simulator": self.simulator_type,
                 "no-opt": no_opt,
+                "noreduce": not allow_2q_gate_rebase,
                 "error-model": noisy_simulation,
                 "tket": dict(),
             },
@@ -790,6 +795,8 @@ class QuantinuumBackend(Backend):
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
         * `no_opt`: if true, requests that the backend perform no optimizations
+        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
+           higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -831,6 +838,8 @@ class QuantinuumBackend(Backend):
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
 
         no_opt = cast(bool, kwargs.get("no_opt", False))
+
+        allow_2q_gate_rebase = cast(bool, kwargs.get("allow_2q_gate_rebase", False))
 
         language = cast(Language, kwargs.get("language", Language.QASM))
 
@@ -906,6 +915,7 @@ class QuantinuumBackend(Backend):
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
                     no_opt=no_opt,
+                    allow_2q_gate_rebase=allow_2q_gate_rebase,
                     options=cast(Dict[str, Any], kwargs.get("options", {})),
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})
