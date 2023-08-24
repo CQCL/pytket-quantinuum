@@ -10,6 +10,12 @@ Unreleased
   ``QuantinuumBackend.two_qubit_gate_set`` providing the default and supported
   two-qubit gates for a device.
 * Make ``ZZPhase`` the default two-qubit gate target on all devices.
+* Add ``QuantinuumBackendCompilationConfig`` dataclass, which can be passed as
+  an optional argument when constructing a ``QuantinuumBackend``. Configuration
+  can be inspected using ``QuantinuumBackend.get_compilation_config()`` and
+  modified using the methods
+  ``QuantinuumBackend.set_compilation_config_allow_implicit_swaps()`` and
+  ``QuantinuumBackend.set_compilation_config_target_2qb_gate()``.
 * Add new methods ``QuantinuumBackend.default_compilation_pass_with_options``,
   ``QuantinuumBackend.get_compiled_circuit_with_options`` and
   ``QuantinuumBackend.get_compiled_circuits_with_options`` which take kwarg
