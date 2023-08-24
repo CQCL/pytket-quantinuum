@@ -124,7 +124,9 @@ default two-qubit gate, which may be queried using the
 two-qubit gate for all devices is ``ZZPhase``.
 
 The default compilation pass and rebase pass will target the default gate by
-default. This may be overridden using the optional ``target_2qb_gate`` argument.
+default. This may be overridden using the method
+``QuantinuumBackend.set_compilation_config_target_2qb_gate()`` or by passing a
+``QuantinuumBackendCompilationConfig`` when constructing the backend.
 
 If desired, backends may be allowed to rebase to a different two-qubit gate
 judged to have better fidelity before being run. The default is to run with the
