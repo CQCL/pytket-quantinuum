@@ -764,7 +764,8 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
 def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     b = authenticated_quum_backend
-    c = b.get_compiled_circuit_with_options(c0, 0, target_2qb_gate=OpType.ZZMax)
+    b.set_compilation_config_target_2qb_gate(OpType.ZZMax)
+    c = b.get_compiled_circuit(c0, 0)
     h = b.process_circuits([c], n_shots=1, allow_2q_gate_rebase=True)
     r = b.get_results(h)[0]
     shots = r.get_shots()

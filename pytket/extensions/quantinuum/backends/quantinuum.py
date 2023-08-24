@@ -192,6 +192,18 @@ DEFAULT_API_HANDLER = QuantinuumAPI(DEFAULT_CREDENTIALS_STORAGE)
 QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any], OpType, bool]
 
 
+@dataclass
+class QuantinuumBackendCompilationConfig:
+    """
+    Options to configure default compilation and rebase passes.
+    """
+
+    allow_implicit_swaps: bool = True  # Allow use of implicit swaps when rebasing.
+    target_2qb_gate: Optional[
+        OpType
+    ] = None  # Choice of two-qubit gate. The default is to use the device's default.
+
+
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
@@ -213,6 +225,7 @@ class QuantinuumBackend(Backend):
         provider: Optional[str] = None,
         machine_debug: bool = False,
         api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
+        compilation_config: Optional[QuantinuumBackendCompilationConfig] = None,
         **kwargs: QuumKwargTypes,
     ):
         """Construct a new Quantinuum backend.
@@ -232,6 +245,8 @@ class QuantinuumBackend(Backend):
         :type simulator: str, optional
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :type api_handler: QuantinuumAPI
+        :param compilation_config: Optional compilation configuration
+        :type compilation_config: QuantinuumBackendCompilationConfig
 
         Supported kwargs:
 
@@ -256,6 +271,31 @@ class QuantinuumBackend(Backend):
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
         self._default_2q_gate = _default_2q_gate(device_name)
+        if compilation_config is None:
+            self.compilation_config = QuantinuumBackendCompilationConfig(
+                allow_implicit_swaps=True, target_2qb_gate=self._default_2q_gate
+            )
+        else:
+            self.compilation_config = compilation_config
+
+    def get_compilation_config(self) -> QuantinuumBackendCompilationConfig:
+        """Get the current compilation configuration."""
+        return self.compilation_config
+
+    def set_compilation_config_allow_implicit_swaps(
+        self, allow_implicit_swaps: bool
+    ) -> None:
+        """Set the option to allow or disallow implicit swaps during compilation."""
+        self.compilation_config.allow_implicit_swaps = allow_implicit_swaps
+
+    def set_compilation_config_target_2qb_gate(self, target_2qb_gate: OpType) -> None:
+        """Set the target two-qubit gate for compilation."""
+        if target_2qb_gate not in self.two_qubit_gate_set:
+            raise QuantinuumAPIError(
+                "Requested target_2qb_gate is not supported by the given Device. "
+                "The supported gateset is: " + str(self.two_qubit_gate_set)
+            )
+        self.compilation_config.target_2qb_gate = target_2qb_gate
 
     @classmethod
     def _available_devices(
@@ -393,7 +433,7 @@ class QuantinuumBackend(Backend):
         """
         return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])
 
-    def rebase_pass(self, **kwargs: QuumKwargTypes) -> BasePass:
+    def rebase_pass(self) -> BasePass:
         """
         Supported kwargs:
         * `implicit_swaps`: Boolean flag, which if true, returns
@@ -406,20 +446,14 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
-        target_2qb_optype: OpType = kwargs.get("target_2qb_gate", self._default_2q_gate)
-        if target_2qb_optype not in self.two_qubit_gate_set:
-            raise QuantinuumAPIError(
-                "Requested target_2qb_gate is not supported by the given Device. "
-                "The supported gateset is: " + str(self.two_qubit_gate_set)
-            )
+        assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
         return auto_rebase_pass(
-            (self._gate_set - self.two_qubit_gate_set) | {target_2qb_optype},
-            allow_swaps=bool(kwargs.get("implicit_swap", True)),
+            (self._gate_set - self.two_qubit_gate_set)
+            | {self.compilation_config.target_2qb_gate},
+            allow_swaps=self.compilation_config.allow_implicit_swaps,
         )
 
-    def default_compilation_pass_with_options(
-        self, optimisation_level: int = 2, **kwargs: QuumKwargTypes
-    ) -> BasePass:
+    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
         """
         :param optimisation_level: Allows values of 0,1 or 2, with higher values
             prompting more computationally heavy optimising compilation that
@@ -427,15 +461,6 @@ class QuantinuumBackend(Backend):
         :type optimisation_level: int
         :return: Compilation pass for compiling circuits to Quantinuum devices
         :rtype: BasePass
-
-        Supported kwargs:
-        * `implicit_swaps`: Boolean flag, which if true, allows rebasing of
-            Circuit to use implicit wire swaps in circuit
-            construction if it reduces the total 2qb qate count.
-        * `target_2qb_gate`: :py:class:`OpType`, if provided, will rebase
-            circuits such that the only two-qubit gates will be of the
-            provided type. By default, the pass will target the default two-qubit gate
-            for the device.
         """
         assert optimisation_level in range(3)
         passlist = [
@@ -455,14 +480,14 @@ class QuantinuumBackend(Backend):
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass(**kwargs))
+            passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
             passlist.extend(
                 [
                     SynthesiseTK(),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(**kwargs),
+                    self.rebase_pass(),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -477,7 +502,7 @@ class QuantinuumBackend(Backend):
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(**kwargs),
+                    self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
@@ -502,93 +527,6 @@ class QuantinuumBackend(Backend):
         # qubit being assigned to the ith qubit of a new "q" register
         passlist.append(FlattenRelabelRegistersPass("q"))
         return SequencePass(passlist)
-
-    def default_compilation_pass(
-        self,
-        optimisation_level: int = 2,
-    ) -> BasePass:
-        """
-        :param optimisation_level: Allows values of 0,1 or 2, with higher values
-            prompting more computationally heavy optimising compilation that
-            can lead to reduced gate count in circuits.
-        :type optimisation_level: int
-        :return: Compilation pass for compiling circuits to Quantinuum devices
-        :rtype: BasePass
-        """
-        return self.default_compilation_pass_with_options(
-            optimisation_level,
-            implicit_swap=True,
-            target_2qb_gate=self._default_2q_gate,
-        )
-
-    def get_compiled_circuit_with_options(
-        self, circuit: Circuit, optimisation_level: int = 2, **kwargs: KwargTypes
-    ) -> Circuit:
-        """
-        Return a single circuit compiled with :py:meth:`default_compilation_pass` See
-        :py:meth:`Backend.get_compiled_circuits`.
-
-        Supported kwargs:
-        * `implicit_swaps`: Boolean flag, which if true, allows rebasing of
-            Circuit via TK2 gates to use implicit wire swaps in circuit
-            construction if it reduces the total 2qb qate count.
-        * `target_2qb_gate`: :py:class:`OpType`, if provided, will ensure that
-            the rebased circuit contains only two-qubit gates of this type. By default,
-            the rebase will target the default two-qubit gate for the device.
-        """
-        return_circuit = circuit.copy()
-        self.default_compilation_pass_with_options(optimisation_level, **kwargs).apply(
-            return_circuit
-        )
-        return return_circuit
-
-    def get_compiled_circuits_with_options(
-        self,
-        circuits: Sequence[Circuit],
-        optimisation_level: int = 2,
-        **kwargs: KwargTypes,
-    ) -> List[Circuit]:
-        """Compile a sequence of circuits with :py:meth:`default_compilation_pass`
-        and return the list of compiled circuits (does not act in place).
-
-        As well as applying a degree of optimisation (controlled by the
-        `optimisation_level` parameter), this method tries to ensure that the circuits
-        can be run on the backend (i.e. successfully passed to
-        :py:meth:`process_circuits`), for example by rebasing to the supported gate set,
-        or routing to match the connectivity of the device. However, this is not always
-        possible, for example if the circuit contains classical operations that are not
-        supported by the backend. You may use :py:meth:`valid_circuit` to check whether
-        the circuit meets the backend's requirements after compilation. This validity
-        check is included in :py:meth:`process_circuits` by default, before any circuits
-        are submitted to the backend.
-
-        If the validity check fails, you can obtain more information about the failure
-        by iterating through the predicates in the `required_predicates` property of the
-        backend, and running the :py:meth:`verify` method on each in turn with your
-        circuit.
-
-
-        :param circuits: The circuits to compile.
-        :type circuit: Sequence[Circuit]
-        :param optimisation_level: The level of optimisation to perform during
-            compilation. See :py:meth:`default_compilation_pass` for a description of
-            the different levels (0, 1 or 2). Defaults to 2.
-        :type optimisation_level: int, optional
-        :return: Compiled circuits.
-        :rtype: List[Circuit]
-
-
-        Supported kwargs:
-        * `implicit_swaps`: Boolean flag, which if true, allows rebasing of
-            Circuit via TK2 gates to use implicit wire swaps in circuit
-            construction if it reduces the total 2qb qate count.
-        * `target_2qb_gate`: :py:class:`OpType`, if provided, will ensure that
-            the rebased circuits contain only two-qubit gates of this type.
-        """
-        return [
-            self.get_compiled_circuit_with_options(c, optimisation_level, **kwargs)
-            for c in circuits
-        ]
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
