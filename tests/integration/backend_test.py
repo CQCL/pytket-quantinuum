@@ -511,6 +511,9 @@ def test_retrieve_available_devices(
         api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
+    assert all(
+        OpType.ZZPhase in backend_info.gate_set for backend_info in backend_infos
+    )
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=10)
@@ -570,10 +573,7 @@ def test_zzphase(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 0)
 
-    if OpType.ZZPhase in backend._gate_set:
-        assert c0.n_gates_of_type(OpType.ZZPhase) > 0
-    else:
-        assert c0.n_gates_of_type(OpType.ZZMax) > 0
+    assert c0.n_gates_of_type(backend.default_two_qubit_gate) > 0
 
     n_shots = 4
     handle = backend.process_circuits([c0], n_shots)[0]
@@ -603,11 +603,7 @@ def test_zzphase_support_opti2(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 2)
 
-    # backend._gate_set requires API access.
-    if OpType.ZZPhase in backend._gate_set:
-        assert c0.n_gates_of_type(OpType.ZZPhase) == 1
-    else:
-        assert c0.n_gates_of_type(OpType.ZZMax) == 1
+    assert c0.n_gates_of_type(backend.default_two_qubit_gate) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -629,10 +625,13 @@ def test_prefer_zzphase(
         .measure_all()
     )
     c0 = backend.get_compiled_circuit(c)
-    if OpType.ZZPhase in backend._gate_set:
+    if backend.default_two_qubit_gate == OpType.ZZPhase:
         assert c0.n_gates_of_type(OpType.ZZPhase) == 2
-    else:
+    elif backend.default_two_qubit_gate == OpType.ZZMax:
         assert c0.n_gates_of_type(OpType.ZZMax) == 2
+    else:
+        assert backend.default_two_qubit_gate == OpType.TK2
+        assert c0.n_gates_of_type(OpType.TK2) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -750,6 +749,24 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     b = authenticated_quum_backend
     c = b.get_compiled_circuit(c0, 0)
     h = b.process_circuits([c], n_shots=1, no_opt=True)
+    r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> None:
+    c0 = Circuit(2).H(0).CX(0, 1).measure_all()
+    b = authenticated_quum_backend
+    b.set_compilation_config_target_2qb_gate(OpType.ZZMax)
+    c = b.get_compiled_circuit(c0, 0)
+    h = b.process_circuits([c], n_shots=1, allow_2q_gate_rebase=True)
     r = b.get_results(h)[0]
     shots = r.get_shots()
     assert len(shots) == 1
