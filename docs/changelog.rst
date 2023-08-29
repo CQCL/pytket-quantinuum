@@ -16,11 +16,6 @@ Unreleased
   modified using the methods
   ``QuantinuumBackend.set_compilation_config_allow_implicit_swaps()`` and
   ``QuantinuumBackend.set_compilation_config_target_2qb_gate()``.
-* Add new methods ``QuantinuumBackend.default_compilation_pass_with_options``,
-  ``QuantinuumBackend.get_compiled_circuit_with_options`` and
-  ``QuantinuumBackend.get_compiled_circuits_with_options`` which take kwarg
-  options that affect resulting compilation, currently supporting the 
-  use of implicit wire swaps and of targeting a specific two-qubit gate.
 * Add optional argument ``allow_2q_gate_rebase`` argument to
   ``process_circuit()``, ``process_circuits()`` and ``submit_program()`` to
   allow the backend to rebase to rebase the circuit to a different two-qubit
