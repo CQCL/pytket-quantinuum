@@ -770,7 +770,7 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
     r = b.get_results(h)[0]
     shots = r.get_shots()
     assert len(shots) == 1
-    assert len(shots[0]) == 1
+    assert len(shots[0]) == 2
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
