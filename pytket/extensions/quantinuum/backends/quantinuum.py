@@ -587,6 +587,8 @@ class QuantinuumBackend(Backend):
         if s == "":
             return None
         bits = json.loads(s)
+        if bits is None:
+            return None
         assert all(isinstance(name, str) and isinstance(idx, int) for name, idx in bits)
         return bits
 
