@@ -121,6 +121,11 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     return gs
 
 
+def _is_scratch(bit: Bit) -> bool:
+    reg_name = bit.reg_name
+    return bool(reg_name == _TEMP_BIT_NAME) or reg_name.startswith(f"{_TEMP_BIT_NAME}_")
+
+
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
     """Given a max scratch register width, return a compiler pass that
     breaks up the internal scratch bit registers into smaller registers
@@ -128,14 +133,7 @@ def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
 
     def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
         # Find all scratch bits
-        scratch_bits = [
-            bit
-            for bit in circ.bits
-            if (
-                bit.reg_name == _TEMP_BIT_NAME
-                or bit.reg_name.startswith(f"{_TEMP_BIT_NAME}_")
-            )
-        ]
+        scratch_bits = list(filter(_is_scratch, circ.bits))
         # If the total number of scratch bits exceeds the max width, rename them
         if len(scratch_bits) > max_size:
             bits_map = {}
