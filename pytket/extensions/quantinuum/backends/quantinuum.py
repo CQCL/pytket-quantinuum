@@ -795,7 +795,9 @@ class QuantinuumBackend(Backend):
             else:
                 c0, ppcirc_rep = circ, None
             results_selection = []
-            for name, count in Counter(bit.reg_name for bit in c0.bits).items():
+            for name, count in Counter(
+                bit.reg_name for bit in c0.bits if not _is_scratch(bit)
+            ).items():
                 for i in range(count):
                     results_selection.append((name, i))
             if language == Language.QASM:
