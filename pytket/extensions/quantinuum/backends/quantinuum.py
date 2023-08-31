@@ -128,7 +128,8 @@ def _is_scratch(bit: Bit) -> bool:
 
 
 def _is_unused_scratch(bit: Bit, qasm: str) -> bool:
-    # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/pytket/pytket/qasm/qasm.py#L966
+    # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
+    # pytket/pytket/qasm/qasm.py#L966
     if not _is_scratch(bit):
         return False
     reg_name = re.escape(bit.reg_name)
