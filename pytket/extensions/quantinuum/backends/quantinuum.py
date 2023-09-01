@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from enum import Enum
 import json
 from http import HTTPStatus
+import re
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 import warnings
 
@@ -121,6 +122,25 @@ def _get_gateset(gates: List[str]) -> Set[OpType]:
     return gs
 
 
+def _is_scratch(bit: Bit) -> bool:
+    reg_name = bit.reg_name
+    return bool(reg_name == _TEMP_BIT_NAME) or reg_name.startswith(f"{_TEMP_BIT_NAME}_")
+
+
+def _is_unused_scratch(bit: Bit, qasm: str) -> bool:
+    # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
+    # pytket/pytket/qasm/qasm.py#L966
+    if not _is_scratch(bit):
+        return False
+    reg_name = re.escape(bit.reg_name)
+    def_matcher = re.compile(r"creg ({})\[\d+\]".format(reg_name))
+    arg_matcher = re.compile(r"({})\[\d+\]".format(reg_name))
+    return not any(
+        def_matcher.match(line) or arg_matcher.findall(line)
+        for line in qasm.split("\n")
+    )
+
+
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
     """Given a max scratch register width, return a compiler pass that
     breaks up the internal scratch bit registers into smaller registers
@@ -128,14 +148,7 @@ def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
 
     def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
         # Find all scratch bits
-        scratch_bits = [
-            bit
-            for bit in circ.bits
-            if (
-                bit.reg_name == _TEMP_BIT_NAME
-                or bit.reg_name.startswith(f"{_TEMP_BIT_NAME}_")
-            )
-        ]
+        scratch_bits = list(filter(_is_scratch, circ.bits))
         # If the total number of scratch bits exceeds the max width, rename them
         if len(scratch_bits) > max_size:
             bits_map = {}
@@ -797,16 +810,23 @@ class QuantinuumBackend(Backend):
             else:
                 c0, ppcirc_rep = circ, None
             results_selection = []
-            for name, count in Counter(bit.reg_name for bit in c0.bits).items():
-                for i in range(count):
-                    results_selection.append((name, i))
             if language == Language.QASM:
                 quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+                for name, count in Counter(
+                    bit.reg_name
+                    for bit in c0.bits
+                    if not _is_unused_scratch(bit, quantinuum_circ)
+                ).items():
+                    for i in range(count):
+                        results_selection.append((name, i))
             else:
                 assert language == Language.QIR
                 warnings.warn(
                     "Support for Language.QIR is experimental; this may fail!"
                 )
+                for name, count in Counter(bit.reg_name for bit in c0.bits).items():
+                    for i in range(count):
+                        results_selection.append((name, i))
                 try:
                     pytket_qir_version_components = list(
                         map(int, pytket_qir_version.split(".")[:2])

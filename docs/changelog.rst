@@ -24,6 +24,7 @@ Unreleased
 * Fix handling of multiple classical registers when submitting QIR.
 * Change ``ResultHandle`` format. (Old ``ResultHandle`` objects will continue to
   work after upgrading.)
+* Fix: Ignore erased scratch bits when constructing ``ResultHandle``.
 
 0.20.0 (August 2023)
 --------------------

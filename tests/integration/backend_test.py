@@ -882,3 +882,39 @@ def test_old_handle(
     h1 = h0[:2]
     r1 = b1.get_result(h1)  # type: ignore
     assert (r0.get_shots() == r1.get_shots()).all()
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/213
+    c = Circuit()
+    qb0 = c.add_q_register("qb0", 3)
+    qb1 = c.add_q_register("qb1", 1)
+    cb0 = c.add_c_register("cb0", 2)
+    cb1 = c.add_c_register("cb1", 3)
+
+    c.add_gate(OpType.Reset, qb1)
+    c.CX(qb0[0], qb1[0])
+    c.CX(qb0[1], qb1[0])
+    c.Measure(qb1[0], cb0[0])
+    c.add_gate(OpType.Reset, qb1)
+    c.CX(qb0[1], qb1[0])
+    c.CX(qb0[2], qb1[0])
+    c.Measure(qb1[0], cb0[1])
+    c.X(qb0[0], condition=reg_eq(cb0, 1))
+    c.X(qb0[2], condition=reg_eq(cb0, 2))
+    c.X(qb0[1], condition=reg_eq(cb0, 3))
+    c.Measure(qb0[0], cb1[0])
+    c.Measure(qb0[1], cb1[1])
+    c.Measure(qb0[2], cb1[2])
+
+    b = authenticated_quum_backend
+    c1 = b.get_compiled_circuit(c, optimisation_level=1)
+    h = b.process_circuit(c1, n_shots=3)
+    r = b.get_result(h)
+    shots = r.get_shots()
+    assert len(shots) == 3
+    assert all(len(shot) == 5 for shot in shots)
