@@ -132,18 +132,15 @@ def _is_scratch(bit: Bit) -> bool:
     return bool(reg_name == _TEMP_BIT_NAME) or reg_name.startswith(f"{_TEMP_BIT_NAME}_")
 
 
-def _is_unused_scratch(bit: Bit, qasm: str) -> bool:
+def _used_scratch_registers(qasm: str) -> Set[str]:
     # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
     # pytket/pytket/qasm/qasm.py#L966
-    if not _is_scratch(bit):
-        return False
-    reg_name = re.escape(bit.reg_name)
-    def_matcher = re.compile(r"creg ({})\[\d+\]".format(reg_name))
-    arg_matcher = re.compile(r"({})\[\d+\]".format(reg_name))
-    return not any(
-        def_matcher.match(line) or arg_matcher.findall(line)
-        for line in qasm.split("\n")
-    )
+    def_matcher = re.compile(r"creg ({}\_*\d*)\[\d+\]".format(_TEMP_BIT_NAME))
+    regs = set()
+    for line in qasm.split("\n"):
+        if reg := def_matcher.match(line):
+            regs.add(reg.group(1))
+    return regs
 
 
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
@@ -817,10 +814,11 @@ class QuantinuumBackend(Backend):
             results_selection = []
             if language == Language.QASM:
                 quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+                used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                 for name, count in Counter(
                     bit.reg_name
                     for bit in c0.bits
-                    if not _is_unused_scratch(bit, quantinuum_circ)
+                    if not _is_scratch(bit) or bit.reg_name in used_scratch_regs
                 ).items():
                     for i in range(count):
                         results_selection.append((name, i))
