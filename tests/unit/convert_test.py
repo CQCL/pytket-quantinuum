@@ -15,7 +15,13 @@
 import pytest
 
 from pytket.circuit import Circuit, OpType, Qubit, reg_eq  # type: ignore
-from pytket._tket.circuit import _TEMP_BIT_NAME, _TEMP_BIT_REG_BASE  # type: ignore
+
+try:
+    from pytket.unit_id import _TEMP_BIT_NAME, _TEMP_BIT_REG_BASE  # type: ignore
+except (ModuleNotFoundError, ImportError):
+    # pytket <= 1.18
+    from pytket._tket.circuit import _TEMP_BIT_NAME, _TEMP_BIT_REG_BASE  # type: ignore
+
 from pytket.backends.backendinfo import BackendInfo
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIError
