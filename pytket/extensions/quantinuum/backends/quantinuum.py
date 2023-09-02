@@ -15,10 +15,12 @@
 
 from ast import literal_eval
 from base64 import b64encode
+from collections import Counter
 from dataclasses import dataclass
 from enum import Enum
 import json
 from http import HTTPStatus
+import re
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 import warnings
 
@@ -33,7 +35,12 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
-from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
+
+try:
+    from pytket.unit_id import _TEMP_BIT_NAME  # type: ignore
+except (ModuleNotFoundError, ImportError):
+    # pytket <= 1.18
+    from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 
 try:
@@ -92,6 +99,7 @@ _GATE_SET = {
     OpType.Rz,
     OpType.PhasedX,
     OpType.ZZMax,
+    OpType.ZZPhase,
     OpType.Reset,
     OpType.Measure,
     OpType.Barrier,
@@ -106,13 +114,33 @@ _GATE_SET = {
 }
 
 
+def _default_2q_gate(device_name: str) -> OpType:
+    # If we change this, we should update the main documentation page and highlight it
+    # in the changelog.
+    return OpType.ZZPhase
+
+
 def _get_gateset(gates: List[str]) -> Set[OpType]:
     gs = _GATE_SET.copy()
-    if "RZZ" in gates:
-        gs.add(OpType.ZZPhase)
     if "Rxxyyzz" in gates:
         gs.add(OpType.TK2)
     return gs
+
+
+def _is_scratch(bit: Bit) -> bool:
+    reg_name = bit.reg_name
+    return bool(reg_name == _TEMP_BIT_NAME) or reg_name.startswith(f"{_TEMP_BIT_NAME}_")
+
+
+def _used_scratch_registers(qasm: str) -> Set[str]:
+    # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
+    # pytket/pytket/qasm/qasm.py#L966
+    def_matcher = re.compile(r"creg ({}\_*\d*)\[\d+\]".format(_TEMP_BIT_NAME))
+    regs = set()
+    for line in qasm.split("\n"):
+        if reg := def_matcher.match(line):
+            regs.add(reg.group(1))
+    return regs
 
 
 def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
@@ -122,14 +150,7 @@ def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
 
     def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
         # Find all scratch bits
-        scratch_bits = [
-            bit
-            for bit in circ.bits
-            if (
-                bit.reg_name == _TEMP_BIT_NAME
-                or bit.reg_name.startswith(f"{_TEMP_BIT_NAME}_")
-            )
-        ]
+        scratch_bits = list(filter(_is_scratch, circ.bits))
         # If the total number of scratch bits exceeds the max width, rename them
         if len(scratch_bits) > max_size:
             bits_map = {}
@@ -183,7 +204,19 @@ DEFAULT_CREDENTIALS_STORAGE = MemoryCredentialStorage()
 # without requiring them to acquire new tokens.
 DEFAULT_API_HANDLER = QuantinuumAPI(DEFAULT_CREDENTIALS_STORAGE)
 
-QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any]]
+QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any], OpType, bool]
+
+
+@dataclass
+class QuantinuumBackendCompilationConfig:
+    """
+    Options to configure default compilation and rebase passes.
+    """
+
+    allow_implicit_swaps: bool = True  # Allow use of implicit swaps when rebasing.
+    target_2qb_gate: Optional[
+        OpType
+    ] = None  # Choice of two-qubit gate. The default is to use the device's default.
 
 
 class QuantinuumBackend(Backend):
@@ -207,6 +240,7 @@ class QuantinuumBackend(Backend):
         provider: Optional[str] = None,
         machine_debug: bool = False,
         api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
+        compilation_config: Optional[QuantinuumBackendCompilationConfig] = None,
         **kwargs: QuumKwargTypes,
     ):
         """Construct a new Quantinuum backend.
@@ -226,6 +260,8 @@ class QuantinuumBackend(Backend):
         :type simulator: str, optional
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :type api_handler: QuantinuumAPI
+        :param compilation_config: Optional compilation configuration
+        :type compilation_config: QuantinuumBackendCompilationConfig
 
         Supported kwargs:
 
@@ -248,6 +284,33 @@ class QuantinuumBackend(Backend):
         self.api_handler.provider = provider
 
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
+
+        self._default_2q_gate = _default_2q_gate(device_name)
+        if compilation_config is None:
+            self.compilation_config = QuantinuumBackendCompilationConfig(
+                allow_implicit_swaps=True, target_2qb_gate=self._default_2q_gate
+            )
+        else:
+            self.compilation_config = compilation_config
+
+    def get_compilation_config(self) -> QuantinuumBackendCompilationConfig:
+        """Get the current compilation configuration."""
+        return self.compilation_config
+
+    def set_compilation_config_allow_implicit_swaps(
+        self, allow_implicit_swaps: bool
+    ) -> None:
+        """Set the option to allow or disallow implicit swaps during compilation."""
+        self.compilation_config.allow_implicit_swaps = allow_implicit_swaps
+
+    def set_compilation_config_target_2qb_gate(self, target_2qb_gate: OpType) -> None:
+        """Set the target two-qubit gate for compilation."""
+        if target_2qb_gate not in self.two_qubit_gate_set:
+            raise QuantinuumAPIError(
+                "Requested target_2qb_gate is not supported by the given Device. "
+                "The supported gateset is: " + str(self.two_qubit_gate_set)
+            )
+        self.compilation_config.target_2qb_gate = target_2qb_gate
 
     @classmethod
     def _available_devices(
@@ -372,29 +435,45 @@ class QuantinuumBackend(Backend):
 
         return preds
 
-    def rebase_pass(self, implicit_swaps: bool = False) -> BasePass:
+    @property
+    def default_two_qubit_gate(self) -> OpType:
+        """Returns the default two-qubit gate for the device."""
+        return self._default_2q_gate
+
+    @property
+    def two_qubit_gate_set(self) -> Set[OpType]:
+        """Returns the set of supported two-qubit gates.
+
+        Submitted circuits must contain only one of these.
         """
-        :param implicit_swaps: If true, allows rebasing of Circuit via TK2 gates
-            to use implicit wire swaps in circuit construction if it reduces
-            the total 2qb qate count.
-        :type implicit_swaps: bool
+        return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])
+
+    def rebase_pass(self) -> BasePass:
+        """
+        Supported kwargs:
+        * `implicit_swaps`: Boolean flag, which if true, returns
+            rebasing pass that allows implicit wire swaps.
+            Default False.
+        * `target_2qb_gate`: pytket OpType, if provided, will
+            return a rebasing pass that only allows given
+            two-qubit gate type. By default, the rebase will target the default
+            two-qubit gate for the device.
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
-        return auto_rebase_pass(self._gate_set, implicit_swaps)
+        assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
+        return auto_rebase_pass(
+            (self._gate_set - self.two_qubit_gate_set)
+            | {self.compilation_config.target_2qb_gate},
+            allow_swaps=self.compilation_config.allow_implicit_swaps,
+        )
 
-    def default_compilation_pass(
-        self, optimisation_level: int = 2, implicit_swaps: bool = True
-    ) -> BasePass:
+    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
         """
         :param optimisation_level: Allows values of 0,1 or 2, with higher values
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
         :type optimisation_level: int
-        :param implicit_swaps: If true, allows rebasing of Circuit via TK2 gates
-            to use implicit wire swaps in circuit construction if it reduces
-            the total 2qb qate count.
-        :type implicit_swaps: bool
         :return: Compilation pass for compiling circuits to Quantinuum devices
         :rtype: BasePass
         """
@@ -404,31 +483,26 @@ class QuantinuumBackend(Backend):
             scratch_reg_resize_pass(),
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
-
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
         # If ZZPhase is available we should prefer it to ZZMax.
         if OpType.ZZPhase in self._gate_set:
             fidelities["ZZPhase_fidelity"] = lambda x: 1.0
-        elif OpType.ZZMax in self._gate_set:
-            fidelities["ZZMax_fidelity"] = 1.0
         else:
-            raise QuantinuumAPIError(
-                "Either ZZMax or ZZPhase gate must be supported by device"
-            )
+            fidelities["ZZMax_fidelity"] = 1.0
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
         # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass(implicit_swaps=implicit_swaps))
+            passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
             passlist.extend(
                 [
                     SynthesiseTK(),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(implicit_swaps=implicit_swaps),
+                    self.rebase_pass(),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -443,7 +517,7 @@ class QuantinuumBackend(Backend):
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
                     DecomposeTK2(**fidelities),
-                    self.rebase_pass(implicit_swaps=implicit_swaps),
+                    self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
                     SimplifyInitial(
@@ -471,7 +545,17 @@ class QuantinuumBackend(Backend):
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
-        return tuple((str, str, int))
+        return tuple((str, str, int, str))
+
+    @staticmethod
+    def _update_result_handle(handle: ResultHandle) -> ResultHandle:
+        """Update a legacy handle to be compatible with current format."""
+        if len(handle) == 2:
+            return ResultHandle(handle[0], handle[1], -1, "")
+        elif len(handle) == 3:
+            return ResultHandle(handle[0], handle[1], handle[2], "")
+        else:
+            return handle
 
     @staticmethod
     def get_jobid(handle: ResultHandle) -> str:
@@ -508,6 +592,21 @@ class QuantinuumBackend(Backend):
             assert n >= 0
             return n
 
+    @staticmethod
+    def get_results_selection(handle: ResultHandle) -> Any:
+        """Return a list of pairs (register name, register index) representing the order
+        of the expected results in the response. If None, then all results in the
+        response are used, in lexicographic order.
+        """
+        s = cast(str, handle[3])
+        if s == "":
+            return None
+        bits = json.loads(s)
+        if bits is None:
+            return None
+        assert all(isinstance(name, str) and isinstance(idx, int) for name, idx in bits)
+        return bits
+
     def submit_program(
         self,
         language: Language,
@@ -519,9 +618,10 @@ class QuantinuumBackend(Backend):
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
         no_opt: bool = False,
+        allow_2q_gate_rebase: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
-        results_width: Optional[int] = None,
+        results_selection: Optional[List[Tuple[str, int]]] = None,
     ) -> ResultHandle:
         """Submit a program directly to the backend.
 
@@ -544,6 +644,9 @@ class QuantinuumBackend(Backend):
         :type wasm_file_handler: Optional[WasmFileHandler], optional
         :param no_opt: if true, requests that the backend perform no optimizations
         :type no_opt: bool, defaults to False
+        :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
+           a higher-fidelity alternative gate at the discretion of the backend
+        :type allow_2q_gate_rebase: bool, defaults to False
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :type pytket_pass: Optional[BasePass], optional
@@ -552,9 +655,10 @@ class QuantinuumBackend(Backend):
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
         :type request_options: Optional[Dict[str, Any]], optional
-        :param results_width: Number of bits to retain in returned results (if unset,
-            retain all)
-        :type results_width: Optional[int]
+        :param results_selection: Ordered list of register names and indices used to
+            construct final :py:class:`BackendResult`. If None, all all results are used
+            in lexicographic order.
+        :type results_selection: Optional[List[Tuple[str, int]]]
         :raises WasmUnsupported: WASM submitted to backend that does not support it.
         :raises QuantinuumAPIError: API error.
         :raises ConnectionError: Connection to remote API failed
@@ -572,6 +676,7 @@ class QuantinuumBackend(Backend):
             "options": {
                 "simulator": self.simulator_type,
                 "no-opt": no_opt,
+                "noreduce": not allow_2q_gate_rebase,
                 "error-model": noisy_simulation,
                 "tket": dict(),
             },
@@ -596,8 +701,6 @@ class QuantinuumBackend(Backend):
         # apply any overrides or extra options
         body.update(request_options or {})
 
-        n_bits: int = -1 if results_width is None else results_width
-
         try:
             res = self.api_handler._submit_job(body)
             if self.api_handler.online:
@@ -607,14 +710,24 @@ class QuantinuumBackend(Backend):
                         f'HTTP error submitting job, {jobdict["error"]}'
                     )
             else:
-                return ResultHandle(cast(str, ""), "null", n_bits)
+                return ResultHandle(
+                    "",
+                    "null",
+                    -1 if results_selection is None else len(results_selection),
+                    "" if results_selection is None else json.dumps(results_selection),
+                )
         except ConnectionError:
             raise ConnectionError(
                 f"{self._label} Connection Error: Error during submit..."
             )
 
         # extract job ID from response
-        return ResultHandle(cast(str, jobdict["job"]), "null", n_bits)
+        return ResultHandle(
+            cast(str, jobdict["job"]),
+            "null",
+            -1 if results_selection is None else len(results_selection),
+            json.dumps(results_selection),
+        )
 
     def process_circuits(
         self,
@@ -637,6 +750,8 @@ class QuantinuumBackend(Backend):
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
         * `no_opt`: if true, requests that the backend perform no optimizations
+        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
+           higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -679,6 +794,8 @@ class QuantinuumBackend(Backend):
 
         no_opt = cast(bool, kwargs.get("no_opt", False))
 
+        allow_2q_gate_rebase = cast(bool, kwargs.get("allow_2q_gate_rebase", False))
+
         language = cast(Language, kwargs.get("language", Language.QASM))
 
         handle_list = []
@@ -694,14 +811,25 @@ class QuantinuumBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circ, None
-            n_bits = c0.n_bits
+            results_selection = []
             if language == Language.QASM:
                 quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+                used_scratch_regs = _used_scratch_registers(quantinuum_circ)
+                for name, count in Counter(
+                    bit.reg_name
+                    for bit in c0.bits
+                    if not _is_scratch(bit) or bit.reg_name in used_scratch_regs
+                ).items():
+                    for i in range(count):
+                        results_selection.append((name, i))
             else:
                 assert language == Language.QIR
                 warnings.warn(
                     "Support for Language.QIR is experimental; this may fail!"
                 )
+                for name, count in Counter(bit.reg_name for bit in c0.bits).items():
+                    for i in range(count):
+                        results_selection.append((name, i))
                 try:
                     pytket_qir_version_components = list(
                         map(int, pytket_qir_version.split(".")[:2])
@@ -735,7 +863,8 @@ class QuantinuumBackend(Backend):
                     ResultHandle(
                         _DEBUG_HANDLE_PREFIX + str((circ.n_qubits, n_shots)),
                         json.dumps(ppcirc_rep),
-                        n_bits,
+                        len(results_selection),
+                        json.dumps(results_selection),
                     )
                 )
             else:
@@ -749,6 +878,7 @@ class QuantinuumBackend(Backend):
                     wasm_file_handler=wasm_fh,
                     pytket_pass=pytket_pass,
                     no_opt=no_opt,
+                    allow_2q_gate_rebase=allow_2q_gate_rebase,
                     options=cast(Dict[str, Any], kwargs.get("options", {})),
                     request_options=cast(
                         Dict[str, Any], kwargs.get("request_options", {})
@@ -756,7 +886,10 @@ class QuantinuumBackend(Backend):
                 )
 
                 handle = ResultHandle(
-                    self.get_jobid(handle), json.dumps(ppcirc_rep), n_bits
+                    self.get_jobid(handle),
+                    json.dumps(ppcirc_rep),
+                    len(results_selection),
+                    json.dumps(results_selection),
                 )
                 handle_list.append(handle)
                 self._cache[handle] = dict()
@@ -869,6 +1002,7 @@ class QuantinuumBackend(Backend):
     def circuit_status(
         self, handle: ResultHandle, **kwargs: KwargTypes
     ) -> CircuitStatus:
+        handle = self._update_result_handle(handle)
         self._check_handle_type(handle)
         jobid = self.get_jobid(handle)
         if self._MACHINE_DEBUG or jobid.startswith(_DEBUG_HANDLE_PREFIX):
@@ -892,11 +1026,15 @@ class QuantinuumBackend(Backend):
             if "results" in response:
                 ppcirc_rep = self.get_ppcirc_rep(handle)
                 n_bits = self.get_results_width(handle)
+                results_selection = self.get_results_selection(handle)
                 ppcirc = (
                     Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
                 )
                 self._update_cache_result(
-                    handle, _convert_result(response["results"], ppcirc, n_bits)
+                    handle,
+                    _convert_result(
+                        response["results"], ppcirc, n_bits, results_selection
+                    ),
                 )
         return circ_status
 
@@ -913,6 +1051,7 @@ class QuantinuumBackend(Backend):
             If no results are available, the first element is None.
         :rtype: Tuple[Optional[BackendResult], CircuitStatus]
         """
+        handle = self._update_result_handle(handle)
         job_id = self.get_jobid(handle)
         jr = self.api_handler.retrieve_job_status(job_id)
         if not jr:
@@ -924,7 +1063,8 @@ class QuantinuumBackend(Backend):
         ppcirc_rep = self.get_ppcirc_rep(handle)
         ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
         n_bits = self.get_results_width(handle)
-        backres = _convert_result(res, ppcirc, n_bits)
+        results_selection = self.get_results_selection(handle)
+        backres = _convert_result(res, ppcirc, n_bits, results_selection)
         return backres, circ_status
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
@@ -932,12 +1072,14 @@ class QuantinuumBackend(Backend):
         See :py:meth:`pytket.backends.Backend.get_result`.
         Supported kwargs: `timeout`, `wait`, `use_websocket`.
         """
+        handle = self._update_result_handle(handle)
         try:
             return super().get_result(handle)
         except CircuitNotRunError:
             jobid = self.get_jobid(handle)
             ppcirc_rep = self.get_ppcirc_rep(handle)
             n_bits = self.get_results_width(handle)
+            results_selection = self.get_results_selection(handle)
 
             ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
 
@@ -945,7 +1087,7 @@ class QuantinuumBackend(Backend):
                 debug_handle_info = jobid[len(_DEBUG_HANDLE_PREFIX) :]
                 n_qubits, shots = literal_eval(debug_handle_info)
                 return _convert_result(
-                    {"c": (["0" * n_qubits] * shots)}, ppcirc, n_bits
+                    {"c": (["0" * n_qubits] * shots)}, ppcirc, n_bits, results_selection
                 )
             # TODO exception handling when jobid not found on backend
             timeout = kwargs.get("timeout")
@@ -967,7 +1109,7 @@ class QuantinuumBackend(Backend):
             except KeyError:
                 raise GetResultFailed("Results missing in device return data.")
 
-            backres = _convert_result(res, ppcirc, n_bits)
+            backres = _convert_result(res, ppcirc, n_bits, results_selection)
             self._update_cache_result(handle, backres)
             return backres
 
@@ -1072,27 +1214,47 @@ def _convert_result(
     resultdict: Dict[str, List[str]],
     ppcirc: Optional[Circuit] = None,
     n_bits: Optional[int] = None,
+    results_selection: Optional[List[Tuple[str, int]]] = None,
 ) -> BackendResult:
-    array_dict = {
-        creg: np.array([list(a) for a in reslist]).astype(np.uint8)
-        for creg, reslist in resultdict.items()
-    }
-    reversed_creg_names = sorted(array_dict.keys(), reverse=True)
-    c_bits = [
-        Bit(name, ind)
-        for name in reversed_creg_names
-        for ind in range(array_dict[name].shape[-1] - 1, -1, -1)
-    ]
-    if n_bits is not None:
-        assert n_bits >= 0 and n_bits <= len(c_bits)
-        c_bits = c_bits[:n_bits]
-        for creg in array_dict.keys():
-            array_dict[creg] = array_dict[creg][:, :n_bits]
+    if results_selection is None:
+        array_dict = {
+            creg: np.array([list(a) for a in reslist]).astype(np.uint8)
+            for creg, reslist in resultdict.items()
+        }
+        reversed_creg_names = sorted(array_dict.keys(), reverse=True)
+        c_bits = [
+            Bit(name, ind)
+            for name in reversed_creg_names
+            for ind in range(array_dict[name].shape[-1] - 1, -1, -1)
+        ]
+        if n_bits is not None:
+            assert n_bits >= 0 and n_bits <= len(c_bits)
+            c_bits = c_bits[:n_bits]
+            for creg in array_dict.keys():
+                array_dict[creg] = array_dict[creg][:, :n_bits]
 
-    stacked_array = np.hstack([array_dict[name] for name in reversed_creg_names])
+        stacked_array = cast(
+            Sequence[Sequence[int]],
+            np.hstack([array_dict[name] for name in reversed_creg_names]),
+        )
+    else:
+        assert n_bits == len(results_selection)
+
+        # Figure out the number of shots and sanity-check the results list.
+        n_shots_per_reg = [len(reslist) for reslist in resultdict.values()]
+        n_shots = n_shots_per_reg[0] if n_shots_per_reg else 0
+        assert all(n == n_shots for n in n_shots_per_reg)
+
+        c_bits = [Bit(name, ind) for name, ind in results_selection]
+
+        # Construct the shots table
+        stacked_array = [
+            [int(resultdict[name][i][-1 - ind]) for name, ind in results_selection]
+            for i in range(n_shots)
+        ]
     return BackendResult(
         c_bits=c_bits,
-        shots=OutcomeArray.from_readouts(cast(Sequence[Sequence[int]], stacked_array)),
+        shots=OutcomeArray.from_readouts(stacked_array),
         ppcirc=ppcirc,
     )
 

@@ -511,6 +511,9 @@ def test_retrieve_available_devices(
         api_handler=authenticated_quum_handler
     )
     assert len(backend_infos) > 0
+    assert all(
+        OpType.ZZPhase in backend_info.gate_set for backend_info in backend_infos
+    )
 
 
 @pytest.mark.flaky(reruns=3, reruns_delay=10)
@@ -549,7 +552,7 @@ def test_submission_with_group(
     c.measure_all()
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots, group="DEFAULT").get_shots()  # type: ignore
+    shots = b.run_circuit(c, n_shots=n_shots, group="Default - UK").get_shots()  # type: ignore
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -570,10 +573,7 @@ def test_zzphase(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 0)
 
-    if OpType.ZZPhase in backend._gate_set:
-        assert c0.n_gates_of_type(OpType.ZZPhase) > 0
-    else:
-        assert c0.n_gates_of_type(OpType.ZZMax) > 0
+    assert c0.n_gates_of_type(backend.default_two_qubit_gate) > 0
 
     n_shots = 4
     handle = backend.process_circuits([c0], n_shots)[0]
@@ -603,11 +603,7 @@ def test_zzphase_support_opti2(
     c.measure_all()
     c0 = backend.get_compiled_circuit(c, 2)
 
-    # backend._gate_set requires API access.
-    if OpType.ZZPhase in backend._gate_set:
-        assert c0.n_gates_of_type(OpType.ZZPhase) == 1
-    else:
-        assert c0.n_gates_of_type(OpType.ZZMax) == 1
+    assert c0.n_gates_of_type(backend.default_two_qubit_gate) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -629,10 +625,13 @@ def test_prefer_zzphase(
         .measure_all()
     )
     c0 = backend.get_compiled_circuit(c)
-    if OpType.ZZPhase in backend._gate_set:
+    if backend.default_two_qubit_gate == OpType.ZZPhase:
         assert c0.n_gates_of_type(OpType.ZZPhase) == 2
-    else:
+    elif backend.default_two_qubit_gate == OpType.ZZMax:
         assert c0.n_gates_of_type(OpType.ZZMax) == 2
+    else:
+        assert backend.default_two_qubit_gate == OpType.TK2
+        assert c0.n_gates_of_type(OpType.TK2) == 1
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -758,6 +757,24 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> None:
+    c0 = Circuit(2).H(0).CX(0, 1).measure_all()
+    b = authenticated_quum_backend
+    b.set_compilation_config_target_2qb_gate(OpType.ZZMax)
+    c = b.get_compiled_circuit(c0, 0)
+    h = b.process_circuits([c], n_shots=1, allow_2q_gate_rebase=True)
+    r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 2
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
 def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
@@ -833,3 +850,71 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 10
     assert all(len(shot) == 2 for shot in shots)
+
+
+@pytest.mark.flaky(reruns=3, reruns_delay=10)
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+def test_old_handle(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/189
+    c = Circuit(2, 2, "test")
+    c.H(0)
+    c.CX(0, 1)
+    c.measure_all()
+    b0 = QuantinuumBackend(
+        "H1-1SC",
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
+            _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
+        ),
+    )
+    c = b0.get_compiled_circuit(c)
+    h0 = b0.process_circuit(c, n_shots=10)
+    r0 = b0.get_result(h0)
+    b1 = QuantinuumBackend(
+        "H1-1SC",
+        api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
+            _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
+        ),
+    )
+    h1 = h0[:2]
+    r1 = b1.get_result(h1)  # type: ignore
+    assert (r0.get_shots() == r1.get_shots()).all()
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+)
+def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/213
+    c = Circuit()
+    qb0 = c.add_q_register("qb0", 3)
+    qb1 = c.add_q_register("qb1", 1)
+    cb0 = c.add_c_register("cb0", 2)
+    cb1 = c.add_c_register("cb1", 3)
+
+    c.add_gate(OpType.Reset, qb1)
+    c.CX(qb0[0], qb1[0])
+    c.CX(qb0[1], qb1[0])
+    c.Measure(qb1[0], cb0[0])
+    c.add_gate(OpType.Reset, qb1)
+    c.CX(qb0[1], qb1[0])
+    c.CX(qb0[2], qb1[0])
+    c.Measure(qb1[0], cb0[1])
+    c.X(qb0[0], condition=reg_eq(cb0, 1))
+    c.X(qb0[2], condition=reg_eq(cb0, 2))
+    c.X(qb0[1], condition=reg_eq(cb0, 3))
+    c.Measure(qb0[0], cb1[0])
+    c.Measure(qb0[1], cb1[1])
+    c.Measure(qb0[2], cb1[2])
+
+    b = authenticated_quum_backend
+    c1 = b.get_compiled_circuit(c, optimisation_level=1)
+    h = b.process_circuit(c1, n_shots=3)
+    r = b.get_result(h)
+    shots = r.get_shots()
+    assert len(shots) == 3
+    assert all(len(shot) == 5 for shot in shots)
