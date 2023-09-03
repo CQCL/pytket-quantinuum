@@ -130,9 +130,9 @@ class QuantinuumAPI:
             self._cred_store = token_store
 
         if __user_name is not None:
-            self.config.username = __user_name
-        if self.config.username is not None and __pwd is not None:
-            self._cred_store._save_login_credential(self.config.username, __pwd)
+            self.config.username = __user_name  # type: ignore
+        if self.config.username is not None and __pwd is not None:  # type: ignore
+            self._cred_store._save_login_credential(self.config.username, __pwd)  # type: ignore
 
         self.api_version = api_version
         self.use_websocket = use_websocket
@@ -244,7 +244,7 @@ class QuantinuumAPI:
 
     def _get_credentials(self) -> Tuple[str, str]:
         """Method to ask for user's credentials"""
-        user_name = self._cred_store._user_name or self.config.username
+        user_name = self._cred_store._user_name or self.config.username  # type: ignore
         if not user_name:
             user_name = input("Enter your Quantinuum email: ")
         pwd = self._cred_store._password
