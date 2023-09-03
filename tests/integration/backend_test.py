@@ -345,17 +345,17 @@ def test_classical(
     d = c.add_c_register("d", 10)
 
     c.add_c_setbits([True], [a[0]])
-    c.add_c_setbits([False, True] + [False] * 6, list(a))
-    c.add_c_setbits([True, True] + [False] * 8, list(b))
+    c.add_c_setbits([False, True] + [False] * 6, a.to_list())
+    c.add_c_setbits([True, True] + [False] * 8, b.to_list())
 
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d)
-    c.add_classicalexpbox_register(a - b, d)
-    c.add_classicalexpbox_register(a * b // d, d)
-    c.add_classicalexpbox_register(a << 1, a)
-    c.add_classicalexpbox_register(a >> 1, b)
+    c.add_classicalexpbox_register(a + b, d.to_list())
+    c.add_classicalexpbox_register(a - b, d.to_list())
+    c.add_classicalexpbox_register(a * b // d, d.to_list())
+    c.add_classicalexpbox_register(a << 1, a.to_list())
+    c.add_classicalexpbox_register(a >> 1, b.to_list())
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.X(0, condition=(a[0] ^ b[0]))
@@ -371,10 +371,10 @@ def test_classical(
     c.X(0, condition=reg_leq(a, 1))
     c.Phase(0, condition=a[0])
 
-    b = authenticated_quum_backend
+    backend = authenticated_quum_backend
 
-    c = b.get_compiled_circuit(c)
-    assert b.run_circuit(c, n_shots=10).get_counts()
+    c = backend.get_compiled_circuit(c)
+    assert backend.run_circuit(c, n_shots=10).get_counts()
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -896,11 +896,11 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
     cb0 = c.add_c_register("cb0", 2)
     cb1 = c.add_c_register("cb1", 3)
 
-    c.add_gate(OpType.Reset, qb1)
+    c.add_gate(OpType.Reset, qb1)  # type:ignore
     c.CX(qb0[0], qb1[0])
     c.CX(qb0[1], qb1[0])
     c.Measure(qb1[0], cb0[0])
-    c.add_gate(OpType.Reset, qb1)
+    c.add_gate(OpType.Reset, qb1)  # type:ignore
     c.CX(qb0[1], qb1[0])
     c.CX(qb0[2], qb1[0])
     c.Measure(qb1[0], cb0[1])
