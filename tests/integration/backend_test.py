@@ -353,17 +353,17 @@ def test_classical(
     d = c.add_c_register("d", 10)
 
     c.add_c_setbits([True], [a[0]])
-    c.add_c_setbits([False, True] + [False] * 6, a.to_list())
-    c.add_c_setbits([True, True] + [False] * 8, b.to_list())
+    c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
+    c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
 
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d.to_list())
-    c.add_classicalexpbox_register(a - b, d.to_list())
-    c.add_classicalexpbox_register(a * b // d, d.to_list())
-    c.add_classicalexpbox_register(a << 1, a.to_list())
-    c.add_classicalexpbox_register(a >> 1, b.to_list())
+    c.add_classicalexpbox_register(a + b, d)  # type: ignore
+    c.add_classicalexpbox_register(a - b, d)  # type: ignore
+    c.add_classicalexpbox_register(a * b // d, d)  # type: ignore
+    c.add_classicalexpbox_register(a << 1, a)  # type: ignore
+    c.add_classicalexpbox_register(a >> 1, b)  # type: ignore
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.X(0, condition=(a[0] ^ b[0]))
