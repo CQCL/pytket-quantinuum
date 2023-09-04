@@ -1,5 +1,5 @@
 pytest
-pytest-timeout ~= 1.4.2
+pytest-timeout
 hypothesis
 requests_mock
 llvmlite ~= 0.40.0
