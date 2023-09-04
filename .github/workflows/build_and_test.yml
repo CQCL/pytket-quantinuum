@@ -38,7 +38,7 @@ jobs:
         os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: '0'
     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
@@ -175,7 +175,7 @@ jobs:
     needs: publish_to_pypi
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: '0'
     - name: Set up Python 3.10
