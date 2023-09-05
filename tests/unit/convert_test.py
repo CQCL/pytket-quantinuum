@@ -14,6 +14,7 @@
 
 import pytest
 
+from pytket.architecture import FullyConnected  # type: ignore
 from pytket.circuit import Circuit, OpType, Qubit, reg_eq  # type: ignore
 
 try:
@@ -245,7 +246,7 @@ def test_switch_target_2qb_gate() -> None:
         name="test",
         device_name="test",
         version="test",
-        architecture="test",
+        architecture=FullyConnected(1),
         gate_set={OpType.ZZPhase, OpType.ZZMax, OpType.PhasedX, OpType.Rz},
     )
     assert OpType.ZZMax in b._gate_set

@@ -143,7 +143,7 @@ def _used_scratch_registers(qasm: str) -> Set[str]:
     return regs
 
 
-def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
+def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> BasePass:
     """Given a max scratch register width, return a compiler pass that
     breaks up the internal scratch bit registers into smaller registers
     """
@@ -156,7 +156,7 @@ def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> CustomPass:
             bits_map = {}
             for i, bit in enumerate(scratch_bits):
                 bits_map[bit] = Bit(f"{_TEMP_BIT_NAME}_{i//max_size}", i % max_size)
-            circ.rename_units(bits_map)
+            circ.rename_units(bits_map)  # type: ignore
         return circ
 
     return CustomPass(trans, label="resize scratch bits")
@@ -431,7 +431,7 @@ class QuantinuumBackend(Backend):
         if not self._MACHINE_DEBUG:
             assert self.backend_info is not None
             preds.append(MaxNQubitsPredicate(self.backend_info.n_nodes))
-            preds.append(MaxNClRegPredicate(self.backend_info.n_cl_reg))
+            preds.append(MaxNClRegPredicate(cast(int, self.backend_info.n_cl_reg)))
 
         return preds
 

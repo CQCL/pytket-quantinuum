@@ -109,7 +109,7 @@ def test_tket_pass_submission() -> None:
     c.measure_all()
     c = backend.get_compiled_circuit(c)
     n_shots = 4
-    backend.process_circuits([c], n_shots, pytketpass=sequence_pass)
+    backend.process_circuits([c], n_shots, pytketpass=sequence_pass)  # type: ignore
 
 
 @given(

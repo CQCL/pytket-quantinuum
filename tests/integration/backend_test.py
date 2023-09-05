@@ -70,6 +70,7 @@ REASON = (
 
 
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
+@pytest.mark.timeout(120)
 def test_quantinuum(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -111,6 +112,7 @@ def test_quantinuum(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_max_classical_register(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -138,6 +140,7 @@ def test_max_classical_register(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_bell(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -158,6 +161,7 @@ def test_bell(
     [{"device_name": "H1-1SC", "label": "test 3"}],
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_multireg(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -188,6 +192,7 @@ def test_multireg(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_default_pass(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -232,6 +237,7 @@ def test_default_pass(
     ],
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_cancel(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -305,6 +311,7 @@ def circuits(
     deadline=None,
     suppress_health_check=[HealthCheck.function_scoped_fixture],
 )
+@pytest.mark.timeout(120)
 def test_cost_estimate(
     authenticated_quum_backend: QuantinuumBackend,
     c: Circuit,
@@ -335,6 +342,7 @@ def test_cost_estimate(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_classical(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -345,17 +353,17 @@ def test_classical(
     d = c.add_c_register("d", 10)
 
     c.add_c_setbits([True], [a[0]])
-    c.add_c_setbits([False, True] + [False] * 6, list(a))
-    c.add_c_setbits([True, True] + [False] * 8, list(b))
+    c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
+    c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
 
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d)
-    c.add_classicalexpbox_register(a - b, d)
-    c.add_classicalexpbox_register(a * b // d, d)
-    c.add_classicalexpbox_register(a << 1, a)
-    c.add_classicalexpbox_register(a >> 1, b)
+    c.add_classicalexpbox_register(a + b, d)  # type: ignore
+    c.add_classicalexpbox_register(a - b, d)  # type: ignore
+    c.add_classicalexpbox_register(a * b // d, d)  # type: ignore
+    c.add_classicalexpbox_register(a << 1, a)  # type: ignore
+    c.add_classicalexpbox_register(a >> 1, b)  # type: ignore
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.X(0, condition=(a[0] ^ b[0]))
@@ -371,10 +379,10 @@ def test_classical(
     c.X(0, condition=reg_leq(a, 1))
     c.Phase(0, condition=a[0])
 
-    b = authenticated_quum_backend
+    backend = authenticated_quum_backend
 
-    c = b.get_compiled_circuit(c)
-    assert b.run_circuit(c, n_shots=10).get_counts()
+    c = backend.get_compiled_circuit(c)
+    assert backend.run_circuit(c, n_shots=10).get_counts()
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -383,6 +391,7 @@ def test_classical(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_postprocess(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -410,6 +419,7 @@ def test_postprocess(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_leakage_detection(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -428,6 +438,7 @@ def test_leakage_detection(
     n_shots=st.integers(min_value=1, max_value=10),  # type: ignore
     n_bits=st.integers(min_value=0, max_value=10),  # type: ignore
 )
+@pytest.mark.timeout(120)
 def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
@@ -451,12 +462,12 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     assert res.get_counts() == correct_counts
 
 
-@pytest.mark.skip("Will be moved to a set of long running integration tests")
 @pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
     authenticated_quum_backend: QuantinuumBackend,
@@ -501,6 +512,7 @@ def test_simulator(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
 def test_retrieve_available_devices(
     authenticated_quum_backend: QuantinuumBackend,
     authenticated_quum_handler: QuantinuumAPI,
@@ -521,6 +533,7 @@ def test_retrieve_available_devices(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_batching(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -542,6 +555,7 @@ def test_batching(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_submission_with_group(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -560,6 +574,7 @@ def test_submission_with_group(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_zzphase(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -591,6 +606,7 @@ def test_zzphase(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
 def test_zzphase_support_opti2(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -607,6 +623,7 @@ def test_zzphase_support_opti2(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
 def test_prefer_zzphase(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -636,6 +653,7 @@ def test_prefer_zzphase(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
+@pytest.mark.timeout(120)
 def test_device_state(
     device_name: str, authenticated_quum_handler: QuantinuumAPI
 ) -> None:
@@ -651,6 +669,7 @@ def test_device_state(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_wasm(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -671,6 +690,7 @@ def test_wasm(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_wasm_costs(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -696,6 +716,7 @@ def test_wasm_costs(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_submit_qasm(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -726,6 +747,7 @@ def test_submit_qasm(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
     # Unrecognized options are ignored
     c0 = Circuit(1).H(0).measure_all()
@@ -744,6 +766,7 @@ def test_options(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(1).H(0).measure_all()
     b = authenticated_quum_backend
@@ -761,6 +784,7 @@ def test_no_opt(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
+@pytest.mark.timeout(120)
 def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     b = authenticated_quum_backend
@@ -777,6 +801,7 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_qir_submission(authenticated_quum_backend: QuantinuumBackend) -> None:
     # disable Garbage Collector because of
     # https://github.com/CQCL/pytket-quantinuum/issues/170
@@ -841,6 +866,7 @@ attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "require
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     b = authenticated_quum_backend
@@ -854,6 +880,7 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
 
 @pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
 def test_old_handle(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
@@ -888,6 +915,7 @@ def test_old_handle(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
+@pytest.mark.timeout(120)
 def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
     # https://github.com/CQCL/pytket-quantinuum/issues/213
     c = Circuit()
@@ -896,11 +924,11 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
     cb0 = c.add_c_register("cb0", 2)
     cb1 = c.add_c_register("cb1", 3)
 
-    c.add_gate(OpType.Reset, qb1)
+    c.add_gate(OpType.Reset, qb1)  # type:ignore
     c.CX(qb0[0], qb1[0])
     c.CX(qb0[1], qb1[0])
     c.Measure(qb1[0], cb0[0])
-    c.add_gate(OpType.Reset, qb1)
+    c.add_gate(OpType.Reset, qb1)  # type:ignore
     c.CX(qb0[1], qb1[0])
     c.CX(qb0[2], qb1[0])
     c.Measure(qb1[0], cb0[1])
