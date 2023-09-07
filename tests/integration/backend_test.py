@@ -949,6 +949,7 @@ def test_old_handle(
     b0 = QuantinuumBackend(
         "H1-1SC",
         api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
             _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
             _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
         ),
@@ -959,6 +960,7 @@ def test_old_handle(
     b1 = QuantinuumBackend(
         "H1-1SC",
         api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
             _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
             _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
         ),
