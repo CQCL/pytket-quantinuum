@@ -21,6 +21,7 @@ from .backends import (
     QuantinuumBackend,
     QuantinuumAPI,
     QuantinuumAPIOffline,
+    QuantinuumBackendCompilationConfig,
     Language,
     prune_shots_detected_as_leaky,
 )
