@@ -211,12 +211,15 @@ QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any], OpType, bool
 class QuantinuumBackendCompilationConfig:
     """
     Options to configure default compilation and rebase passes.
+
+    * ``allow_implicit_swaps``: Whether to allow use of implicit swaps when rebasing.
+      The default is to allow implicit swaps.
+    * ``target_2qb_gate``: Choice of two-qubit gate. The default is to use the device's
+      default.
     """
 
-    allow_implicit_swaps: bool = True  # Allow use of implicit swaps when rebasing.
-    target_2qb_gate: Optional[
-        OpType
-    ] = None  # Choice of two-qubit gate. The default is to use the device's default.
+    allow_implicit_swaps: bool = True
+    target_2qb_gate: Optional[OpType] = None
 
 
 class QuantinuumBackend(Backend):
@@ -451,13 +454,13 @@ class QuantinuumBackend(Backend):
     def rebase_pass(self) -> BasePass:
         """
         Supported kwargs:
-        * `implicit_swaps`: Boolean flag, which if true, returns
-            rebasing pass that allows implicit wire swaps.
-            Default False.
-        * `target_2qb_gate`: pytket OpType, if provided, will
-            return a rebasing pass that only allows given
-            two-qubit gate type. By default, the rebase will target the default
-            two-qubit gate for the device.
+
+        * `implicit_swaps`: Boolean flag, which if true, returns rebasing pass that
+          allows implicit wire swaps. Default False.
+        * `target_2qb_gate`: pytket OpType, if provided, will return a rebasing pass
+          that only allows given two-qubit gate type. By default, the rebase will target
+          the default two-qubit gate for the device.
+
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
