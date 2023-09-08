@@ -211,12 +211,15 @@ QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any], OpType, bool
 class QuantinuumBackendCompilationConfig:
     """
     Options to configure default compilation and rebase passes.
+
+    * ``allow_implicit_swaps``: Whether to allow use of implicit swaps when rebasing.
+      The default is to allow implicit swaps.
+    * ``target_2qb_gate``: Choice of two-qubit gate. The default is to use the device's
+      default.
     """
 
-    allow_implicit_swaps: bool = True  # Allow use of implicit swaps when rebasing.
-    target_2qb_gate: Optional[
-        OpType
-    ] = None  # Choice of two-qubit gate. The default is to use the device's default.
+    allow_implicit_swaps: bool = True
+    target_2qb_gate: Optional[OpType] = None
 
 
 class QuantinuumBackend(Backend):
