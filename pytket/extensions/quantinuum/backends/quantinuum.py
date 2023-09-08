@@ -451,13 +451,13 @@ class QuantinuumBackend(Backend):
     def rebase_pass(self) -> BasePass:
         """
         Supported kwargs:
-        * `implicit_swaps`: Boolean flag, which if true, returns
-            rebasing pass that allows implicit wire swaps.
-            Default False.
-        * `target_2qb_gate`: pytket OpType, if provided, will
-            return a rebasing pass that only allows given
-            two-qubit gate type. By default, the rebase will target the default
-            two-qubit gate for the device.
+
+        * `implicit_swaps`: Boolean flag, which if true, returns rebasing pass that
+          allows implicit wire swaps. Default False.
+        * `target_2qb_gate`: pytket OpType, if provided, will return a rebasing pass
+          that only allows given two-qubit gate type. By default, the rebase will target
+          the default two-qubit gate for the device.
+
         :return: Compilation pass for rebasing circuits
         :rtype: BasePass
         """
