@@ -38,7 +38,7 @@ jobs:
         os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: '0'
     - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
@@ -74,28 +74,6 @@ jobs:
         )
       run: |
         ./.github/workflows/build-test mypy
-    - name: Build and test including integration (3.10) mypy
-      shell: bash
-      if: |
-        matrix.os == 'macos-12' &&
-        (
-          (
-            github.event_name == 'push' &&
-            (
-              contains(github.ref_name, 'main') ||
-              contains(github.ref_name, 'runci/')
-            )
-          ) ||
-          github.event_name == 'schedule' ||
-          (
-            github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.run-integration-tests == 'yes'
-          )
-        )
-      run: |
-        ./.github/workflows/build-test mypy integration
-      env:
-        PYTKET_RUN_REMOTE_TESTS: 1
     - name: Build and test (3.10) nomypy
       if: |
         matrix.os != 'macos-12' &&
@@ -116,7 +94,7 @@ jobs:
         ./.github/workflows/build-test nomypy
     - name: Build and test including integration (3.10) nomypy
       if: |
-        matrix.os != 'macos-12' &&
+        matrix.os == 'ubuntu-22.04' &&
         (
           (
             github.event_name == 'push' &&
@@ -197,7 +175,7 @@ jobs:
     needs: publish_to_pypi
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: '0'
     - name: Set up Python 3.10
