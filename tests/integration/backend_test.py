@@ -702,7 +702,7 @@ def test_device_state(
     "language",
     [
         Language.QASM,
-        # Language.QIR, # FIXME needs WASM support
+        Language.QIR,
     ],
 )
 @pytest.mark.timeout(120)
