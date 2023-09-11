@@ -401,8 +401,8 @@ def test_classical(
 
     backend = authenticated_quum_backend
 
-    c = b.get_compiled_circuit(c)
-    assert b.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+    c = backend.get_compiled_circuit(c)
+    assert backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
