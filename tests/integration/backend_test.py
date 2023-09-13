@@ -702,7 +702,8 @@ def test_device_state(
     "language",
     [
         Language.QASM,
-        Language.QIR,
+        # Language.QIR, # FIXME needs WASM support, see
+        # https://github.com/CQCL/pytket-quantinuum/issues/232
     ],
 )
 @pytest.mark.timeout(120)
