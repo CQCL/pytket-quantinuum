@@ -376,14 +376,14 @@ def test_classical(
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d)
-    c.add_classicalexpbox_register(a - b, d)
+    c.add_classicalexpbox_register(a + b, d.to_list())
+    c.add_classicalexpbox_register(a - b, d.to_list())
 
     if language == Language.QASM:  # remove this when division supported in QIR
-        c.add_classicalexpbox_register(a * b // d, d)
+        c.add_classicalexpbox_register(a * b // d, d.to_list())
 
-    c.add_classicalexpbox_register(a << 1, a)
-    c.add_classicalexpbox_register(a >> 1, b)
+    c.add_classicalexpbox_register(a << 1, a.to_list())
+    c.add_classicalexpbox_register(a >> 1, b.to_list())
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.X(0, condition=(a[0] ^ b[0]))
