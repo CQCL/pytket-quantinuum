@@ -834,10 +834,10 @@ class QuantinuumBackend(Backend):
                     )
                     if (
                         pytket_qir_version_components[0] == 0
-                        and pytket_qir_version_components[1] < 2
+                        and pytket_qir_version_components[1] < 3
                     ):
                         raise RuntimeError(
-                            "Please install `pytket-qir` version 0.2 or above."
+                            "Please install `pytket-qir` version 0.3 or above."
                         )
                     quantinuum_circ = b64encode(
                         cast(
