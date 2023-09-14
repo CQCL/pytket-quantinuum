@@ -488,7 +488,14 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # https://github.com/CQCL/pytket-quantinuum/issues/236
+        # Language.QIR,
+    ],
+)
 @pytest.mark.timeout(120)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -702,7 +709,8 @@ def test_device_state(
     "language",
     [
         Language.QASM,
-        Language.QIR,
+        # https://github.com/CQCL/pytket-quantinuum/issues/232
+        # Language.QIR,
     ],
 )
 @pytest.mark.timeout(120)
