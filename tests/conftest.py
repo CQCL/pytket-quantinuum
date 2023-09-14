@@ -26,11 +26,16 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
-ALL_QUANTUM_HARDWARE_NAMES = [
-    "H1-1",
-    "H1-2",
-    "H2-1",
-]
+ALL_QUANTUM_HARDWARE_NAMES = []
+
+if not os.getenv("PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY", 0):
+    ALL_QUANTUM_HARDWARE_NAMES.extend(
+        [
+            "H1-1",
+            "H1-2",
+            "H2-1",
+        ]
+    )
 
 ALL_SIMULATOR_NAMES = [
     "H1-1E",
