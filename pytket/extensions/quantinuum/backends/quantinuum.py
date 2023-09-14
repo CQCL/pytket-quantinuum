@@ -35,12 +35,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.circuit import Circuit, OpType, Bit  # type: ignore
-
-try:
-    from pytket.unit_id import _TEMP_BIT_NAME  # type: ignore
-except (ModuleNotFoundError, ImportError):
-    # pytket <= 1.18
-    from pytket._tket.circuit import _TEMP_BIT_NAME  # type: ignore
+from pytket.unit_id import _TEMP_BIT_NAME  # type: ignore
 from pytket.extensions.quantinuum._metadata import __extension_version__
 
 try:
