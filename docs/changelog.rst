@@ -7,12 +7,10 @@ unreleased
 * Update pytket-qir version requirement to 0.3.
 * Update pytket version requirement to 1.20.
 
-
 0.22.0 (September 2023)
 -----------------------
 
 * Update pytket version requirement to 1.19.
-
 
 0.21.0 (September 2023)
 -----------------------
