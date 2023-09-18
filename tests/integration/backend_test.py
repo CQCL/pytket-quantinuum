@@ -601,7 +601,12 @@ def test_submission_with_group(
     c.measure_all()
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots, group="Default - UK", language=language).get_shots()  # type: ignore
+    shots = b.run_circuit(
+        c,
+        n_shots=n_shots,
+        group=os.getenv("PYTKET_REMOTE_QUANTINUUM_GROUP", default="Default - UK"),
+        language=language,  # type: ignore
+    ).get_shots()  # type: ignore
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -944,6 +949,7 @@ def test_old_handle(
     b0 = QuantinuumBackend(
         "H1-1SC",
         api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
             _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
             _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
         ),
@@ -954,6 +960,7 @@ def test_old_handle(
     b1 = QuantinuumBackend(
         "H1-1SC",
         api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+            api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
             _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
             _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
         ),
