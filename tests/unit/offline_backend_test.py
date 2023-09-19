@@ -17,13 +17,13 @@ import numpy as np
 import pytest
 from hypothesis import given, strategies
 from pytket.backends import CircuitNotValidError
-from pytket.circuit import Circuit  # type: ignore
+from pytket.circuit import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend, Language
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIOffline,
 )
-from pytket.passes import (  # type: ignore
+from pytket.passes import (
     FullPeepholeOptimise,
     OptimisePhaseGadgets,
     RemoveRedundancies,

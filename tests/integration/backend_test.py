@@ -28,9 +28,9 @@ from hypothesis.strategies._internal import SearchStrategy
 from hypothesis import HealthCheck
 from llvmlite.binding import create_context, parse_assembly  # type: ignore
 from pytket.backends import CircuitNotValidError
-from pytket.predicates import CompilationUnit  # type: ignore
+from pytket.predicates import CompilationUnit
 
-from pytket.circuit import (  # type: ignore
+from pytket.circuit import (
     Circuit,
     Qubit,
     Bit,
@@ -304,7 +304,7 @@ def circuits(
         {"device_name": name}
         for name in [
             *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
-            *pytest.ALL_SYNTAX_CHECKER_NAMES,  # type: ignore
+            *pytest.ALL_SYNTAX_CHECKER_NAMES,
         ]
     ],
     indirect=True,
@@ -451,7 +451,7 @@ def test_leakage_detection(
 
 @given(
     n_shots=st.integers(min_value=1, max_value=10),  # type: ignore
-    n_bits=st.integers(min_value=0, max_value=10),  # type: ignore
+    n_bits=st.integers(min_value=0, max_value=10),
 )
 @pytest.mark.timeout(120)
 def test_shots_bits_edgecases(n_shots, n_bits) -> None:
@@ -600,7 +600,7 @@ def test_submission_with_group(
         n_shots=n_shots,
         group=os.getenv("PYTKET_REMOTE_QUANTINUUM_GROUP", default="Default - UK"),
         language=language,  # type: ignore
-    ).get_shots()  # type: ignore
+    ).get_shots()
     assert all(q[0] == q[1] for q in shots)
 
 

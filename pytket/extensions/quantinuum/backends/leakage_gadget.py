@@ -16,8 +16,8 @@
 
 from typing import List, Dict, Tuple, Counter, cast, Sequence
 from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
-from pytket.backends.backendresult import BackendResult  # type: ignore
-from pytket.utils.outcomearray import OutcomeArray  # type: ignore
+from pytket.backends.backendresult import BackendResult
+from pytket.utils.outcomearray import OutcomeArray
 
 LEAKAGE_DETECTION_BIT_NAME_ = "leakage_detection_bit"
 LEAKAGE_DETECTION_QUBIT_NAME_ = "leakage_detection_qubit"
