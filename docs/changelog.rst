@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+unreleased
+----------
+
+* Update pytket-qir version requirement to 0.3.
+* Update pytket version requirement to 1.20.
+
 0.22.0 (September 2023)
 -----------------------
 
