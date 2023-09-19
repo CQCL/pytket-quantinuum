@@ -58,7 +58,6 @@ def microsoft_login() -> Tuple[str, str]:
         print("Authentication successful")
 
     else:
-
         # Check if a timeout occurred
         if "authorization_pending" in result.get("error"):
             print("Authorization code expired. Please try again.")
