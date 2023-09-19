@@ -30,12 +30,12 @@ import requests
 from pytket.backends import Backend, ResultHandle, CircuitStatus, StatusEnum
 from pytket.backends.backend import KwargTypes
 from pytket.backends.resulthandle import _ResultIdTuple
-from pytket.architecture import FullyConnected  # type: ignore
+from pytket.architecture import FullyConnected
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.backend_exceptions import CircuitNotRunError
-from pytket.circuit import Circuit, OpType, Bit  # type: ignore
-from pytket.unit_id import _TEMP_BIT_NAME  # type: ignore
+from pytket.circuit import Circuit, OpType, Bit
+from pytket.unit_id import _TEMP_BIT_NAME
 from pytket.extensions.quantinuum._metadata import __extension_version__
 
 try:
@@ -44,7 +44,7 @@ try:
 except:
     pass
 from pytket.qasm import circuit_to_qasm_str
-from pytket.passes import (  # type: ignore
+from pytket.passes import (
     BasePass,
     DecomposeTK2,
     SequencePass,
@@ -60,7 +60,7 @@ from pytket.passes import (  # type: ignore
     auto_rebase_pass,
     auto_squash_pass,
 )
-from pytket.predicates import (  # type: ignore
+from pytket.predicates import (
     GateSetPredicate,
     MaxNQubitsPredicate,
     MaxNClRegPredicate,

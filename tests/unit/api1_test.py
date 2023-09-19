@@ -28,8 +28,8 @@ from requests_mock.mocker import Mocker
 from pytket.backends import ResultHandle, StatusEnum
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends import QuantinuumBackend, Language
-from pytket.circuit import Circuit  # type: ignore
-from pytket.architecture import FullyConnected  # type: ignore
+from pytket.circuit import Circuit
+from pytket.architecture import FullyConnected
 from pytket.extensions.quantinuum.backends.quantinuum import (
     DEFAULT_API_HANDLER,
     BatchingUnsupported,
@@ -115,9 +115,9 @@ def test_default_login_flow(
     )
 
     # We expect /login to be called once globally.
-    assert login_route.called_once  # type: ignore
-    assert job_submit_route.call_count == 4  # type: ignore
-    assert job_status_route.call_count == 0  # type: ignore
+    assert login_route.called_once
+    assert job_submit_route.call_count == 4
+    assert job_status_route.call_count == 0
 
 
 def test_custom_login_flow(
@@ -196,9 +196,9 @@ def test_custom_login_flow(
     )
 
     # We expect /login to be called for each api_handler.
-    assert login_route.call_count == 2  # type: ignore
-    assert job_submit_route.call_count == 4  # type: ignore
-    assert job_status_route.call_count == 0  # type: ignore
+    assert login_route.call_count == 2
+    assert job_submit_route.call_count == 4
+    assert job_status_route.call_count == 0
 
 
 def test_mfa_login_flow(
@@ -253,9 +253,9 @@ def test_mfa_login_flow(
     )
     backend.login()
 
-    assert normal_login_route.called_once  # type: ignore
+    assert normal_login_route.called_once
     # Check that the mfa login has been invoked
-    assert mfa_login_route.called_once  # type: ignore
+    assert mfa_login_route.called_once
     assert backend.api_handler._cred_store.id_token is not None
     assert backend.api_handler._cred_store.refresh_token is not None
 
@@ -291,7 +291,7 @@ def test_federated_login(
     backend.login()
 
     mock_microsoft_login.assert_called_once()
-    assert login_route.called_once  # type: ignore
+    assert login_route.called_once
     assert backend.api_handler._cred_store.id_token is not None
     assert backend.api_handler._cred_store.refresh_token is not None
 

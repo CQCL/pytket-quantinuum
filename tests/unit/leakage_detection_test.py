@@ -14,16 +14,16 @@
 
 
 from typing import Counter, Sequence, cast
-import pytest  # type: ignore
+import pytest
 from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
-from pytket.backends.backendresult import BackendResult  # type: ignore
+from pytket.backends.backendresult import BackendResult
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_detection_circuit,
     prune_shots_detected_as_leaky,
     LEAKAGE_DETECTION_BIT_NAME_,
     LEAKAGE_DETECTION_QUBIT_NAME_,
 )
-from pytket.utils.outcomearray import OutcomeArray  # type: ignore
+from pytket.utils.outcomearray import OutcomeArray
 
 
 def test_postselection_circuits_1qb_task_gen() -> None:
