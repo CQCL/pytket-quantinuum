@@ -26,11 +26,16 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
 
-ALL_QUANTUM_HARDWARE_NAMES = [
-    "H1-1",
-    "H1-2",
-    "H2-1",
-]
+ALL_QUANTUM_HARDWARE_NAMES = []
+
+if not os.getenv("PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY", 0):
+    ALL_QUANTUM_HARDWARE_NAMES.extend(
+        [
+            "H1-1",
+            "H1-2",
+            "H2-1",
+        ]
+    )
 
 ALL_SIMULATOR_NAMES = [
     "H1-1E",
@@ -257,7 +262,10 @@ def fixture_authenticated_quum() -> QuantinuumAPI:
     # Authenticated QuantinuumAPI used for the remote tests
     # The credentials are taken from the env variables:
     # PYTKET_REMOTE_QUANTINUUM_USERNAME and PYTKET_REMOTE_QUANTINUUM_PASSWORD
+    # The API URL is taken from the env variable: PYTKET_REMOTE_QUANTINUUM_API_URL
+    # (default if unset)
     return QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+        api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
         _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
         _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
     )
