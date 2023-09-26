@@ -203,6 +203,13 @@ If partial results indicate that a job is taking longer run than anticipated the
 
 Also partial results enable users to quickly validate basic execution for very large jobs which may take days to complete.  
 
+Leakage Gadget Detection
+------------------------
+
+When running circuits on the :py:class:`QuantinuumBackend`, there is some small probability that a qubit will "leak" out of the qubit subspace leading to erroneous measurement results.
+Such leakage errors can be detected at the circuit level by measuring an ancilla qubit. We can then discard shots where a leakage error is detected using :py:meth:`prune_shots_detected_as_leaky`.
+For more detailed explanation refer to `Eliminating Leakage Errors in Hyperfine Qubits <https://arxiv.org/abs/1912.13131>`_ by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding `notebook tutorial <https://github.com/CQCL/pytket-quantinuum/blob/develop/examples/Quantinuum_leakage_detection.ipynb>`_.
+
 Batching
 --------
 Quantinuum backends (except syntax checkers) support batching of jobs (circuits). To create
