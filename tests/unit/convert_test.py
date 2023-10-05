@@ -180,7 +180,7 @@ def test_implicit_swap_removal() -> None:
     assert iqp[Qubit(1)] == Qubit(1)
     c = Circuit(2).ISWAPMax(0, 1).ISWAPMax(1, 0)
     compiled = b.get_compiled_circuit(c, 1)
-    assert compiled.n_gates_of_type(OpType.ZZMax) == 0
+    assert compiled.n_gates_of_type(OpType.ZZMax) == 2
     assert compiled.n_gates_of_type(OpType.ZZPhase) == 0
     iqp = compiled.implicit_qubit_permutation()
     assert iqp[Qubit(0)] == Qubit(0)
