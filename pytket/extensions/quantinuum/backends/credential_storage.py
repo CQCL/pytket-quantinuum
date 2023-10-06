@@ -12,28 +12,71 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from abc import ABC, abstractmethod
 from typing import Optional
 from datetime import timedelta, datetime, timezone
 
 import jwt
 
 
-class MemoryCredentialStorage:
+class CredentialStorage(ABC):
 
-    """In memory credential storage. Intended use is only to store id tokens and
-    refresh tokens, username/password storage is only included for debug purposes."""
+    """Storage for Quantinuum username and tokens"""
 
     def __init__(
         self,
         id_token_timedelt: timedelta = timedelta(minutes=55),
         refresh_token_timedelt: timedelta = timedelta(days=29),
     ) -> None:
-        self._user_name: Optional[str] = None
-        self._password: Optional[str] = None
-
         self._id_timedelt = id_token_timedelt
         self._refresh_timedelt = refresh_token_timedelt
 
+    @abstractmethod
+    def save_refresh_token(self, refresh_token: str) -> None:
+        """save refresh token"""
+
+    @abstractmethod
+    def save_id_token(self, id_token: str) -> None:
+        """save ID token"""
+
+    @abstractmethod
+    def save_user_name(self, user_name: str) -> None:
+        """save user_name"""
+
+    def save_tokens(self, id_token: str, refresh_token: str) -> None:
+        self.save_id_token(id_token)
+        self.save_refresh_token(refresh_token)
+
+    @abstractmethod
+    def delete_credential(self) -> None:
+        """delete credential"""
+
+    @property
+    def id_token(self) -> Optional[str]:
+        """returns a ID token if valid"""
+
+    @property
+    def refresh_token(self) -> Optional[str]:
+        """returns a refresh token if valid"""
+
+    @property
+    def user_name(self) -> Optional[str]:
+        """returns the user name"""
+
+
+class MemoryCredentialStorage(CredentialStorage):
+
+    """In memory credential storage. Intended use is only to store id tokens,
+    refresh tokens and user_name. Password storage is only included for debug purposes."""
+
+    def __init__(
+        self,
+        id_token_timedelt: timedelta = timedelta(minutes=55),
+        refresh_token_timedelt: timedelta = timedelta(days=29),
+    ) -> None:
+        super().__init__(id_token_timedelt, refresh_token_timedelt)
+        self._user_name: Optional[str] = None
+        self._password: Optional[str] = None
         self._id_token: Optional[str] = None
         self._refresh_token: Optional[str] = None
         self._id_token_timeout: Optional[datetime] = None
@@ -43,9 +86,8 @@ class MemoryCredentialStorage:
         self._user_name = user_name
         self._password = password
 
-    def save_tokens(self, id_token: str, refresh_token: str) -> None:
-        self.save_id_token(id_token)
-        self.save_refresh_token(refresh_token)
+    def save_user_name(self, user_name: str) -> None:
+        self._user_name = user_name
 
     def save_refresh_token(self, refresh_token: str) -> None:
         self._refresh_token = refresh_token
@@ -81,15 +123,17 @@ class MemoryCredentialStorage:
                 self._refresh_token = None
         return self._refresh_token
 
-    def _delete_login_credential(self) -> None:
+    @property
+    def user_name(self) -> Optional[str]:
+        return self._user_name
+
+    def delete_credential(self) -> None:
         del self._user_name
         del self._password
-        self._user_name = None
-        self._password = None
-
-    def delete_tokens(self) -> None:
         del self._id_token
         del self._refresh_token
+        self._user_name = None
+        self._password = None
         self._id_token = None
         self._id_token_timeout = None
         self._refresh_token = None
