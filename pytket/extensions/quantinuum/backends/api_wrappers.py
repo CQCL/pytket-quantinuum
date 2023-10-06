@@ -114,7 +114,6 @@ class QuantinuumAPI:
             is provided
         :type session: requests.Session, optional
         """
-        self.config = QuantinuumConfig.from_default_config_file()
         self.online = True
 
         self.url = f"{api_url if api_url else self.DEFAULT_API_URL}v{api_version}/"
@@ -131,13 +130,9 @@ class QuantinuumAPI:
             self._cred_store = token_store
 
         if __user_name is not None:
-            self.config.username = __user_name  # type: ignore
-        if (
-            self.config.username is not None  # type: ignore
-            and __pwd is not None
-            and isinstance(self._cred_store, MemoryCredentialStorage)
-        ):
-            self._cred_store._save_login_credential(self.config.username, __pwd)  # type: ignore
+            self._cred_store.save_user_name(__user_name)
+        if __pwd is not None and isinstance(self._cred_store, MemoryCredentialStorage):
+            self._cred_store._password = __pwd
 
         self.api_version = api_version
         self.use_websocket = use_websocket
@@ -249,10 +244,9 @@ class QuantinuumAPI:
 
     def _get_credentials(self) -> Tuple[str, str]:
         """Method to ask for user's credentials"""
-        user_name = self.config.username  # type: ignore
+        user_name = self._cred_store.user_name
         pwd = None
         if isinstance(self._cred_store, MemoryCredentialStorage):
-            user_name = self._cred_store._user_name or user_name
             pwd = self._cred_store._password
 
         if not user_name:

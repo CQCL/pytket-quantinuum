@@ -97,7 +97,6 @@ def test_full_login(
 
     api_handler = QuantinuumAPI()
     # emulate no pytket config stored email address
-    api_handler.config.username = None  # type: ignore
     api_handler.full_login()
 
     assert isinstance(api_handler._cred_store, MemoryCredentialStorage)

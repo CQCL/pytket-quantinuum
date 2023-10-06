@@ -241,16 +241,13 @@ def fixture_mock_quum_api_handler(
     )
 
     cred_store = MemoryCredentialStorage()
-    cred_store._save_login_credential(
-        user_name=username,
-        password=pwd,
-    )
+    cred_store.save_user_name(username)
+    cred_store._password = pwd
 
     # Construct QuantinuumQAPI and login
     api_handler = QuantinuumAPI()
 
     # Add the credential storage seperately in line with fixture parameters
-    api_handler.config.username = username  # type: ignore
     api_handler._cred_store = cred_store
     api_handler.login()
 

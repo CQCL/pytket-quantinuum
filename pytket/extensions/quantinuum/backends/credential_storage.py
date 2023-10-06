@@ -82,10 +82,6 @@ class MemoryCredentialStorage(CredentialStorage):
         self._id_token_timeout: Optional[datetime] = None
         self._refresh_token_timeout: Optional[datetime] = None
 
-    def _save_login_credential(self, user_name: str, password: str) -> None:
-        self._user_name = user_name
-        self._password = password
-
     def save_user_name(self, user_name: str) -> None:
         self._user_name = user_name
 
