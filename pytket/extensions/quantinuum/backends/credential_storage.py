@@ -13,8 +13,9 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, cast
 from datetime import timedelta, datetime, timezone
+from .config import QuantinuumConfig
 
 import jwt
 
@@ -134,3 +135,77 @@ class MemoryCredentialStorage(CredentialStorage):
         self._id_token_timeout = None
         self._refresh_token = None
         self._refresh_token_timeout = None
+
+
+class QuantinuumConfigCredentialStorage(CredentialStorage):
+    """Store tokens using `QuantinuumConfig`"""
+
+    def __init__(
+        self,
+        id_token_timedelt: timedelta = timedelta(minutes=55),
+        refresh_token_timedelt: timedelta = timedelta(days=29),
+    ) -> None:
+        super().__init__(id_token_timedelt, refresh_token_timedelt)
+
+    def save_user_name(self, user_name: str) -> None:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig.username = user_name
+        hconfig.update_default_config_file()
+
+    def save_refresh_token(self, refresh_token: str) -> None:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig.refresh_token = refresh_token
+        hconfig.refresh_token_timeout = (
+            datetime.now(timezone.utc) + self._refresh_timedelt
+        )
+        hconfig.update_default_config_file()
+
+    def save_id_token(self, id_token: str) -> None:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig.id_token = id_token
+        hconfig.id_token_timeout = datetime.now(timezone.utc) + self._id_timedelt
+        hconfig.update_default_config_file()
+
+    @property
+    def id_token(self) -> Optional[str]:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        id_token = hconfig.id_token
+        if id_token is not None:
+            timeout = (
+                jwt.decode(
+                    id_token,
+                    algorithms=["HS256"],
+                    options={"verify_signature": False},
+                )["exp"]
+                - 60
+            )
+            id_token_timeout = hconfig.id_token_timeout
+            if id_token_timeout is not None:
+                timeout = min(timeout, id_token_timeout.timestamp())
+            if datetime.now(timezone.utc).timestamp() > timeout:
+                return None
+        return id_token
+
+    @property
+    def refresh_token(self) -> Optional[str]:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        refresh_token = hconfig.id_token
+        refresh_token_timeout = hconfig.refresh_token_timeout
+        if refresh_token is not None and refresh_token_timeout is not None:
+            if datetime.now(timezone.utc) > refresh_token_timeout:
+                return None
+        return refresh_token
+
+    @property
+    def user_name(self) -> Optional[str]:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        return hconfig.username
+
+    def delete_credential(self) -> None:
+        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig.username = None
+        hconfig.refresh_token = None
+        hconfig.id_token = None
+        hconfig.refresh_token_timeout = None
+        hconfig.id_token_timeout = None
+        hconfig.update_default_config_file()
