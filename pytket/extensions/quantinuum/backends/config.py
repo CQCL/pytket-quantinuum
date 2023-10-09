@@ -17,7 +17,6 @@
 from typing import Any, Dict, Optional, Type, ClassVar
 from dataclasses import dataclass
 from pytket.config import PytketExtConfig
-from datetime import datetime
 
 
 @dataclass
