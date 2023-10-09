@@ -716,7 +716,7 @@ def test_device_state(
 def test_wasm(
     authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
-    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "add1.wasm"))
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
@@ -739,7 +739,7 @@ def test_wasm(
 def test_wasm_costs(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
-    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "add1.wasm"))
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
