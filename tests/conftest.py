@@ -223,7 +223,7 @@ def fixture_mock_quum_api_handler(
     """A logged-in QuantinuumQAPI fixture.
     After using this fixture in a test, call:
         mock_quum_api_handler.delete_authentication()
-    To remove mock tokens from the keyring.
+    To remove mock tokens from memory.
     """
 
     username, pwd = mock_credentials

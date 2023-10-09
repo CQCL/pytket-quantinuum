@@ -138,7 +138,8 @@ class MemoryCredentialStorage(CredentialStorage):
 
 
 class QuantinuumConfigCredentialStorage(CredentialStorage):
-    """Store tokens using `QuantinuumConfig`"""
+
+    """Store tokens in the default pytket configuration file."""
 
     def __init__(
         self,
