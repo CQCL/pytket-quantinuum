@@ -1,5 +1,5 @@
-void init() {return;}
+void init() {}
 
 int add_one(int n) {
-    return n+1;
+    return n + 1;
 }
