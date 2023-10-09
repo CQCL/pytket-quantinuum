@@ -1057,3 +1057,59 @@ def test_wasm_collatz(
     for shot in shots:
         n, m = to_int(shot[:8]), to_int(shot[8:16])
         assert collatz(n) == m
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # https://github.com/CQCL/pytket-quantinuum/issues/236
+        # Language.QIR,
+    ],
+)
+@pytest.mark.timeout(120)
+def test_wasm_state(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "state.wasm"))
+    c = Circuit(8)
+    a = c.add_c_register("a", 8).to_list()  # measurement results
+    b = c.add_c_register("b", 4)  # final count
+    s = c.add_c_register("s", 1)  # scratch bit
+
+    # Use Hadamards to set "a" register to random values.
+    for i in range(8):
+        c.H(i)
+        c.Measure(Qubit(i), a[i])
+    # Count the number of 1s in the "a" register and store in the "b" register.
+    c.add_wasm_to_reg("set_c", wasfile, [s], [])  # set c to zero
+    for i in range(8):
+        # Copy a[i] to s
+        c.add_c_copybits([a[i]], [Bit("s", 0)])
+        # Conditionally increment the counter
+        c.add_wasm_to_reg("conditional_increment_c", wasfile, [s], [])
+    # Put the counter into "b"
+    c.add_wasm_to_reg("get_c", wasfile, [], [b])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(
+        c, n_shots=10, wasm_file_handler=wasfile, language=language
+    )  # type: ignore
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C):
+        assert len(C) == 4
+        return sum(pow(2, i) * C[i] for i in range(4))
+
+    for shot in shots:
+        a_count = sum(shot[:8])
+        b_count = to_int(shot[8:12])
+        assert a_count == b_count
