@@ -11,6 +11,7 @@ on:
       - develop
       - 'wheel/**'
       - 'runci/**'
+      - test-wasm-collatz
   release:
     types:
       - created
@@ -31,125 +32,125 @@ env:
   PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
 
 jobs:
-  quantinuum-checks:
-    name: Quantinuum - Build and test module
-    strategy:
-      matrix:
-        os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: '0'
-    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
-    - name: Set up Python 3.9
-      if: github.event_name == 'push' || github.event_name == 'schedule'
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    - name: Build and test (3.9)
-      if: github.event_name == 'push' || github.event_name == 'schedule'
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - name: Build and test (3.10) mypy
-      shell: bash
-      if: |
-        matrix.os == 'macos-12' &&
-        (
-          github.event_name == 'push' ||
-          (
-            github.event_name == 'pull_request' &&
-            github.event.pull_request.head.repo.full_name == github.repository
-          ) ||
-          github.event_name == 'release' ||
-          (
-            github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.run-integration-tests == 'no'
-          )
-        )
-      run: |
-        ./.github/workflows/build-test mypy
-    - name: Build and test (3.10) nomypy
-      if: |
-        matrix.os != 'macos-12' &&
-        (
-          github.event_name == 'push' ||
-          (
-            github.event_name == 'pull_request' &&
-            github.event.pull_request.head.repo.full_name == github.repository
-          ) ||
-          github.event_name == 'release' ||
-          (
-            github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.run-integration-tests == 'no'
-          )
-        )
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-    - name: Build and test including integration (3.10) nomypy
-      if: |
-        matrix.os == 'ubuntu-22.04' &&
-        (
-          (
-            github.event_name == 'push' &&
-            (
-              contains(github.ref_name, 'main') ||
-              contains(github.ref_name, 'runci/')
-            )
-          ) ||
-          github.event_name == 'schedule' ||
-          (
-            github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.run-integration-tests == 'yes'
-          )
-        )
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy integration
-      env:
-        PYTKET_RUN_REMOTE_TESTS: 1
-    - name: Set up Python 3.11
-      if: |
-        github.event_name == 'push' ||
-        github.event_name == 'pull_request' ||
-        github.event_name == 'schedule' ||
-        github.event_name == 'workflow_dispatch'
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Build and test (3.11)
-      if: |
-        github.event_name == 'push' ||
-        github.event_name == 'pull_request' ||
-        github.event_name == 'schedule' ||
-        github.event_name == 'workflow_dispatch'
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-    - uses: actions/upload-artifact@v3
-      if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
-      with:
-        name: artefacts
-        path: wheelhouse/
-    - name: Install docs dependencies
-      if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
-      run: |
-        pip install -r .github/workflows/docs/requirements.txt
-    - name: Build docs
-      if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
-      timeout-minutes: 20
-      run: |
-        ./.github/workflows/docs/check-build-docs
+  # quantinuum-checks:
+  #   name: Quantinuum - Build and test module
+  #   strategy:
+  #     matrix:
+  #       os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: '0'
+  #   - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
+  #   - name: Set up Python 3.9
+  #     if: github.event_name == 'push' || github.event_name == 'schedule'
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: '3.9'
+  #   - name: Build and test (3.9)
+  #     if: github.event_name == 'push' || github.event_name == 'schedule'
+  #     shell: bash
+  #     run: |
+  #       ./.github/workflows/build-test nomypy
+  #   - name: Set up Python 3.10
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: '3.10'
+  #   - name: Build and test (3.10) mypy
+  #     shell: bash
+  #     if: |
+  #       matrix.os == 'macos-12' &&
+  #       (
+  #         github.event_name == 'push' ||
+  #         (
+  #           github.event_name == 'pull_request' &&
+  #           github.event.pull_request.head.repo.full_name == github.repository
+  #         ) ||
+  #         github.event_name == 'release' ||
+  #         (
+  #           github.event_name == 'workflow_dispatch' &&
+  #           github.event.inputs.run-integration-tests == 'no'
+  #         )
+  #       )
+  #     run: |
+  #       ./.github/workflows/build-test mypy
+  #   - name: Build and test (3.10) nomypy
+  #     if: |
+  #       matrix.os != 'macos-12' &&
+  #       (
+  #         github.event_name == 'push' ||
+  #         (
+  #           github.event_name == 'pull_request' &&
+  #           github.event.pull_request.head.repo.full_name == github.repository
+  #         ) ||
+  #         github.event_name == 'release' ||
+  #         (
+  #           github.event_name == 'workflow_dispatch' &&
+  #           github.event.inputs.run-integration-tests == 'no'
+  #         )
+  #       )
+  #     shell: bash
+  #     run: |
+  #       ./.github/workflows/build-test nomypy
+  #   - name: Build and test including integration (3.10) nomypy
+  #     if: |
+  #       matrix.os == 'ubuntu-22.04' &&
+  #       (
+  #         (
+  #           github.event_name == 'push' &&
+  #           (
+  #             contains(github.ref_name, 'main') ||
+  #             contains(github.ref_name, 'runci/')
+  #           )
+  #         ) ||
+  #         github.event_name == 'schedule' ||
+  #         (
+  #           github.event_name == 'workflow_dispatch' &&
+  #           github.event.inputs.run-integration-tests == 'yes'
+  #         )
+  #       )
+  #     shell: bash
+  #     run: |
+  #       ./.github/workflows/build-test nomypy integration
+  #     env:
+  #       PYTKET_RUN_REMOTE_TESTS: 1
+  #   - name: Set up Python 3.11
+  #     if: |
+  #       github.event_name == 'push' ||
+  #       github.event_name == 'pull_request' ||
+  #       github.event_name == 'schedule' ||
+  #       github.event_name == 'workflow_dispatch'
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: '3.11'
+  #   - name: Build and test (3.11)
+  #     if: |
+  #       github.event_name == 'push' ||
+  #       github.event_name == 'pull_request' ||
+  #       github.event_name == 'schedule' ||
+  #       github.event_name == 'workflow_dispatch'
+  #     shell: bash
+  #     run: |
+  #       ./.github/workflows/build-test nomypy
+  #   - uses: actions/upload-artifact@v3
+  #     if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
+  #     with:
+  #       name: artefacts
+  #       path: wheelhouse/
+  #   - name: Install docs dependencies
+  #     if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+  #     run: |
+  #       pip install -r .github/workflows/docs/requirements.txt
+  #   - name: Build docs
+  #     if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+  #     timeout-minutes: 20
+  #     run: |
+  #       ./.github/workflows/docs/check-build-docs
 
   qa_checks:
     name: Run backend tests with QA endpoint
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    # if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
@@ -172,74 +173,74 @@ jobs:
       working-directory: ./tests
       run: pytest integration/backend_test.py
 
-  publish_to_pypi:
-    name: Publish to pypi
-    if: github.event_name == 'release'
-    needs: quantinuum-checks
-    runs-on: ubuntu-22.04
-    steps:
-    - name: Download all wheels
-      uses: actions/download-artifact@v3
-      with:
-        path: wheelhouse
-    - name: Put them all in the dist folder
-      run: |
-        mkdir dist
-        for w in `find wheelhouse/ -type f -name "*.whl"` ; do cp $w dist/ ; done
-    - name: Publish wheels
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PYTKET_QUANTINUUM_API_TOKEN }}
-        verbose: true
+  # publish_to_pypi:
+  #   name: Publish to pypi
+  #   if: github.event_name == 'release'
+  #   needs: quantinuum-checks
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #   - name: Download all wheels
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       path: wheelhouse
+  #   - name: Put them all in the dist folder
+  #     run: |
+  #       mkdir dist
+  #       for w in `find wheelhouse/ -type f -name "*.whl"` ; do cp $w dist/ ; done
+  #   - name: Publish wheels
+  #     uses: pypa/gh-action-pypi-publish@release/v1
+  #     with:
+  #       user: __token__
+  #       password: ${{ secrets.PYPI_PYTKET_QUANTINUUM_API_TOKEN }}
+  #       verbose: true
 
-  build_docs:
-    name: Build docs
-    if: github.event_name == 'release'
-    needs: publish_to_pypi
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: '0'
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    - name: Download all wheels
-      uses: actions/download-artifact@v3
-      with:
-        path: wheelhouse
-    - name: Install pip, wheel
-      run: pip install -U pip wheel
-    - name: Install extension
-      run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do pip install $w ; done
-    - name: Install docs dependencies
-      run: |
-        pip install -r .github/workflows/docs/requirements.txt
-    - name: Build docs
-      timeout-minutes: 20
-      run: |
-        cd .github/workflows/docs
-        mkdir extensions
-        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
-    - name: Upload docs as artefact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: .github/workflows/docs/extensions
+  # build_docs:
+  #   name: Build docs
+  #   if: github.event_name == 'release'
+  #   needs: publish_to_pypi
+  #   runs-on: ubuntu-22.04
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: '0'
+  #   - name: Set up Python 3.10
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: '3.10'
+  #   - name: Download all wheels
+  #     uses: actions/download-artifact@v3
+  #     with:
+  #       path: wheelhouse
+  #   - name: Install pip, wheel
+  #     run: pip install -U pip wheel
+  #   - name: Install extension
+  #     run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do pip install $w ; done
+  #   - name: Install docs dependencies
+  #     run: |
+  #       pip install -r .github/workflows/docs/requirements.txt
+  #   - name: Build docs
+  #     timeout-minutes: 20
+  #     run: |
+  #       cd .github/workflows/docs
+  #       mkdir extensions
+  #       ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
+  #   - name: Upload docs as artefact
+  #     uses: actions/upload-pages-artifact@v2
+  #     with:
+  #       path: .github/workflows/docs/extensions
 
-  publish_docs:
-    name: Publish docs
-    if: github.event_name == 'release'
-    needs: build_docs
-    runs-on: ubuntu-22.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v2
+  # publish_docs:
+  #   name: Publish docs
+  #   if: github.event_name == 'release'
+  #   needs: build_docs
+  #   runs-on: ubuntu-22.04
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #   - name: Deploy to GitHub Pages
+  #     id: deployment
+  #     uses: actions/deploy-pages@v2
