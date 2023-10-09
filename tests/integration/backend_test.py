@@ -999,3 +999,62 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 3
     assert all(len(shot) == 5 for shot in shots)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # https://github.com/CQCL/pytket-quantinuum/issues/236
+        # Language.QIR,
+    ],
+)
+@pytest.mark.timeout(120)
+def test_wasm_collatz(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    wasfile = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "collatz.wasm")
+    )
+    c = Circuit(8)
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 8)
+    # c.name = "test_wasm"
+
+    # Use Hadamards to set "a" register to a random value.
+    for i in range(8):
+        c.H(i)
+        c.Measure(Qubit(i), Bit("a", i))
+    # Compute the value of the Collatz function on this value.
+    c.add_wasm_to_reg("collatz", wasfile, [a], [b])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(
+        c, n_shots=10, wasm_file_handler=wasfile, language=language
+    )  # type: ignore
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C):
+        assert len(C) == 8
+        return sum(2 ^ (8 - i - 1) * C[i] for i in range(8))
+
+    def collatz(n):
+        if n == 0:
+            return 0
+        m = 0
+        while n != 1:
+            n = (3 * n + 1) // 2 if n % 2 == 1 else n // 2
+            m += 1
+        return m
+
+    for shot in shots:
+        n, m = to_int(shot[:8]), to_int(shot[8:16])
+        assert collatz(n) == m
