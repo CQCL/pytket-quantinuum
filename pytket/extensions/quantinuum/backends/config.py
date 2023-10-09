@@ -32,9 +32,9 @@ class QuantinuumConfig(PytketExtConfig):
 
     id_token: Optional[str]
 
-    refresh_token_timeout: Optional[datetime]
+    refresh_token_timeout: Optional[str]
 
-    id_token_timeout: Optional[datetime]
+    id_token_timeout: Optional[str]
 
     @classmethod
     def from_extension_dict(
