@@ -15,9 +15,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional, cast
 from datetime import timedelta, datetime, timezone
-from .config import QuantinuumConfig
-
 import jwt
+from .config import QuantinuumConfig
 
 
 class CredentialStorage(ABC):
@@ -68,7 +67,8 @@ class CredentialStorage(ABC):
 class MemoryCredentialStorage(CredentialStorage):
 
     """In memory credential storage. Intended use is only to store id tokens,
-    refresh tokens and user_name. Password storage is only included for debug purposes."""
+    refresh tokens and user_name. Password storage is only included for debug
+    purposes."""
 
     def __init__(
         self,
