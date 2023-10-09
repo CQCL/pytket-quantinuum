@@ -27,7 +27,6 @@ from requests.models import Response
 from websockets import connect, exceptions  # type: ignore
 import nest_asyncio  # type: ignore
 
-from .config import QuantinuumConfig
 from .credential_storage import CredentialStorage, MemoryCredentialStorage
 from .federated_login import microsoft_login
 
