@@ -1035,17 +1035,17 @@ def test_wasm_collatz(
 
     c = backend.get_compiled_circuit(c)
     h = backend.process_circuit(
-        c, n_shots=10, wasm_file_handler=wasfile, language=language
-    )  # type: ignore
+        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+    )
 
     r = backend.get_result(h)
     shots = r.get_shots()
 
-    def to_int(C):
+    def to_int(C: np.ndarray) -> int:
         assert len(C) == 8
         return sum(pow(2, i) * C[i] for i in range(8))
 
-    def collatz(n):
+    def collatz(n: int) -> int:
         if n == 0:
             return 0
         m = 0
@@ -1099,13 +1099,13 @@ def test_wasm_state(
 
     c = backend.get_compiled_circuit(c)
     h = backend.process_circuit(
-        c, n_shots=10, wasm_file_handler=wasfile, language=language
-    )  # type: ignore
+        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+    )
 
     r = backend.get_result(h)
     shots = r.get_shots()
 
-    def to_int(C):
+    def to_int(C: np.ndarray) -> int:
         assert len(C) == 4
         return sum(pow(2, i) * C[i] for i in range(4))
 
