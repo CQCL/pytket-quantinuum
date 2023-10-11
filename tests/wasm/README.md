@@ -14,6 +14,9 @@ clang --target=wasm32 -mmultivalue -Xclang -target-abi -Xclang experimental-mv -
 
 to generate the wasm file.
 
+(Multi-valued functions should be implemented using C functions that return a
+struct composed of ints.)
+
 You can then run:
 
 ```shell
