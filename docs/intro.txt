@@ -91,9 +91,7 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
      - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-     - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
    * -
-     - `SimplifyInitial [5] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SimplifyInitial>`_
      - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
      - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
@@ -106,8 +104,6 @@ The passes applied by different levels of optimisation are specified in the tabl
 * [3] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
 * [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX, OpType.Rz})``
-
-* [5] ``SimplifyInitial`` has arguments  ``SimplifyInitial(allow_classical=False, create_all_qubits=True, xcirc=_xcirc)``. Here ``_xcirc`` is a single qubit circuit that implements the ``X`` gate using the native ``PhasedX`` gate. Note that this pass will generally not preserve the unitary of the circuit.
 
 .. note::   If ``optimisation_level = 0`` the device constraints are solved but no additional optimisation is applied. Setting ``optimisation_level = 1`` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
 .. note::   The pass ``ZZPhaseToRz`` is left out of ``optimisation_level=2`` as the passes applied by ``FullPeepholeOptimise`` will already cover these optimisations.
@@ -202,6 +198,13 @@ For instance if the partial results look worse than expected this could indicate
 If partial results indicate that a job is taking longer run than anticipated then the user can cancel the job and consider redesigning their experiment.
 
 Also partial results enable users to quickly validate basic execution for very large jobs which may take days to complete.  
+
+Leakage Gadget Detection
+------------------------
+
+When running circuits on the :py:class:QuantinuumBackend, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
+Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using :py:meth:`prune_shots_detected_as_leaky`.
+For a more detailed explanation we refer to `Eliminating Leakage Errors in Hyperfine Qubits <https://arxiv.org/abs/1912.13131>`_ by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding `notebook tutorial <https://github.com/CQCL/pytket-quantinuum/blob/develop/examples/Quantinuum_leakage_detection.ipynb>`_.
 
 Batching
 --------

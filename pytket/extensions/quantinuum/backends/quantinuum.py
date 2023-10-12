@@ -290,6 +290,8 @@ class QuantinuumBackend(Backend):
             )
         else:
             self.compilation_config = compilation_config
+            if self.compilation_config.target_2qb_gate is None:
+                self.compilation_config.target_2qb_gate = self._default_2q_gate
 
     def get_compilation_config(self) -> QuantinuumBackendCompilationConfig:
         """Get the current compilation configuration."""
@@ -492,9 +494,6 @@ class QuantinuumBackend(Backend):
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
-                    SimplifyInitial(
-                        allow_classical=False, create_all_qubits=True, xcirc=_xcirc
-                    ),
                 ]
             )
         else:
@@ -506,9 +505,6 @@ class QuantinuumBackend(Backend):
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
-                    SimplifyInitial(
-                        allow_classical=False, create_all_qubits=True, xcirc=_xcirc
-                    ),
                 ]
             )
         # In TKET, a qubit register with N qubits can have qubits
@@ -727,7 +723,11 @@ class QuantinuumBackend(Backend):
 
         Supported kwargs:
 
-        * `postprocess`: boolean flag to allow classical postprocessing.
+        * `postprocess`: apply end-of-circuit simplifications and classical
+          postprocessing to improve fidelity of results (bool, default False)
+        * `simplify_initial`: apply the pytket ``SimplifyInitial`` pass to improve
+          fidelity of results assuming all qubits initialized to zero (bool, default
+          False)
         * `noisy_simulation`: boolean flag to specify whether the simulator should
           perform noisy simulation with an error model (default value is `True`).
         * `group`: string identifier of a collection of jobs, can be used for usage
@@ -770,6 +770,7 @@ class QuantinuumBackend(Backend):
             self._check_all_circuits(circuits)
 
         postprocess = cast(bool, kwargs.get("postprocess", False))
+        simplify_initial = kwargs.get("simplify_initial", False)
         noisy_simulation = cast(bool, kwargs.get("noisy_simulation", True))
 
         group = cast(Optional[str], kwargs.get("group", self._group))
@@ -797,6 +798,10 @@ class QuantinuumBackend(Backend):
                 ppcirc_rep = ppcirc.to_dict()
             else:
                 c0, ppcirc_rep = circ, None
+            if simplify_initial:
+                SimplifyInitial(
+                    allow_classical=False, create_all_qubits=True, xcirc=_xcirc
+                ).apply(c0)
             results_selection = []
             if language == Language.QASM:
                 quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
