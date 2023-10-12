@@ -46,6 +46,7 @@ from pytket.circuit import (
 )
 from pytket.extensions.quantinuum import (
     QuantinuumBackend,
+    QuantinuumBackendCompilationConfig,
     Language,
     prune_shots_detected_as_leaky,
 )
@@ -1174,3 +1175,16 @@ def test_wasm_multivalue(
             assert Y == 0
         else:
             assert A == X * B + Y
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/250
+    config = QuantinuumBackendCompilationConfig(allow_implicit_swaps=False)
+    b = QuantinuumBackend(
+        "H1-1E", api_handler=authenticated_quum_handler, compilation_config=config
+    )
+    c = Circuit(2).H(0).CX(0, 1).measure_all()
+    c1 = b.get_compiled_circuit(c)
+    assert any(cmd.op.type == b.default_two_qubit_gate for cmd in c1)
