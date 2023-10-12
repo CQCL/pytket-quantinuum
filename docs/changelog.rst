@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.24.0 (October 2023)
+---------------------
 
 * Don't include ``SimplifyInitial`` in default passes; instead make it an option
   to ``process_circuits()``.
