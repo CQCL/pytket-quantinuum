@@ -250,7 +250,7 @@ def fixture_mock_quum_api_handler(
     api_handler = QuantinuumAPI()
 
     # Add the credential storage seperately in line with fixture parameters
-    api_handler.config.username = username  # type: ignore
+    api_handler.config.username = username
     api_handler._cred_store = cred_store
     api_handler.login()
 
