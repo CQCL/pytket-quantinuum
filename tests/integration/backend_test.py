@@ -1133,7 +1133,7 @@ def test_wasm_multivalue(
     authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
     wasfile = WasmFileHandler(
-        str(Path(__file__).parent.parent / "wasm" / "multivalue2.wasm")
+        str(Path(__file__).parent.parent / "wasm" / "multivalue.wasm")
     )
     c = Circuit(8)
     a = c.add_c_register("a", 4)  # measurement results
