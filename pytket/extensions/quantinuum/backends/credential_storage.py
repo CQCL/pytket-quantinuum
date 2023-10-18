@@ -149,12 +149,12 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
         super().__init__(id_token_timedelt, refresh_token_timedelt)
 
     def save_user_name(self, user_name: str) -> None:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.username = user_name
         hconfig.update_default_config_file()
 
     def save_refresh_token(self, refresh_token: str) -> None:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.refresh_token = refresh_token
         refresh_token_timeout = datetime.now(timezone.utc) + self._refresh_timedelt
         hconfig.refresh_token_timeout = refresh_token_timeout.strftime(
@@ -163,7 +163,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
         hconfig.update_default_config_file()
 
     def save_id_token(self, id_token: str) -> None:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.id_token = id_token
         id_token_timeout = datetime.now(timezone.utc) + self._id_timedelt
         hconfig.id_token_timeout = id_token_timeout.strftime("%Y-%m-%d %H:%M:%S.%z")
@@ -171,7 +171,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
 
     @property
     def id_token(self) -> Optional[str]:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         id_token = hconfig.id_token
         if id_token is not None:
             timeout = (
@@ -193,7 +193,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
 
     @property
     def refresh_token(self) -> Optional[str]:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         refresh_token = hconfig.refresh_token
         if refresh_token is not None and hconfig.refresh_token_timeout is not None:
             refresh_token_timeout = datetime.strptime(
@@ -205,11 +205,11 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
 
     @property
     def user_name(self) -> Optional[str]:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         return hconfig.username
 
     def delete_credential(self) -> None:
-        hconfig = cast(QuantinuumConfig, QuantinuumConfig.from_default_config_file())
+        hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.username = None
         hconfig.refresh_token = None
         hconfig.id_token = None
