@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Optional, cast
+from typing import Optional
 from datetime import timedelta, datetime, timezone
 import jwt
 from .config import QuantinuumConfig
