@@ -52,5 +52,5 @@ def set_quantinuum_config(username: Optional[str]) -> None:
     """Set default value for Quantinuum username.
     Can be overriden in backend construction."""
     hconfig = QuantinuumConfig.from_default_config_file()
-    hconfig.username = username  # type: ignore
+    hconfig.username = username
     hconfig.update_default_config_file()

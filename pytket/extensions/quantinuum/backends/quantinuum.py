@@ -290,6 +290,8 @@ class QuantinuumBackend(Backend):
             )
         else:
             self.compilation_config = compilation_config
+            if self.compilation_config.target_2qb_gate is None:
+                self.compilation_config.target_2qb_gate = self._default_2q_gate
 
     def get_compilation_config(self) -> QuantinuumBackendCompilationConfig:
         """Get the current compilation configuration."""

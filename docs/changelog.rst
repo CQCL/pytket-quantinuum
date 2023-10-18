@@ -4,10 +4,21 @@ Changelog
 Unreleased
 ----------
 
-* Don't include ``SimplifyInitial`` in default passes; instead make it an option
-  to ``process_circuits()``.
 * Add ``QuantinuumConfigCredentialStorage`` for caching API tokens in local pytket
   configuration file.
+
+0.25.0 (October 2023)
+---------------------
+
+* Updated pytket version requirement to 1.21.
+
+0.24.0 (October 2023)
+---------------------
+
+* Don't include ``SimplifyInitial`` in default passes; instead make it an option
+  to ``process_circuits()``.
+* Fix: set default two-qubit gate when compilation config is provided without
+  specifying one.
 
 0.23.0 (September 2023)
 -----------------------

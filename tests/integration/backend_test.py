@@ -15,7 +15,7 @@
 from base64 import b64encode
 from collections import Counter
 from pathlib import Path
-from typing import cast, Callable, Any  # pylint: disable=unused-import
+from typing import cast, Callable, Any, Tuple  # pylint: disable=unused-import
 import json
 import gc
 import os
@@ -46,6 +46,7 @@ from pytket.circuit import (
 )
 from pytket.extensions.quantinuum import (
     QuantinuumBackend,
+    QuantinuumBackendCompilationConfig,
     Language,
     prune_shots_detected_as_leaky,
 )
@@ -716,7 +717,7 @@ def test_device_state(
 def test_wasm(
     authenticated_quum_backend: QuantinuumBackend, language: Language
 ) -> None:
-    wasfile = WasmFileHandler(str(Path(__file__).parent / "testfile.wasm"))
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
@@ -739,7 +740,7 @@ def test_wasm(
 def test_wasm_costs(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
-    wasfile = WasmFileHandler(str(Path(__file__).parent / "testfile.wasm"))
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
@@ -999,3 +1000,191 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
     shots = r.get_shots()
     assert len(shots) == 3
     assert all(len(shot) == 5 for shot in shots)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # https://github.com/CQCL/pytket-quantinuum/issues/236
+        # Language.QIR,
+    ],
+)
+@pytest.mark.timeout(120)
+def test_wasm_collatz(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    wasfile = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "collatz.wasm")
+    )
+    c = Circuit(8)
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 8)
+
+    # Use Hadamards to set "a" register to a random value.
+    for i in range(8):
+        c.H(i)
+        c.Measure(Qubit(i), Bit("a", i))
+    # Compute the value of the Collatz function on this value.
+    c.add_wasm_to_reg("collatz", wasfile, [a], [b])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(
+        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+    )
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C: np.ndarray) -> int:
+        assert len(C) == 8
+        return sum(pow(2, i) * C[i] for i in range(8))
+
+    def collatz(n: int) -> int:
+        if n == 0:
+            return 0
+        m = 0
+        while n != 1:
+            n = (3 * n + 1) // 2 if n % 2 == 1 else n // 2
+            m += 1
+        return m
+
+    for shot in shots:
+        n, m = to_int(shot[:8]), to_int(shot[8:16])
+        assert collatz(n) == m
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # https://github.com/CQCL/pytket-quantinuum/issues/236
+        # Language.QIR,
+    ],
+)
+@pytest.mark.timeout(120)
+def test_wasm_state(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "state.wasm"))
+    c = Circuit(8)
+    a = c.add_c_register("a", 8).to_list()  # measurement results
+    b = c.add_c_register("b", 4)  # final count
+    s = c.add_c_register("s", 1)  # scratch bit
+
+    # Use Hadamards to set "a" register to random values.
+    for i in range(8):
+        c.H(i)
+        c.Measure(Qubit(i), a[i])
+    # Count the number of 1s in the "a" register and store in the "b" register.
+    c.add_wasm_to_reg("set_c", wasfile, [s], [])  # set c to zero
+    for i in range(8):
+        # Copy a[i] to s
+        c.add_c_copybits([a[i]], [Bit("s", 0)])
+        # Conditionally increment the counter
+        c.add_wasm_to_reg("conditional_increment_c", wasfile, [s], [])
+    # Put the counter into "b"
+    c.add_wasm_to_reg("get_c", wasfile, [], [b])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(
+        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+    )
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C: np.ndarray) -> int:
+        assert len(C) == 4
+        return sum(pow(2, i) * C[i] for i in range(4))
+
+    for shot in shots:
+        a_count = sum(shot[:8])
+        b_count = to_int(shot[8:12])
+        assert a_count == b_count
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        # https://github.com/CQCL/pytket-quantinuum/issues/236
+        # Language.QIR,
+    ],
+)
+@pytest.mark.timeout(120)
+def test_wasm_multivalue(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    wasfile = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "multivalue.wasm")
+    )
+    c = Circuit(8)
+    a = c.add_c_register("a", 4)  # measurement results
+    b = c.add_c_register("b", 4)  # measurement results
+    x = c.add_c_register("x", 4)  # quotient
+    y = c.add_c_register("y", 4)  # remainder
+
+    # Use Hadamards to set "a" register to random values.
+    for i in range(8):
+        c.H(i)
+    # Measure
+    for i in range(4):
+        c.Measure(Qubit(i), Bit("a", i))
+        c.Measure(Qubit(4 + i), Bit("b", i))
+    # Compute divmod
+    c.add_wasm_to_reg("divmod", wasfile, [a, b], [x, y])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(
+        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+    )
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C: np.ndarray) -> int:
+        assert len(C) == 4
+        return sum(pow(2, i) * C[i] for i in range(4))
+
+    for shot in shots:
+        A = to_int(shot[:4])
+        B = to_int(shot[4:8])
+        X = to_int(shot[8:12])
+        Y = to_int(shot[12:16])
+        if B == 0:
+            assert X == 0
+            assert Y == 0
+        else:
+            assert A == X * B + Y
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/250
+    config = QuantinuumBackendCompilationConfig(allow_implicit_swaps=False)
+    b = QuantinuumBackend(
+        "H1-1E", api_handler=authenticated_quum_handler, compilation_config=config
+    )
+    c = Circuit(2).H(0).CX(0, 1).measure_all()
+    c1 = b.get_compiled_circuit(c)
+    assert any(cmd.op.type == b.default_two_qubit_gate for cmd in c1)
