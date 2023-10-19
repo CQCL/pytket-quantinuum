@@ -472,7 +472,6 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     assert res.get_counts() == correct_counts
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
@@ -544,7 +543,6 @@ def test_retrieve_available_devices(
     )
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
@@ -916,7 +914,6 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     assert all(len(shot) == 2 for shot in shots)
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.timeout(120)
 def test_old_handle(
