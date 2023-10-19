@@ -71,7 +71,7 @@ REASON = (
 
 
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_quantinuum(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -142,7 +142,7 @@ def test_max_classical_register(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_bell(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -164,10 +164,7 @@ def test_bell(
     [{"device_name": "H1-1SC", "label": "test 3"}],
     indirect=True,
 )
-@pytest.mark.parametrize(
-    "language",
-    [Language.QASM],
-)  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_multireg(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -350,10 +347,7 @@ def test_cost_estimate(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize(
-    "language",
-    [Language.QASM],
-)  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_classical(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -406,7 +400,7 @@ def test_classical(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_postprocess(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -483,14 +477,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
-    ],
-)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -584,7 +571,7 @@ def test_batching(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_submission_with_group(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -609,7 +596,7 @@ def test_submission_with_group(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_zzphase(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -793,7 +780,7 @@ def test_submit_qasm(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_options(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -815,7 +802,7 @@ def test_options(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_no_opt(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -914,7 +901,6 @@ attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "require
     assert len(r.get_shots()) == 10
 
 
-@pytest.mark.skipif(True, reason=REASON)  # FIXME add QIR, #236
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
@@ -1006,14 +992,7 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
-    ],
-)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_wasm_collatz(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -1064,14 +1043,7 @@ def test_wasm_collatz(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
-    ],
-)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_wasm_state(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -1120,14 +1092,7 @@ def test_wasm_state(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
-    ],
-)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_wasm_multivalue(
     authenticated_quum_backend: QuantinuumBackend, language: Language
