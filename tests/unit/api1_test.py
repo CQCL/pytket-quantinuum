@@ -34,6 +34,9 @@ from pytket.extensions.quantinuum.backends.quantinuum import (
     DEFAULT_API_HANDLER,
     BatchingUnsupported,
 )
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    QuantinuumConfigCredentialStorage,
+)
 from pytket.extensions.quantinuum._metadata import __extension_version__
 
 
@@ -122,8 +125,10 @@ def test_default_login_flow(
 
 def test_custom_login_flow(
     requests_mock: Mocker,
+    mock_credentials: Tuple[str, str],
     mock_token: str,
     mock_machine_info: Dict[str, Any],
+    monkeypatch: Any,
 ) -> None:
     """Test that when an api_handler is provided to
     QuantinuumBackend we use that handler and acquire
@@ -180,9 +185,20 @@ def test_custom_login_flow(
         ),
     )
 
+    backend_3 = QuantinuumBackend(
+        device_name=fake_device,
+        api_handler=QuantinuumAPI(QuantinuumConfigCredentialStorage()),
+    )
+
     circ = Circuit(2, name="default_login_flow_test").H(0).CX(0, 1).measure_all()
     circ = backend_1.get_compiled_circuit(circ)
     circ = backend_2.get_compiled_circuit(circ)
+
+    username, pwd = mock_credentials
+    # fake user input from stdin
+    monkeypatch.setattr("sys.stdin", StringIO(username + "\n"))
+    monkeypatch.setattr("getpass.getpass", lambda prompt: pwd)
+    circ = backend_3.get_compiled_circuit(circ)
 
     backend_1.process_circuits(
         circuits=[circ, circ],
@@ -194,11 +210,30 @@ def test_custom_login_flow(
         n_shots=10,
         valid_check=False,
     )
+    backend_3.process_circuits(
+        circuits=[circ, circ],
+        n_shots=10,
+        valid_check=False,
+    )
 
-    # We expect /login to be called for each api_handler.
-    assert login_route.call_count == 2
-    assert job_submit_route.call_count == 4
+    # QuantinuumConfigCredentialStorage doesn't require re-login
+    backend_4 = QuantinuumBackend(
+        device_name=fake_device,
+        api_handler=QuantinuumAPI(QuantinuumConfigCredentialStorage()),
+    )
+    circ = backend_4.get_compiled_circuit(circ)
+    backend_4.process_circuits(
+        circuits=[circ, circ],
+        n_shots=10,
+        valid_check=False,
+    )
+    # We expect /login to be called for each api_handler except backend_4.
+    assert login_route.call_count == 3
+    assert job_submit_route.call_count == 8
     assert job_status_route.call_count == 0
+
+    # Remove tokens stored with QuantinuumConfig
+    backend_3.api_handler.delete_authentication()
 
 
 def test_mfa_login_flow(

@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Add ``QuantinuumConfigCredentialStorage`` for caching API tokens in local pytket
+  configuration file.
+
 0.25.0 (October 2023)
 ---------------------
 

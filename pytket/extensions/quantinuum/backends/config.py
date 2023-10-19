@@ -27,11 +27,25 @@ class QuantinuumConfig(PytketExtConfig):
 
     username: Optional[str]
 
+    refresh_token: Optional[str]
+
+    id_token: Optional[str]
+
+    refresh_token_timeout: Optional[str]
+
+    id_token_timeout: Optional[str]
+
     @classmethod
     def from_extension_dict(
         cls: Type["QuantinuumConfig"], ext_dict: Dict[str, Any]
     ) -> "QuantinuumConfig":
-        return cls(ext_dict.get("username", None))
+        return cls(
+            ext_dict.get("username", None),
+            ext_dict.get("refresh_token", None),
+            ext_dict.get("id_token", None),
+            ext_dict.get("refresh_token_timeout", None),
+            ext_dict.get("id_token_timeout", None),
+        )
 
 
 def set_quantinuum_config(username: Optional[str]) -> None:

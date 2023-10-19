@@ -18,6 +18,9 @@ from typing import Any, Tuple
 from requests_mock.mocker import Mocker
 
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    MemoryCredentialStorage,
+)
 
 
 def test_quum_login(
@@ -30,6 +33,7 @@ def test_quum_login(
 
     _, pwd = mock_credentials
 
+    assert isinstance(mock_quum_api_handler._cred_store, MemoryCredentialStorage)
     # Check credentials are retrievable
     assert mock_quum_api_handler._cred_store._password == pwd
     assert mock_quum_api_handler._cred_store.refresh_token == mock_token
@@ -93,9 +97,9 @@ def test_full_login(
 
     api_handler = QuantinuumAPI()
     # emulate no pytket config stored email address
-    api_handler.config.username = None
     api_handler.full_login()
 
+    assert isinstance(api_handler._cred_store, MemoryCredentialStorage)
     assert api_handler._cred_store.id_token == mock_token
     assert api_handler._cred_store.refresh_token == "refresh" + mock_token
     assert api_handler._cred_store._id_token_timeout is not None

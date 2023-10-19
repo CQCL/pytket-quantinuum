@@ -27,8 +27,7 @@ from requests.models import Response
 from websockets import connect, exceptions  # type: ignore
 import nest_asyncio  # type: ignore
 
-from .config import QuantinuumConfig
-from .credential_storage import MemoryCredentialStorage
+from .credential_storage import CredentialStorage, MemoryCredentialStorage
 from .federated_login import microsoft_login
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
@@ -84,7 +83,7 @@ class QuantinuumAPI:
 
     def __init__(
         self,
-        token_store: Optional[MemoryCredentialStorage] = None,
+        token_store: Optional[CredentialStorage] = None,
         api_url: Optional[str] = None,
         api_version: int = 1,
         use_websocket: bool = True,
@@ -99,7 +98,7 @@ class QuantinuumAPI:
         :param token_store: JWT Token store, defaults to None
             A new MemoryCredentialStorage will be initialised
             if None is provided.
-        :type token_store: MemoryCredentialStorage, optional
+        :type token_store: CredentialStorage, optional
         :param api_url: _description_, defaults to DEFAULT_API_URL
         :type api_url: Optional[str], optional
         :param api_version: API version, defaults to 1
@@ -114,7 +113,6 @@ class QuantinuumAPI:
             is provided
         :type session: requests.Session, optional
         """
-        self.config = QuantinuumConfig.from_default_config_file()
         self.online = True
 
         self.url = f"{api_url if api_url else self.DEFAULT_API_URL}v{api_version}/"
@@ -124,15 +122,16 @@ class QuantinuumAPI:
         else:
             self.session = session
 
+        self._cred_store: CredentialStorage
         if token_store is None:
             self._cred_store = MemoryCredentialStorage()
         else:
             self._cred_store = token_store
 
         if __user_name is not None:
-            self.config.username = __user_name
-        if self.config.username is not None and __pwd is not None:
-            self._cred_store._save_login_credential(self.config.username, __pwd)
+            self._cred_store.save_user_name(__user_name)
+        if __pwd is not None and isinstance(self._cred_store, MemoryCredentialStorage):
+            self._cred_store._password = __pwd
 
         self.api_version = api_version
         self.use_websocket = use_websocket
@@ -244,10 +243,13 @@ class QuantinuumAPI:
 
     def _get_credentials(self) -> Tuple[str, str]:
         """Method to ask for user's credentials"""
-        user_name = self._cred_store._user_name or self.config.username
+        user_name = self._cred_store.user_name
+        pwd = None
+        if isinstance(self._cred_store, MemoryCredentialStorage):
+            pwd = self._cred_store._password
+
         if not user_name:
             user_name = input("Enter your Quantinuum email: ")
-        pwd = self._cred_store._password
 
         if not pwd:
             pwd = getpass.getpass(prompt="Enter your Quantinuum password: ")
@@ -292,8 +294,7 @@ class QuantinuumAPI:
 
     def delete_authentication(self) -> None:
         """Remove stored credentials and tokens"""
-        self._cred_store._delete_login_credential()
-        self._cred_store.delete_tokens()
+        self._cred_store.delete_credential()
 
     def _submit_job(self, body: Dict) -> Response:
         id_token = self.login()
