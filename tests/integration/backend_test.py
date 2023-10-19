@@ -476,7 +476,15 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        pytest.param(
+            Language.QIR, marks=pytest.mark.xfail(reason="no error model with QIR?")
+        ),
+    ],
+)
 @pytest.mark.timeout(120)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -989,7 +997,18 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/232"
+            ),
+        ),
+    ],
+)
 @pytest.mark.timeout(120)
 def test_wasm_collatz(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -1040,7 +1059,18 @@ def test_wasm_collatz(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/232"
+            ),
+        ),
+    ],
+)
 @pytest.mark.timeout(120)
 def test_wasm_state(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -1089,7 +1119,18 @@ def test_wasm_state(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/261"
+            ),
+        ),
+    ],
+)
 @pytest.mark.timeout(120)
 def test_wasm_multivalue(
     authenticated_quum_backend: QuantinuumBackend, language: Language
