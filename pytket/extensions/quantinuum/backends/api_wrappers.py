@@ -27,6 +27,7 @@ from requests.models import Response
 from websockets import connect, exceptions  # type: ignore
 import nest_asyncio  # type: ignore
 
+from .config import QuantinuumConfig
 from .credential_storage import CredentialStorage, MemoryCredentialStorage
 from .federated_login import microsoft_login
 
@@ -128,7 +129,18 @@ class QuantinuumAPI:
         else:
             self._cred_store = token_store
 
-        if __user_name is not None:
+        # if __user_name is None and MemoryCredentialStorage is used
+        # and there is a cached username in the config file,
+        # load that username into memory
+        if __user_name is None and isinstance(
+            self._cred_store, MemoryCredentialStorage
+        ):
+            config = QuantinuumConfig.from_default_config_file()
+            if config.username is not None:
+                self._cred_store.save_user_name(config.username)
+        elif __user_name is not None:
+            # username will be cached if persistent storage is used,
+            # otherwise it will be stored in memory
             self._cred_store.save_user_name(__user_name)
         if __pwd is not None and isinstance(self._cred_store, MemoryCredentialStorage):
             self._cred_store._password = __pwd
