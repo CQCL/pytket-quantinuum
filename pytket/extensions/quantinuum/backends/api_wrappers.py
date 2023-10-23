@@ -24,7 +24,7 @@ import json
 import getpass
 from requests import Session
 from requests.models import Response
-from websockets import connect, exceptions  # type: ignore
+from websockets import connect, exceptions
 import nest_asyncio  # type: ignore
 
 from .config import QuantinuumConfig
