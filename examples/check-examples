@@ -18,7 +18,7 @@ do
 
     # Check that notebook is generated from script
     p2j -o -t ${name}-gen.ipynb python/${file}
-    # cmp ${name}.ipynb ${name}-gen.ipynb
+    cmp ${name}.ipynb ${name}-gen.ipynb
 
     # Remove generated notebook and modified python script
     rm ${name}-gen.ipynb
