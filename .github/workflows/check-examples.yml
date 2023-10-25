@@ -30,7 +30,7 @@ jobs:
         base: ${{ github.ref }}
         filters: |
           examples:
-            - 'examples/**'
+            - '{examples/**, .github/**}'
             - '.github/workflows/check-examples.yml'
 
   check:
