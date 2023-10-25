@@ -84,10 +84,10 @@ for gate in c:
 
 # One helpful feature is to plot the DAG of the circuit to get an overview of the different components of the circuit.
 
-from pytket.utils import Graph
+# from pytket.utils import Graph
 
-g = Graph(c)
-g.view_DAG()
+# g = Graph(c)
+# g.view_DAG()
 
 # ## Send Wasm to the Backend
 
