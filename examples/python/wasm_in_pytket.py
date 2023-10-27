@@ -84,10 +84,10 @@ for gate in c:
 
 # One helpful feature is to plot the DAG of the circuit to get an overview of the different components of the circuit.
 
-from pytket.utils import Graph
+# from pytket.utils import Graph
 
-g = Graph(c)
-g.view_DAG()
+# g = Graph(c)
+# g.view_DAG()
 
 # ## Send Wasm to the Backend
 
@@ -109,11 +109,5 @@ h = b.process_circuits([c], n_shots=10, wasm_file_handler=wfh)[0]
 
 status = b.circuit_status(h)
 print(status)
-
-result = b.get_result(h)
-print(result)
-
-for shot in result.get_shots():
-    print(shot)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

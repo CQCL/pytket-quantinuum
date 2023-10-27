@@ -157,7 +157,7 @@ print(result.get_counts())
 
 # Jobs that have been submitted can also be cancelled if needed.
 
-backend.cancel(handle)
+# backend.cancel(handle)
 
 # ## Additional Features <a class="anchor" id="additional-features"></a>
 
