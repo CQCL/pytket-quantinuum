@@ -1,49 +1,49 @@
 # # Quantinuum Variational Experiment on H-Series with tket
 
-# This notebook showcases how a variational experiment can be performed on H-Series 
-# hardware or emulator. `pytket` is used to synthesise a state-preperation circuit, 
-# prepare measurement circuits, and is also used to submit (retrieve) jobs in a batch to (from) 
-# the H-Series service. This circuit consists of fixed-angle one-qubit and two-qubit 
-# gates in addition to variable-angle one-qubit gates. 
+# This notebook showcases how a variational experiment can be performed on H-Series
+# hardware or emulator. `pytket` is used to synthesise a state-preperation circuit,
+# prepare measurement circuits, and is also used to submit (retrieve) jobs in a batch to (from)
+# the H-Series service. This circuit consists of fixed-angle one-qubit and two-qubit
+# gates in addition to variable-angle one-qubit gates.
 # Variable-angle one-qubit gates can have two types of parameters:
 # * numerical parameters (`float`);
 # * symbolic parameters (`sympy.symbol`).
 # Numerical parameters are native python `float`s. Symbolic parameters require the use
-# of the symbolic library, `sympy`, which is also a dependency of `pytket`. Throughout 
-# the variational experiment, symbolic parameters on the state-preparation circuit 
-# are replaced with additional numerical parameters. 
-# The variational procedure consists of $n$ iterations until a specific criterion is 
-# satisfied. A batch session is started to run over these $n$ iterations. Inactivity for over 10 minutes will lead to the batch session ending. 
-# The variational experiment requires the following as inputs: 
+# of the symbolic library, `sympy`, which is also a dependency of `pytket`. Throughout
+# the variational experiment, symbolic parameters on the state-preparation circuit
+# are replaced with additional numerical parameters.
+# The variational procedure consists of $n$ iterations until a specific criterion is
+# satisfied. A batch session is started to run over these $n$ iterations. Inactivity for over 10 minutes will lead to the batch session ending.
+# The variational experiment requires the following as inputs:
 # * a symbolic state-preparation circuit.
-# * an observable defining the problem to be solved, i.e. this can be an Electronic 
-# Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation)or MAXCUT instance. The 
-# observable is a sum of Pauli-strings (tensor product over `m` qubits of 
-# Pauli-$\hat{X}$, Pauli-$\hat{Y}$, Pauli-$\hat{Z}$ & Pauli-$\hat{I}$) multiplied 
+# * an observable defining the problem to be solved, i.e. this can be an Electronic
+# Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation)or MAXCUT instance. The
+# observable is a sum of Pauli-strings (tensor product over `m` qubits of
+# Pauli-$\hat{X}$, Pauli-$\hat{Y}$, Pauli-$\hat{Z}$ & Pauli-$\hat{I}$) multiplied
 # by numerical coefficients.
-# * a set of initial numerical parameters to substitute into the symbolic 
-# state-preparation circuit. For example, this can be a set of random numerical 
+# * a set of initial numerical parameters to substitute into the symbolic
+# state-preparation circuit. For example, this can be a set of random numerical
 # floating-point numbers.
-# * the `pytket.backends.Backend` object to interface with the 
-# third-party quantum computing service. 
+# * the `pytket.backends.Backend` object to interface with the
+# third-party quantum computing service.
 # * the number of shots to simulate each circuit with to generate a distribution of measurements.
 # * Maximum batch cost to limit the credit cost of the variational experiment.
-# During the variational experiment, each iteration updates the numerical values in the parameter set. Subsequently, 
-# these are substituted into a new copy of the original symbolic state-preperation 
-# circuit. A set of sub-circuits, each containing measurement information defined by 
-# the input observable, are appended to the numerical state-preparation circuit, leading 
+# During the variational experiment, each iteration updates the numerical values in the parameter set. Subsequently,
+# these are substituted into a new copy of the original symbolic state-preperation
+# circuit. A set of sub-circuits, each containing measurement information defined by
+# the input observable, are appended to the numerical state-preparation circuit, leading
 # to a set of measurement circuits. Finally, these circuits are submitted to H-Series.
-# Specifically, each iteration consists of: 
-# * classical pre-processing to define measurement circuits; 
+# Specifically, each iteration consists of:
+# * classical pre-processing to define measurement circuits;
 # * batch submission to H-Series;
 # * retrieval of measurement results;
-# * classical post-processing to evaluate the cost function 
+# * classical post-processing to evaluate the cost function
 # determining whether to stop or continue the variational procedure.
 # The `SciPy` minimiser is used to control the optimisation of the cost function. The minimised value of the cost function and the optimal parameters can be retrieved at the end of the variational experiment.
 
 # **QuantinuumBackend**
 # The `QuantinuumBackend` is used to submit and retreive all circuits required for the variational experiment. This backend is included in the `pytket-quantinuum` extension. With this backend, the end-user can access H-series emulators, syntax checkers and hardware. The QLLC user portal lists all devices and emulators the end-user can access.
-# In  the code cell below, the instance of QuantinuumBackend uses the H-Series emulator, `H1-1E`. The H1 syntax checker is called `H1-1SC` and the device is name `H1-1`. The emulator is a useful utility to test and cost the performance of an algorithm before any hardware session. 
+# In  the code cell below, the instance of QuantinuumBackend uses the H-Series emulator, `H1-1E`. The H1 syntax checker is called `H1-1SC` and the device is name `H1-1`. The emulator is a useful utility to test and cost the performance of an algorithm before any hardware session.
 # The `QuantinuumBackend` instance requires the user to be authenticated before any jobs can be submitted. The `login` method will allow authentication.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
@@ -59,15 +59,15 @@ quantinuum_backend.login()
 
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
 
-# A 2-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`) 
-# and variable-angle one-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation 
-# technique is known as the hardware-efficient ansatz. The hardware-efficient ansatz used in this 
-# example consists of one-layers (4-parameters) and only uses `Ry` gates. 
+# A 2-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
+# and variable-angle one-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
+# technique is known as the hardware-efficient ansatz. The hardware-efficient ansatz used in this
+# example consists of one-layers (4-parameters) and only uses `Ry` gates.
 
 from pytket.circuit import Circuit
 from sympy import Symbol
 
-symbols = [Symbol(f"p{i}")for i in range(4)]
+symbols = [Symbol(f"p{i}") for i in range(4)]
 symbolic_circuit = Circuit(2)
 
 symbolic_circuit.X(0)
@@ -100,7 +100,7 @@ render_circuit_jupyter(symbolic_circuit1)
 # $+ g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}$
 # where $g_0, g_1, g_2$, $g_3$, $g_4$ and $g_5$ are real numercial coefficients.
 
-# The `QubitPauliOperator` is a dictionary mapping `pytket.pauli.QubitPauliString` to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types). 
+# The `QubitPauliOperator` is a dictionary mapping `pytket.pauli.QubitPauliString` to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types).
 # The `QubitPauliString` is a map from `pytket.circuit.Qubit` to `pytket.pauli.Pauli`.
 
 from pytket.utils.operators import QubitPauliOperator
@@ -112,35 +112,24 @@ from numpy.random import randint
 
 coeffs = [-0.4804, 0.3435, -0.4347, 0.5716, 0.0910, 0.0910]
 
-term0 = {QubitPauliString({
-    Qubit(0): Pauli.I,
-    Qubit(1): Pauli.I,
-}): coeffs[0]}
+term0 = {
+    QubitPauliString(
+        {
+            Qubit(0): Pauli.I,
+            Qubit(1): Pauli.I,
+        }
+    ): coeffs[0]
+}
 
-term1 = {QubitPauliString({
-    Qubit(0): Pauli.Z,
-    Qubit(1): Pauli.I
-}): coeffs[1]}
+term1 = {QubitPauliString({Qubit(0): Pauli.Z, Qubit(1): Pauli.I}): coeffs[1]}
 
-term2 = {QubitPauliString({
-    Qubit(0): Pauli.I,
-    Qubit(1): Pauli.Z
-}): coeffs[2]}
+term2 = {QubitPauliString({Qubit(0): Pauli.I, Qubit(1): Pauli.Z}): coeffs[2]}
 
-term3 = {QubitPauliString({
-    Qubit(0): Pauli.Z,
-    Qubit(1): Pauli.Z
-}): coeffs[3]}
+term3 = {QubitPauliString({Qubit(0): Pauli.Z, Qubit(1): Pauli.Z}): coeffs[3]}
 
-term4 = {QubitPauliString({
-    Qubit(0): Pauli.X,
-    Qubit(1): Pauli.X
-}): coeffs[4]}
+term4 = {QubitPauliString({Qubit(0): Pauli.X, Qubit(1): Pauli.X}): coeffs[4]}
 
-term5 = {QubitPauliString({
-    Qubit(0): Pauli.Y,
-    Qubit(1): Pauli.Y
-}): coeffs[5]}
+term5 = {QubitPauliString({Qubit(0): Pauli.Y, Qubit(1): Pauli.Y}): coeffs[5]}
 
 term_sum = {}
 term_sum.update(term0)
@@ -154,16 +143,16 @@ term_sum.update(term5)
 hamiltonian = QubitPauliOperator(term_sum)
 print(hamiltonian)
 
-# To measure $\hat{H}$ on hardware, naively 5 measurement circuits are required. The 
-# Identity term does not need to measured, since its expectation value always equals 1. 
-# With pytket, $\hat{H}$ only requires simulating 2 measurement circuit, thanks to 
-# measurement reduction. The four terms $\hat{X}_{q[0]} \otimes \hat{X}_{q[1]}$, 
+# To measure $\hat{H}$ on hardware, naively 5 measurement circuits are required. The
+# Identity term does not need to measured, since its expectation value always equals 1.
+# With pytket, $\hat{H}$ only requires simulating 2 measurement circuit, thanks to
+# measurement reduction. The four terms $\hat{X}_{q[0]} \otimes \hat{X}_{q[1]}$,
 # $\hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$ and $\hat{I}_{q[0]} \otimes \hat{Z}_{q[1]}$,
-# form a commuting set and can be measured with two circuit instead of three. This partitioning can 
-# be performed automatically using the `measurement_reduction` function available in 
-# `pytket.partition` submodule. 
-# The measurement operations for the two commuting set, 
-# * $\left\{ \hat{X}_{q[0]} \otimes \hat{X}_{q[1]}, \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \right\}$, 
+# form a commuting set and can be measured with two circuit instead of three. This partitioning can
+# be performed automatically using the `measurement_reduction` function available in
+# `pytket.partition` submodule.
+# The measurement operations for the two commuting set,
+# * $\left\{ \hat{X}_{q[0]} \otimes \hat{X}_{q[1]}, \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \right\}$,
 # * $\left\{ \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}, \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]}, \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]}\right\}$
 # include additional two-qubit gate resources.
 
@@ -178,9 +167,9 @@ pauli_strings = [term for term in hamiltonian._dict.keys()]
 
 measurement_setup = measurement_reduction(pauli_strings, strat)
 
-# A measurement subcircuit contains the necessary operations to 
-# measure the terms in a commuting set. The subcircuit is appended to the numerical state-preparation 
-# circuit. Combining the numerical state-preparation circuit and the measurement subcircuits results 
+# A measurement subcircuit contains the necessary operations to
+# measure the terms in a commuting set. The subcircuit is appended to the numerical state-preparation
+# circuit. Combining the numerical state-preparation circuit and the measurement subcircuits results
 # in a set of measurement circuits required to solve the problem.
 # The `MeasurementSetup` instance contains all the necessary sub-circuits to measure $\hat{H}$.
 # The next code cell lists and visualises all measurement subcircuits.
@@ -190,11 +179,11 @@ from pytket.circuit.display import render_circuit_jupyter
 for measurement_subcircuit in measurement_setup.measurement_circs:
     render_circuit_jupyter(measurement_subcircuit)
 
-# Once the quantum computation has been completed, the measurement results can be mapped back to the 
+# Once the quantum computation has been completed, the measurement results can be mapped back to the
 # Pauli-operations and coefficients in the Hamiltonian. This enables calculation of the expectation value for the Hamiltonian.
-# The results attribute in the `pytket.partition.MeasurementSetup` lists: 
+# The results attribute in the `pytket.partition.MeasurementSetup` lists:
 # * all the Pauli-strings that have been measured;
-# * information to process the quantum computed measurement result in order 
+# * information to process the quantum computed measurement result in order
 # to estimate the expectation value of each Pauli-strings.
 
 for i, (term, bitmap_list) in enumerate(measurement_setup.results.items()):
@@ -202,53 +191,49 @@ for i, (term, bitmap_list) in enumerate(measurement_setup.results.items()):
 
 # ## 3. Computing Expectation Values <a class="anchor" id="expval"></a>
 
-# Once the Hamiltonian has been partitioned into commuting sets, 
-# measurement circuits need to be constructed. These measurement 
-# circuits are submitted to hardware or emulators for simulation. 
-# Once the simulation is complete, a result is available to request, 
-# and can be retrieved using `pytket`. These results are the outcomes 
-# of the measurement circuit simulation. Each result is a 
-# distribution of outcomes, specifically, the probability of 
-# observing  specific bitstring. This distribution is 
-# post-processed to compute the expectation value of the Hamiltonian, 
-# a necessity to evaluate the cost function in a Hybrid 
+# Once the Hamiltonian has been partitioned into commuting sets,
+# measurement circuits need to be constructed. These measurement
+# circuits are submitted to hardware or emulators for simulation.
+# Once the simulation is complete, a result is available to request,
+# and can be retrieved using `pytket`. These results are the outcomes
+# of the measurement circuit simulation. Each result is a
+# distribution of outcomes, specifically, the probability of
+# observing  specific bitstring. This distribution is
+# post-processed to compute the expectation value of the Hamiltonian,
+# a necessity to evaluate the cost function in a Hybrid
 # Quantum-Classical variational procedure.
 
 # ### 3.1 Computing Expectation Values for Pauli-Strings
 
-# The Hamiltonian we are interested in consists of Pauli-strings. 
+# The Hamiltonian we are interested in consists of Pauli-strings.
 # The expectation value of the Pauli-string is in the interval $[-1, 1]$.
-# In the code cell below, a function is provided that calculates the expectation 
-# value of Pauli-string from a measured distribution. The MeasurementBitmap is 
-# used to extract the necessary data from the measured distribution. The resulting 
-# distribution can be summed over to estimate the expectation value of one 
+# In the code cell below, a function is provided that calculates the expectation
+# value of Pauli-string from a measured distribution. The MeasurementBitmap is
+# used to extract the necessary data from the measured distribution. The resulting
+# distribution can be summed over to estimate the expectation value of one
 # Pauli-string.
 
 from typing import Dict, Tuple
 from pytket.partition import MeasurementBitMap
 
+
 def compute_expectation_paulistring(
-    distribution: Dict[Tuple[int, ...], float],
-    bitmap: MeasurementBitMap
+    distribution: Dict[Tuple[int, ...], float], bitmap: MeasurementBitMap
 ) -> float:
     value = 0
     for bitstring, probability in distribution.items():
         value += probability * (sum(bitstring[i] for i in bitmap.bits) % 2)
     return ((-1) ** bitmap.invert) * (-2 * value + 1)
 
-# In the example below, the function `compute_expectation_paulistring` is called to calculate the expectation for 
-# the $\hat{Z} \otimes \hat{Z}$. First the `QubitPauliString` is initialised, and that is used to extract the relevant 
+
+# In the example below, the function `compute_expectation_paulistring` is called to calculate the expectation for
+# the $\hat{Z} \otimes \hat{Z}$. First the `QubitPauliString` is initialised, and that is used to extract the relevant
 # data from the MeasurementSetup object defined in section 2. This data is used for postprocessing.
 
 from pytket.pauli import Pauli, QubitPauliString
 from pytket.circuit import Qubit
 
-distribution = {
-    (0, 0): 0.45, 
-    (1, 1): 0.3,
-    (0, 1): 0.1,
-    (1, 0): 0.15 
-}
+distribution = {(0, 0): 0.45, (1, 1): 0.3, (0, 1): 0.1, (1, 0): 0.15}
 
 zz = QubitPauliString([Qubit(0), Qubit(1)], [Pauli.Z, Pauli.Z])
 
@@ -260,9 +245,9 @@ for bitmap in bitmap_list:
 
 # ### 3.2 Computing Expectation Values for sums of Pauli-strings multiplied by coefficients
 
-# In this step, we will submit circuits to the H-Series emulator (H1-1E). This circuit will produce a result. The result 
+# In this step, we will submit circuits to the H-Series emulator (H1-1E). This circuit will produce a result. The result
 # can be retrieved with the `ResultHandle` object.
-# First, the symbolic circuit is converted into a numerical circuit. The symbols in the circuit are substituted for 
+# First, the symbolic circuit is converted into a numerical circuit. The symbols in the circuit are substituted for
 # numerical parameters.
 
 symbol_map = {sym: 0.1 for sym in symbolic_circuit.free_symbols()}
@@ -273,8 +258,8 @@ numerical_circuit.symbol_substitution(symbol_map)
 
 # The Quantinuum backend was initialised at the start of the notebook to use the H1-1E emulator. This backend will now be used to calculate the expectation value.
 
-# The measurement operations from the `MeasurementSetup` object are appended to the 
-# numerical circuit. Once this step is complete, the circuit is ready for submission 
+# The measurement operations from the `MeasurementSetup` object are appended to the
+# numerical circuit. Once this step is complete, the circuit is ready for submission
 # if tket optimisation in the H-Series stack is selected.
 
 circuit_list = []
@@ -283,26 +268,30 @@ for mc in measurement_setup.measurement_circs:
     c.append(mc)
     circuit_list += [c]
 
-compiled_circuit_list = quantinuum_backend.get_compiled_circuits(circuit_list, optimisation_level=2)
-handles = quantinuum_backend.process_circuits(compiled_circuit_list, n_shots=10, options={"tket-op-level": None})
+compiled_circuit_list = quantinuum_backend.get_compiled_circuits(
+    circuit_list, optimisation_level=2
+)
+handles = quantinuum_backend.process_circuits(
+    compiled_circuit_list, n_shots=10, options={"tket-op-level": None}
+)
 
-# The status of the jobs can be checked with ciruit_status method. This method requires the 
-# ResultHandle to be passed as input. In this example, the job has completed and the results 
+# The status of the jobs can be checked with ciruit_status method. This method requires the
+# ResultHandle to be passed as input. In this example, the job has completed and the results
 # are reported as being ready to request.
 
 for h in handles:
     circuit_status = quantinuum_backend.circuit_status(h)
     print(circuit_status)
 
-# The expectation value of the operator can be evaluated 
-# with the function `compute_expectation_value` in the 
-# next code cell. This function requires a list of 
-# `BackendResult` objects, a `MeasurementSetup` instance, 
-# and the `QubitPauliOperator` instance for the expectation 
-# value computation. It is assumed the `MeasurementSetup` 
-# instance contains the measurement info of all the 
-# Pauli-strings in the `QubitPauliOperator` instance. 
-# Otherwise the `compute_expectation_value` function will 
+# The expectation value of the operator can be evaluated
+# with the function `compute_expectation_value` in the
+# next code cell. This function requires a list of
+# `BackendResult` objects, a `MeasurementSetup` instance,
+# and the `QubitPauliOperator` instance for the expectation
+# value computation. It is assumed the `MeasurementSetup`
+# instance contains the measurement info of all the
+# Pauli-strings in the `QubitPauliOperator` instance.
+# Otherwise the `compute_expectation_value` function will
 # return zero.
 
 from typing import List
@@ -315,7 +304,7 @@ from pytket.backends.backendresult import BackendResult
 def compute_expectation_value(
     results: List[BackendResult],
     measurement_setup: MeasurementSetup,
-    operator: QubitPauliOperator
+    operator: QubitPauliOperator,
 ) -> float:
     energy = 0
     for pauli_string, bitmaps in measurement_setup.results.items():
@@ -328,34 +317,31 @@ def compute_expectation_value(
                 energy += complex(value * string_coeff).real
     return energy
 
-# The results of the previously submitted circuits can be 
+
+# The results of the previously submitted circuits can be
 # retrieved with the `get_results` method on `QuantinuumBackend`.
 
 results = quantinuum_backend.get_results(handles)
 
 # Finally, the expectation value, $\langle{\psi (\vec{\theta}_r)} | \hat{H} | { \psi (\vec{\theta}_r)} \rangle$, of the `QubitPauliOperator` instance, $\hat{H}$, is calculated with respect to $| { \psi (\vec{\theta}_r)} \rangle$. The state, $| \psi \rangle$, is prepared with the state-preparation circuit, and $\vec{\theta}_r$ is a random parameter set.
 
-expectation_value = compute_expectation_value(
-    results,
-    measurement_setup,
-    hamiltonian
-)
+expectation_value = compute_expectation_value(results, measurement_setup, hamiltonian)
 print(f"Expectation Value: {expectation_value}")
 
 # ## 4. Variational Procedure <a class="anchor" id="variational"></a>
 
-# A hybrid quantum-classical variational procedure consists 
-# of multiple iterations, controlled by a 
-# classical parameter optimiser. The parameters are 
-# gate-angles on quantum circuits submitted to 
-# H-Series for simulation. 
-# In [step 3](#expval), a procedure is showcased to calculate 
-# the expectation value of a Hamiltonian with respect to a 
-# quantum state. It is show how to use the measurement reduction 
-# and Pauli-string partitioning facility in `pytket` to reduce 
-# measurement resources for the experiments. For the variational 
-# procedure demonstrated below, the cost function calculates the 
-# expectation of an input Hamiltonian. The aim is to find the 
+# A hybrid quantum-classical variational procedure consists
+# of multiple iterations, controlled by a
+# classical parameter optimiser. The parameters are
+# gate-angles on quantum circuits submitted to
+# H-Series for simulation.
+# In [step 3](#expval), a procedure is showcased to calculate
+# the expectation value of a Hamiltonian with respect to a
+# quantum state. It is show how to use the measurement reduction
+# and Pauli-string partitioning facility in `pytket` to reduce
+# measurement resources for the experiments. For the variational
+# procedure demonstrated below, the cost function calculates the
+# expectation of an input Hamiltonian. The aim is to find the
 # optimal parameters that minimise this expectation value.
 
 # ### 4.1. Objective function
@@ -367,12 +353,12 @@ print(f"Expectation Value: {expectation_value}")
 # * Expectation Value evaluation.
 # The `Objective` class requires the following inputs:
 # * Input symbolic state-preparation circuit;
-# * A `QubitPauliOperator` instance of the Hamiltonian characterising the 
+# * A `QubitPauliOperator` instance of the Hamiltonian characterising the
 # use-case of interest;
-# * The backend to use. `QuantinuumBackend` is used to 
-# access H-Series service. The backend needs to be 
+# * The backend to use. `QuantinuumBackend` is used to
+# access H-Series service. The backend needs to be
 # instantiated and the user needs to login within previous code cell.
-# * Number of shots to perform per circuit. H-Series devices have an 
+# * Number of shots to perform per circuit. H-Series devices have an
 # upper limit of 10000 shots per job.
 # * Maximum consumable HQC credit before the batch is terminated.
 # * Number of iterations before the variational experiment is terminated.
@@ -390,31 +376,31 @@ from pytket.backends.resulthandle import ResultHandle
 
 class Objective:
     def __init__(
-        self, 
-        symbolic_circuit: Circuit, 
+        self,
+        symbolic_circuit: Circuit,
         problem_hamiltonian: QubitPauliOperator,
         quantinuum_backend: QuantinuumBackend,
         n_shots_per_circuit: int,
         max_batch_cost: float = 300,
         n_iterations: int = 10,
     ) -> None:
-        r""" Returns the objective function needed for a variational 
+        r"""Returns the objective function needed for a variational
         procedure on H-Series.
         Args:
-            symbolic_circuit 
+            symbolic_circuit
             (pytket.circuit.Circuit): State-preparation
                 circuit with symbolic parameters
-            problem_hamiltonian (pytket.utils.operators.QubitPauliOperator): 
-                QubitPauliOperator instance defining the Hamiltonian of the 
+            problem_hamiltonian (pytket.utils.operators.QubitPauliOperator):
+                QubitPauliOperator instance defining the Hamiltonian of the
                 problem.
-            quantinuum_backend (pytket.extensions.quantinuum.QuantinuumBackend): Backend 
-                instance to use for the simulation. This will be 
-                QuantinuumBackend from the pytket.extensions.quantinuum 
+            quantinuum_backend (pytket.extensions.quantinuum.QuantinuumBackend): Backend
+                instance to use for the simulation. This will be
+                QuantinuumBackend from the pytket.extensions.quantinuum
                 package to run experiments on H-Series devices and emulators.
             n_shots_per_circuit (int): Number of shots per circuit.
-            max_batch_cost (float): Maximum cost of all jobs in batch. If 
+            max_batch_cost (float): Maximum cost of all jobs in batch. If
                 exceeded the batch will terminate.
-            n_iterations (int): Total number of iterations before ending 
+            n_iterations (int): Total number of iterations before ending
                 the batch session.
         Returns:
             Callable[[ndarray], float]
@@ -426,43 +412,38 @@ class Objective:
         self._nshots: int = n_shots_per_circuit
         self._max_batch_cost: float = max_batch_cost
         self._measurement_setup: MeasurementSetup = measurement_reduction(
-            terms, 
-            strat=PauliPartitionStrat.CommutingSets
+            terms, strat=PauliPartitionStrat.CommutingSets
         )
         self._iteration_number: int = 0
         self._niters: int = n_iterations
 
-    def __call__(
-        self, 
-        parameter: ndarray
-    ) -> float:
+    def __call__(self, parameter: ndarray) -> float:
         value = self._objective_function(parameter, self._iteration_number)
         self._iteration_number += 1
         if self._iteration_number >= self._niters:
             self._iteration_number = 0
         return value
-    
-    def circuit_cost(
-        self, 
-        syntax_checker: str = "H1-1SC"
-    ) -> float:
+
+    def circuit_cost(self, syntax_checker: str = "H1-1SC") -> float:
         n = len(self._symbolic_circuit.free_symbols())
         random_parameters = random_sample(n)
-        return sum([
-            self._backend.cost(c, self._nshots, syntax_checker=syntax_checker)
-            for c in self._build_circuits(random_parameters)
-        ])
+        return sum(
+            [
+                self._backend.cost(c, self._nshots, syntax_checker=syntax_checker)
+                for c in self._build_circuits(random_parameters)
+            ]
+        )
 
     def _objective_function(
         self,
         parameters: ndarray,
         iteration_number: int,
     ) -> float:
-        r"""Substitutes input parameters into the 
-        symbolic state-preparation circuit, and 
+        r"""Substitutes input parameters into the
+        symbolic state-preparation circuit, and
         calculates the expectation value.
         Args:
-            parameters (ndarray): A list of numpy.ndarray 
+            parameters (ndarray): A list of numpy.ndarray
         Returns:
             float
         """
@@ -470,25 +451,18 @@ class Objective:
         circuit_list = self._build_circuits(parameters)
         if iteration_number == 0:
             self._startjob = quantinuum_backend.start_batch(
-                self._max_batch_cost, 
-                circuit_list[0], 
-                self._nshots
+                self._max_batch_cost, circuit_list[0], self._nshots
             )
             handles = [self._startjob] + self._submit_batch(circuit_list[1:])
         else:
             handles = self._submit_batch(circuit_list)
         results = self._backend.get_results(handles)
         expval = compute_expectation_value(
-            results, 
-            self._measurement_setup, 
-            self._hamiltonian
+            results, self._measurement_setup, self._hamiltonian
         )
         return expval
-    
-    def _build_circuits(
-        self, 
-        parameters: ndarray
-    ) -> List[Circuit]:
+
+    def _build_circuits(self, parameters: ndarray) -> List[Circuit]:
         circuit = self._symbolic_circuit.copy()
         symbol_dict = {s: p for s, p in zip(circuit.free_symbols(), parameters)}
         circuit.symbol_substitution(symbol_dict)
@@ -497,27 +471,32 @@ class Objective:
             c = circuit.copy()
             c.append(mc)
             circuit_list.append(c)
-        cc_list = self._backend.get_compiled_circuits(circuit_list, optimisation_level=2)
-        return cc_list 
-        
+        cc_list = self._backend.get_compiled_circuits(
+            circuit_list, optimisation_level=2
+        )
+        return cc_list
+
     def _submit_batch(
         self,
         circuits: List[Circuit],
     ) -> List[ResultHandle]:
-        r"""Submit a list of circuits with N shots each 
+        r"""Submit a list of circuits with N shots each
         to the H-Series batch.
         Args:
-            circuits (List[Circuit]): A list of circuits 
+            circuits (List[Circuit]): A list of circuits
                 to submit to the batch on H-Series.
-            first job (ResultHandle): The result handle for the 
+            first job (ResultHandle): The result handle for the
                 first job submitted in the batch.
         Returns:
             List[ResultHandle]
         """
         return [
-            self._backend.add_to_batch(self._startjob, c, self._nshots, options={"tket-op-level": None})
+            self._backend.add_to_batch(
+                self._startjob, c, self._nshots, options={"tket-op-level": None}
+            )
             for c in circuits
         ]
+
 
 # The `Objective` class is initialised with the essential data needed to perform the variational experiment.
 # The object contains all the necessary information to compute the value of the objective function.
@@ -533,7 +512,7 @@ objective = Objective(
     quantinuum_backend,
     n_shots_per_circuit,
     max_batch_cost=max_batch_cost,
-    n_iterations=n_iterations
+    n_iterations=n_iterations,
 )
 
 objective.circuit_cost("H1-1SC")
@@ -549,11 +528,11 @@ from numpy.random import random_sample
 method = "SLSQP"
 initial_parameters = random_sample(len(symbolic_circuit.free_symbols()))
 result = minimize(
-    objective, 
-    initial_parameters, 
-    method=method, 
+    objective,
+    initial_parameters,
+    method=method,
     options={"disp": True, "maxiter": objective._niters},
-    tol=1e-2
+    tol=1e-2,
 )
 
 # The minimal value of the objective function can be retrieved with the `fun` attribute.
