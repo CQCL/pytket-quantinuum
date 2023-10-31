@@ -31,7 +31,7 @@ jobs:
         filters: |
           examples:
             - 'examples/**'
-            - '.github/workflows/check-examples.yml'
+            - '.github/**'
 
   check:
     name: Check notebooks
