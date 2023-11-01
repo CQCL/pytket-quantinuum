@@ -525,7 +525,7 @@ class QuantinuumAPIOffline:
             The format of should match what a real backend would return.
             One short example:
             {
-            "name": "H1-2",
+            "name": "H1-1",
             "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
             "n_shots": 10000,
@@ -544,18 +544,6 @@ class QuantinuumAPIOffline:
                     "system_type": "hardware",
                     "emulator": "H1-1E",
                     "syntax_checker": "H1-1SC",
-                    "batching": True,
-                    "wasm": True,
-                },
-                {
-                    "name": "H1-2",
-                    "n_qubits": 20,
-                    "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-                    "n_classical_registers": 120,
-                    "n_shots": 10000,
-                    "system_type": "hardware",
-                    "emulator": "H1-2E",
-                    "syntax_checker": "H1-2SC",
                     "batching": True,
                     "wasm": True,
                 },

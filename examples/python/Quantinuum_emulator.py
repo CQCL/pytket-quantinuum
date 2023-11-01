@@ -42,7 +42,7 @@ render_circuit_jupyter(circuit)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-2E"
+machine = "H1-1E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -57,7 +57,7 @@ render_circuit_jupyter(compiled_circuit)
 # Check the circuit HQC cost before running on the emulator.
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
 # Run the circuit on the emulator chosen.
 
@@ -248,7 +248,7 @@ print(result.get_distribution())
 
 # By default, emulations are run using a state-vector emulator, which simulates any quantum operation. However, if the quantum operations are all Clifford gates, it can be faster for complex circuits to use the `stabilizer` emulator. The stabilizer emulator is requested in the setup of the `QuantinuumBackend` with the `simulator` input option. This only applies to Quantinuum emulators.
 
-machine = "H1-2E"
+machine = "H1-1E"
 
 stabilizer_backend = QuantinuumBackend(device_name=machine, simulator="stabilizer")
 

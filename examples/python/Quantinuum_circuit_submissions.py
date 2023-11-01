@@ -60,7 +60,7 @@ render_circuit_jupyter(circuit)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-2E"
+machine = "H1-1E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -98,7 +98,7 @@ render_circuit_jupyter(compiled_circuit)
 # Note that in this case because an emulator is used, the specific syntax checker the emulator uses is specified. This is an optional parameter not needed if you are using a quantum computer target.
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
 # ### Run the Circuit <a class="anchor" id="run-circuit"></a>
 
@@ -263,7 +263,7 @@ compiled_circuit = backend.get_compiled_circuit(simulation_circuit)
 render_circuit_jupyter(compiled_circuit)
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
@@ -315,11 +315,11 @@ circ.add_assertion(ProjectorAssertionBox(proj), [qreg[2]], name="debug")
 
 render_circuit_jupyter(circ)
 
-machine = "H1-2E"
+machine = "H1-1E"
 n_shots = 100
 backend = QuantinuumBackend(device_name=machine)
 compiled_circuit = backend.get_compiled_circuit(circ)
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
