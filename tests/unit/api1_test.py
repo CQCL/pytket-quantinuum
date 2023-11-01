@@ -351,7 +351,7 @@ def test_federated_login_wrong_provider(
 
 @pytest.mark.parametrize(
     "chosen_device",
-    ["H1", "H2", "H1-1", "H1-2", "H2-1"],
+    ["H1", "H2", "H1-1", "H2-1"],
 )
 def test_device_family(
     requests_mock: Mocker,
@@ -529,7 +529,7 @@ def test_submit_qasm_api(
     )
 
     backend = QuantinuumBackend(
-        device_name="H1-2SC",
+        device_name="H1-1SC",
     )
     backend.api_handler = mock_quum_api_handler
 
@@ -574,7 +574,7 @@ def test_get_partial_result(
         },
         headers={"Content-Type": "application/json"},
     )
-    backend = QuantinuumBackend(device_name="H1-2SC", api_handler=mock_quum_api_handler)
+    backend = QuantinuumBackend(device_name="H1-1SC", api_handler=mock_quum_api_handler)
     h1 = ResultHandle(queued_job_id, "null", -1)
     res, status = backend.get_partial_result(h1)
     assert res is None

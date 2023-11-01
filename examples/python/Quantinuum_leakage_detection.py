@@ -54,7 +54,7 @@ from pytket.extensions.quantinuum import QuantinuumBackend
 
 circuit = Circuit(2, 2).H(0).CX(0, 1).measure_all()
 # Note for demonstration purposes this is not calling the real hardware.
-backend = QuantinuumBackend(device_name="H1-2E")
+backend = QuantinuumBackend(device_name="H1-1E")
 handle = backend.process_circuit(circuit, n_shots=10000, leakage_detection=True)
 result = backend.get_result(handle)
 
@@ -89,9 +89,9 @@ for _ in range(200):
     circuit.add_barrier([0, 1])
 circuit.measure_all()
 
-# We next run the circuit through the Quantinuum H1-2 emulator, which realistically models leakage during the two-qubit gates. We create two circuit handles, one without and the other with leakage detection.
+# We next run the circuit through the Quantinuum H1-1 emulator, which realistically models leakage during the two-qubit gates. We create two circuit handles, one without and the other with leakage detection.
 
-backend = QuantinuumBackend(device_name="H1-2E")
+backend = QuantinuumBackend(device_name="H1-1E")
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=0)
 handle_no_leakage = backend.process_circuit(
     compiled_circuit, n_shots=10000, leakage_detection=False
