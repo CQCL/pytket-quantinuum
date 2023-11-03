@@ -43,7 +43,7 @@
 # The `SciPy` minimiser is used to control the optimisation of the cost function. The minimised value of the cost function and the optimal parameters can be retrieved at the end of the variational experiment.
 
 # **QuantinuumBackend**
-# The `QuantinuumBackend` is used to submit and retreive all circuits required for the variational experiment. This backend is included in the `pytket-quantinuum` extension. With this backend, the end-user can access H-series emulators, syntax checkers and hardware. The QLLC user portal lists all devices and emulators the end-user can access.
+# The `QuantinuumBackend` is used to submit and retreive all circuits required for the variational experiment. This backend is included in the `pytket-quantinuum` extension. With this backend, the end-user can access H-series emulators, syntax checkers and hardware. The Quantinuum user portal lists all devices and emulators the end-user can access.
 # In  the code cell below, the instance of QuantinuumBackend uses the H-Series emulator, `H1-1E`. The H1 syntax checker is called `H1-1SC` and the device is name `H1-1`. The emulator is a useful utility to test and cost the performance of an algorithm before any hardware session.
 # The `QuantinuumBackend` instance requires the user to be authenticated before any jobs can be submitted. The `login` method will allow authentication.
 
