@@ -3,9 +3,9 @@
 # This notebook showcases how a variational experiment can be performed on H-Series
 # hardware or emulator. `pytket` is used to synthesise a state-preperation circuit,
 # prepare measurement circuits, and is also used to submit (retrieve) jobs in a batch to (from)
-# the H-Series service. This circuit consists of fixed-angle one-qubit and two-qubit
-# gates in addition to variable-angle one-qubit gates.
-# Variable-angle one-qubit gates can have two types of parameters:
+# the H-Series service. This circuit consists of fixed-angle single-qubit and two-qubit
+# gates in addition to variable-angle single-qubit gates.
+# Variable-angle single-qubit gates can have two types of parameters:
 # * numerical parameters (`float`);
 # * symbolic parameters (`sympy.symbol`).
 # Numerical parameters are native python `float`s. Symbolic parameters require the use
@@ -13,7 +13,8 @@
 # the variational experiment, symbolic parameters on the state-preparation circuit
 # are replaced with additional numerical parameters.
 # The variational procedure consists of $n$ iterations until a specific criterion is
-# satisfied. A batch session is started to run over these $n$ iterations. Inactivity for over 10 minutes will lead to the batch session ending.
+# satisfied. A batch session is started to run over these $n$ iterations. Inactivity 
+# for over 10 minutes will lead to the batch session ending.
 # The variational experiment requires the following as inputs:
 # * a symbolic state-preparation circuit.
 # * an observable defining the problem to be solved, i.e. this can be an Electronic
@@ -60,7 +61,7 @@ quantinuum_backend.login()
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
 
 # A 2-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
-# and variable-angle one-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
+# and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
 # technique is known as the hardware-efficient ansatz. The hardware-efficient ansatz used in this
 # example consists of one-layers (4-parameters) and only uses `Ry` gates.
 
@@ -81,7 +82,7 @@ from pytket.circuit.display import render_circuit_jupyter
 
 render_circuit_jupyter(symbolic_circuit)
 
-# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition to muitple variable-angle one-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
+# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition to muitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
 # A copy of the symbolic circuit is created to avoid modifying the original circuit, since compilation is inplace.
 
 from pytket.passes import SynthesiseHQS
