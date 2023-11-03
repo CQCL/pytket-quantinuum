@@ -15,7 +15,7 @@
 # The variational experiment optimises the parameters on this circuit, over multiple iterations, in order to minimise the expectation 
 # value of the Hamiltonian, $\langle \psi (\vec{\theta}) | \hat{H} | \psi (\vec{\theta}) \rangle$.
 #
-# **workflow**
+# **Workflow and tools**
 #
 # The state-preparation described above, consists of fixed-angle single-qubit and two-qubit
 # gates in addition to variable-angle single-qubit gates.
@@ -29,7 +29,7 @@
 # are replaced with additional numerical parameters.
 #
 # The variational procedure consists of $n$ iterations until a specific criterion is
-# satisfied. A batch session is started to run over these $n$ iterations. Inactivity 
+# satisfied. A batch session will run over these $n$ iterations. Inactivity 
 # for over 10 minutes will lead to the batch session ending.
 # During the variational experiment, each iteration updates the numerical values in the 
 # parameter set, as described above. Subsequently,
@@ -61,6 +61,7 @@
 # third-party quantum computing service.
 # * Number of shots to simulate each circuit with to generate a distribution of measurements.
 # * Maximum batch cost to limit the credit cost of the variational experiment.
+#
 #
 # **QuantinuumBackend**
 #
