@@ -95,7 +95,9 @@ from pytket.circuit.display import render_circuit_jupyter
 
 render_circuit_jupyter(symbolic_circuit)
 
-# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition to mulitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
+# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted 
+# yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of 
+# `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition # # to mulitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
 # A copy of the symbolic circuit is created to avoid modifying the original circuit, since compilation is inplace.
 
 from pytket.passes import SynthesiseHQS
