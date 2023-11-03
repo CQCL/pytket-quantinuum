@@ -9,7 +9,8 @@
 #
 # For the problem today, the intention is to evaluate the ground-state energy (lowest eigenvalue) of a di-Hyrodgen 
 # molecule. A Hamiltonian is defined over two-qubits ([https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)).
-# A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The # wavefunction parameters are rotations on the circuit. 
+# A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The 
+# wavefunction parameters are rotations on the circuit. 
 # The hardware-efficient state-preparation method is used for today's problem ([https://www.nature.com/articles/nature23879](https://www.nature.com/articles/nature23879)). 
 # The variational experiment optimises the parameters on this circuit, over multiple iterations, in order to minimise the expectation 
 # value of the Hamiltonian, $\langle \psi (\vec{\theta}) | \hat{H} | \psi (\vec{\theta}) \rangle$.
@@ -58,7 +59,7 @@
 # third-party quantum computing service.
 # * Number of shots to simulate each circuit with to generate a distribution of measurements.
 # * Maximum batch cost to limit the credit cost of the variational experiment.
-
+#
 # **QuantinuumBackend**
 #
 # The `QuantinuumBackend` is used to submit and retreive all circuits required for the variational experiment. This backend is included in the `pytket-quantinuum` extension. With this backend, the end-user can access H-series emulators, syntax checkers and hardware. The Quantinuum user portal lists all devices and emulators the end-user can access.
@@ -71,6 +72,7 @@ quantinuum_backend = QuantinuumBackend(device_name="H1-1E")
 quantinuum_backend.login()
 
 # **Contents:**
+#
 # 1. [Synthesise Symbolic State-Preparation Circuit](#state-prep)
 # 2. [Hamiltonian Definition & Analysis](#hamiltonian)
 # 3. [Computing Expectation Values](#expval)
@@ -106,7 +108,8 @@ render_circuit_jupyter(symbolic_circuit)
 
 # This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted 
 # yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of 
-# `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition # # to mulitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
+# `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition 
+# to mulitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
 # A copy of the symbolic circuit is created to avoid modifying the original circuit, since compilation is inplace.
 
 from pytket.passes import SynthesiseHQS
@@ -117,16 +120,17 @@ pass_hqs.apply(symbolic_circuit1)
 render_circuit_jupyter(symbolic_circuit1)
 
 # ## 2. Hamiltonian Definition and Analysis <a class="anchor" id="hamiltonian"></a>
-
+#
 # A problem hamiltonian is define using the `pytket.utils.operator.QubitPauliOperator` class. Each `QubitPauliOperator` consists of complex coefficients and tensor products of Pauli-operations. The tensor products are referred to as Pauli-strings.
 # This particular Hamiltonian consists of 5 terms operating on qubits `q[0]` and `q[1]`. The problem Hamiltonian, $\hat{H}$, is defined as,
+#
 # \begin{align}
-# \hat{H} = g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]}
-# + g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} + g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}
-# + g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}
+# \hat{H} &= g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]} + g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} \\
+# &+ g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]} + g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \\
 # \end{align}
+#
 # where $g_0, g_1, g_2$, $g_3$, $g_4$ and $g_5$ are real numercial coefficients.
-
+#
 # The `QubitPauliOperator` is a dictionary mapping `pytket.pauli.QubitPauliString` to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types).
 # The `QubitPauliString` is a map from `pytket.circuit.Qubit` to `pytket.pauli.Pauli`.
 
