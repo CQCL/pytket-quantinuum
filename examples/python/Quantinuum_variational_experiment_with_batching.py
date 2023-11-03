@@ -50,9 +50,9 @@
 # * a set of initial numerical parameters to substitute into the symbolic
 # state-preparation circuit. For example, this can be a set of random numerical
 # floating-point numbers.
-# * the `pytket.backends.Backend` object to interface with the
+# * `pytket.backends.Backend` object to interface with the
 # third-party quantum computing service.
-# * the number of shots to simulate each circuit with to generate a distribution of measurements.
+# * Number of shots to simulate each circuit with to generate a distribution of measurements.
 # * Maximum batch cost to limit the credit cost of the variational experiment.
 
 # **QuantinuumBackend**
@@ -111,9 +111,11 @@ render_circuit_jupyter(symbolic_circuit1)
 
 # A problem hamiltonian is define using the `pytket.utils.operator.QubitPauliOperator` class. Each `QubitPauliOperator` consists of complex coefficients and tensor products of Pauli-operations. The tensor products are referred to as Pauli-strings.
 # This particular Hamiltonian consists of 5 terms operating on qubits `q[0]` and `q[1]`. The problem Hamiltonian, $\hat{H}$, is defined as,
-# $\hat{H} = g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]}$
-# $+ g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} + g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$
-# $+ g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}$
+# \begin{align}
+# \hat{H} = g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]}
+# + g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} + g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}
+# + g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}
+# \end{align}
 # where $g_0, g_1, g_2$, $g_3$, $g_4$ and $g_5$ are real numercial coefficients.
 
 # The `QubitPauliOperator` is a dictionary mapping `pytket.pauli.QubitPauliString` to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types).
