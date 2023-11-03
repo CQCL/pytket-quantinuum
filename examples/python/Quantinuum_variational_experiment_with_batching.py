@@ -60,7 +60,7 @@ quantinuum_backend.login()
 
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
 
-# A 2-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
+# A two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
 # and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
 # technique is known as the hardware-efficient ansatz. The hardware-efficient ansatz used in this
 # example consists of one-layers (4-parameters) and only uses `Ry` gates.
