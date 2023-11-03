@@ -1,15 +1,18 @@
 # # Quantinuum Variational Experiment on H-Series with tket
 
-# Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\theta) \rangle$, 
-# to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. The optimal parameters of the wavefunction, $(\theta)$
+# Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\vec{\theta}) \rangle$, 
+# to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. This can be an Electronic
+# Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation)or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$
 # are an estimation of the lowest eigenvector of the Hamiltonian. Further details can be found in the following articles: 
-# * (https://arxiv.org/abs/1304.3061)[https://arxiv.org/abs/1304.3061]
-# * (https://arxiv.org/abs/1507.08969)[https://arxiv.org/abs/1507.08969] 
-#`.
+# * [https://arxiv.org/abs/1304.3061](https://arxiv.org/abs/1304.3061);
+# * [https://arxiv.org/abs/1507.08969](https://arxiv.org/abs/1507.08969). 
+#
 # For the problem today, the intention is to evaluate the ground-state energy (lowest eigenvalue) of a di-Hyrodgen 
-# molecule. A Hamiltonian is defined over two-qubits ((https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)[https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007]).
-# A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The hardware-efficient state-preparation method is used for today's problem ((https://www.nature.com/articles/nature23879)[https://www.nature.com/articles/nature23879]). 
-# The variational experiment optimises the parameters on this circuit, over multiple iterations, in order to minimise the expectation value of the Hamiltonian, $\langle \psi (\theta) | \hat{H} | \psi (\theta) \rangle$.
+# molecule. A Hamiltonian is defined over two-qubits ([https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)).
+# A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The # wavefunction parameters are rotations on the circuit. 
+# The hardware-efficient state-preparation method is used for today's problem ([https://www.nature.com/articles/nature23879](https://www.nature.com/articles/nature23879)). 
+# The variational experiment optimises the parameters on this circuit, over multiple iterations, in order to minimise the expectation 
+# value of the Hamiltonian, $\langle \psi (\vec{\theta}) | \hat{H} | \psi (\vec{\theta}) \rangle$.
 #
 # The state-preparation described above, consists of fixed-angle single-qubit and two-qubit
 # gates in addition to variable-angle single-qubit gates.
@@ -25,7 +28,8 @@
 # The variational procedure consists of $n$ iterations until a specific criterion is
 # satisfied. A batch session is started to run over these $n$ iterations. Inactivity 
 # for over 10 minutes will lead to the batch session ending.
-# During the variational experiment, each iteration updates the numerical values in the parameter set, as described above. Subsequently,
+# During the variational experiment, each iteration updates the numerical values in the 
+# parameter set, as described above. Subsequently,
 # these are substituted into a new copy of the original symbolic state-preperation
 # circuit. A set of sub-circuits, each containing measurement information defined by
 # the input Hamiltonian, are appended to the numerical state-preparation circuit, leading
@@ -36,14 +40,14 @@
 # * retrieval of measurement results;
 # * classical post-processing to evaluate the cost function;
 # determining whether to stop or continue the variational procedure.
-# The `SciPy` minimiser is used to control the optimisation of the cost function. The minimised value of the cost function and the optimal parameters can be retrieved at the end of the variational experiment.
+# The `SciPy` minimiser is used to control the optimisation of the cost function. The minimised 
+# value of the cost function and the optimal parameters can be retrieved at the end of the variational experiment.
 #
 # `pytket` is used to synthesise a state-preparation circuit,
 # prepare measurement circuits, and is also used to submit (retrieve) jobs in a batch to (from)
 # the H-Series service. The variational experiment requires the following as inputs:
 # * a symbolic state-preparation circuit.
-# * an observable defining the problem to be solved, i.e. this can be an Electronic
-# Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation)or MAXCUT instance. The
+# * an Hamiltonian defining the problem to be solved. The
 # observable is a sum of Pauli-strings (tensor product over `m` qubits of
 # Pauli-$\hat{X}$, Pauli-$\hat{Y}$, Pauli-$\hat{Z}$ & Pauli-$\hat{I}$) multiplied
 # by numerical coefficients.
@@ -56,6 +60,7 @@
 # * Maximum batch cost to limit the credit cost of the variational experiment.
 
 # **QuantinuumBackend**
+#
 # The `QuantinuumBackend` is used to submit and retreive all circuits required for the variational experiment. This backend is included in the `pytket-quantinuum` extension. With this backend, the end-user can access H-series emulators, syntax checkers and hardware. The Quantinuum user portal lists all devices and emulators the end-user can access.
 # In  the code cell below, the instance of QuantinuumBackend uses the H-Series emulator, `H1-1E`. The H1 syntax checker is called `H1-1SC` and the device is name `H1-1`. The emulator is a useful utility to test and cost the performance of an algorithm before any hardware session.
 # The `QuantinuumBackend` instance requires the user to be authenticated before any jobs can be submitted. The `login` method will allow authentication.
@@ -75,8 +80,12 @@ quantinuum_backend.login()
 
 # A two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
 # and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
-# technique is known as the hardware-efficient ansatz ((https://www.nature.com/articles/nature23879)[https://www.nature.com/articles/nature23879]). The hardware-efficient ansatz used in this
-# example consists of one-layers (4-parameters) and only uses `Ry` gates.
+# technique is known as the Hardware-Efficient Ansatz (HEA) ([https://www.nature.com/articles/nature23879](https://www.nature.com/articles/nature23879)), 
+# instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([https://arxiv.org/abs/1701.02691](https://arxiv.org/abs/1701.02691)). 
+# The hardware-efficient state-preparation method requires alternating layes of fixed-angle two-qubit gates and variable-angle one-qubit 
+# gates. Ultimately, this leads to less two-qubit gates but requires greater variational parameters, compared to UCC. The optimal 
+# parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists 
+# of one-layer (4-parameters) and only uses `Ry` gates.
 
 from pytket.circuit import Circuit
 from sympy import Symbol
@@ -562,5 +571,3 @@ result.fun
 result.x
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
-
-# %%
