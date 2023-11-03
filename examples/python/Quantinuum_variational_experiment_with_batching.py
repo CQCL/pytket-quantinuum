@@ -85,8 +85,8 @@ quantinuum_backend.login()
 
 # A two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
 # and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
-# technique is known as the Hardware-Efficient Ansatz (HEA) ([https://www.nature.com/articles/nature23879](https://www.nature.com/articles/nature23879)), 
-# instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([https://arxiv.org/abs/1701.02691](https://arxiv.org/abs/1701.02691)). 
+# technique is known as the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)), 
+# instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)). 
 # The hardware-efficient state-preparation method requires alternating layes of fixed-angle two-qubit gates and variable-angle one-qubit 
 # gates. Ultimately, this leads to less two-qubit gates but requires greater variational parameters, compared to UCC. The optimal 
 # parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists 
