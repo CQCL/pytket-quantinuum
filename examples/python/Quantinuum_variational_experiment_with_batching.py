@@ -2,18 +2,20 @@
 
 # Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\vec{\theta}) \rangle$, 
 # to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. This can be an Electronic
-# Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation)or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$
+# Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation) or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$
 # are an estimation of the lowest eigenvector of the Hamiltonian. Further details can be found in the following articles: 
-# * [https://arxiv.org/abs/1304.3061](https://arxiv.org/abs/1304.3061);
-# * [https://arxiv.org/abs/1507.08969](https://arxiv.org/abs/1507.08969). 
+# * [arxiv.1304.3061](https://arxiv.org/abs/1304.3061);
+# * [arxiv.1507.08969](https://arxiv.org/abs/1507.08969). 
 #
 # For the problem today, the intention is to evaluate the ground-state energy (lowest eigenvalue) of a di-Hyrodgen 
-# molecule. A Hamiltonian is defined over two-qubits ([https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)).
+# molecule. A Hamiltonian is defined over two-qubits ([PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)).
 # A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The 
 # wavefunction parameters are rotations on the circuit. 
-# The hardware-efficient state-preparation method is used for today's problem ([https://www.nature.com/articles/nature23879](https://www.nature.com/articles/nature23879)). 
+# The hardware-efficient state-preparation method is used for today's problem ([nature23879](https://www.nature.com/articles/nature23879)). 
 # The variational experiment optimises the parameters on this circuit, over multiple iterations, in order to minimise the expectation 
 # value of the Hamiltonian, $\langle \psi (\vec{\theta}) | \hat{H} | \psi (\vec{\theta}) \rangle$.
+#
+# **workflow**
 #
 # The state-preparation described above, consists of fixed-angle single-qubit and two-qubit
 # gates in addition to variable-angle single-qubit gates.
