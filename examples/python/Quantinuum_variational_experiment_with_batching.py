@@ -65,7 +65,7 @@ from pytket.extensions.quantinuum import QuantinuumBackend
 quantinuum_backend = QuantinuumBackend(device_name="H1-1E")
 quantinuum_backend.login()
 
-# <b>Contents:</b>
+# **Contents:**
 # 1. [Synthesise Symbolic State-Preparation Circuit](#state-prep)
 # 2. [Hamiltonian Definition & Analysis](#hamiltonian)
 # 3. [Computing Expectation Values](#expval)
@@ -75,7 +75,7 @@ quantinuum_backend.login()
 
 # A two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`)
 # and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation
-# technique is known as the hardware-efficient ansatz. The hardware-efficient ansatz used in this
+# technique is known as the hardware-efficient ansatz ((https://www.nature.com/articles/nature23879)[https://www.nature.com/articles/nature23879]). The hardware-efficient ansatz used in this
 # example consists of one-layers (4-parameters) and only uses `Ry` gates.
 
 from pytket.circuit import Circuit
@@ -95,7 +95,7 @@ from pytket.circuit.display import render_circuit_jupyter
 
 render_circuit_jupyter(symbolic_circuit)
 
-# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition to muitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
+# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition to mulitple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
 # A copy of the symbolic circuit is created to avoid modifying the original circuit, since compilation is inplace.
 
 from pytket.passes import SynthesiseHQS
