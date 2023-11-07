@@ -461,8 +461,9 @@ optimal_parameters = {s: p for s, p in zip(objective._symbols, result.x)}
 pprint(optimal_parameters)
 
 # These symbols can be saved to an output file for further use if necessary using json. See the example in markdown.
+#
 # import json
 # json_io = ("parameters.json", "w")
-# json.dump(json_io, optimal_parameters)
+# json.dump(optimal_parameters, json_io)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
