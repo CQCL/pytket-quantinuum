@@ -102,16 +102,8 @@ render_circuit_jupyter(symbolic_circuit)
 from pytket.utils.operators import QubitPauliOperator
 from pytket.pauli import Pauli, QubitPauliString
 from pytket.circuit import Qubit
-from numpy.random import randint
 coeffs = [-0.4804, 0.3435, -0.4347, 0.5716, 0.0910, 0.0910]
-term0 = {
-    QubitPauliString(
-        {
-            Qubit(0): Pauli.I,
-            Qubit(1): Pauli.I,
-        }
-    ): coeffs[0]
-}
+term0 = {QubitPauliString({Qubit(0): Pauli.I, Qubit(1): Pauli.I,}): coeffs[0]}
 term1 = {QubitPauliString({Qubit(0): Pauli.Z, Qubit(1): Pauli.I}): coeffs[1]}
 term2 = {QubitPauliString({Qubit(0): Pauli.I, Qubit(1): Pauli.Z}): coeffs[2]}
 term3 = {QubitPauliString({Qubit(0): Pauli.Z, Qubit(1): Pauli.Z}): coeffs[3]}
