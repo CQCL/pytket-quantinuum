@@ -54,9 +54,10 @@
 # In  the code cell below, the instance of QuantinuumBackend uses the H-Series emulator, `H1-1E`. The H1 syntax checker's target is `H1-1SC` and the quantum device's target is `H1-1`. The H-Series emulators are a useful utility to test and cost the performance of an algorithm before any hardware session.
 
 # The `QuantinuumBackend` instance requires the user to be authenticated before any jobs can be submitted. The `login` method will allow authentication.
-# from pytket.extensions.quantinuum import QuantinuumBackend
-# quantinuum_backend = QuantinuumBackend(device_name="H1-1E")
-# quantinuum_backend.login()
+from pytket.extensions.quantinuum import QuantinuumBackend
+quantinuum_backend = QuantinuumBackend(device_name="H1-1E")
+quantinuum_backend.login()
+
 # ## Contents
 
 # 1. [Synthesise Symbolic State-Preparation Circuit](#state-prep)
@@ -97,10 +98,7 @@ render_circuit_jupyter(symbolic_circuit1)
 
 # A problem hamiltonian is defined using the [`pytket.utils.operator.QubitPauliOperator`](https://cqcl.github.io/tket/pytket/api/utils.html#pytket.utils.QubitPauliOperator) class. Each `QubitPauliOperator` consists of complex coefficients and tensor products of Pauli-operations. The tensor products are referred to as Pauli-strings. This particular Hamiltonian consists of 5 terms operating on qubits `q[0]` and `q[1]`. The problem Hamiltonian, $\hat{H}$, is defined as:
 
-# \begin{align}
-# \hat{H} &= g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]} + g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} \\
-# &+ g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]} + g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \\
-# \end{align}
+# \begin{align} \hat{H} &= g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]} + g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} \\ &+ g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]} + g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \\ \end{align}
 
 # where $g_0, g_1, g_2$, $g_3$, $g_4$ and $g_5$ are real numercial coefficients.
 
