@@ -54,6 +54,7 @@
 # In  the code cell below, the instance of QuantinuumBackend uses the H-Series emulator, `H1-1E`. The H1 syntax checker's target is `H1-1SC` and the quantum device's target is `H1-1`. The H-Series emulators are a useful utility to test and cost the performance of an algorithm before any hardware session.
 
 # The `QuantinuumBackend` instance requires the user to be authenticated before any jobs can be submitted. The `login` method will allow authentication.
+
 from pytket.extensions.quantinuum import QuantinuumBackend
 quantinuum_backend = QuantinuumBackend(device_name="H1-1E")
 quantinuum_backend.login()
@@ -64,10 +65,10 @@ quantinuum_backend.login()
 # 2. [Hamiltonian Definition & Analysis](#hamiltonian)
 # 3. [Computing Expectation Values](#expval)
 # 4. [Variational Procedure with Batches](#variational)
-    
+#
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
 # We first prepare a two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`) and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation technique is known as the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)),  instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)). 
-
+#
 # The hardware-efficient state-preparation method requires alternating layers of fixed-angle two-qubit gates and variable-angle single-qubit  gates. Ultimately, this leads to fewer two-qubit gates, but requires greater variational parameters, compared to UCC. The optimal parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists of one-layer (4-parameters) and only uses `Ry` gates.
 
 from pytket.circuit import Circuit
@@ -95,6 +96,8 @@ render_circuit_jupyter(symbolic_circuit)
 # The `QubitPauliOperator` is a dictionary mapping [`pytket.pauli.QubitPauliString`](https://cqcl.github.io/tket/pytket/api/pauli.html#pytket.pauli.QubitPauliString) to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types). 
 
 # The `QubitPauliString` is a map from `pytket.circuit.Qubit` to `pytket.pauli.Pauli`.
+
+# The coefficients in the Hamiltonian are obtained from [PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007).
 
 from pytket.utils.operators import QubitPauliOperator
 from pytket.pauli import Pauli, QubitPauliString
@@ -322,6 +325,7 @@ class Objective:
         """
         terms = [term for term in problem_hamiltonian._dict.keys()]
         self._symbolic_circuit: Circuit = symbolic_circuit
+        self._symbols: List[Symbol] = symbolic_circuit.free_symbols()
         self._hamiltonian: QubitPauliOperator = problem_hamiltonian
         self._backend: QuantinuumBackend = quantinuum_backend
         self._nshots: int = n_shots_per_circuit
@@ -379,7 +383,7 @@ class Objective:
     
     def _build_circuits(self, parameters: ndarray) -> List[Circuit]:
         circuit = self._symbolic_circuit.copy()
-        symbol_dict = {s: p for s, p in zip(circuit.free_symbols(), parameters)}
+        symbol_dict = {s: p for s, p in zip(self._symbols, parameters)}
         circuit.symbol_substitution(symbol_dict)
         circuit_list = []
         for mc in self._measurement_setup.measurement_circs:
@@ -456,5 +460,16 @@ result.fun
 # The optimal parameters can be retreived with the `x` attribute.
 
 result.x
+
+# The Symbols can be mapped to the optimal parameter by iterating through both lists:
+
+from pprint import pprint
+optimal_parameters = {s: p for s, p in zip(objective._symbols, result.x)}
+pprint(optimal_parameters)
+
+# These symbols can be saved to an output file for further use if necessary using json. See the example in markdown.
+# import json
+# with open("parameters.json", "w") as f:
+#     json.dump(f, optimal_parameters)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
