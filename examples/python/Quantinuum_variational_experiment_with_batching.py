@@ -84,16 +84,6 @@ symbolic_circuit.Ry(symbols[2], 0).Ry(symbols[3], 0)
 from pytket.circuit.display import render_circuit_jupyter
 render_circuit_jupyter(symbolic_circuit)
 
-# This circuit can be compiled to a gate-set compatible with the H-Series devices and emulators, however the circuit cannot be submitted yet. We use the compilation pass `SynthesiseHQS()` from `pytket.passes` to change gate-set. Pre-compilation, the circuit consisted of `Ry` and `CX` gates. Post-compilation, the circuits consists of three fixed-angle two-qubit gate `ZZMax` (`OpType.ZZMax`) in addition to multiple variable-angle single-qubit gates: `PhasedX` (`OpType.PhasedX`) and `Rz` (`OpType.Rz`).
-
-# A copy of the symbolic circuit is created to avoid modifying the original circuit, since compilation is inplace.
-
-from pytket.passes import SynthesiseHQS
-pass_hqs = SynthesiseHQS()
-symbolic_circuit1 = symbolic_circuit.copy()
-pass_hqs.apply(symbolic_circuit1)
-render_circuit_jupyter(symbolic_circuit1)
-
 # ## 2. Hamiltonian Definition and Analysis <a class="anchor" id="hamiltonian"></a>
 
 # A problem hamiltonian is defined using the [`pytket.utils.operator.QubitPauliOperator`](https://cqcl.github.io/tket/pytket/api/utils.html#pytket.utils.QubitPauliOperator) class. Each `QubitPauliOperator` consists of complex coefficients and tensor products of Pauli-operations. The tensor products are referred to as Pauli-strings. This particular Hamiltonian consists of 5 terms operating on qubits `q[0]` and `q[1]`. The problem Hamiltonian, $\hat{H}$, is defined as:
