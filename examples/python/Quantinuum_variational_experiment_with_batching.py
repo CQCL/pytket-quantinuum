@@ -215,6 +215,7 @@ compiled_circuit_list = quantinuum_backend.get_compiled_circuits(
 
 cost_list = []
 
+n_shots = 500
 for comp_circ in compiled_circuit_list:
     cost = quantinuum_backend.cost(comp_circ, n_shots=n_shots, syntax_checker='H1-1SC')
     cost_list.append(cost)
@@ -420,7 +421,7 @@ class Objective:
 
 # A convenience method `circuit_cost` can be used to estimate the total number of HQCs required to estimate the objective function. The variational loop will be multiples of this value (number of function calls across the variational procedure multiplied by the HQC cost of evaluating the objective function).
 
-n_shots_per_circuit = 1000
+n_shots_per_circuit = 500
 n_iterations = 10
 max_batch_cost = 500
 objective = Objective(
@@ -443,7 +444,7 @@ objective.circuit_cost("H1-1SC")
 
 from scipy.optimize import minimize
 from numpy.random import random_sample
-method = "SLSQP"
+method = "COBYLA"
 initial_parameters = random_sample(len(symbolic_circuit.free_symbols()))
 result = minimize(
     objective,
@@ -469,7 +470,7 @@ pprint(optimal_parameters)
 
 # These symbols can be saved to an output file for further use if necessary using json. See the example in markdown.
 # import json
-# with open("parameters.json", "w") as f:
-#     json.dump(f, optimal_parameters)
+# json_io = ("parameters.json", "w")
+# json.dump(json_io, optimal_parameters)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
