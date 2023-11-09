@@ -4,13 +4,13 @@
 
 # # Quantinuum Variational Experiment on H-Series with tket
 
-# Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\vec{\theta}) \rangle$, to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. This could be an Electronic Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation) or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$ are an estimation of the lowest eigenvector of the Hamiltonian. 
+# Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\vec{\theta}) \rangle$, to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. This could be an Electronic Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation) or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$ are an estimation of the lowest eigenvector of the Hamiltonian.
 
-# Further details can be found in the following articles: 
+# Further details can be found in the following articles:
 # * [A variational eigenvalue solver on a quantum processor](https://arxiv.org/abs/1304.3061)
 # * [Towards Practical Quantum Variational Algorithms](https://arxiv.org/abs/1507.08969)
 
-# For the problem today, we will evaluate the ground-state energy (lowest eigenvalue) of a di-Hydrodgen molecule. A Hamiltonian is defined over two-qubits ([PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)). A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The wavefunction parameters are rotations on the circuit. 
+# For the problem today, we will evaluate the ground-state energy (lowest eigenvalue) of a di-Hydrodgen molecule. A Hamiltonian is defined over two-qubits ([PhysRevX.6.031007](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.6.031007)). A state-preparation (or Ansatz) circuit, a sequence of single-qubit and two-qubit gates, is used to generate a trial wavefunction. The wavefunction parameters are rotations on the circuit.
 
 # The hardware-efficient state-preparation method is used for today's problem ([nature23879](https://www.nature.com/articles/nature23879)). The variational experiment optimises the parameters on this circuit, over multiple iterations, in order to minimise the expectation value of the Hamiltonian, $\langle \psi (\vec{\theta}) | \hat{H} | \psi (\vec{\theta}) \rangle$.
 
@@ -18,7 +18,7 @@
 
 # `pytket` is used to synthesise a state-preparation circuit, prepare measurement circuits with `pytket-quantinuum` being used to submit (retrieve) jobs in a batch to (from) the H-Series service. The variational experiment requires the following as inputs:
 # * a symbolic state-preparation circuit.
-# * an Hamiltonian defining the problem to be solved. 
+# * an Hamiltonian defining the problem to be solved.
 
 # The state-preparation, described above, consists of fixed-angle single-qubit and two-qubit gates in addition to variable-angle single-qubit gates. In pytket, variable-angle single-qubit gates can have two types of parameters:
 # * numerical parameters (`float`);
@@ -26,7 +26,7 @@
 
 # Numerical parameters are native python `float`s. Symbolic parameters require the use of the symbolic library, `sympy`, which is also a dependency of `pytket`. Throughout the variational experiment, symbolic parameters on the state-preparation circuit are replaced with additional numerical parameters.
 
-# The variational procedure consists of $n$ iterations until a specific criterion is satisfied. A batch session will run over these $n$ iterations. 
+# The variational procedure consists of $n$ iterations until a specific criterion is satisfied. A batch session will run over these $n$ iterations.
 # Inactivity for over 1 minutes will lead to the batch session ending, given how the batch feature works for H-Series devices.
 
 # During the variational experiment, each iteration updates the numerical values in the parameter set, as described above. Subsequently, these are substituted into a new copy of the original symbolic state-preparation circuit. A set of sub-circuits, each containing measurement information defined by the input Hamiltonian, are appended to the numerical state-preparation circuit, leading to a set of measurement circuits. Finally, these circuits are submitted to H-Series.
@@ -56,6 +56,7 @@
 # The `QuantinuumBackend` instance requires the user to be authenticated before any jobs can be submitted. The `login` method will allow authentication.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
+
 quantinuum_backend = QuantinuumBackend(device_name="H1-1E")
 quantinuum_backend.login()
 
@@ -67,12 +68,13 @@ quantinuum_backend.login()
 # 4. [Variational Procedure with Batches](#variational)
 #
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
-# We first prepare a two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`) and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation technique is known as the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)),  instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)). 
+# We first prepare a two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`) and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation technique is known as the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)),  instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)).
 #
 # The hardware-efficient state-preparation method requires alternating layers of fixed-angle two-qubit gates and variable-angle single-qubit  gates. Ultimately, this leads to fewer two-qubit gates, but requires greater variational parameters, compared to UCC. The optimal parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists of one-layer (4-parameters) and only uses `Ry` gates.
 
 from pytket.circuit import Circuit
 from sympy import Symbol
+
 symbols = [Symbol(f"p{i}") for i in range(4)]
 symbolic_circuit = Circuit(2)
 symbolic_circuit.X(0)
@@ -83,6 +85,7 @@ symbolic_circuit.Ry(symbols[2], 0).Ry(symbols[3], 0)
 # The symbolic state-preparation circuit can be visualised using the `pytket.circuit.display` submodule.
 
 from pytket.circuit.display import render_circuit_jupyter
+
 render_circuit_jupyter(symbolic_circuit)
 
 # ## 2. Hamiltonian Definition and Analysis <a class="anchor" id="hamiltonian"></a>
@@ -93,7 +96,7 @@ render_circuit_jupyter(symbolic_circuit)
 
 # where $g_0, g_1, g_2$, $g_3$, $g_4$ and $g_5$ are real numercial coefficients.
 
-# The `QubitPauliOperator` is a dictionary mapping [`pytket.pauli.QubitPauliString`](https://cqcl.github.io/tket/pytket/api/pauli.html#pytket.pauli.QubitPauliString) to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types). 
+# The `QubitPauliOperator` is a dictionary mapping [`pytket.pauli.QubitPauliString`](https://cqcl.github.io/tket/pytket/api/pauli.html#pytket.pauli.QubitPauliString) to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types).
 
 # The `QubitPauliString` is a map from `pytket.circuit.Qubit` to `pytket.pauli.Pauli`.
 
@@ -102,8 +105,16 @@ render_circuit_jupyter(symbolic_circuit)
 from pytket.utils.operators import QubitPauliOperator
 from pytket.pauli import Pauli, QubitPauliString
 from pytket.circuit import Qubit
+
 coeffs = [-0.4804, 0.3435, -0.4347, 0.5716, 0.0910, 0.0910]
-term0 = {QubitPauliString({Qubit(0): Pauli.I, Qubit(1): Pauli.I,}): coeffs[0]}
+term0 = {
+    QubitPauliString(
+        {
+            Qubit(0): Pauli.I,
+            Qubit(1): Pauli.I,
+        }
+    ): coeffs[0]
+}
 term1 = {QubitPauliString({Qubit(0): Pauli.Z, Qubit(1): Pauli.I}): coeffs[1]}
 term2 = {QubitPauliString({Qubit(0): Pauli.I, Qubit(1): Pauli.Z}): coeffs[2]}
 term3 = {QubitPauliString({Qubit(0): Pauli.Z, Qubit(1): Pauli.Z}): coeffs[3]}
@@ -132,6 +143,7 @@ from pytket.partition import (
     measurement_reduction,
     PauliPartitionStrat,
 )
+
 strat = PauliPartitionStrat.CommutingSets
 pauli_strings = [term for term in hamiltonian._dict.keys()]
 measurement_setup = measurement_reduction(pauli_strings, strat)
@@ -139,6 +151,7 @@ measurement_setup = measurement_reduction(pauli_strings, strat)
 # A measurement subcircuit contains the necessary operations to measure the terms in a commuting set. The subcircuit is appended to the numerical state-preparation circuit. Combining the numerical state-preparation circuit and the measurement subcircuits results in a set of measurement circuits required to solve the problem. The [`MeasurementSetup`](https://cqcl.github.io/tket/pytket/api/partition.html#pytket.partition.MeasurementSetup) instance contains all the necessary sub-circuits to measure $\hat{H}$. The next code cell lists and visualises all measurement subcircuits.
 
 from pytket.circuit.display import render_circuit_jupyter
+
 for measurement_subcircuit in measurement_setup.measurement_circs:
     render_circuit_jupyter(measurement_subcircuit)
 
@@ -164,6 +177,8 @@ for i, (term, bitmap_list) in enumerate(measurement_setup.results.items()):
 
 from typing import Dict, Tuple
 from pytket.partition import MeasurementBitMap
+
+
 def compute_expectation_paulistring(
     distribution: Dict[Tuple[int, ...], float], bitmap: MeasurementBitMap
 ) -> float:
@@ -172,10 +187,12 @@ def compute_expectation_paulistring(
         value += probability * (sum(bitstring[i] for i in bitmap.bits) % 2)
     return ((-1) ** bitmap.invert) * (-2 * value + 1)
 
+
 # In the example below, the function `compute_expectation_paulistring` is called to calculate the expectation for the $\hat{Z} \otimes \hat{Z}$. First the `QubitPauliString` is initialised, and that is used to extract the relevant data from the MeasurementSetup object defined in section 2. This data is used for postprocessing.
 
 from pytket.pauli import Pauli, QubitPauliString
 from pytket.circuit import Qubit
+
 distribution = {(0, 0): 0.45, (1, 1): 0.3, (0, 1): 0.1, (1, 0): 0.15}
 zz = QubitPauliString([Qubit(0), Qubit(1)], [Pauli.Z, Pauli.Z])
 bitmap_list = measurement_setup.results.get(zz)
@@ -209,7 +226,7 @@ cost_list = []
 
 n_shots = 500
 for comp_circ in compiled_circuit_list:
-    cost = quantinuum_backend.cost(comp_circ, n_shots=n_shots, syntax_checker='H1-1SC')
+    cost = quantinuum_backend.cost(comp_circ, n_shots=n_shots, syntax_checker="H1-1SC")
     cost_list.append(cost)
 
 print("Cost of experiment in HQCs:", sum(cost_list))
@@ -232,6 +249,8 @@ from typing import List
 from pytket.utils.operators import QubitPauliOperator
 from pytket.partition import MeasurementSetup
 from pytket.backends.backendresult import BackendResult
+
+
 def compute_expectation_value(
     results: List[BackendResult],
     measurement_setup: MeasurementSetup,
@@ -247,6 +266,7 @@ def compute_expectation_value(
                 value = compute_expectation_paulistring(distribution, bm)
                 energy += complex(value * string_coeff).real
     return energy
+
 
 # The results of the previously submitted circuits can be retrieved with the `get_results` method on `QuantinuumBackend`.
 
@@ -285,6 +305,8 @@ from numpy.random import random_sample
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.partition import PauliPartitionStrat
 from pytket.backends.resulthandle import ResultHandle
+
+
 class Objective:
     def __init__(
         self,
@@ -293,7 +315,7 @@ class Objective:
         quantinuum_backend: QuantinuumBackend,
         n_shots_per_circuit: int,
         max_batch_cost: float = 300,
-        n_iterations: int = 10
+        n_iterations: int = 10,
     ) -> None:
         r"""Returns the objective function needed for a variational
         procedure on H-Series.
@@ -328,14 +350,14 @@ class Objective:
         )
         self._iteration_number: int = 0
         self._niters: int = n_iterations
-    
+
     def __call__(self, parameter: ndarray) -> float:
         value = self._objective_function(parameter, self._iteration_number)
         self._iteration_number += 1
         if self._iteration_number >= self._niters:
             self._iteration_number = 0
         return value
-    
+
     def circuit_cost(self, syntax_checker: str = "H1-1SC") -> float:
         n = len(self._symbolic_circuit.free_symbols())
         random_parameters = random_sample(n)
@@ -345,7 +367,7 @@ class Objective:
                 for c in self._build_circuits(random_parameters)
             ]
         )
-    
+
     def _objective_function(
         self,
         parameters: ndarray,
@@ -373,7 +395,7 @@ class Objective:
             results, self._measurement_setup, self._hamiltonian
         )
         return expval
-    
+
     def _build_circuits(self, parameters: ndarray) -> List[Circuit]:
         circuit = self._symbolic_circuit.copy()
         symbol_dict = {s: p for s, p in zip(self._symbols, parameters)}
@@ -387,7 +409,7 @@ class Objective:
             circuit_list, optimisation_level=2
         )
         return cc_list
-   
+
     def _submit_batch(
         self,
         circuits: List[Circuit],
@@ -408,6 +430,7 @@ class Objective:
             )
             for c in circuits
         ]
+
 
 # The `Objective` class is initialised with the essential data needed to perform the variational experiment. The object contains all the necessary information to compute the value of the objective function.
 
@@ -430,12 +453,13 @@ objective.circuit_cost("H1-1SC")
 # ### 4.2. Execute the Objective Function
 # The SciPy minimiser is used to optimise the value of the objective function. Initial parameters are pseudo-random. Passing the `Objective` instance into `scipy.optimize.minimize` will start the variational experiment.
 
-# The first iteration creates a batch session, and all subsequent circuit submission are added to this batch. If additional circuits are not submitted within 1 minute, the batch session will terminate. 
+# The first iteration creates a batch session, and all subsequent circuit submission are added to this batch. If additional circuits are not submitted within 1 minute, the batch session will terminate.
 
-# Remember that the status of the batch can be checked at any time on the Quantinuum User Portal. 
+# Remember that the status of the batch can be checked at any time on the Quantinuum User Portal.
 
 from scipy.optimize import minimize
 from numpy.random import random_sample
+
 method = "COBYLA"
 initial_parameters = random_sample(len(symbolic_circuit.free_symbols()))
 result = minimize(
@@ -457,6 +481,7 @@ result.x
 # The Symbols can be mapped to the optimal parameter by iterating through both lists:
 
 from pprint import pprint
+
 optimal_parameters = {s: p for s, p in zip(objective._symbols, result.x)}
 pprint(optimal_parameters)
 
