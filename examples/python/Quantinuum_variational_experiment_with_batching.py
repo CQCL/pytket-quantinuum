@@ -488,6 +488,7 @@ pprint(optimal_parameters)
 # These symbols can be saved to an output file for further use if necessary using json. See the example below.
 
 import json
+
 json_io = ("parameters.json", "w")
 json.dump(optimal_parameters, json_io)
 
