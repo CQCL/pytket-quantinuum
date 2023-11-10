@@ -480,10 +480,8 @@ result.x
 
 # The Symbols can be mapped to the optimal parameter by iterating through both lists:
 
-from pprint import pprint
-
 optimal_parameters = {s: p for s, p in zip(objective._symbols, result.x)}
-pprint(optimal_parameters)
+print(optimal_parameters)
 
 # These symbols can be saved to an output file for further use if necessary using json. See the example below.
 
