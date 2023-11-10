@@ -1,7 +1,3 @@
-# <div style="text-align: center;">
-# <img src="https://assets-global.website-files.com/62b9d45fb3f64842a96c9686/62d84db4aeb2f6552f3a2f78_Quantinuum%20Logo__horizontal%20blue.svg" width="200" height="200"/>
-# </div>
-
 # # Quantinuum Variational Experiment on H-Series with tket
 
 # Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\vec{\theta}) \rangle$, to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. This could be an Electronic Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation) or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$ are an estimation of the lowest eigenvector of the Hamiltonian.
@@ -480,16 +476,14 @@ result.x
 
 # The Symbols can be mapped to the optimal parameter by iterating through both lists:
 
-from pprint import pprint
-
-optimal_parameters = {s: p for s, p in zip(objective._symbols, result.x)}
-pprint(optimal_parameters)
+optimal_parameters = {s.name: p for s, p in zip(objective._symbols, result.x)}
+print(optimal_parameters)
 
 # These symbols can be saved to an output file for further use if necessary using json. See the example below.
 
 import json
 
-json_io = ("parameters.json", "w")
+json_io = open("parameters.json", "w")
 json.dump(optimal_parameters, json_io)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
