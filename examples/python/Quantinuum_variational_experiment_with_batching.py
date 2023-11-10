@@ -480,14 +480,14 @@ result.x
 
 # The Symbols can be mapped to the optimal parameter by iterating through both lists:
 
-optimal_parameters = {s: p for s, p in zip(objective._symbols, result.x)}
+optimal_parameters = {s.name: p for s, p in zip(objective._symbols, result.x)}
 print(optimal_parameters)
 
 # These symbols can be saved to an output file for further use if necessary using json. See the example below.
 
 import json
 
-json_io = ("parameters.json", "w")
+json_io = open("parameters.json", "w")
 json.dump(optimal_parameters, json_io)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
