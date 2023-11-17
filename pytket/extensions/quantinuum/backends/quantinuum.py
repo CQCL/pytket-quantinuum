@@ -494,6 +494,7 @@ class QuantinuumBackend(Backend):
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
+                    RemoveRedundancies(),
                 ]
             )
         else:
@@ -505,6 +506,7 @@ class QuantinuumBackend(Backend):
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
+                    RemoveRedundancies(),
                 ]
             )
         # In TKET, a qubit register with N qubits can have qubits
