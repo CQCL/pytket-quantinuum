@@ -481,7 +481,10 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     [
         Language.QASM,
         pytest.param(
-            Language.QIR, marks=pytest.mark.xfail(reason="no error model with QIR?")
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/276"
+            ),
         ),
     ],
 )
