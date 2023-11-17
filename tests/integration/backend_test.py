@@ -1191,3 +1191,17 @@ def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
     c = Circuit(2).H(0).CX(0, 1).measure_all()
     c1 = b.get_compiled_circuit(c)
     assert any(cmd.op.type == b.default_two_qubit_gate for cmd in c1)
+
+
+# https://github.com/CQCL/pytket-quantinuum/issues/265
+def test_Rz_removal_before_measurements() -> None:
+    backend = QuantinuumBackend("H1-1E", machine_debug=True)
+    # Circuit will contain an Rz gate if RemoveRedundancies isn't applied after SquashRzPhasedX
+    circuit = Circuit(2).H(0).Rz(0.75, 0).CX(0, 1).measure_all()
+
+    for optimisation_level in (1, 2):
+        compiled_circuit = backend.get_compiled_circuit(
+            circuit, optimisation_level=optimisation_level
+        )
+        assert backend.valid_circuit(compiled_circuit)
+        assert compiled_circuit.n_gates_of_type(OpType.Rz) == 0
