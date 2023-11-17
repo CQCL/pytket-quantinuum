@@ -94,6 +94,9 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
      - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
+   * -
+     - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
      -
 
 
