@@ -24,6 +24,7 @@ import json
 from http import HTTPStatus
 import re
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
+from uuid import uuid1
 import warnings
 
 import numpy as np
@@ -219,6 +220,16 @@ class QuantinuumBackendCompilationConfig:
     target_2qb_gate: Optional[OpType] = None
 
 
+@cache
+def have_pecos() -> bool:
+    try:
+        import pytket_pecos
+
+        return True
+    except ImportError:
+        return False
+
+
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
@@ -278,6 +289,9 @@ class QuantinuumBackend(Backend):
 
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
+        # Map from ResultHandle to (circuit, n_shots, seed)
+        self._local_emulator_handles = dict()
+
         self._default_2q_gate = _default_2q_gate(device_name)
         if compilation_config is None:
             self.compilation_config = QuantinuumBackendCompilationConfig(
@@ -334,7 +348,9 @@ class QuantinuumBackend(Backend):
         return jr  # type: ignore
 
     @classmethod
-    def _dict_to_backendinfo(cls, dct: Dict[str, Any]) -> BackendInfo:
+    def _dict_to_backendinfo(
+        cls, dct: Dict[str, Any], local_emulator: bool = False
+    ) -> BackendInfo:
         dct1 = copy(dct)
         name: str = dct1.pop("name")
         n_qubits: int = dct1.pop("n_qubits")
@@ -342,9 +358,13 @@ class QuantinuumBackend(Backend):
         if "n_classical_registers" in dct:
             n_cl_reg = dct1.pop("n_classical_registers")
         gate_set: List[str] = dct1.pop("gateset", [])
+        if local_emulator:
+            dct1["system_type"] = "local_emulator"
+            dct1.pop("emulator", None)
+            dct1["batching"] = False
         return BackendInfo(
             name=cls.__name__,
-            device_name=name,
+            device_name=name + "LE" if local_emulator else name,
             version=__extension_version__,
             architecture=FullyConnected(n_qubits, "q"),
             gate_set=_get_gateset(gate_set),
@@ -369,16 +389,22 @@ class QuantinuumBackend(Backend):
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
         jr = cls._available_devices(api_handler)
-        return list(map(cls._dict_to_backendinfo, jr))
+        devices = []
+        for d in jr:
+            devices.append(cls._dict_to_backendinfo(copy(d)))
+            if have_pecos() and (d["system_type"] == "hardware"):
+                # Add a local-emulator variant
+                devices.append(cls._dict_to_backendinfo(d, local_emulator=True))
+        return devices
 
     def _retrieve_backendinfo(self, machine: str) -> BackendInfo:
-        jr = self._available_devices(self.api_handler)
+        infos = self.available_devices(api_handler=self.api_handler)
         try:
-            _machine_info = next(entry for entry in jr if entry["name"] == machine)
+            info = next(entry for entry in infos if entry.device_name == machine)
         except StopIteration:
             raise DeviceNotAvailable(machine)
-        _machine_info["options"] = self._process_circuits_options
-        return self._dict_to_backendinfo(_machine_info)
+        info.misc["options"] = self._process_circuits_options
+        return info
 
     @classmethod
     def device_state(
@@ -395,6 +421,13 @@ class QuantinuumBackend(Backend):
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :return: String of state, e.g. "online"
         """
+        infos = cls.available_devices(api_handler=api_handler)
+        try:
+            info = next(entry for entry in infos if entry.device_name == device_name)
+        except StopIteration:
+            raise DeviceNotAvailable(device_name)
+        if info.get_misc("system_type") == "local_emulator":
+            return "online"
         res = requests.get(
             f"{api_handler.url}machine/{device_name}",
             headers={"Authorization": api_handler.login()},
@@ -441,6 +474,13 @@ class QuantinuumBackend(Backend):
         Submitted circuits must contain only one of these.
         """
         return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])
+
+    @property
+    def is_local_emulator(self) -> bool:
+        """True if the backend is a local emulator, otherwise False"""
+        if self._MACHINE_DEBUG:
+            return False
+        return self.backend_info.get_misc("system_type") == "local_emulator"
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
@@ -626,6 +666,9 @@ class QuantinuumBackend(Backend):
         :return: ResultHandle for submitted job.
         """
 
+        if self.is_local_emulator:
+            raise NotImplemented("submit_program() not supported with local emulator")
+
         body: Dict[str, Any] = {
             "name": name or f"{self._label}",
             "count": n_shots,
@@ -727,6 +770,7 @@ class QuantinuumBackend(Backend):
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
           to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
           BackendResult to get counts with leakage errors removed.
+        * `seed`: for local emulators only, PRNG seed for reproduciblity (int)
 
         """
         circuits = list(circuits)
@@ -767,6 +811,7 @@ class QuantinuumBackend(Backend):
         handle_list = []
 
         max_shots = self.backend_info.misc.get("n_shots") if self.backend_info else None
+        seed = kwargs.get("seed")
         for circ, n_shots in zip(circuits, n_shots_list):
             if max_shots is not None and n_shots > max_shots:
                 raise MaxShotsExceeded(
@@ -781,88 +826,105 @@ class QuantinuumBackend(Backend):
                 SimplifyInitial(
                     allow_classical=False, create_all_qubits=True, xcirc=_xcirc
                 ).apply(c0)
-            results_selection = []
-            if language == Language.QASM:
-                quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
-                used_scratch_regs = _used_scratch_registers(quantinuum_circ)
-                for name, count in Counter(
-                    bit.reg_name
-                    for bit in c0.bits
-                    if not _is_scratch(bit) or bit.reg_name in used_scratch_regs
-                ).items():
-                    for i in range(count):
-                        results_selection.append((name, i))
-            else:
-                assert language == Language.QIR
-                warnings.warn(
-                    "Support for Language.QIR is experimental; this may fail!"
-                )
+            if self.is_local_emulator:
+                jobid = str(uuid1())
+                results_selection = []
                 for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                     for i in range(count):
                         results_selection.append((name, i))
-                try:
-                    pytket_qir_version_components = list(
-                        map(int, pytket_qir_version.split(".")[:2])
-                    )
-                    if (
-                        pytket_qir_version_components[0] == 0
-                        and pytket_qir_version_components[1] < 4
-                    ):
-                        raise RuntimeError(
-                            "Please install `pytket-qir` version 0.4 or above."
-                        )
-                    quantinuum_circ = b64encode(
-                        cast(
-                            bytes,
-                            pytket_to_qir(
-                                c0,
-                                "circuit generated by pytket-qir",
-                                QIRFormat.BINARY,
-                                wfh=wasm_fh,
-                            ),
-                        )
-                    ).decode("utf-8")
-                except NameError:
-                    raise RuntimeError(
-                        "You must install the `pytket-qir` package in order to use QIR "
-                        "submission."
-                    )
-
-            if self._MACHINE_DEBUG:
-                handle_list.append(
-                    ResultHandle(
-                        _DEBUG_HANDLE_PREFIX + str((circ.n_qubits, n_shots)),
-                        json.dumps(ppcirc_rep),
-                        len(results_selection),
-                        json.dumps(results_selection),
-                    )
-                )
-            else:
-                handle = self.submit_program(
-                    language,
-                    quantinuum_circ,
-                    n_shots,
-                    name=circ.name or None,
-                    noisy_simulation=noisy_simulation,
-                    group=group,
-                    wasm_file_handler=wasm_fh,
-                    pytket_pass=pytket_pass,
-                    no_opt=no_opt,
-                    allow_2q_gate_rebase=allow_2q_gate_rebase,
-                    options=cast(Dict[str, Any], kwargs.get("options", {})),
-                    request_options=cast(
-                        Dict[str, Any], kwargs.get("request_options", {})
-                    ),
-                )
-
                 handle = ResultHandle(
-                    self.get_jobid(handle),
+                    jobid,
                     json.dumps(ppcirc_rep),
                     len(results_selection),
                     json.dumps(results_selection),
                 )
                 handle_list.append(handle)
-                self._cache[handle] = dict()
+                self._local_emulator_handles[handle] = (c0, n_shots, seed)
+                if seed is not None:
+                    seed += 1
+            else:
+                results_selection = []
+                if language == Language.QASM:
+                    quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+                    used_scratch_regs = _used_scratch_registers(quantinuum_circ)
+                    for name, count in Counter(
+                        bit.reg_name
+                        for bit in c0.bits
+                        if not _is_scratch(bit) or bit.reg_name in used_scratch_regs
+                    ).items():
+                        for i in range(count):
+                            results_selection.append((name, i))
+                else:
+                    assert language == Language.QIR
+                    warnings.warn(
+                        "Support for Language.QIR is experimental; this may fail!"
+                    )
+                    for name, count in Counter(bit.reg_name for bit in c0.bits).items():
+                        for i in range(count):
+                            results_selection.append((name, i))
+                    try:
+                        pytket_qir_version_components = list(
+                            map(int, pytket_qir_version.split(".")[:2])
+                        )
+                        if (
+                            pytket_qir_version_components[0] == 0
+                            and pytket_qir_version_components[1] < 4
+                        ):
+                            raise RuntimeError(
+                                "Please install `pytket-qir` version 0.4 or above."
+                            )
+                        quantinuum_circ = b64encode(
+                            cast(
+                                bytes,
+                                pytket_to_qir(
+                                    c0,
+                                    "circuit generated by pytket-qir",
+                                    QIRFormat.BINARY,
+                                    wfh=wasm_fh,
+                                ),
+                            )
+                        ).decode("utf-8")
+                    except NameError:
+                        raise RuntimeError(
+                            "You must install the `pytket-qir` package in order to use QIR "
+                            "submission."
+                        )
+
+                if self._MACHINE_DEBUG:
+                    handle_list.append(
+                        ResultHandle(
+                            _DEBUG_HANDLE_PREFIX + str((circ.n_qubits, n_shots)),
+                            json.dumps(ppcirc_rep),
+                            len(results_selection),
+                            json.dumps(results_selection),
+                        )
+                    )
+                else:
+                    handle = self.submit_program(
+                        language,
+                        quantinuum_circ,
+                        n_shots,
+                        name=circ.name or None,
+                        noisy_simulation=noisy_simulation,
+                        group=group,
+                        wasm_file_handler=wasm_fh,
+                        pytket_pass=pytket_pass,
+                        no_opt=no_opt,
+                        allow_2q_gate_rebase=allow_2q_gate_rebase,
+                        options=cast(Dict[str, Any], kwargs.get("options", {})),
+                        request_options=cast(
+                            Dict[str, Any], kwargs.get("request_options", {})
+                        ),
+                    )
+
+                    handle = ResultHandle(
+                        self.get_jobid(handle),
+                        json.dumps(ppcirc_rep),
+                        len(results_selection),
+                        json.dumps(results_selection),
+                    )
+                    handle_list.append(handle)
+                    self._cache[handle] = dict()
 
         return handle_list
 
@@ -952,6 +1014,8 @@ class QuantinuumBackend(Backend):
         return job_dict
 
     def cancel(self, handle: ResultHandle) -> None:
+        if self.is_local_emulator:
+            raise NotImplemented("cancel() not supported with local emulator")
         if self.api_handler is not None:
             jobid = self.get_jobid(handle)
             self.api_handler.cancel(jobid)
@@ -967,6 +1031,8 @@ class QuantinuumBackend(Backend):
     def circuit_status(
         self, handle: ResultHandle, **kwargs: KwargTypes
     ) -> CircuitStatus:
+        if self.is_local_emulator:
+            raise NotImplemented("circuit_status() not supported with local emulator")
         handle = self._update_result_handle(handle)
         self._check_handle_type(handle)
         jobid = self.get_jobid(handle)
@@ -1014,6 +1080,10 @@ class QuantinuumBackend(Backend):
         :return: A tuple containing the results and circuit status.
             If no results are available, the first element is None.
         """
+        if self.is_local_emulator:
+            raise NotImplemented(
+                "get_partial_result() not supported with local emulator"
+            )
         handle = self._update_result_handle(handle)
         job_id = self.get_jobid(handle)
         jr = self.api_handler.retrieve_job_status(job_id)
@@ -1052,27 +1122,42 @@ class QuantinuumBackend(Backend):
                 return _convert_result(
                     {"c": (["0" * n_qubits] * shots)}, ppcirc, n_bits, results_selection
                 )
-            # TODO exception handling when jobid not found on backend
-            timeout = kwargs.get("timeout")
-            if timeout is not None:
-                timeout = int(timeout)
-            wait = kwargs.get("wait")
-            if wait is not None:
-                wait = int(wait)
-            use_websocket = cast(Optional[bool], kwargs.get("use_websocket", None))
+            if self.is_local_emulator:
+                if not have_pecos():
+                    raise RuntimeError(
+                        "Local emulator not available: try installing with the `pecos` option."
+                    )
+                from pytket_pecos import Emulator
 
-            job_retrieve = self._retrieve_job(jobid, timeout, wait, use_websocket)
-            circ_status = _parse_status(job_retrieve)
-            if circ_status.status not in (StatusEnum.COMPLETED, StatusEnum.CANCELLED):
-                raise GetResultFailed(
-                    f"Cannot retrieve result; job status is {circ_status}"
-                )
-            try:
-                res = job_retrieve["results"]
-            except KeyError:
-                raise GetResultFailed("Results missing in device return data.")
+                c0, n_shots, seed = self._local_emulator_handles[handle]
+                emu = Emulator(c0, qsim="state-vector", seed=seed)
+                res = emu.run(n_shots=n_shots)
+                backres = BackendResult(shots=res, ppcirc=ppcirc)
+            else:
+                # TODO exception handling when jobid not found on backend
+                timeout = kwargs.get("timeout")
+                if timeout is not None:
+                    timeout = int(timeout)
+                wait = kwargs.get("wait")
+                if wait is not None:
+                    wait = int(wait)
+                use_websocket = cast(Optional[bool], kwargs.get("use_websocket", None))
 
-            backres = _convert_result(res, ppcirc, n_bits, results_selection)
+                job_retrieve = self._retrieve_job(jobid, timeout, wait, use_websocket)
+                circ_status = _parse_status(job_retrieve)
+                if circ_status.status not in (
+                    StatusEnum.COMPLETED,
+                    StatusEnum.CANCELLED,
+                ):
+                    raise GetResultFailed(
+                        f"Cannot retrieve result; job status is {circ_status}"
+                    )
+                try:
+                    res = job_retrieve["results"]
+                except KeyError:
+                    raise GetResultFailed("Results missing in device return data.")
+
+                backres = _convert_result(res, ppcirc, n_bits, results_selection)
             self._update_cache_result(handle, backres)
             return backres
 
@@ -1116,6 +1201,8 @@ class QuantinuumBackend(Backend):
         :raises ValueError: Circuit is not valid, needs to be compiled.
         :return: Cost in HQC to execute the shots.
         """
+        if self.is_local_emulator:
+            raise NotImplemented("cost() not supported with local emulator")
         if not self.valid_circuit(circuit):
             raise ValueError(
                 "Circuit does not satisfy predicates of backend."

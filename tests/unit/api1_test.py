@@ -478,17 +478,16 @@ def test_available_devices(
     )
 
     devices = QuantinuumBackend.available_devices(api_handler=mock_quum_api_handler)
-    assert len(devices) == 1
-    backinfo = devices[0]
+    backinfo0, backinfo1 = devices
 
-    assert backinfo.device_name == mock_machine_info["name"]
-    assert backinfo.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
-    assert backinfo.version == __extension_version__
-    assert backinfo.supports_fast_feedforward == True
-    assert backinfo.supports_midcircuit_measurement == True
-    assert backinfo.supports_reset == True
-    assert backinfo.n_cl_reg == 120
-    assert backinfo.misc == {
+    assert backinfo0.device_name == mock_machine_info["name"]
+    assert backinfo0.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
+    assert backinfo0.version == __extension_version__
+    assert backinfo0.supports_fast_feedforward == True
+    assert backinfo0.supports_midcircuit_measurement == True
+    assert backinfo0.supports_reset == True
+    assert backinfo0.n_cl_reg == 120
+    assert backinfo0.misc == {
         "n_shots": 10000,
         "system_type": "hardware",
         "emulator": "H9-27E",
@@ -496,7 +495,22 @@ def test_available_devices(
         "batching": True,
         "wasm": True,
     }
-    assert backinfo.name == "QuantinuumBackend"
+    assert backinfo1.name == "QuantinuumBackend"
+    assert backinfo1.device_name == mock_machine_info["name"] + "LE"
+    assert backinfo1.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
+    assert backinfo1.version == __extension_version__
+    assert backinfo1.supports_fast_feedforward == True
+    assert backinfo1.supports_midcircuit_measurement == True
+    assert backinfo1.supports_reset == True
+    assert backinfo1.n_cl_reg == 120
+    assert backinfo1.misc == {
+        "n_shots": 10000,
+        "system_type": "local_emulator",
+        "syntax_checker": "H9-27SC",
+        "batching": False,
+        "wasm": True,
+    }
+    assert backinfo0.name == "QuantinuumBackend"
 
 
 def test_submit_qasm_api(
@@ -553,6 +567,7 @@ def test_submit_qasm_api(
 def test_get_partial_result(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
+    mock_machine_info: Dict[str, Any],
 ) -> None:
     """Test that we can get partial results."""
     queued_job_id = "abc-123"
@@ -574,7 +589,13 @@ def test_get_partial_result(
         },
         headers={"Content-Type": "application/json"},
     )
-    backend = QuantinuumBackend(device_name="H1-1SC", api_handler=mock_quum_api_handler)
+    requests_mock.register_uri(
+        "GET",
+        f"https://qapi.quantinuum.com/v1/machine/?config=true",
+        json=[mock_machine_info],
+        headers={"Content-Type": "application/json"},
+    )
+    backend = QuantinuumBackend(device_name="H9-27", api_handler=mock_quum_api_handler)
     h1 = ResultHandle(queued_job_id, "null", -1)
     res, status = backend.get_partial_result(h1)
     assert res is None

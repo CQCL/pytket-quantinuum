@@ -20,7 +20,7 @@ from _pytest.fixtures import SubRequest
 from requests_mock.mocker import Mocker
 import jwt
 
-from pytket.extensions.quantinuum import QuantinuumBackend
+from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
@@ -46,6 +46,15 @@ ALL_SYNTAX_CHECKER_NAMES = [
     "H2-1SC",
 ]
 
+ALL_LOCAL_SIMULATOR_NAMES = (
+    [
+        "H1-1LE",
+        "H2-1LE",
+    ]
+    if have_pecos()
+    else []
+)
+
 ALL_DEVICE_NAMES = [
     *ALL_QUANTUM_HARDWARE_NAMES,
     *ALL_SIMULATOR_NAMES,
@@ -64,6 +73,7 @@ def pytest_configure() -> None:
     pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
     pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
     pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
+    pytest.ALL_LOCAL_SIMULATOR_NAMES = ALL_LOCAL_SIMULATOR_NAMES
 
 
 def pytest_make_parametrize_id(
@@ -174,8 +184,8 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "batching": True,
             "wasm": True,
         },
-        {"name": "H1", "n_qubits": 20},
-        {"name": "H2", "n_qubits": 32},
+        {"name": "H1", "n_qubits": 20, "system_type": "hardware"},
+        {"name": "H2", "n_qubits": 32, "system_type": "hardware"},
     ]
 
 
