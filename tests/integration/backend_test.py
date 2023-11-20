@@ -910,6 +910,7 @@ attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "require
     assert len(r.get_shots()) == 10
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
