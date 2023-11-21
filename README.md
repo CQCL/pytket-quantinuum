@@ -1,6 +1,6 @@
 # pytket-quantinuum
 
-[Pytket](https://cqcl.github.io/tket/pytket/api/index.html) is a python module for interfacing
+[Pytket](https://tket.quantinuum.com/api-docs/index.html) is a python module for interfacing
 with tket, a quantum computing toolkit and optimising compiler developed by Quantinuum.
 
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to

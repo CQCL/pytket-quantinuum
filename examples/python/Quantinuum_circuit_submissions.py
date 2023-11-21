@@ -26,21 +26,21 @@
 # In python, the `pytket` packages is available for python 3.8+. The `pytket` and `pytket-quantinuum` packages are included as part of the installation instructions on the user portal.
 
 # For more information on TKET, see the following links:
-# - [TKET user manual](https://cqcl.github.io/pytket/manual/manual_intro.html)
+# - [TKET user manual](https://tket.quantinuum.com/user-manual/manual_intro.html)
 # - [TKET overview and demo video](https://www.youtube.com/watch?v=yXKSpvgAtrk)
 # - [Quantum Compilation with TKET](https://calmaccq.github.io/tket_blog/tket_compilation.html)
 
 # This notebook covers how to use `pytket` in conjunction with `pytket-quantinuum` to submit to Quantinuum devices. The quantum compilation step is demonstrated, but for a full overview of quantum compilation with TKET, the last link above is recommended.
 
 # See the links below for the `pytket` and `pytket-quantinuum` documentation:
-# - [pytket](https://cqcl.github.io/tket/pytket/api/index.html)
-# - [pytket-quantinuum](https://cqcl.github.io/pytket-quantinuum/api/index.html)
+# - [pytket](https://tket.quantinuum.com/api-docs/index.html)
+# - [pytket-quantinuum](https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html)
 
 # ## Step by Step <a class="anchor" id="step-by-step"></a>
 
 # ### Circuit Preparation <a class="anchor" id="circuit-preparation"></a>
 
-# Create your circuit via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://cqcl.github.io/tket/pytket/api/getting_started.html) page.
+# Create your circuit via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://tket.quantinuum.com/api-docs/getting_started.html) page.
 from pytket.circuit import Circuit, fresh_symbol
 from pytket.circuit.display import render_circuit_jupyter
 
@@ -56,7 +56,7 @@ render_circuit_jupyter(circuit)
 
 # Select a machine and login to the Quantinuum API using your credentials. See the *Quantinuum Systems User Guide* in the *Examples* tab on the *Quantinuum User Portal* for information and target names for each of the H-Series systems available.
 
-# Users need to login once per session. In the notebook, a dialogue box will ask for credentials. If running a script, users be prompted at the shell. You can also [save your email in the pytket config](https://cqcl.github.io/tket/pytket/api/config.html?highlight=pytket%20config#module-pytket.config).
+# Users need to login once per session. In the notebook, a dialogue box will ask for credentials. If running a script, users be prompted at the shell. You can also [save your email in the pytket config](https://tket.quantinuum.com/api-docs/config.html?highlight=pytket%20config#module-pytket.config).
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
@@ -76,7 +76,7 @@ print(machine, "status:", QuantinuumBackend.device_state(device_name=machine))
 
 # Circuits submitted to Quantinuum H-Series quantum computers and emulators are automatically run through TKET compilation passes for H-Series hardware. This enables circuits to be automatically optimized for H-Series systems and run more efficiently.
 
-# More information on the specific compilation passes applied can be found on the `pytket-quantinuum` documentation, specifically the [Default Compilation](https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation) section. In the H-Series software stack, the optimization level applied is set with the `tket-opt-level` parameter. **The default compilation setting for circuits submited to H-Series sytems is optimization level 2.** More information is found in the *Quantinuum Application Programming Interface (API) Specification*.
+# More information on the specific compilation passes applied can be found on the `pytket-quantinuum` documentation, specifically the [Default Compilation](https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html#default-compilation) section. In the H-Series software stack, the optimization level applied is set with the `tket-opt-level` parameter. **The default compilation setting for circuits submited to H-Series sytems is optimization level 2.** More information is found in the *Quantinuum Application Programming Interface (API) Specification*.
 
 # When using `pytket` before submitting to hardware, the `get_compiled_circuit` function performs the same compilation passes run after submission to Quantinuum systems. The advantage of using the function before submitting to H-Series hardware is to see exactly what circuit optimizations will be performed when submitted to hardware and determine if a different optimization level is desired. The `optimisation_level` parameter in the `get_compiled_circuit` function corresponds directly to the the level of optimisation after submitting to the H-Series systems and to the `tket-opt-level` parameter in the H-Series API. The default compilation for the `get_compiled_circuit` function is optimization level 2, the same as when submitting to the H-Series directly.
 
@@ -120,7 +120,7 @@ print(status)
 
 result = backend.get_result(handle)
 
-# For large jobs, there is also the ability to return partial results for unfinished jobs. For more information on this feature, see [Partial Results Retrieval](https://cqcl.github.io/pytket-quantinuum/api/#partial-results-retrieval).
+# For large jobs, there is also the ability to return partial results for unfinished jobs. For more information on this feature, see [Partial Results Retrieval](https://tket.quantinuum.com/extensions/pytket-quantinuum/api/#partial-results-retrieval).
 
 partial_result, job_status = backend.get_partial_result(handle)
 
@@ -146,7 +146,7 @@ result = BackendResult.from_dict(data)
 
 # ### Analyze Results <a class="anchor" id="analyze-results"></a>
 
-# There are multiple options for analyzing results with pytket. A few examples are highlighted here. More can be seen at [Interpreting Results](https://cqcl.github.io/pytket/manual/manual_backend.html#interpreting-results).
+# There are multiple options for analyzing results with pytket. A few examples are highlighted here. More can be seen at [Interpreting Results](https://tket.quantinuum.com/user-manual/manual_backend.html#interpreting-results).
 
 result = backend.get_result(handle)
 print(result.get_distribution())
@@ -200,7 +200,7 @@ print(handle)
 
 # Currently only the quantum computer and emulator targets support the batching feature. Batching is not supported on the syntax checkers.
 
-# For more information on using this feature in `pytket-quantinuum`, see [Batching](https://cqcl.github.io/pytket-quantinuum/api/index.html#batching).
+# For more information on using this feature in `pytket-quantinuum`, see [Batching](https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html#batching).
 
 # To start a batch, use the `start_batch` function, specifying the `max_batch_cost` in HQCs to enforce.
 
@@ -236,7 +236,7 @@ for result in results:
 
 # ### Parametrized Circuits <a class="anchor" id="parametrized-circuits"></a>
 
-# Parametrized circuits are common in variational algorithms. Pytket supports parameters within circuits via symbols. For more information, see [Symbolic Circuits](https://cqcl.github.io/pytket/manual/manual_circuit.html?highlight=paramet#symbolic-circuits).
+# Parametrized circuits are common in variational algorithms. Pytket supports parameters within circuits via symbols. For more information, see [Symbolic Circuits](https://tket.quantinuum.com/user-manual/manual_circuit.html?highlight=paramet#symbolic-circuits).
 
 from pytket.circuit import fresh_symbol
 
@@ -274,7 +274,7 @@ result = backend.get_result(handle)
 
 # ### Conditional Gates <a class="anchor" id="conditional-gates"></a>
 
-# Pytket supports conditional gates. This may be for implementing error correction or reducing noise. This capability is well-supported by Quantinuum hardware, which supports mid-circuit measurement and qubit reuse. See [Conditional Gates](https://cqcl.github.io/pytket/manual/manual_circuit.html#classical-and-conditional-operations) for more information on pytket's implementation. The following example demonstrates the quantum teleportation protocol.
+# Pytket supports conditional gates. This may be for implementing error correction or reducing noise. This capability is well-supported by Quantinuum hardware, which supports mid-circuit measurement and qubit reuse. See [Conditional Gates](https://tket.quantinuum.com/user-manual/manual_circuit.html#classical-and-conditional-operations) for more information on pytket's implementation. The following example demonstrates the quantum teleportation protocol.
 
 from pytket.circuit import Circuit, if_bit
 
@@ -304,7 +304,7 @@ circ.Z(qreg[2], condition=if_bit(creg[0]))
 
 render_circuit_jupyter(circ)
 
-# We can utilise pytket's [Assertion](https://cqcl.github.io/pytket/manual/manual_assertion.html#assertion) feature to verify the successful teleportation of the state $| - \rangle$.
+# We can utilise pytket's [Assertion](https://tket.quantinuum.com/user-manual/manual_assertion.html#assertion) feature to verify the successful teleportation of the state $| - \rangle$.
 
 from pytket.circuit import ProjectorAssertionBox
 import numpy as np

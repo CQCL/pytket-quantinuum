@@ -221,7 +221,7 @@ class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
     More information about the QuantinuumBackend can be found on this page
-    https://cqcl.github.io/pytket-quantinuum/api/index.html
+    https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html
     """
 
     _supports_shots = True
@@ -480,7 +480,7 @@ class QuantinuumBackend(Backend):
             fidelities["ZZMax_fidelity"] = 1.0
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
-        # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
+        # https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())
