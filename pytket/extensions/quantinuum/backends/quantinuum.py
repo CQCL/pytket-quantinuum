@@ -16,8 +16,10 @@
 from ast import literal_eval
 from base64 import b64encode
 from collections import Counter
+from copy import copy
 from dataclasses import dataclass
 from enum import Enum
+from functools import cache
 import json
 from http import HTTPStatus
 import re
@@ -313,6 +315,7 @@ class QuantinuumBackend(Backend):
         self.compilation_config.target_2qb_gate = target_2qb_gate
 
     @classmethod
+    @cache
     def _available_devices(
         cls,
         api_handler: QuantinuumAPI,
@@ -341,12 +344,13 @@ class QuantinuumBackend(Backend):
 
     @classmethod
     def _dict_to_backendinfo(cls, dct: Dict[str, Any]) -> BackendInfo:
-        name: str = dct.pop("name")
-        n_qubits: int = dct.pop("n_qubits")
+        dct1 = copy(dct)
+        name: str = dct1.pop("name")
+        n_qubits: int = dct1.pop("n_qubits")
         n_cl_reg: Optional[int] = None
         if "n_classical_registers" in dct:
-            n_cl_reg = dct.pop("n_classical_registers")
-        gate_set: List[str] = dct.pop("gateset", [])
+            n_cl_reg = dct1.pop("n_classical_registers")
+        gate_set: List[str] = dct1.pop("gateset", [])
         return BackendInfo(
             name=cls.__name__,
             device_name=name,
@@ -357,7 +361,7 @@ class QuantinuumBackend(Backend):
             supports_fast_feedforward=True,
             supports_midcircuit_measurement=True,
             supports_reset=True,
-            misc=dct,
+            misc=dct1,
         )
 
     @classmethod
