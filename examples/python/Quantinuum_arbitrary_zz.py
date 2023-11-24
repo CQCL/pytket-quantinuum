@@ -171,7 +171,7 @@ render_circuit_jupyter(qft_fid_arbZZ)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-2E"
+machine = "H1-1E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -212,11 +212,11 @@ print(
 n_shots = 1000
 print(
     "Fixed angle QFT:",
-    backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker=machin),
+    backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker=machine),
 )
 print(
     "Arbitrary angle ZZ QFT:",
-    backend.cost(qft_fid_arbZZ_compiled, n_shots=n_shots, syntax_checker="H1-2SC"),
+    backend.cost(qft_fid_arbZZ_compiled, n_shots=n_shots, syntax_checker="H1-1SC"),
 )
 
 # ### Run the Circuit

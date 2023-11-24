@@ -21,9 +21,9 @@ Devices
 =======
 The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the ``QuantinuumBackend`` class. The available devices are:
 
-* ``H1-1``, ``H1-2``, ``H2-1``: Quantum devices, submit specifically to ``H1-1``, ``H1-2`` or ``H2-1`` by using the device name.
-* ``H1-1E``, ``H1-2E``, ``H2-1E``: Device-specific emulators of ``H1-1``, ``H1-2`` and ``H2-1``. These emulators run remotely on servers and require credentials.
-* ``H1-1SC``, ``H1-2SC``, ``H2-1SC``: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
+* ``H1-1``, ``H2-1``: Quantum devices, submit specifically to ``H1-1`` or ``H2-1`` by using the device name.
+* ``H1-1E``, ``H2-1E``: Device-specific emulators of ``H1-1`` and ``H2-1``. These emulators run remotely on servers and require credentials.
+* ``H1-1SC``, ``H2-1SC``: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
 
 There are also optional initialisation parameters ``label`` (for naming circuits), ``group`` (identifier for a collection of jobs) and ``simulator`` (see below).
 
@@ -68,32 +68,35 @@ The passes applied by different levels of optimisation are specified in the tabl
    * - optimisation_level = 0
      - optimisation_level = 1 
      - optimisation_level = 2 [1]
-   * - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
-     - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
-     - `DecomposeBoxes <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeBoxes>`_
+   * - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
+     - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
+     - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
    * - self.rebase_pass [2]
-     - `SynthesiseTket <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.SynthesiseTket>`_
-     - `FullPeepholeOptimise [3] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FullPeepholeOptimise>`_
-   * - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
-     - `NormaliseTK2  <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
-     - `NormaliseTK2  <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.NormaliseTK2>`_
+     - `SynthesiseTket <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.SynthesiseTket>`_
+     - `FullPeepholeOptimise [3] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FullPeepholeOptimise>`_
+   * - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `NormaliseTK2  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
    * -
-     - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
-     - `DecomposeTK2 <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.DecomposeTK2>`_
+     - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
+     - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
    * -
      - self.rebase_pass [2]
      - self.rebase_pass [2]
    * -
-     - `ZZPhaseToRz <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.ZZPhaseToRz>`_
-     - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
+     - `ZZPhaseToRz <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.ZZPhaseToRz>`_
+     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
-     - `RemoveRedundancies <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.RemoveRedundancies>`_
-     - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
+     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
-     - `auto_squash_pass [4] <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-     - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
-     - `FlattenRelabelRegistersPass <https://cqcl.github.io/tket/pytket/api/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
+   * -
+     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
      -
 
 
@@ -135,9 +138,9 @@ Device Predicates
 
 Circuits must satisfy the following predicates in order to run on the ``QuantinuumBackend``.
 
-* `NoSymbolsPredicate  <https://cqcl.github.io/tket/pytket/api/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
-* `GateSetPredicate  <https://cqcl.github.io/tket/pytket/api/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
-* `MaxNQubitsPredicate <https://cqcl.github.io/tket/pytket/api/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. The ``H1-2``, ``H1-2E`` and ``H1-2SC`` support a maximum of 20 qubits. The ``H2-1``, ``H2-1E`` and ``H2-1SC`` support a maximum of 32 qubits.
+* `NoSymbolsPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
+* `GateSetPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
+* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. The ``H2-1``, ``H2-1E`` and ``H2-1SC`` support a maximum of 32 qubits.
 
 Job Statuses
 ============

@@ -71,7 +71,7 @@ REASON = (
 
 
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_quantinuum(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -142,7 +142,7 @@ def test_max_classical_register(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_bell(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -164,10 +164,7 @@ def test_bell(
     [{"device_name": "H1-1SC", "label": "test 3"}],
     indirect=True,
 )
-@pytest.mark.parametrize(
-    "language",
-    [Language.QASM],
-)  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_multireg(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -350,10 +347,7 @@ def test_cost_estimate(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize(
-    "language",
-    [Language.QASM],
-)  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_classical(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -406,7 +400,7 @@ def test_classical(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_postprocess(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -478,7 +472,6 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     assert res.get_counts() == correct_counts
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
@@ -487,8 +480,12 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
     "language",
     [
         Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/276"
+            ),
+        ),
     ],
 )
 @pytest.mark.timeout(120)
@@ -557,7 +554,6 @@ def test_retrieve_available_devices(
     )
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
@@ -584,7 +580,7 @@ def test_batching(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_submission_with_group(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -609,7 +605,7 @@ def test_submission_with_group(
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_zzphase(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -793,7 +789,7 @@ def test_submit_qasm(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_options(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -815,7 +811,7 @@ def test_options(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM])  # FIXME add QIR, #236
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_no_opt(
     authenticated_quum_backend: QuantinuumBackend, language: Language
@@ -914,7 +910,7 @@ attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "require
     assert len(r.get_shots()) == 10
 
 
-@pytest.mark.skipif(True, reason=REASON)  # FIXME add QIR, #236
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
@@ -930,7 +926,6 @@ def test_qir_conversion(authenticated_quum_backend: QuantinuumBackend) -> None:
     assert all(len(shot) == 2 for shot in shots)
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=10)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.timeout(120)
 def test_old_handle(
@@ -1010,8 +1005,12 @@ def test_scratch_removal(authenticated_quum_backend: QuantinuumBackend) -> None:
     "language",
     [
         Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/232"
+            ),
+        ),
     ],
 )
 @pytest.mark.timeout(120)
@@ -1068,8 +1067,12 @@ def test_wasm_collatz(
     "language",
     [
         Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/232"
+            ),
+        ),
     ],
 )
 @pytest.mark.timeout(120)
@@ -1124,8 +1127,12 @@ def test_wasm_state(
     "language",
     [
         Language.QASM,
-        # https://github.com/CQCL/pytket-quantinuum/issues/236
-        # Language.QIR,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/261"
+            ),
+        ),
     ],
 )
 @pytest.mark.timeout(120)
@@ -1188,3 +1195,18 @@ def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
     c = Circuit(2).H(0).CX(0, 1).measure_all()
     c1 = b.get_compiled_circuit(c)
     assert any(cmd.op.type == b.default_two_qubit_gate for cmd in c1)
+
+
+# https://github.com/CQCL/pytket-quantinuum/issues/265
+def test_Rz_removal_before_measurements() -> None:
+    backend = QuantinuumBackend("H1-1E", machine_debug=True)
+    # Circuit will contain an Rz gate if RemoveRedundancies
+    #  isn't applied after SquashRzPhasedX
+    circuit = Circuit(2).H(0).Rz(0.75, 0).CX(0, 1).measure_all()
+
+    for optimisation_level in (1, 2):
+        compiled_circuit = backend.get_compiled_circuit(
+            circuit, optimisation_level=optimisation_level
+        )
+        assert backend.valid_circuit(compiled_circuit)
+        assert compiled_circuit.n_gates_of_type(OpType.Rz) == 0

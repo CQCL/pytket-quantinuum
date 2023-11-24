@@ -21,7 +21,7 @@ print(repr(wfh))
 
 # Next, we add the classical function calls to our quantum circuit.
 
-# First we use the [add_wasm](https://cqcl.github.io/tket/pytket/api/circuit_class.html#pytket.circuit.Circuit.add_wasm) function and add the function `add_one`, defined in the WASM file. The first parameter will be read from `Bit(0)` and the result written to `Bit(1)`. The length of the two lists giving the number of bits is the number of parameters and the number of results. For more information on the `add_wasm` function, see [add_wasm](https://cqcl.github.io/tket/pytket/api/circuit_class.html#pytket.circuit.Circuit.add_wasm).
+# First we use the [add_wasm](https://tket.quantinuum.com/api-docs/circuit_class.html#pytket.circuit.Circuit.add_wasm) function and add the function `add_one`, defined in the WASM file. The first parameter will be read from `Bit(0)` and the result written to `Bit(1)`. The length of the two lists giving the number of bits is the number of parameters and the number of results. For more information on the `add_wasm` function, see [add_wasm](https://tket.quantinuum.com/api-docs/circuit_class.html#pytket.circuit.Circuit.add_wasm).
 
 c = Circuit(0, 8)
 
@@ -53,7 +53,7 @@ c.add_wasm(
     "multi", wfh, [2, 2], [3], [Bit(0), Bit(1), Bit(0), Bit(1), Bit(2), Bit(3), Bit(4)]
 )
 
-# If you are working with registers in your circuit as a means to organize the classical bits, you can add Wasm to your circuit using registers for each parameter and result. For more information on the `add_wasm_to_reg` function, see [add_wasm_to_reg](https://cqcl.github.io/tket/pytket/api/circuit_class.html#pytket.circuit.Circuit.add_wasm_to_reg).
+# If you are working with registers in your circuit as a means to organize the classical bits, you can add Wasm to your circuit using registers for each parameter and result. For more information on the `add_wasm_to_reg` function, see [add_wasm_to_reg](https://tket.quantinuum.com/api-docs/circuit_class.html#pytket.circuit.Circuit.add_wasm_to_reg).
 
 # Add registers to circuit
 c0 = c.add_c_register("c0", 3)
@@ -84,10 +84,10 @@ for gate in c:
 
 # One helpful feature is to plot the DAG of the circuit to get an overview of the different components of the circuit.
 
-from pytket.utils import Graph
+# from pytket.utils import Graph
 
-g = Graph(c)
-g.view_DAG()
+# g = Graph(c)
+# g.view_DAG()
 
 # ## Send Wasm to the Backend
 
@@ -109,11 +109,5 @@ h = b.process_circuits([c], n_shots=10, wasm_file_handler=wfh)[0]
 
 status = b.circuit_status(h)
 print(status)
-
-result = b.get_result(h)
-print(result)
-
-for shot in result.get_shots():
-    print(shot)
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

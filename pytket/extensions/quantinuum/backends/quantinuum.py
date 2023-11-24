@@ -16,8 +16,10 @@
 from ast import literal_eval
 from base64 import b64encode
 from collections import Counter
+from copy import copy
 from dataclasses import dataclass
 from enum import Enum
+from functools import cache
 import json
 from http import HTTPStatus
 import re
@@ -221,7 +223,7 @@ class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
     More information about the QuantinuumBackend can be found on this page
-    https://cqcl.github.io/pytket-quantinuum/api/index.html
+    https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html
     """
 
     _supports_shots = True
@@ -313,6 +315,7 @@ class QuantinuumBackend(Backend):
         self.compilation_config.target_2qb_gate = target_2qb_gate
 
     @classmethod
+    @cache
     def _available_devices(
         cls,
         api_handler: QuantinuumAPI,
@@ -341,12 +344,13 @@ class QuantinuumBackend(Backend):
 
     @classmethod
     def _dict_to_backendinfo(cls, dct: Dict[str, Any]) -> BackendInfo:
-        name: str = dct.pop("name")
-        n_qubits: int = dct.pop("n_qubits")
+        dct1 = copy(dct)
+        name: str = dct1.pop("name")
+        n_qubits: int = dct1.pop("n_qubits")
         n_cl_reg: Optional[int] = None
         if "n_classical_registers" in dct:
-            n_cl_reg = dct.pop("n_classical_registers")
-        gate_set: List[str] = dct.pop("gateset", [])
+            n_cl_reg = dct1.pop("n_classical_registers")
+        gate_set: List[str] = dct1.pop("gateset", [])
         return BackendInfo(
             name=cls.__name__,
             device_name=name,
@@ -357,7 +361,7 @@ class QuantinuumBackend(Backend):
             supports_fast_feedforward=True,
             supports_midcircuit_measurement=True,
             supports_reset=True,
-            misc=dct,
+            misc=dct1,
         )
 
     @classmethod
@@ -480,7 +484,7 @@ class QuantinuumBackend(Backend):
             fidelities["ZZMax_fidelity"] = 1.0
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
-        # https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation
+        # https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())
@@ -494,6 +498,7 @@ class QuantinuumBackend(Backend):
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
+                    RemoveRedundancies(),
                 ]
             )
         else:
@@ -505,6 +510,7 @@ class QuantinuumBackend(Backend):
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
+                    RemoveRedundancies(),
                 ]
             )
         # In TKET, a qubit register with N qubits can have qubits
@@ -827,10 +833,10 @@ class QuantinuumBackend(Backend):
                     )
                     if (
                         pytket_qir_version_components[0] == 0
-                        and pytket_qir_version_components[1] < 3
+                        and pytket_qir_version_components[1] < 4
                     ):
                         raise RuntimeError(
-                            "Please install `pytket-qir` version 0.3 or above."
+                            "Please install `pytket-qir` version 0.4 or above."
                         )
                     quantinuum_circ = b64encode(
                         cast(

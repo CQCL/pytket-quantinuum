@@ -1,6 +1,14 @@
 Changelog
 ~~~~~~~~~
 
+0.26.0 (November 2023)
+----------------------
+
+* Updated pytket version requirement to 1.22.
+* Add ``QuantinuumConfigCredentialStorage`` for caching API tokens in local pytket
+  configuration file.
+* Add an additonal ``RemoveRedundancies`` pass to the default passes for levels 1 and 2 to remove Rz gates before measurement.
+
 0.25.0 (October 2023)
 ---------------------
 

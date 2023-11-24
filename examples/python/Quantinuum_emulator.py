@@ -25,7 +25,7 @@
 
 # This section covers usage of the emulator which represents a physical and noise model of the device being used. For example, if using the `H1-1E` target, this emulates the H1-1 quantum computer.
 
-# Here the circuit is created via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://cqcl.github.io/tket/pytket/api/getting_started.html) page.
+# Here the circuit is created via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://tket.quantinuum.com/api-docs/getting_started.html) page.
 
 from pytket.circuit import Circuit
 from pytket.circuit.display import render_circuit_jupyter
@@ -42,13 +42,13 @@ render_circuit_jupyter(circuit)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-2E"
+machine = "H1-1E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
 print(machine, "status:", backend.device_state(device_name=machine))
 
-# Compile the circuit to the Quantinuum backend with `get_compiled_circuit`. See the `pytket` [User Manual](https://cqcl.github.io/pytket/manual/index.html) for more information on all the options that are available.
+# Compile the circuit to the Quantinuum backend with `get_compiled_circuit`. See the `pytket` [User Manual](https://tket.quantinuum.com/user-manual/index.html) for more information on all the options that are available.
 
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=1)
 
@@ -57,7 +57,7 @@ render_circuit_jupyter(compiled_circuit)
 # Check the circuit HQC cost before running on the emulator.
 
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
 # Run the circuit on the emulator chosen.
 
@@ -248,7 +248,7 @@ print(result.get_distribution())
 
 # By default, emulations are run using a state-vector emulator, which simulates any quantum operation. However, if the quantum operations are all Clifford gates, it can be faster for complex circuits to use the `stabilizer` emulator. The stabilizer emulator is requested in the setup of the `QuantinuumBackend` with the `simulator` input option. This only applies to Quantinuum emulators.
 
-machine = "H1-2E"
+machine = "H1-1E"
 
 stabilizer_backend = QuantinuumBackend(device_name=machine, simulator="stabilizer")
 

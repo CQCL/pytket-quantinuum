@@ -32,20 +32,17 @@ if not os.getenv("PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY", 0):
     ALL_QUANTUM_HARDWARE_NAMES.extend(
         [
             "H1-1",
-            "H1-2",
             "H2-1",
         ]
     )
 
 ALL_SIMULATOR_NAMES = [
     "H1-1E",
-    "H1-2E",
     "H2-1E",
 ]
 
 ALL_SYNTAX_CHECKER_NAMES = [
     "H1-1SC",
-    "H1-2SC",
     "H2-1SC",
 ]
 
@@ -125,15 +122,6 @@ def mock_machine_info() -> Dict[str, Any]:
 def sample_machine_infos() -> List[Dict[str, Any]]:
     return [
         {
-            "name": "H1-2SC",
-            "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-            "n_classical_registers": 120,
-            "n_shots": 10000,
-            "system_type": "syntax checker",
-            "wasm": True,
-        },
-        {
             "name": "H1-1SC",
             "n_qubits": 20,
             "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
@@ -161,28 +149,6 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "system_type": "hardware",
             "emulator": "H1-1E",
             "syntax_checker": "H1-1SC",
-            "batching": True,
-            "wasm": True,
-        },
-        {
-            "name": "H1-2",
-            "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-            "n_classical_registers": 120,
-            "n_shots": 10000,
-            "system_type": "hardware",
-            "emulator": "H1-2E",
-            "syntax_checker": "H1-2SC",
-            "batching": True,
-            "wasm": True,
-        },
-        {
-            "name": "H1-2E",
-            "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
-            "n_classical_registers": 120,
-            "n_shots": 10000,
-            "system_type": "emulator",
             "batching": True,
             "wasm": True,
         },
@@ -223,7 +189,7 @@ def fixture_mock_quum_api_handler(
     """A logged-in QuantinuumQAPI fixture.
     After using this fixture in a test, call:
         mock_quum_api_handler.delete_authentication()
-    To remove mock tokens from the keyring.
+    To remove mock tokens from memory.
     """
 
     username, pwd = mock_credentials
@@ -241,16 +207,13 @@ def fixture_mock_quum_api_handler(
     )
 
     cred_store = MemoryCredentialStorage()
-    cred_store._save_login_credential(
-        user_name=username,
-        password=pwd,
-    )
+    cred_store.save_user_name(username)
+    cred_store._password = pwd
 
     # Construct QuantinuumQAPI and login
     api_handler = QuantinuumAPI()
 
     # Add the credential storage seperately in line with fixture parameters
-    api_handler.config.username = username
     api_handler._cred_store = cred_store
     api_handler.login()
 
