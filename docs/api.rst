@@ -3,10 +3,10 @@ API documentation
 
 .. currentmodule:: pytket.extensions.quantinuum
 
-.. autoclass:: QuantinuumBackend
+.. autoenum:: Language
     :members:
 
-.. autoclass:: Language
+.. autoclass:: QuantinuumBackend
     :members:
 
 .. autoclass:: QuantinuumBackendCompilationConfig
