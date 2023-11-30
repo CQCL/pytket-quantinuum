@@ -1,9 +1,22 @@
 API documentation
 ~~~~~~~~~~~~~~~~~
 
-.. automodule:: pytket.extensions.quantinuum
-    :special-members:
-    :members: QuantinuumBackend, QuantinuumBackendCompilationConfig, QuantinuumAPI, QuantinuumAPIOffline, Language
+.. currentmodule:: pytket.extensions.quantinuum
+
+.. autoclass:: QuantinuumBackend
+    :members:
+
+.. autoclass:: Language
+    :members:
+
+.. autoclass:: QuantinuumBackendCompilationConfig
+    :members:
+
+.. autoclass:: QuantinuumAPI
+    :members:
+
+.. autoclass:: QuantinuumAPIOffline
+    :members:
 
 .. automodule:: pytket.extensions.quantinuum.backends.config
     :members:
