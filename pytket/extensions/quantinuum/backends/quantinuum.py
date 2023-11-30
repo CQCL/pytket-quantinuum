@@ -371,8 +371,12 @@ class QuantinuumBackend(Backend):
     ) -> List[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
+
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :type api_handler: Optional[QuantinuumAPI]
+        :return: A list of BackendInfo objects for each available Backend.
+        :rtype: List[BackendInfo]
+
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
         jr = cls._available_devices(api_handler)
