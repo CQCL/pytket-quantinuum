@@ -7,6 +7,7 @@ API documentation
     :members:
 
 .. autoclass:: QuantinuumBackend
+    :show-inheritance:
     :members:
 
 .. autoclass:: QuantinuumBackendCompilationConfig
