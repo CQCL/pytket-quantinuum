@@ -1,13 +1,21 @@
+# <div style="text-align: center;">
+# <img src="https://assets-global.website-files.com/62b9d45fb3f64842a96c9686/62d84db4aeb2f6552f3a2f78_Quantinuum%20Logo__horizontal%20blue.svg" width="200" height="200" /></div>
+
 # # Arbitrary Angle ZZ Gates via pytket
 
-# This notebook contains a comparison of circuits with and without use of Quantinuum's native arbitrary-angle ZZ gate in `pytket`.
+# This notebook contains a comparison of circuits with and without use of Quantinuum's native arbitrary-angle ZZ gate in `pytket`. The circuit
+# primitive, the Quantum Fourier Transform (QFT) is constructed with `pytket`. The inverse QFT is an important primitive used in the [Phase
+# Estimation Algorithm (PEA)](https://en.wikipedia.org/wiki/Quantum_phase_estimation_algorithm). PEA is used to estimate the phase corresponding to the eigenvalue of a specified unitary.
+
+# Arbitrary-angle two-qubit gates can be used to improve fidelity of the output and to decrease two-qubit gate depth. Specifically, the
+# error from arbitrary-angle two-qubit gates is less than the fixed-angle two-qubit gate for small angles. The error from both gates is the
+# same at angle $\frac{\phi}{2}$. The error from arbitrary-angle two-qubit gates increases with angle size.
 
 # * [Arbitrary Angle ZZ Gates](#arb-zz)
 # * [Quantum Fourier Transform](#qft)
 # * [QFT with Fixed Angle Gates](#qft-fixed)
 # * [QFT with Arbitrary Angle ZZ Gates](#qft-arb-zz)
 # * [Compare Results](#compare)
-
 # ## Arbitrary Angle ZZ Gates <a class="anchor" id="arb-zz"></a>
 
 # Quantinuum System Model H1's native gate set includes arbitrary angle ZZ gates. This is beneficial for reducing the 2-qubit gate count for many quantum algorithms and gate sequences.
@@ -21,12 +29,11 @@
 
 # <br>
 
-# <div>
-# <img src="attachment:rzz.png" width="250"/>
+# <div style="text-align: center;">
+# <img src="rzz.png" width="250"/>
 # </div>
 
 # This notebook demonstrates the Quantum Fourier Transform (QFT) with and without the $RZZ$ gate.
-
 # ## Quantum Fourier Transform <a class="anchor" id="qft"></a>
 
 # The Quantum Fourier Transform (QFT) is an algorithm that serves as a sub-routine in multiple quantum algorithms, including Shor's factoring algorithm. Below are two functions, written in `pytket`, that work together to implement the QFT.
@@ -67,12 +74,7 @@ def control_phase(circ, theta, q0, q1, arbZZ=False):
     elif arbZZ == True:
         circ.Rz(theta / 2, q0)
         circ.Rz(theta / 2, q1)
-        if theta > 0:
-            circ.X(q0)
-            circ.ZZPhase(theta / 2, q0, q1)
-            circ.X(q0)
-        elif theta <= 0:
-            circ.ZZPhase(-theta / 2, q0, q1)
+        circ.ZZPhase(-theta / 2, q0, q1)
 
 
 def QFT(n, **kwargs):
@@ -109,33 +111,28 @@ def QFT(n, **kwargs):
 # ## QFT with Fixed Angle Gates <a class="anchor" id="qft-fixed"></a>
 
 # First, create the circuit with fixed-angle gates.
-
 n_qubits = 12
 
 qft_fixed = QFT(n_qubits, arbZZ=False)
 
 render_circuit_jupyter(qft_fixed)
-
 # ## QFT with Arbitrary Angle ZZ Gates <a class="anchor" id="qft-arb-zz"></a>
 
 # Second, create the circuit with arbitrary-angle ZZ gates.
-
 qft_arbZZ = QFT(n_qubits, arbZZ=True)
 
 render_circuit_jupyter(qft_arbZZ)
-
 # ## Compare Results <a class="anchor" id="compare"></a>
 
 # Now we compare the results of the QFT circuits with and without use of the arbitrary-angle ZZ gates on hardware.
-
 # ### State Fidelity
 
 # The QFT circuit applied to the computational basis state $|x\rangle$ creates the state
 
 # \begin{align}
 # QFT|x\rangle&=\frac{1}{\sqrt{d}}\sum_{y=0}^{d-1} e^{2\pi i x y/d} |y\rangle\\
-# &= \bigotimes_{j=0}^{n-1}\frac{1}{\sqrt{2}}\sum_{y_j=0}^1e^{2\pi i x y_j/d}|y_j\rangle\\
-# &= \bigotimes_{j=0}^{n-1}\frac{1}{\sqrt{2}}\big(|0\rangle+e^{2\pi i x/d}|1\rangle\big)
+# &= \bigotimes_{j=0}^{n-1}\frac{1}{\sqrt{2}}\sum_{y_j=0}^1e^{2\pi i x 2^j y_j/d}|y_j\rangle\\
+# &= \bigotimes_{j=0}^{n-1}\frac{1}{\sqrt{2}}\big(|0\rangle+e^{2\pi i x 2^j /d}|1\rangle\big)
 # \end{align}
 
 # where $d=2^n$. Note that this state is unentangled. Therefore the state fidelity can be measured by applying only single-qubit gates to map the state back to the computational basis. In the example circuits above, the initial state $|x\rangle=|0\rangle$, and so the output state is
@@ -171,7 +168,7 @@ render_circuit_jupyter(qft_fid_arbZZ)
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-1E"
+machine = "H1-2E"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -183,7 +180,6 @@ qft_fid_fixed_compiled = backend.get_compiled_circuit(
     qft_fid_fixed, optimisation_level=1
 )
 render_circuit_jupyter(qft_fid_fixed_compiled)
-
 qft_fid_arbZZ_compiled = backend.get_compiled_circuit(
     qft_fid_arbZZ, optimisation_level=1
 )
@@ -196,11 +192,11 @@ render_circuit_jupyter(qft_fid_arbZZ_compiled)
 print("Circuit Depth for fixed-angle QFT:", qft_fixed.depth())
 print("Circuit Depth for arbitrary-angle QFT:", qft_arbZZ.depth())
 print("Circuit Depth Difference:", qft_fixed.depth() - qft_arbZZ.depth())
-
 print("Number of two-qubit gates for fixed-angle QFT:", qft_fixed.n_2qb_gates())
 print("Number of two-qubit gates for arbitrary-angle QFT:", qft_arbZZ.n_2qb_gates())
 print(
-    "Number of two-qubit gates Difference:", qft_fixed.depth() - qft_arbZZ.n_2qb_gates()
+    "Number of two-qubit gates Difference:",
+    qft_fixed.n_2qb_gates() - qft_arbZZ.n_2qb_gates(),
 )
 
 # ### Check Circuit Cost
@@ -209,14 +205,14 @@ print(
 
 # Note that in this case because an emulator is used, the specific syntax checker the emulator uses is specified. This is an optional parameter not needed if you are using a quantum computer target.
 
-n_shots = 1000
+n_shots = 100
 print(
     "Fixed angle QFT:",
     backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker=machine),
 )
 print(
     "Arbitrary angle ZZ QFT:",
-    backend.cost(qft_fid_arbZZ_compiled, n_shots=n_shots, syntax_checker="H1-1SC"),
+    backend.cost(qft_fid_arbZZ_compiled, n_shots=n_shots, syntax_checker="H1-2SC"),
 )
 
 # ### Run the Circuit
@@ -229,10 +225,8 @@ qft_fid_fixed_compiled_handle = backend.process_circuit(
 qft_fid_arbZZ_compiled_handle = backend.process_circuit(
     qft_fid_arbZZ_compiled, n_shots=n_shots
 )
-
 qft_fid_fixed_compiled_status = backend.circuit_status(qft_fid_fixed_compiled_handle)
 print(qft_fid_fixed_compiled_status)
-
 qft_fid_arbZZ_compiled_status = backend.circuit_status(qft_fid_arbZZ_compiled_handle)
 print(qft_fid_arbZZ_compiled_status)
 

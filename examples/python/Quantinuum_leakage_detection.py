@@ -1,3 +1,6 @@
+# <div style="text-align: center;">
+# <img src="https://assets-global.website-files.com/62b9d45fb3f64842a96c9686/62d84db4aeb2f6552f3a2f78_Quantinuum%20Logo__horizontal%20blue.svg" width="200" height="200" /></div>
+
 # # Discarding leaky results: Automatic leakage error detection with `QuantinuumBackend`
 
 # Quantum computers are known to be *noisy*, with a high chance of errors occurring when executing a sequence of operations. These errors can come from a variety of sources and are typically hard to mitigate. Investigating the source of errors, how they manifest at the quantum circuit level, and how to mitigate them, is a wide area of research. <br>

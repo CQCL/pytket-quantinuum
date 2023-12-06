@@ -1,8 +1,11 @@
-# # Submitting to Quantinuum Emulators via pytket
+# <div style="text-align: center;">
+# <img src="https://assets-global.website-files.com/62b9d45fb3f64842a96c9686/62d84db4aeb2f6552f3a2f78_Quantinuum%20Logo__horizontal%20blue.svg" width="200" height="200" /></div>
+
+# # Submitting to Quantinuum Emulators
 
 # This notebook contains examples for running quantum circuits on Quantinuum's emulators via `pytket`.
 
-# An emulator can be used to get an idea of what a quantum device will output for our quantum circuit. This enables circuit debugging and optimization before running on a physical machine. Emulators differ from simulators in that they model the physical and noise model of the device whereas simulators may model noise parameters, but not physical parameters. The Quantinuum emulators run on a physical noise model of the Quantinuum H-Series devices. There are various noise/error parameters modeled. For detailed information on the noise model, see the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or at [Quantinuum H-series](https://www.quantinuum.com/products/h1).
+# An emulator can be used to get an idea of what a quantum device will output for our quantum circuit. This enables circuit debugging and optimization before running on a physical machine. Emulators differ from simulators in that they model the physical and noise model of the device whereas simulators may model noise parameters, but not physical parameters. The Quantinuum emulators run on a physical noise model of the Quantinuum H-Series devices. There are various noise/error parameters modeled. For detailed information on the noise model, see the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal.
 
 # There are a few options for using the emulator:
 
@@ -18,19 +21,16 @@
 # * [Noiseless Emulation](#no-noise)
 # * [Noise Parameters (*advanced*)](#noise)
 # * [Stabilizer Emulator](#stabilizer)
-
 # ## Emulator Usage
-
 # ### Basic Usage <a class="anchor" id="basic-usage"></a>
 
 # This section covers usage of the emulator which represents a physical and noise model of the device being used. For example, if using the `H1-1E` target, this emulates the H1-1 quantum computer.
 
-# Here the circuit is created via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://tket.quantinuum.com/api-docs/getting_started.html) page.
+# Here the circuit is created via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://cqcl.github.io/tket/pytket/api/getting_started.html) page.
 
 from pytket.circuit import Circuit
 from pytket.circuit.display import render_circuit_jupyter
 
-# Set up Bell Test
 circuit = Circuit(2, name="Bell Test")
 circuit.H(0)
 circuit.CX(0, 1)
@@ -48,7 +48,7 @@ backend.login()
 
 print(machine, "status:", backend.device_state(device_name=machine))
 
-# Compile the circuit to the Quantinuum backend with `get_compiled_circuit`. See the `pytket` [User Manual](https://tket.quantinuum.com/user-manual/index.html) for more information on all the options that are available.
+# Compile the circuit to the Quantinuum backend with `get_compiled_circuit`. See the `pytket` [User Manual](https://cqcl.github.io/pytket/manual/index.html) for more information on all the options that are available.
 
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=1)
 
@@ -84,7 +84,6 @@ with open("pytket_emulator_example.json", "w") as file:
 
 result = backend.get_result(handle)
 print(result.get_distribution())
-
 print(result.get_counts())
 
 # ### Noiseless Emulation <a class="anchor" id="no-noise"></a>
@@ -106,13 +105,14 @@ with open("pytket_emulator_noiseless_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 no_error_model_result = backend.get_result(no_error_model_handle)
+
 print(no_error_model_result.get_distribution())
 
 print(no_error_model_result.get_counts())
 
 # ### Noise Parameters <a class="anchor" id="noise"></a>
 
-# The emulator runs with default error parameters that represent a noise environment similar to the physical devices. The `error-params` option can be used to override these error parameters and do finer-grain tweaks of the error model. For detailed information on the noise model, see the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) or the *Quantinuum Application Programming Interface (API)* on the user portal.
+# The emulator runs with default error parameters that represent a noise environment similar to the physical devices. The `error-params` option can be used to override these error parameters and do finer-grain tweaks of the error model. For detailed information on the noise model, see the *Quantinuum System Model H1 Emulator Product Data Sheet* or the *Quantinuum Application Programming Interface (API)*.
 
 # In this section, examples are given for experimenting with the noise and error parameters of the emulators. These are advanced options and not recommended to start with when doing initial experiments. As mentioned above, there is no guarantee that results achieved changing these parameters will represent outputs from the actual quantum computer represented.
 
@@ -125,7 +125,7 @@ print(no_error_model_result.get_counts())
 
 # #### Physical Noise <a class="anchor" id="physical-noise"></a>
 
-# See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for information on these parameters.
+# See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the Quantinuum user portal for information on these parameters.
 
 handle = backend.process_circuit(
     compiled_circuit,
@@ -145,14 +145,13 @@ handle = backend.process_circuit(
         }
     },
 )
-
 result = backend.get_result(handle)
 
 print(result.get_distribution())
 
 # #### Dephasing Noise <a class="anchor" id="dephasing-noise"></a>
 
-# See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for information on these parameters.
+# See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal for information on these parameters.
 
 handle = backend.process_circuit(
     compiled_circuit,
@@ -170,14 +169,13 @@ handle = backend.process_circuit(
         }
     },
 )
-
 result = backend.get_result(handle)
 
 print(result.get_distribution())
 
 # #### Arbitrary Angle Noise Scaling <a class="anchor" id="arbitrary-angle-noise"></a>
 
-# See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for information on these parameters.
+# See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal for information on these parameters.
 
 handle = backend.process_circuit(
     compiled_circuit,
@@ -194,14 +192,13 @@ handle = backend.process_circuit(
         }
     },
 )
-
 result = backend.get_result(handle)
 
 print(result.get_distribution())
 
 # #### Scaling <a class="anchor" id="scaling"></a>
 
-# All the error rates can be scaled linearly using the `scale` parameter. See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal or [Quantinuum H-Series page](https://www.quantinuum.com/hardware/h1) for more information.
+# All the error rates can be scaled linearly using the `scale` parameter. See the *Quantinuum System Model H1 Emulator Product Data Sheet* on the user portal for more information.
 
 handle = backend.process_circuit(
     compiled_circuit,
@@ -214,7 +211,6 @@ handle = backend.process_circuit(
         }
     },
 )
-
 result = backend.get_result(handle)
 
 print(result.get_distribution())
@@ -239,7 +235,6 @@ handle = backend.process_circuit(
         }
     },
 )
-
 result = backend.get_result(handle)
 
 print(result.get_distribution())
@@ -265,11 +260,11 @@ stabilizer_status = stabilizer_backend.circuit_status(stabilizer_handle)
 print(stabilizer_status)
 
 stabilizer_result = stabilizer_backend.get_result(stabilizer_handle)
-
 with open("pytket_emulator_stabilizer_example.json", "w") as file:
     json.dump(result.to_dict(), file)
 
 stabilizer_result = stabilizer_backend.get_result(stabilizer_handle)
+
 print(stabilizer_result.get_distribution())
 
 print(stabilizer_result.get_counts())
@@ -291,9 +286,7 @@ handle = backend.process_circuit(
         }
     },
 )
-
 result = backend.get_result(handle)
-
 print(result.get_distribution())
 
 # <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>

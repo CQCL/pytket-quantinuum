@@ -1,3 +1,6 @@
+# <div style="text-align: center;">
+# <img src="https://assets-global.website-files.com/62b9d45fb3f64842a96c9686/62d84db4aeb2f6552f3a2f78_Quantinuum%20Logo__horizontal%20blue.svg" width="200" height="200" /></div>
+
 # # Compiling for Quantinuum Hardware without Querying Quantinuum API
 
 # This notebook contains an example of how to investigate circuits compiled for Quantinuum hardware without logging in or submitting to Quantinuum hardware. This may be useful if it is desired to explore circuit compilation in depth before submitting.
