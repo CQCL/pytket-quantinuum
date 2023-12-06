@@ -12,10 +12,6 @@ do
     # Save copy of original python file
     cp python/${file} python/${name}-original.py
 
-    # Append embedded quantinuum logo markup to the beginning of the python file
-    logo=`cat logo_header_markdown.md`
-    sed -i "1i${logo}" python/${file}
-
     # Check that notebook is generated from script
     p2j -o -t ${name}-gen.ipynb python/${file}
     cmp ${name}.ipynb ${name}-gen.ipynb
