@@ -1,4 +1,4 @@
-sphinx == 6.2.1
+sphinx ~= 6.2
 sphinx_book_theme >= 1.0.1, <2.0
 sphinx-autodoc-typehints
 sphinx-copybutton
