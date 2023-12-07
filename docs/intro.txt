@@ -244,7 +244,31 @@ Once a batch is submitted, jobs can continue to be added to the batch, ending ei
 
 If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs *will not be cancelled*. Instead, they will continue to run as regular jobs in the queue instead of as a batch.
 
+Local Emulators
+===============
 
+If ``pytket-quantinuum`` is installed with the ``pecos`` option:
+
+::
+
+  pip install pytket-quantinuum[pecos]
+
+then it is possible to run circuits on an emulator running on the local machine
+instead of using the remote emulator.
+
+For example, the "H1-1" device would have a counterpart device called "H1-1LE".
+Running circuits on this device would be similar to using the "H1-1" device or
+the remote emulator ("H1-1E"), but would not incur any cost in HQCs (and for
+small circuits would typically be faster).
+
+Currently this emulation is noiseless, so if noisy emulation is required it is
+still necessary to use the remote emulators (such as "H1-1E").
+
+A few of the ``QuantinuumBackend`` methods (``submit_program()``, ``cancel()``,
+``circuit_status()``, ``get_partial_result()``, and ``cost()``) are not
+available for local-emulator backends.
+
+This option requires Python 3.10 or later.
 
 .. toctree::
     api.rst
