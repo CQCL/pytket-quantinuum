@@ -562,15 +562,13 @@ class QuantinuumAPIOffline:
         return self.machine_list
 
     def full_login(self) -> None:
-        """No login offline with the offline API
-        :return: None"""
+        """No login offline with the offline API"""
 
         return None
 
     def login(self) -> str:
         """No login offline with the offline API, this function will always
-        return an empty api token
-        :return: empty api token"""
+        return an empty api token"""
         return ""
 
     def _submit_job(self, body: Dict) -> None:
