@@ -1031,13 +1031,16 @@ class QuantinuumBackend(Backend):
     def circuit_status(
         self, handle: ResultHandle, **kwargs: KwargTypes
     ) -> CircuitStatus:
-        if self.is_local_emulator:
-            raise NotImplemented("circuit_status() not supported with local emulator")
         handle = self._update_result_handle(handle)
         self._check_handle_type(handle)
         jobid = self.get_jobid(handle)
-        if self._MACHINE_DEBUG or jobid.startswith(_DEBUG_HANDLE_PREFIX):
+        if (
+            self._MACHINE_DEBUG
+            or jobid.startswith(_DEBUG_HANDLE_PREFIX)
+            or self.is_local_emulator
+        ):
             return CircuitStatus(StatusEnum.COMPLETED)
+
         use_websocket = cast(bool, kwargs.get("use_websocket", True))
         # TODO check queue position and add to message
         try:
