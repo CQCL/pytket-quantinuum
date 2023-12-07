@@ -223,7 +223,7 @@ class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
     More information about the QuantinuumBackend can be found on this page
-    https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html
+    https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html
     """
 
     _supports_shots = True
