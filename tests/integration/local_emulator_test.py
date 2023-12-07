@@ -13,11 +13,19 @@
 # limitations under the License.
 
 from collections import Counter
+import os
 import pytest
 from pytket.circuit import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
+skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 
+REASON = (
+    "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
+)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 @pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
 def test_local_emulator(device_name: str) -> None:
