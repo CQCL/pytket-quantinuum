@@ -1130,6 +1130,11 @@ class QuantinuumBackend(Backend):
                 " try setting one explicitly with the ``syntax_checker`` parameter"
             )
 
+        if syntax_checker.get_misc("system_type") != "syntax_checker":
+            raise ValueError(
+                f"Device {syntax_checker.device_name} is not a syntax checker."
+            )
+
         backend = QuantinuumBackend(
             cast(str, syntax_checker), api_handler=self.api_handler
         )
