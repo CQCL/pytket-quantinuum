@@ -54,3 +54,16 @@ def test_circuit_with_conditional(device_name: str) -> None:
     counts = r.get_counts()
     assert sum(counts.values()) == 10
     assert all(v0 == v1 for v0, v1 in counts.keys())
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+def test_results_order(device_name: str) -> None:
+    b = QuantinuumBackend(device_name)
+    c0 = Circuit(2).X(0).measure_all()
+    c = b.get_compiled_circuit(c0)
+    h = b.process_circuit(c, n_shots=10)
+    r = b.get_result(h)
+    counts = r.get_counts()
+    assert counts == Counter({(1, 0): 10})
