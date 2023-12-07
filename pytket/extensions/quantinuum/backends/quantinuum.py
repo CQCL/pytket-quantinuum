@@ -715,7 +715,7 @@ class QuantinuumBackend(Backend):
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
         * `no_opt`: if true, requests that the backend perform no optimizations
-        * `allow_2q_gate_rebase`: If true, allow rebasing of the two-qubit gates to a
+        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
            higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
