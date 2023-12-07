@@ -1094,11 +1094,14 @@ class QuantinuumBackend(Backend):
         **kwargs: QuumKwargTypes,
     ) -> Optional[float]:
         """
-        Return the cost in HQC to complete this `circuit` with `n_shots`
-        repeats.
-        If the backend is not a syntax checker (backend name does not end with
-        "SC"), it is automatically appended
-        to check against the relevant syntax checker.
+        Return the cost in HQC to process this `circuit` with `n_shots`
+        repeats on this backend.
+
+        The cost is obtained by sending the circuit to a "syntax-checker"
+        backend, which incurs no cost itself but reports what the cost would be
+        for the actual backend (``self``).
+
+        If ``self`` is a syntax checker then the cost will be zero.
 
         See :py:meth:`QuantinuumBackend.process_circuits` for the
         supported kwargs.
@@ -1119,25 +1122,31 @@ class QuantinuumBackend(Backend):
                 + " Try running `backend.get_compiled_circuit` first"
             )
 
+        if self.backend_info.get_misc("system_type") == "syntax checker":
+            return 0.0
+
         try:
-            syntax_checker = (
-                syntax_checker
-                or cast(BackendInfo, self.backend_info).misc["syntax_checker"]
-            )
+            syntax_checker_name = self.backend_info.misc["syntax_checker"]
+            if syntax_checker is not None and syntax_checker != syntax_checker_name:
+                raise ValueError(
+                    f"Device {self._device_name}'s syntax checker is "
+                    "{syntax_checker_name} but a different syntax checker "
+                    "({syntax_checker}) was specified. You should omit the "
+                    "`syntax_checker` argument to ensure the correct one is "
+                    "used."
+                )
         except KeyError:
-            raise NoSyntaxChecker(
-                "Could not find syntax checker for this backend,"
-                " try setting one explicitly with the ``syntax_checker`` parameter"
-            )
+            if syntax_checker is not None:
+                syntax_checker_name = syntax_checker
+            else:
+                raise NoSyntaxChecker(
+                    "Could not find syntax checker for this backend,"
+                    " try setting one explicitly with the ``syntax_checker`` parameter"
+                )
+        backend = QuantinuumBackend(syntax_checker_name, api_handler=self.api_handler)
+        if backend.backend_info.get_misc("system_type") != "syntax checker":
+            raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
 
-        if syntax_checker.get_misc("system_type") != "syntax_checker":
-            raise ValueError(
-                f"Device {syntax_checker.device_name} is not a syntax checker."
-            )
-
-        backend = QuantinuumBackend(
-            cast(str, syntax_checker), api_handler=self.api_handler
-        )
         try:
             handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)  # type: ignore
         except DeviceNotAvailable as e:
