@@ -700,7 +700,7 @@ class QuantinuumBackend(Backend):
         See :py:meth:`pytket.backends.Backend.process_circuits`.
 
         Supported kwargs
-        ================
+        ^^^^^^^^^^^^^^^^
 
         * `postprocess`: apply end-of-circuit simplifications and classical
           postprocessing to improve fidelity of results (bool, default False)
