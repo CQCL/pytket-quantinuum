@@ -362,14 +362,7 @@ def test_cost_estimate_wrong_syntax_checker(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend",
-    [
-        {"device_name": name}
-        for name in [
-            *pytest.ALL_SIMULATOR_NAMES,  # type: ignore
-        ]
-    ],
-    indirect=True,
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_cost_estimate_bad_syntax_checker(
@@ -378,7 +371,7 @@ def test_cost_estimate_bad_syntax_checker(
     b = authenticated_quum_backend
     c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
     with pytest.raises(ValueError):
-        _ = b.cost(c, 10, syntax_checker="H1-1")
+        _ = b.cost(c, 10, syntax_checker="H2-1E")
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
