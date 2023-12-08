@@ -340,18 +340,42 @@ def test_cost_estimate(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [
+        {"device_name": name}
+        for name in [
+            *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
+        ]
+    ],
+    indirect=True,
+)
 @pytest.mark.timeout(120)
-def test_cost_estimate_wrong_syntax_checker() -> None:
-    b = QuantinuumBackend("H1-1")
+def test_cost_estimate_wrong_syntax_checker(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
     c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
     with pytest.raises(ValueError):
-        _ = b.cost(c, 10, syntax_checker="H1-2SC")
+        _ = b.cost(c, 10, syntax_checker="H6-2SC")
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [
+        {"device_name": name}
+        for name in [
+            *pytest.ALL_SIMULATOR_NAMES,  # type: ignore
+        ]
+    ],
+    indirect=True,
+)
 @pytest.mark.timeout(120)
-def test_cost_estimate_bad_syntax_checker() -> None:
-    b = QuantinuumBackend("H1-1E")
+def test_cost_estimate_bad_syntax_checker(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
     c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
     with pytest.raises(ValueError):
         _ = b.cost(c, 10, syntax_checker="H1-1")
@@ -746,7 +770,7 @@ def test_wasm(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_wasm_costs(
@@ -761,7 +785,7 @@ def test_wasm_costs(
     b = authenticated_quum_backend
 
     c = b.get_compiled_circuit(c)
-    costs = b.cost(c, n_shots=10, wasm_file_handler=wasfile)
+    costs = b.cost(c, n_shots=10, syntax_checker="H1-1SC", wasm_file_handler=wasfile)
     if costs is None:
         pytest.skip("API is flaky, sometimes returns None unexpectedly.")
     assert isinstance(costs, float)
