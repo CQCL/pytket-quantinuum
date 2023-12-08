@@ -1140,8 +1140,9 @@ class QuantinuumBackend(Backend):
                 syntax_checker_name = syntax_checker
             else:
                 raise NoSyntaxChecker(
-                    "Could not find syntax checker for this backend,"
-                    " try setting one explicitly with the ``syntax_checker`` parameter"
+                    "Could not find syntax checker for this backend, "
+                    "try setting one explicitly with the ``syntax_checker`` "
+                    "parameter (it will normally have a name ending in 'SC')."
                 )
         backend = QuantinuumBackend(syntax_checker_name, api_handler=self.api_handler)
         if backend.backend_info.get_misc("system_type") != "syntax checker":
