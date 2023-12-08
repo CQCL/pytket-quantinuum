@@ -99,20 +99,14 @@ class QuantinuumAPI:
         :param token_store: JWT Token store, defaults to None
             A new MemoryCredentialStorage will be initialised
             if None is provided.
-        :type token_store: CredentialStorage, optional
         :param api_url: _description_, defaults to DEFAULT_API_URL
-        :type api_url: Optional[str], optional
         :param api_version: API version, defaults to 1
-        :type api_version: int, optional
         :param use_websocket: Whether to use websocket to retrieve, defaults to True
-        :type use_websocket: bool, optional
         :param support_mfa: Whether to wait for the user to input the auth code,
             defaults to True
-        :type support_mfa: bool, optional
         :param session: Session for HTTP requests, defaults to None
             A new requests.Session will be initialised if None
             is provided
-        :type session: requests.Session, optional
         """
         self.online = True
 
@@ -341,9 +335,7 @@ class QuantinuumAPI:
         Retrieves job status from device.
 
         :param job_id: unique id of job
-        :type job_id: str
         :param use_websocket: use websocket to minimize interaction
-        :type use_websocket: bool
 
         :return: (dict) output from API
 
@@ -370,9 +362,7 @@ class QuantinuumAPI:
         Retrieves job from device.
 
         :param job_id: unique id of job
-        :type job_id: str
         :param use_websocket: use websocket to minimize interaction
-        :type use_websocket: bool
 
         :return: (dict) output from API
 
@@ -471,7 +461,6 @@ class QuantinuumAPI:
         Check status of machine.
 
         :param machine: machine name
-        :type machine: str
 
         :return: (str) status of machine
 
@@ -491,7 +480,6 @@ class QuantinuumAPI:
         Cancels job.
 
         :param job_id: job ID to cancel
-        :type job_id: str
 
         :return: (dict) output from API
 
@@ -531,7 +519,6 @@ class QuantinuumAPIOffline:
             "n_shots": 10000,
             "batching": True,
             }
-        :type machine_list: list
         """
         if machine_list == None:
             machine_list = [
@@ -575,22 +562,19 @@ class QuantinuumAPIOffline:
         return self.machine_list
 
     def full_login(self) -> None:
-        """No login offline with the offline API
-        :return: None"""
+        """No login offline with the offline API"""
 
         return None
 
     def login(self) -> str:
         """No login offline with the offline API, this function will always
-        return an empty api token
-        :return: empty api token"""
+        return an empty api token"""
         return ""
 
     def _submit_job(self, body: Dict) -> None:
         """The function will take the submitted job and store it for later
 
         :param body: submitted job
-        :type body: dict
 
         :return: None
         """
