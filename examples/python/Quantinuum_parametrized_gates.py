@@ -3,7 +3,7 @@
 
 # # How to Submit Parametrized Circuits
 
-# Parametrized circuits are common in variational algorithms. Pytket supports parameters within circuits via symbols. For more information, see [Symbolic Circuits](https://cqcl.github.io/pytket/manual/manual_circuit.html?highlight=paramet#symbolic-circuits) and [Symbolic Compilation](https://tket.quantinuum.com/examples/symbolics_example.html?highlight=fresh_symbol).
+# Parametrized circuits are common in variational algorithms. Pytket supports parameters within circuits via symbols. For more information, see [Symbolic Circuits](https://cqcl.github.io/pytket/manual/manual_circuit.html?highlight=paramet#symbolic-circuits) and [Symbolic Compilation](https://tket.quantinuum.com/user-manual/manual_compiler.html#compiling-symbolic-circuits).
 
 from pytket.circuit import fresh_symbol
 from pytket.circuit import Circuit
@@ -46,4 +46,4 @@ print(status)
 result = backend.get_result(handle)
 print(result)
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

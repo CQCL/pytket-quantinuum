@@ -7,7 +7,7 @@
 
 # ## Repetition Code Circuit
 
-# The use of mid-circuit measurement is straightforward, note the use of `measure` and `reset` on the ancilla qubits. This example also utlizes conditional logic available with Quantinuum devices as well as Registers and IDs available in `pytket`. See [Classical and conditional operations](https://cqcl.github.io/pytket/manual/manual_circuit.html#classical-and-conditional-operations) and [Registers and IDs](https://cqcl.github.io/pytket/manual/manual_circuit.html#registers-and-ids) for additional examples.
+# The use of mid-circuit measurement is straightforward, note the use of `measure` and `reset` on the ancilla qubits. This example also utlizes conditional logic available with Quantinuum devices as well as Registers and IDs available in `pytket`. See [Classical and conditional operations](https://tket.quantinuum.com/user-manual/manual_circuit.html#classical-and-conditional-operations) and [Registers and IDs](https://cqcl.github.io/pytket/manual/manual_circuit.html#registers-and-ids) for additional examples.
 
 from pytket.circuit import Circuit, Qubit, Bit, OpType, reg_eq
 from pytket.circuit.display import render_circuit_jupyter
@@ -151,4 +151,4 @@ for out in result_output_cnts:
 p = ones / n_shots
 print(f"The error-rate is: p = {p}")
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

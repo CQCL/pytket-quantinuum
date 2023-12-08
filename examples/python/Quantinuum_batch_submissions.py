@@ -56,4 +56,4 @@ results = backend.get_results(handle_list)
 for result in results:
     print(result.get_counts())
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

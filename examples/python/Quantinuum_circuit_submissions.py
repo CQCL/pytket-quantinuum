@@ -5,36 +5,35 @@
 
 # This notebook contains basic circuit submission examples to Quantinuum quantum hardware via `pytket`.
 
-# * [What is TKET?](#tket)
+# * [What is TKET?](#What-is-TKET?)
 # * [Step by Step](#step-by-step)
-#     * [Circuit Preparation](#circuit-preparation)
-#     * [Select Device](#select-device)
-#     * [Circuit Compilation](#circuit-compilation)
-#     * [Circuit Cost](#circuit-cost)
-#     * [Run the Circuit](#run-circuit)
-#     * [Retrieve Results](#retrieve-results)
-#     * [Save Results](#save-results)
-#     * [Analyze Results](#analyze-results)
-#     * [Cancel Jobs](#cancel-jobs)
-# ## What is TKET? <a class="anchor" id="tket"></a>
+#     * [Circuit Preparation](#Circuit-Preparation)
+#     * [Select Device](#Select-Device)
+#     * [Circuit Compilation](#Circuit-Compilation)
+#     * [Circuit Cost](#Circuit-Cost)
+#     * [Run the Circuit](#Run-the-Circuit)
+#     * [Retrieve Results](#Retrieve-Results)
+#     * [Save Results](#Save-Results)
+#     * [Analyze Results](#Analyze-Results)
+#     * [Cancel Jobs](#Cancel-Jobs)
+# ## What is TKET?
 
 # The TKET framework (pronounced "ticket") is a software platform for the development and execution of gate-level quantum computation, providing state-of-the-art performance in circuit compilation. It was created and is maintained by Quantinuum. The toolset is designed to extract the most out of the available NISQ devices of today and is platform-agnostic.
 
 # In python, the `pytket` packages is available for python 3.9+. The `pytket` and `pytket-quantinuum` packages are included as part of the installation instructions on the user portal.
 
 # For more information on TKET, see the following links:
-# - [TKET user manual](https://cqcl.github.io/pytket/manual/manual_intro.html)
-# - [TKET overview and demo video](https://www.youtube.com/watch?v=yXKSpvgAtrk)
-# - [Quantum Compilation with TKET](https://calmaccq.github.io/tket_blog/tket_compilation.html)
+# - [TKET user manual](https://tket.quantinuum.com/user-manual/manual_intro.html)
+# - [TKET notebook examples](https://tket.quantinuum.com/examples/)
 
 # This notebook covers how to use `pytket` in conjunction with `pytket-quantinuum` to submit to Quantinuum devices. The quantum compilation step is demonstrated, but for a full overview of quantum compilation with TKET, the last link above is recommended.
 
 # See the links below for the `pytket` and `pytket-quantinuum` documentation:
 # - [pytket](https://cqcl.github.io/tket/pytket/api/index.html)
 # - [pytket-quantinuum](https://cqcl.github.io/pytket-quantinuum/api/index.html)
-# ## Step by Step <a class="anchor" id="step-by-step"></a>
+# ## Step by Step
 
-# ### Circuit Preparation <a class="anchor" id="circuit-preparation"></a>
+# ### Circuit Preparation
 
 # Create your circuit via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://cqcl.github.io/tket/pytket/api/getting_started.html) page.
 
@@ -48,7 +47,7 @@ circuit.measure_all()
 
 render_circuit_jupyter(circuit)
 
-# ### Select Device <a class="anchor" id="select-device"></a>
+# ### Select Device
 
 # Select a machine and login to the Quantinuum API using your credentials. See the *Quantinuum Systems User Guide* in the *Examples* tab on the *Quantinuum User Portal* for information and target names for each of the H-Series systems available.
 
@@ -67,7 +66,8 @@ print(machine, "status:", QuantinuumBackend.device_state(device_name=machine))
 # Available devices can be viewed using the `available_devices` function. Additional information is returned, here just the device names are pulled in.
 
 [x.device_name for x in QuantinuumBackend.available_devices()]
-# ### Circuit Compilation <a class="anchor" id="circuit-compilation"></a>
+
+# ### Circuit Compilation
 
 # Circuits submitted to Quantinuum H-Series quantum computers and emulators are automatically run through TKET compilation passes for H-Series hardware. This enables circuits to be automatically optimized for H-Series systems and run more efficiently.
 
@@ -78,7 +78,8 @@ print(machine, "status:", QuantinuumBackend.device_state(device_name=machine))
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=0)
 
 render_circuit_jupyter(compiled_circuit)
-# ### Circuit Cost <a class="anchor" id="circuit-cost"></a>
+
+# ### Circuit Cost
 
 # Before running on Quantinuum systems, it is good practice to check how many HQCs a job will cost, in order to plan usage. In `pytket` this can be done using the `cost` function of the `QuantinuumBackend`.
 
@@ -87,7 +88,7 @@ render_circuit_jupyter(compiled_circuit)
 n_shots = 100
 backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 
-# ### Run the Circuit <a class="anchor" id="run-circuit"></a>
+# ### Run the Circuit
 
 # Now the circuit can be run on Quantinuum systems.
 
@@ -107,7 +108,7 @@ with open("pytket_example_job_handle.json", "w") as file:
 status = backend.circuit_status(handle)
 print(status)
 
-# ### Retrieve Results <a class="anchor" id="retrieve-results"></a>
+# ### Retrieve Results
 
 # Once a job's status returns completed, results can be returned using the `get_result` function. If you ran your job in a previous session and wnat to reload it, run the following.
 
@@ -119,13 +120,13 @@ with open("pytket_example_job_handle.json") as file:
 handle = ResultHandle.from_str(handle_str)
 result = backend.get_result(handle)
 
-# For large jobs, there is also the ability to return partial results for unfinished jobs. For more information on this feature, see [Partial Results Retrieval](https://cqcl.github.io/pytket-quantinuum/api/#partial-results-retrieval).
+# For large jobs, there is also the ability to return partial results for unfinished jobs. For more information on this feature, see [Partial Results Retrieval](https://tket.quantinuum.com/extensions/pytket-quantinuum/api/#partial-results-retrieval).
 
 partial_result, job_status = backend.get_partial_result(handle)
 
 print(partial_result.get_counts())
 
-# ### Save Results <a class="anchor" id="save-results"></a>
+# ### Save Results
 
 # It is recommended that users save job results as soon as jobs are completed due to the Quantinuum data retention policy.
 
@@ -143,7 +144,7 @@ with open("pytket_example.json") as file:
 
 result = BackendResult.from_dict(data)
 
-# ### Analyze Results <a class="anchor" id="analyze-results"></a>
+# ### Analyze Results
 
 # There are multiple options for analyzing results with pytket. A few examples are highlighted here. More can be seen at [Interpreting Results](https://cqcl.github.io/pytket/manual/manual_backend.html#interpreting-results).
 
@@ -151,10 +152,10 @@ result = backend.get_result(handle)
 print(result.get_distribution())
 print(result.get_counts())
 
-# ### Canceling jobs <a class="anchor" id="cancel-jobs"></a>
+# ### Canceling jobs
 
 # Jobs that have been submitted can also be cancelled if needed.
 
 backend.cancel(handle)
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

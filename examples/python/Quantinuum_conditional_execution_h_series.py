@@ -3,7 +3,7 @@
 
 # # Conditional Execution on H-Series
 
-# Quantinuum H-Series systems are capable of executing conditional workflows. This notebook presents how to do this in pytket. For more information, see [Conditional Execution](https://tket.quantinuum.com/examples/conditional_gate_example.html?highlight=qasm) and [Classical and conditional operations](https://cqcl.github.io/pytket/manual/manual_circuit.html#classical-and-conditional-operations).
+# Quantinuum H-Series systems are capable of executing conditional workflows. This notebook presents how to do this in pytket. For more information, see [Conditional Execution](https://tket.quantinuum.com/examples/conditional_gate_example.html?highlight=qasm) and [Classical and conditional operations](https://tket.quantinuum.com/user-manual/manual_circuit.html#classical-and-conditional-operations).
 
 # ## Classical assignment of registers or bits
 
@@ -70,4 +70,4 @@ circuit.add_c_setreg(1, reg_b, condition=if_not_bit(reg_a[0]))  # if (a[0]==0) b
 
 render_circuit_jupyter(circuit)
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

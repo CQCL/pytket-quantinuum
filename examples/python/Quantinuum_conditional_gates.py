@@ -3,7 +3,7 @@
 
 # # Conditional Gates
 
-# Quantinuum H-Series hardware and pytket support conditional gating. This may be for implementing error correction or reducing noise. This capability is well-supported by Quantinuum hardware, which supports mid-circuit measurement and reset and qubit reuse. See [Conditional Gates](https://cqcl.github.io/pytket/manual/manual_circuit.html#classical-and-conditional-operations) for more information on pytket's implementation. The following example demonstrates a quantum teleportation protocol.
+# Quantinuum H-Series hardware and pytket support conditional gating. This may be for implementing error correction or reducing noise. This capability is well-supported by Quantinuum hardware, which supports mid-circuit measurement and reset and qubit reuse. See [Conditional Gates](https://tket.quantinuum.com/user-manual/manual_circuit.html#classical-and-conditional-operations) for more information on pytket's implementation. The following example demonstrates a quantum teleportation protocol.
 
 from pytket.circuit import Circuit, if_bit
 from pytket.circuit.display import render_circuit_jupyter
@@ -34,7 +34,7 @@ circ.Z(qreg[2], condition=if_bit(creg[0]))
 
 render_circuit_jupyter(circ)
 
-# We can utilise pytket's [Assertion](https://cqcl.github.io/pytket/manual/manual_assertion.html#assertion) feature to verify the successful teleportation of the state $| - \rangle$.
+# We can utilise pytket's [Assertion](https://tket.quantinuum.com/user-manual/manual_assertion.html) feature to verify the successful teleportation of the state $| - \rangle$.
 
 from pytket.circuit import ProjectorAssertionBox
 import numpy as np
@@ -62,4 +62,4 @@ result = backend.get_result(handle)
 
 result.get_debug_info()
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

@@ -14,7 +14,7 @@
 
 # **Note:** Not all capabilities for Quantinuum devices available via `pytket` are guaranteed to be available in `qiskit`. Some use cases may require working directly in pytket.*
 
-# Similar `pytket` workflows for submitting to Quantinuum devices exist for other programming interfaces such as `cirq` or Q#. For more information, see the full list of [pytket-extensions](https://github.com/CQCL/pytket-extensions).
+# Similar `pytket` workflows for submitting to Quantinuum devices exist for other programming interfaces such as `cirq` or Q#. For more information, see the full list of [pytket-extensions](https://tket.quantinuum.com/api-docs/extensions.html).
 
 # Running this notebook requires the `pytket-qiskit` extension. Run `pip install pytket-qiskit` in your python environment before running this notebook. This will also install Qiskit if it isn't installed already.
 
@@ -54,4 +54,4 @@ render_circuit_jupyter(tket_circuit)
 
 # An example of how to submit to Quantinuum systems is provided in the [examples](https://github.com/qiskit-community/qiskit-quantinuum-provider/tree/master/examples) folder within the Github repository.
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

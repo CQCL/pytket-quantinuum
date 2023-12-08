@@ -3,25 +3,21 @@
 
 # # Arbitrary Angle ZZ Gates via pytket
 
-# This notebook contains a comparison of circuits with and without use of Quantinuum's native arbitrary-angle ZZ gate in `pytket`. The circuit
-# primitive, the Quantum Fourier Transform (QFT) is constructed with `pytket`. The inverse QFT is an important primitive used in the [Phase
-# Estimation Algorithm (PEA)](https://en.wikipedia.org/wiki/Quantum_phase_estimation_algorithm). PEA is used to estimate the phase corresponding to the eigenvalue of a specified unitary.
+# This notebook contains a comparison of circuits with and without use of Quantinuum's native arbitrary-angle ZZ gate in `pytket`. The circuit primitive, the Quantum Fourier Transform (QFT) is constructed with `pytket`. The inverse QFT is an important primitive used in the [Phase Estimation Algorithm (PEA)](https://tket.quantinuum.com/examples/phase_estimation.html). PEA is used to estimate the phase corresponding to the eigenvalue of a specified unitary.
 
-# Arbitrary-angle two-qubit gates can be used to improve fidelity of the output and to decrease two-qubit gate depth. Specifically, the
-# error from arbitrary-angle two-qubit gates is less than the fixed-angle two-qubit gate for small angles. The error from both gates is the
-# same at angle $\frac{\phi}{2}$. The error from arbitrary-angle two-qubit gates increases with angle size.
+# Arbitrary-angle two-qubit gates can be used to improve fidelity of the output and to decrease two-qubit gate depth. Specifically, the error from arbitrary-angle two-qubit gates is less than the fixed-angle two-qubit gate for small angles. The error from both gates is the same at angle $\frac{\phi}{2}$. The error from arbitrary-angle two-qubit gates increases with angle size.
 
-# * [Arbitrary Angle ZZ Gates](#arb-zz)
-# * [Quantum Fourier Transform](#qft)
-# * [QFT with Fixed Angle Gates](#qft-fixed)
-# * [QFT with Arbitrary Angle ZZ Gates](#qft-arb-zz)
-# * [Compare Results](#compare)
-# ## Arbitrary Angle ZZ Gates <a class="anchor" id="arb-zz"></a>
+# * [Arbitrary Angle ZZ Gates](#Arbitrary-Angle-ZZ-Gates)
+# * [Quantum Fourier Transform](#Quantum-Fourier-Transform)
+# * [QFT with Fixed Angle Gates](#QFT-with-Fixed-Angle-Gates)
+# * [QFT with Arbitrary Angle ZZ Gates](#QFT-with-Arbitrary-Angle-ZZ-Gates)
+# * [Compare Results](#Compare-Results)
+
+# ## Arbitrary Angle ZZ Gates
 
 # Quantinuum System Model H1's native gate set includes arbitrary angle ZZ gates. This is beneficial for reducing the 2-qubit gate count for many quantum algorithms and gate sequences.
 
 # $$RZZ(\theta) = e^{-i\frac{\theta}{2}\hat{Z} \otimes \hat{Z}}= e^{-i \frac{\theta}{2}} \begin{bmatrix} 1 & 0 & 0 & 0\\ 0 & e^{-i\theta} & 0 & 0\\ 0 & 0 & e^{-i\theta} & 0\\ 0 & 0 & 0 & 1 \end{bmatrix}$$
-# <br>
 
 # Note that $RZZ(\frac{\pi}{2}) = ZZ()$.
 
@@ -34,7 +30,8 @@
 # </div>
 
 # This notebook demonstrates the Quantum Fourier Transform (QFT) with and without the $RZZ$ gate.
-# ## Quantum Fourier Transform <a class="anchor" id="qft"></a>
+
+# ## Quantum Fourier Transform
 
 # The Quantum Fourier Transform (QFT) is an algorithm that serves as a sub-routine in multiple quantum algorithms, including Shor's factoring algorithm. Below are two functions, written in `pytket`, that work together to implement the QFT.
 
@@ -108,7 +105,7 @@ def QFT(n, **kwargs):
     return circ
 
 
-# ## QFT with Fixed Angle Gates <a class="anchor" id="qft-fixed"></a>
+# ## QFT with Fixed Angle Gates
 
 # First, create the circuit with fixed-angle gates.
 n_qubits = 12
@@ -116,15 +113,18 @@ n_qubits = 12
 qft_fixed = QFT(n_qubits, arbZZ=False)
 
 render_circuit_jupyter(qft_fixed)
-# ## QFT with Arbitrary Angle ZZ Gates <a class="anchor" id="qft-arb-zz"></a>
+
+# ## QFT with Arbitrary Angle ZZ Gates
 
 # Second, create the circuit with arbitrary-angle ZZ gates.
 qft_arbZZ = QFT(n_qubits, arbZZ=True)
 
 render_circuit_jupyter(qft_arbZZ)
-# ## Compare Results <a class="anchor" id="compare"></a>
+
+# ## Compare Results
 
 # Now we compare the results of the QFT circuits with and without use of the arbitrary-angle ZZ gates on hardware.
+
 # ### State Fidelity
 
 # The QFT circuit applied to the computational basis state $|x\rangle$ creates the state
@@ -259,4 +259,4 @@ print(
     qft_fid_arbZZ_compiled_distro[(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)],
 )
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

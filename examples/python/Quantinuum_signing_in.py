@@ -27,4 +27,4 @@ machine = "H1-2E"  # Substitute any Quantinuum target
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
-# <div align="center"> &copy; 2023 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>

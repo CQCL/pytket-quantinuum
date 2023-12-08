@@ -36,10 +36,6 @@ import pytket.extensions.quantinuum.backends.quantinuum as qtm
 
 print(qtm._GATE_SET)
 
-# It's possible that the hardcoded verion is not up to date with the latest native gate set as described in the [System Model H1 Product Data Sheet](https://www.quantinuum.com/hardware/h1). In this case, the Rzz gate, which is the `ZZPhase` gate in pytket, is missing. This can be added by running the following command.
-
-qtm._GATE_SET.add(OpType.ZZPhase)
-
 # ### Circuit Compilation <a class="anchor" id="circuit-compilation"></a>
 
 # Circuits can now be compiled with the `get_compiled_circuit` function without querying the Quantinuum API.
@@ -48,4 +44,4 @@ compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=2)
 
 render_circuit_jupyter(compiled_circuit)
 
-# <div align="center"> &copy; 2022 by Quantinuum. All Rights Reserved. </div>
+# <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>
