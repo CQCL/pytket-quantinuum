@@ -1,6 +1,14 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* ``QuantinuumBackend.cost()`` now raises an error if the ``syntax_checker``
+  argument doesn't correspond to the device's reported syntax checker or if it
+  specifies a device that isn't a syntax checker; and the method returns 0 if
+  called on syntax-checker backends.
+
 0.26.0 (November 2023)
 ----------------------
 
