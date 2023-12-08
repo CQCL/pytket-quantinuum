@@ -1122,6 +1122,11 @@ class QuantinuumBackend(Backend):
                 + " Try running `backend.get_compiled_circuit` first"
             )
 
+        if self._MACHINE_DEBUG:
+            return 0.0
+
+        assert self.backend_info is not None
+
         if self.backend_info.get_misc("system_type") == "syntax checker":
             return 0.0
 
@@ -1145,6 +1150,7 @@ class QuantinuumBackend(Backend):
                     "parameter (it will normally have a name ending in 'SC')."
                 )
         backend = QuantinuumBackend(syntax_checker_name, api_handler=self.api_handler)
+        assert backend.backend_info is not None
         if backend.backend_info.get_misc("system_type") != "syntax checker":
             raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
 
