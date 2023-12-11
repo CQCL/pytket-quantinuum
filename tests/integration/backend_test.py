@@ -326,19 +326,52 @@ def test_cost_estimate(
     c = b.get_compiled_circuit(c)
     estimate = None
     if b._device_name.endswith("SC"):
-        with pytest.raises(NoSyntaxChecker) as e:
-            _ = b.cost(c, n_shots)
-        assert "Could not find syntax checker" in str(e.value)
-        estimate = b.cost(c, n_shots, syntax_checker=b._device_name, no_opt=False)
+        estimate = b.cost(c, n_shots)
+        assert estimate == 0.0
     else:
         # All other real hardware backends should have the
         # "syntax_checker" misc property set, so there should be no
         # need of providing it explicitly.
         estimate = b.cost(c, n_shots, no_opt=False)
-    if estimate is None:
-        pytest.skip("API is flaky, sometimes returns None unexpectedly.")
-    assert isinstance(estimate, float)
-    assert estimate > 0.0
+        if estimate is None:
+            pytest.skip("API is flaky, sometimes returns None unexpectedly.")
+        assert isinstance(estimate, float)
+        assert estimate > 0.0
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [
+        {"device_name": name}
+        for name in [
+            *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
+        ]
+    ],
+    indirect=True,
+)
+@pytest.mark.timeout(120)
+def test_cost_estimate_wrong_syntax_checker(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
+    c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
+    with pytest.raises(ValueError):
+        _ = b.cost(c, 10, syntax_checker="H6-2SC")
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.timeout(120)
+def test_cost_estimate_bad_syntax_checker(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
+    c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
+    with pytest.raises(ValueError):
+        _ = b.cost(c, 10, syntax_checker="H2-1E")
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -730,7 +763,7 @@ def test_wasm(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_wasm_costs(
