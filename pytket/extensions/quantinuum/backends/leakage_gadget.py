@@ -31,13 +31,9 @@ def get_leakage_gadget_circuit(
 
     :param circuit_qubit: Generated circuit detects whether leakage errors
         have occurred in this qubit.
-    :type circuit_qubit: Qubit
     :param postselection_qubit: Measured qubit to detect leakage error.
-    :type postselection_qubit: Qubit
     :param postselection_bit: Leakage detection result is written to this bit.
-    :type postselection_bit: Bit
     :return: Circuit for detecting leakage errors for specified ids.
-    :rtype: Circuit
     """
     c = Circuit()
     c.add_qubit(circuit_qubit)
@@ -63,13 +59,10 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     additional Bit are written to a new register "leakage_detection_bit".
 
     :param circuit: Circuit to have leakage detection added.
-    :type circuit: Circuit
     :param n_device_qubits: Total number of qubits supported by the device
         being compiled to.
-    :type n_device_qubits: int
 
     :return: Circuit with leakage detection circuitry added.
-    :rtype: Circuit
     """
     n_qubits: int = circuit.n_qubits
     if n_qubits == 0:
