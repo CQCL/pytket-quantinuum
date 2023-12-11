@@ -156,6 +156,6 @@ print(result.get_counts())
 
 # Jobs that have been submitted can also be cancelled if needed.
 
-backend.cancel(handle)
+# backend.cancel(handle)
 
 # <div align="center"> &copy; 2024 by Quantinuum. All Rights Reserved. </div>
