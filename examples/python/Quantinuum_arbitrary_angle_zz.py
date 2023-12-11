@@ -208,7 +208,7 @@ print(
 n_shots = 100
 print(
     "Fixed angle QFT:",
-    backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker=machine),
+    backend.cost(qft_fid_fixed_compiled, n_shots=n_shots, syntax_checker="H1-1SC"),
 )
 print(
     "Arbitrary angle ZZ QFT:",
