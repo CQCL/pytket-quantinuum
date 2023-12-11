@@ -97,7 +97,7 @@ render_circuit_jupyter(compiled_circuit)
 n_shots = 100
 print(
     "Cost in HQCs:",
-    backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC"),
+    backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC"),
 )
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 print(handle)

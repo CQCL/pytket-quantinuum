@@ -23,7 +23,7 @@
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-2E"  # Substitute any Quantinuum target
+machine = "H1-1E"  # Substitute any Quantinuum target
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 

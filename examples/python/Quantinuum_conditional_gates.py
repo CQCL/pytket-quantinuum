@@ -51,7 +51,7 @@ machine = "H1-1E"
 n_shots = 100
 backend = QuantinuumBackend(device_name=machine)
 compiled_circuit = backend.get_compiled_circuit(circ)
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 status = backend.circuit_status(handle)
 status

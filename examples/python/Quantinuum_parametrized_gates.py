@@ -37,7 +37,7 @@ simulation_circuit.symbol_substitution({a: -0.09})
 compiled_circuit = backend.get_compiled_circuit(simulation_circuit)
 render_circuit_jupyter(compiled_circuit)
 n_shots = 100
-backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-2SC")
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
 handle = backend.process_circuit(compiled_circuit, n_shots=n_shots)
 
 status = backend.circuit_status(handle)
