@@ -223,7 +223,7 @@ class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
     More information about the QuantinuumBackend can be found on this page
-    https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html
+    https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html
     """
 
     _supports_shots = True
@@ -246,22 +246,15 @@ class QuantinuumBackend(Backend):
         """Construct a new Quantinuum backend.
 
         :param device_name: Name of device, e.g. "H1-1"
-        :type device_name: str
         :param label: Job labels used if Circuits have no name, defaults to "job"
-        :type label: Optional[str], optional
         :param simulator: Only applies to simulator devices, options are
             "state-vector" or "stabilizer", defaults to "state-vector"
         :param group: string identifier of a collection of jobs, can be used for usage
           tracking.
-        :type group: Optional[str], optional
         :param provider: select a provider for federated authentication. We currently
             only support 'microsoft', which enables the microsoft Device Flow.
-        :type provider: Optional[str], optional
-        :type simulator: str, optional
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
-        :type api_handler: QuantinuumAPI
         :param compilation_config: Optional compilation configuration
-        :type compilation_config: QuantinuumBackendCompilationConfig
 
         Supported kwargs:
 
@@ -326,9 +319,7 @@ class QuantinuumBackend(Backend):
         e.g. [{'name': 'H1', 'n_qubits': 6}]
 
         :param api_handler: Instance of API handler
-        :type api_handler: QuantinuumAPI
         :return: Dictionaries of machine name and number of qubits.
-        :rtype: List[Dict[str, Any]]
         """
         id_token = api_handler.login()
         if api_handler.online:
@@ -373,9 +364,7 @@ class QuantinuumBackend(Backend):
         See :py:meth:`pytket.backends.Backend.available_devices`.
 
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
-        :type api_handler: Optional[QuantinuumAPI]
         :return: A list of BackendInfo objects for each available Backend.
-        :rtype: List[BackendInfo]
 
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
@@ -403,11 +392,8 @@ class QuantinuumBackend(Backend):
 
 
         :param device_name: Name of the device.
-        :type device_name: str
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
-        :type api_handler: QuantinuumAPI
         :return: String of state, e.g. "online"
-        :rtype: str
         """
         res = requests.get(
             f"{api_handler.url}machine/{device_name}",
@@ -469,9 +455,7 @@ class QuantinuumBackend(Backend):
         :param optimisation_level: Allows values of 0,1 or 2, with higher values
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
-        :type optimisation_level: int
         :return: Compilation pass for compiling circuits to Quantinuum devices
-        :rtype: BasePass
         """
         assert optimisation_level in range(3)
         passlist = [
@@ -554,9 +538,7 @@ class QuantinuumBackend(Backend):
         """Return the corresponding Quantinuum Job ID from a ResultHandle.
 
         :param handle: result handle.
-        :type handle: ResultHandle
         :return: Quantinuum API Job ID string.
-        :rtype: str
         """
         return cast(str, handle[0])
 
@@ -618,44 +600,30 @@ class QuantinuumBackend(Backend):
         """Submit a program directly to the backend.
 
         :param program: program (encoded as string)
-        :type program: str
         :param language: language
-        :type language: Language
         :param n_shots: Number of shots
-        :type n_shots: int
         :param name: Job name, defaults to None
-        :type name: Optional[str], optional
         :param noisy_simulation: Boolean flag to specify whether the simulator should
           perform noisy simulation with an error model defaults to True
-        :type noisy_simulation: bool
         :param group: String identifier of a collection of jobs, can be used for usage
           tracking. Overrides the instance variable `group`, defaults to None
-        :type group: Optional[str], optional
         :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
             module, defaults to None
-        :type wasm_file_handler: Optional[WasmFileHandler], optional
         :param no_opt: if true, requests that the backend perform no optimizations
-        :type no_opt: bool, defaults to False
         :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
            a higher-fidelity alternative gate at the discretion of the backend
-        :type allow_2q_gate_rebase: bool, defaults to False
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
-        :type pytket_pass: Optional[BasePass], optional
         :param options: Items to add to the "options" dictionary of the request body
-        :type options: Optional[Dict[str, Any]], optional
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
-        :type request_options: Optional[Dict[str, Any]], optional
         :param results_selection: Ordered list of register names and indices used to
             construct final :py:class:`BackendResult`. If None, all all results are used
             in lexicographic order.
-        :type results_selection: Optional[List[Tuple[str, int]]]
         :raises WasmUnsupported: WASM submitted to backend that does not support it.
         :raises QuantinuumAPIError: API error.
         :raises ConnectionError: Connection to remote API failed
         :return: ResultHandle for submitted job.
-        :rtype: ResultHandle
         """
 
         body: Dict[str, Any] = {
@@ -731,7 +699,8 @@ class QuantinuumBackend(Backend):
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
 
-        Supported kwargs:
+        Supported kwargs
+        ^^^^^^^^^^^^^^^^
 
         * `postprocess`: apply end-of-circuit simplifications and classical
           postprocessing to improve fidelity of results (bool, default False)
@@ -918,9 +887,7 @@ class QuantinuumBackend(Backend):
 
         :param max_batch_cost: Maximum cost to be used for the batch, if a job
             exceeds the batch max it will be rejected.
-        :type max_batch_cost: int
         :return: Handle for submitted circuit.
-        :rtype: ResultHandle
         """
         self._check_batchable()
 
@@ -955,12 +922,9 @@ class QuantinuumBackend(Backend):
         documentation on remaining parameters.
 
         :param batch_start_job: Handle of first circuit submitted to batch.
-        :type batch_start_job: ResultHandle
         :param batch_end: Boolean flag to signal the final circuit of batch,
             defaults to False
-        :type batch_end: bool, optional
         :return: Handle for submitted circuit.
-        :rtype: ResultHandle
         """
         self._check_batchable()
 
@@ -1046,11 +1010,9 @@ class QuantinuumBackend(Backend):
         Retrieve partial results for a given job, regardless of its current state.
 
         :param handle: handle to results
-        :type handle: ResultHandle
 
         :return: A tuple containing the results and circuit status.
             If no results are available, the first element is None.
-        :rtype: Tuple[Optional[BackendResult], CircuitStatus]
         """
         handle = self._update_result_handle(handle)
         job_id = self.get_jobid(handle)
@@ -1132,29 +1094,27 @@ class QuantinuumBackend(Backend):
         **kwargs: QuumKwargTypes,
     ) -> Optional[float]:
         """
-        Return the cost in HQC to complete this `circuit` with `n_shots`
-        repeats.
-        If the backend is not a syntax checker (backend name does not end with
-        "SC"), it is automatically appended
-        to check against the relevant syntax checker.
+        Return the cost in HQC to process this `circuit` with `n_shots`
+        repeats on this backend.
+
+        The cost is obtained by sending the circuit to a "syntax-checker"
+        backend, which incurs no cost itself but reports what the cost would be
+        for the actual backend (``self``).
+
+        If ``self`` is a syntax checker then the cost will be zero.
 
         See :py:meth:`QuantinuumBackend.process_circuits` for the
         supported kwargs.
 
         :param circuit: Circuit to calculate runtime estimate for. Must be valid for
             backend.
-        :type circuit: Circuit
         :param n_shots: Number of shots.
-        :type n_shots: int
         :param syntax_checker: Optional. Name of the syntax checker to use to get cost.
             For example for the "H1-1" device that would be "H1-1SC".
             For most devices this is automatically inferred, default=None.
-        :type syntax_checker: str
         :param use_websocket: Optional. Boolean flag to use a websocket connection.
-        :type use_websocket: bool
         :raises ValueError: Circuit is not valid, needs to be compiled.
         :return: Cost in HQC to execute the shots.
-        :rtype: float
         """
         if not self.valid_circuit(circuit):
             raise ValueError(
@@ -1162,20 +1122,38 @@ class QuantinuumBackend(Backend):
                 + " Try running `backend.get_compiled_circuit` first"
             )
 
-        try:
-            syntax_checker = (
-                syntax_checker
-                or cast(BackendInfo, self.backend_info).misc["syntax_checker"]
-            )
-        except KeyError:
-            raise NoSyntaxChecker(
-                "Could not find syntax checker for this backend,"
-                " try setting one explicitly with the ``syntax_checker`` parameter"
-            )
+        if self._MACHINE_DEBUG:
+            return 0.0
 
-        backend = QuantinuumBackend(
-            cast(str, syntax_checker), api_handler=self.api_handler
-        )
+        assert self.backend_info is not None
+
+        if self.backend_info.get_misc("system_type") == "syntax checker":
+            return 0.0
+
+        try:
+            syntax_checker_name = self.backend_info.misc["syntax_checker"]
+            if syntax_checker is not None and syntax_checker != syntax_checker_name:
+                raise ValueError(
+                    f"Device {self._device_name}'s syntax checker is "
+                    "{syntax_checker_name} but a different syntax checker "
+                    "({syntax_checker}) was specified. You should omit the "
+                    "`syntax_checker` argument to ensure the correct one is "
+                    "used."
+                )
+        except KeyError:
+            if syntax_checker is not None:
+                syntax_checker_name = syntax_checker
+            else:
+                raise NoSyntaxChecker(
+                    "Could not find syntax checker for this backend, "
+                    "try setting one explicitly with the ``syntax_checker`` "
+                    "parameter (it will normally have a name ending in 'SC')."
+                )
+        backend = QuantinuumBackend(syntax_checker_name, api_handler=self.api_handler)
+        assert backend.backend_info is not None
+        if backend.backend_info.get_misc("system_type") != "syntax checker":
+            raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
+
         try:
             handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)  # type: ignore
         except DeviceNotAvailable as e:

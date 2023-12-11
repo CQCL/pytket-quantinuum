@@ -38,10 +38,10 @@ html_css_files = ["custom.css"]
 pytketdoc_base = "https://tket.quantinuum.com/api-docs/"
 
 intersphinx_mapping = {
-    "https://docs.python.org/3/": None,
-    pytketdoc_base: None,
-    "https://qiskit.org/documentation/": None,
-    "http://docs.qulacs.org/en/latest/": None,
+    "python": ("https://docs.python.org/3/", None),
+    "pytket": (pytketdoc_base, None),
+    "qiskit": ("https://qiskit.org/documentation/", None),
+    "qulacs": ("http://docs.qulacs.org/en/latest/", None),
 }
 
 autodoc_member_order = "groupwise"
