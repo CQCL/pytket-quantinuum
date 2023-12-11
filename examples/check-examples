@@ -9,20 +9,12 @@ do
     echo "============================================================"
     name=`basename $file .py`
 
-    # Save copy of original python file
-    cp python/${file} python/${name}-original.py
-
     # Check that notebook is generated from script
     p2j -o -t ${name}-gen.ipynb python/${file}
     cmp ${name}.ipynb ${name}-gen.ipynb
 
     # Remove generated notebook and modified python script
     rm ${name}-gen.ipynb
-    rm python/${file}
-
-    # Restore original
-    mv python/${name}-original.py python/${file}
-
 done
 
 
