@@ -1,1 +1,2 @@
 pytket-qiskit
+matplotlib
