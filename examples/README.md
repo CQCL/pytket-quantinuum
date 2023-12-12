@@ -1,6 +1,6 @@
 # pytket-quantinuum example notebooks
 
-Here resides the example notebooks of the `pytket-quantinuum` extension. The `*.ipynb` notebooks are generated from the scripts in `examples/python` using the `gen-nb` script. The script uses [p2j](https://github.com/remykarem/python2jupyter) tool to generate the notebooks with a Quantinuum logo added to the top.
+Here resides the example notebooks of the `pytket-quantinuum` extension. The `*.ipynb` notebooks are generated from the scripts in `examples/python` using the `gen-nb` script. The script uses [p2j](https://github.com/remykarem/python2jupyter) tool to generate the notebooks.
 
 **Note that the `sed` tool behaves differently on macOS, one can use `gsed` instead of `sed`.  
 
