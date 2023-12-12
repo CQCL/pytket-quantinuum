@@ -20,7 +20,7 @@ from _pytest.fixtures import SubRequest
 from requests_mock.mocker import Mocker
 import jwt
 
-from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
+from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
@@ -46,14 +46,10 @@ ALL_SYNTAX_CHECKER_NAMES = [
     "H2-1SC",
 ]
 
-ALL_LOCAL_SIMULATOR_NAMES = (
-    [
-        "H1-1LE",
-        "H2-1LE",
-    ]
-    if have_pecos()
-    else []
-)
+ALL_LOCAL_SIMULATOR_NAMES = [
+    "H1-1LE",
+    "H2-1LE",
+]
 
 ALL_DEVICE_NAMES = [
     *ALL_QUANTUM_HARDWARE_NAMES,

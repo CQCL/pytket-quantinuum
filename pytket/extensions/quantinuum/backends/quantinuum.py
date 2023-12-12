@@ -223,7 +223,7 @@ class QuantinuumBackendCompilationConfig:
 @cache
 def have_pecos() -> bool:
     try:
-        import pytket_pecos
+        import pytket_pecos  # type: ignore
 
         return True
     except ImportError:
@@ -290,7 +290,9 @@ class QuantinuumBackend(Backend):
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
         # Map from ResultHandle to (circuit, n_shots, seed)
-        self._local_emulator_handles = dict()
+        self._local_emulator_handles: Dict[
+            ResultHandle, Tuple[Circuit, int, Optional[int]]
+        ] = dict()
 
         self._default_2q_gate = _default_2q_gate(device_name)
         if compilation_config is None:
@@ -480,7 +482,12 @@ class QuantinuumBackend(Backend):
         """True if the backend is a local emulator, otherwise False"""
         if self._MACHINE_DEBUG:
             return False
-        return self.backend_info.get_misc("system_type") == "local_emulator"
+        info = self.backend_info
+        assert info is not None
+        if info.get_misc("system_type") == "local_emulator":
+            return True
+        else:
+            return False
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
@@ -667,7 +674,9 @@ class QuantinuumBackend(Backend):
         """
 
         if self.is_local_emulator:
-            raise NotImplemented("submit_program() not supported with local emulator")
+            raise NotImplementedError(
+                "submit_program() not supported with local emulator"
+            )
 
         body: Dict[str, Any] = {
             "name": name or f"{self._label}",
@@ -812,6 +821,8 @@ class QuantinuumBackend(Backend):
 
         max_shots = self.backend_info.misc.get("n_shots") if self.backend_info else None
         seed = kwargs.get("seed")
+        if seed is not None and not isinstance(seed, int):
+            raise ValueError("seed must be an integer or None")
         for circ, n_shots in zip(circuits, n_shots_list):
             if max_shots is not None and n_shots > max_shots:
                 raise MaxShotsExceeded(
@@ -1015,7 +1026,7 @@ class QuantinuumBackend(Backend):
 
     def cancel(self, handle: ResultHandle) -> None:
         if self.is_local_emulator:
-            raise NotImplemented("cancel() not supported with local emulator")
+            raise NotImplementedError("cancel() not supported with local emulator")
         if self.api_handler is not None:
             jobid = self.get_jobid(handle)
             self.api_handler.cancel(jobid)
@@ -1084,7 +1095,7 @@ class QuantinuumBackend(Backend):
             If no results are available, the first element is None.
         """
         if self.is_local_emulator:
-            raise NotImplemented(
+            raise NotImplementedError(
                 "get_partial_result() not supported with local emulator"
             )
         handle = self._update_result_handle(handle)

@@ -38,7 +38,7 @@ REASON = (
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
 def test_local_emulator(device_name: str) -> None:
     b = QuantinuumBackend(device_name)
     assert b.is_local_emulator
@@ -53,7 +53,7 @@ def test_local_emulator(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
 def test_circuit_with_conditional(device_name: str) -> None:
     b = QuantinuumBackend(device_name)
     c0 = Circuit(2, 2).H(0)
@@ -70,7 +70,7 @@ def test_circuit_with_conditional(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
 def test_results_order(device_name: str) -> None:
     b = QuantinuumBackend(device_name)
     c0 = Circuit(2).X(0).measure_all()
@@ -83,7 +83,7 @@ def test_results_order(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
 def test_multireg(device_name: str) -> None:
     b = QuantinuumBackend(device_name)
     c = Circuit()
@@ -102,14 +102,14 @@ def test_multireg(device_name: str) -> None:
     c = b.get_compiled_circuit(c)
 
     n_shots = 10
-    counts = b.run_circuit(c, n_shots=n_shots).get_counts()  # type: ignore
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
     assert sum(counts.values()) == 10
     assert all(v0 == v1 for v0, v1 in counts.keys())
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
 @pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/61")
 def test_classical(device_name: str) -> None:
     c = Circuit(1)
@@ -146,8 +146,8 @@ def test_classical(device_name: str) -> None:
     c.X(0, condition=reg_leq(a, 1))
     c.Phase(0, condition=a[0])
 
-    b = QuantinuumBackend(device_name)
+    backend = QuantinuumBackend(device_name)
 
-    c = b.get_compiled_circuit(c)
-    counts = b.run_circuit(c, n_shots=10).get_counts()
+    c = backend.get_compiled_circuit(c)
+    counts = backend.run_circuit(c, n_shots=10).get_counts()
     assert len(counts.values()) == 1
