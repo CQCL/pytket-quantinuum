@@ -110,6 +110,21 @@ def test_multireg(device_name: str) -> None:
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 @pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
+def test_basic_classical(device_name: str) -> None:
+    b = QuantinuumBackend(device_name)
+    c = Circuit(1, 3)
+    c.H(0)
+    c.Measure(0, 0)
+    c.add_c_setbits([True, False, True], c.bits)
+    c = b.get_compiled_circuit(c)
+    n_shots = 10
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
+    assert counts == Counter({(1, 0, 1): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
 @pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/61")
 def test_classical(device_name: str) -> None:
     c = Circuit(1)
