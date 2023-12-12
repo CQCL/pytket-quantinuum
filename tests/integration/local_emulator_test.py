@@ -15,7 +15,7 @@
 from collections import Counter
 import os
 import pytest
-from pytket.circuit import Circuit
+from pytket.circuit import Circuit, Qubit, Bit
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
@@ -68,3 +68,29 @@ def test_results_order(device_name: str) -> None:
     r = b.get_result(h)
     counts = r.get_counts()
     assert counts == Counter({(1, 0): 10})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+def test_multireg(device_name: str) -> None:
+    b = QuantinuumBackend(device_name)
+    c = Circuit()
+    q1 = Qubit("q1", 0)
+    q2 = Qubit("q2", 0)
+    c1 = Bit("c1", 0)
+    c2 = Bit("c2", 0)
+    for q in (q1, q2):
+        c.add_qubit(q)
+    for cb in (c1, c2):
+        c.add_bit(cb)
+    c.H(q1)
+    c.CX(q1, q2)
+    c.Measure(q1, c1)
+    c.Measure(q2, c2)
+    c = b.get_compiled_circuit(c)
+
+    n_shots = 10
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
+    assert sum(counts.values()) == 10
+    assert all(v0 == v1 for v0, v1 in counts.keys())
