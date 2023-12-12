@@ -400,10 +400,6 @@ def test_classical(
 
     c.add_classicalexpbox_register(a + b, d.to_list())
     c.add_classicalexpbox_register(a - b, d.to_list())
-
-    if language == Language.QASM:  # remove this when division supported in QIR
-        c.add_classicalexpbox_register(a * b // d, d.to_list())
-
     c.add_classicalexpbox_register(a << 1, a.to_list())
     c.add_classicalexpbox_register(a >> 1, b.to_list())
 
@@ -420,6 +416,43 @@ def test_classical(
     c.X(0, condition=reg_geq(a, 1))
     c.X(0, condition=reg_leq(a, 1))
     c.Phase(0, condition=a[0])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    assert backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/299"
+            ),
+        ),
+    ],
+)
+@pytest.mark.timeout(120)
+def test_division(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    c = Circuit()
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 10)
+    d = c.add_c_register("d", 10)
+
+    c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
+    c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
+    c.add_classicalexpbox_register(a * b // d, d.to_list())
 
     backend = authenticated_quum_backend
 
