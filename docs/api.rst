@@ -1,9 +1,28 @@
 API documentation
 ~~~~~~~~~~~~~~~~~
 
-.. automodule:: pytket.extensions.quantinuum
-    :special-members:
-    :members: QuantinuumBackend, QuantinuumBackendCompilationConfig, QuantinuumAPI, QuantinuumAPIOffline, Language
+The pytket-quantinuum extension allows submission of pytket circuits to the H-series trapped ion devices (and emulators) via the :py:class:`QuantinuumBackend`.
+
+Consult the `notebooks <https://github.com/CQCL/pytket-quantinuum/tree/develop/examples>`_ for some example usage.
+
+.. currentmodule:: pytket.extensions.quantinuum
+
+.. autoenum:: Language
+    :members:
+
+.. autoclass:: QuantinuumBackend
+    :show-inheritance:
+    :special-members: __init__
+    :members:
+
+.. autoclass:: QuantinuumBackendCompilationConfig
+    :members:
+
+.. autoclass:: QuantinuumAPI
+    :members:
+
+.. autoclass:: QuantinuumAPIOffline
+    :members:
 
 .. automodule:: pytket.extensions.quantinuum.backends.config
     :members:
