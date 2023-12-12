@@ -15,7 +15,18 @@
 from collections import Counter
 import os
 import pytest
-from pytket.circuit import Circuit, Qubit, Bit
+from pytket.circuit import (
+    Circuit,
+    Qubit,
+    Bit,
+    reg_eq,
+    reg_neq,
+    reg_lt,
+    reg_gt,
+    reg_leq,
+    reg_geq,
+    if_not_bit,
+)
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
@@ -91,6 +102,52 @@ def test_multireg(device_name: str) -> None:
     c = b.get_compiled_circuit(c)
 
     n_shots = 10
-    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()  # type: ignore
     assert sum(counts.values()) == 10
     assert all(v0 == v1 for v0, v1 in counts.keys())
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)
+@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/61")
+def test_classical(device_name: str) -> None:
+    c = Circuit(1)
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 10)
+    d = c.add_c_register("d", 10)
+
+    c.add_c_setbits([True], [a[0]])
+    c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
+    c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
+
+    c.add_c_setreg(23, a)
+    c.add_c_copyreg(a, b)
+
+    c.add_classicalexpbox_register(a + b, d.to_list())
+    c.add_classicalexpbox_register(a - b, d.to_list())
+
+    c.add_classicalexpbox_register(a * b // d, d.to_list())
+
+    c.add_classicalexpbox_register(a << 1, a.to_list())
+    c.add_classicalexpbox_register(a >> 1, b.to_list())
+
+    c.X(0, condition=reg_eq(a ^ b, 1))
+    c.X(0, condition=(a[0] ^ b[0]))
+    c.X(0, condition=reg_eq(a & b, 1))
+    c.X(0, condition=reg_eq(a | b, 1))
+
+    c.X(0, condition=a[0])
+    c.X(0, condition=reg_neq(a, 1))
+    c.X(0, condition=if_not_bit(a[0]))
+    c.X(0, condition=reg_gt(a, 1))
+    c.X(0, condition=reg_lt(a, 1))
+    c.X(0, condition=reg_geq(a, 1))
+    c.X(0, condition=reg_leq(a, 1))
+    c.Phase(0, condition=a[0])
+
+    b = QuantinuumBackend(device_name)
+
+    c = b.get_compiled_circuit(c)
+    counts = b.run_circuit(c, n_shots=10).get_counts()
+    assert len(counts.values()) == 1
