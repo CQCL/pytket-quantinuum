@@ -265,8 +265,7 @@ Currently this emulation is noiseless, so if noisy emulation is required it is
 still necessary to use the remote emulators (such as "H1-1E").
 
 A few of the ``QuantinuumBackend`` methods (``submit_program()``, ``cancel()``,
-``get_partial_result()``, and ``cost()``) are not available for local-emulator
-backends.
+and ``get_partial_result()``) are not available for local-emulator backends.
 
 This option requires Python 3.10 or later.
 

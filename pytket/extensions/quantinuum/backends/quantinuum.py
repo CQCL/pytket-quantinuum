@@ -1204,8 +1204,6 @@ class QuantinuumBackend(Backend):
         :raises ValueError: Circuit is not valid, needs to be compiled.
         :return: Cost in HQC to execute the shots.
         """
-        if self.is_local_emulator:
-            raise NotImplemented("cost() not supported with local emulator")
         if not self.valid_circuit(circuit):
             raise ValueError(
                 "Circuit does not satisfy predicates of backend."
@@ -1217,7 +1215,9 @@ class QuantinuumBackend(Backend):
 
         assert self.backend_info is not None
 
-        if self.backend_info.get_misc("system_type") == "syntax checker":
+        if (
+            self.backend_info.get_misc("system_type") == "syntax checker"
+        ) or self.is_local_emulator:
             return 0.0
 
         try:
