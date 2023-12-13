@@ -509,7 +509,7 @@ rel_err = (
 
 ae = abs_err(result.fun, ground_state_energy)
 re = rel_err(result.fun, ground_state_energy)
-print(f"Absolute Error:\t{ae} Ha\nRelative Error:\t{re}%")
+print(f"Absolute error:\t{ae} Ha\nRelative error:\t{re}%")
 
 # The optimal parameters can be retreived with the `x` attribute.
 
