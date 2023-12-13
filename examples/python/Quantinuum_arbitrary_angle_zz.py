@@ -93,7 +93,7 @@ def QFT(n, **kwargs):
         q = n - 1 - j
         circ.H(q)
         for i in range(j + 1):
-            if approx == None or approx >= j + 1 - i:
+            if approx is None or approx >= j + 1 - i:
                 control_phase(
                     circ, 1 / (2 ** (j + 1 - i)), q - 1, n - 1 - i, arbZZ=arbZZ
                 )
