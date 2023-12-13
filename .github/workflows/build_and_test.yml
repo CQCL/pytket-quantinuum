@@ -162,6 +162,8 @@ jobs:
     - name: Install test requirements
       run: python -m pip install --pre -r tests/test-requirements.txt
     - name: Run local-emulator tests
+      env:
+        PYTKET_RUN_REMOTE_TESTS: 1
       working-directory: ./tests
       run: pytest integration/local_emulator_test.py
 
