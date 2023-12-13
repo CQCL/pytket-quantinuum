@@ -38,9 +38,13 @@ REASON = (
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
-def test_local_emulator(device_name: str) -> None:
-    b = QuantinuumBackend(device_name)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_local_emulator(authenticated_quum_backend: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend
     assert b.is_local_emulator
     c0 = Circuit(2).X(0).CX(0, 1).measure_all()
     c = b.get_compiled_circuit(c0)
@@ -53,9 +57,15 @@ def test_local_emulator(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
-def test_circuit_with_conditional(device_name: str) -> None:
-    b = QuantinuumBackend(device_name)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_circuit_with_conditional(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend
     c0 = Circuit(2, 2).H(0)
     c0.Measure(0, 0)
     c0.X(1, condition_bits=[0], condition_value=1)
@@ -70,9 +80,13 @@ def test_circuit_with_conditional(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
-def test_results_order(device_name: str) -> None:
-    b = QuantinuumBackend(device_name)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_results_order(authenticated_quum_backend: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend
     c0 = Circuit(2).X(0).measure_all()
     c = b.get_compiled_circuit(c0)
     h = b.process_circuit(c, n_shots=10)
@@ -83,9 +97,13 @@ def test_results_order(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
-def test_multireg(device_name: str) -> None:
-    b = QuantinuumBackend(device_name)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_multireg(authenticated_quum_backend: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend
     c = Circuit()
     q1 = Qubit("q1", 0)
     q2 = Qubit("q2", 0)
@@ -109,10 +127,14 @@ def test_multireg(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
 @pytest.mark.xfail(reason="bug in pytket-phir?")
-def test_setbits(device_name: str) -> None:
-    b = QuantinuumBackend(device_name)
+def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend
     c = Circuit(1, 3)
     c.H(0)
     c.Measure(0, 0)
@@ -125,9 +147,13 @@ def test_setbits(device_name: str) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize("device_name", pytest.ALL_LOCAL_SIMULATOR_NAMES)  # type: ignore
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
 @pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/61")
-def test_classical(device_name: str) -> None:
+def test_classical(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = Circuit(1)
     a = c.add_c_register("a", 8)
     b = c.add_c_register("b", 10)
@@ -160,7 +186,7 @@ def test_classical(device_name: str) -> None:
     c.X(0, condition=reg_leq(a, 1))
     c.Phase(0, condition=a[0])
 
-    backend = QuantinuumBackend(device_name)
+    backend = authenticated_quum_backend
 
     c = backend.get_compiled_circuit(c)
     counts = backend.run_circuit(c, n_shots=10).get_counts()
