@@ -87,13 +87,13 @@ render_circuit_jupyter(symbolic_circuit)
 
 # ## 2. Hamiltonian Definition and Analysis <a class="anchor" id="hamiltonian"></a>
 
-# A problem hamiltonian is defined using the [`pytket.utils.operator.QubitPauliOperator`](https://cqcl.github.io/tket/pytket/api/utils.html#pytket.utils.QubitPauliOperator) class. Each `QubitPauliOperator` consists of complex coefficients and tensor products of Pauli-operations. The tensor products are referred to as Pauli-strings. This particular Hamiltonian consists of 5 terms operating on qubits `q[0]` and `q[1]`. The problem Hamiltonian, $\hat{H}$, is defined as:
+# A problem hamiltonian is defined using the [`pytket.utils.operator.QubitPauliOperator`](https://tket.quantinuum.com/api-docs/utils.html#pytket.utils.QubitPauliOperator) class. Each `QubitPauliOperator` consists of complex coefficients and tensor products of Pauli-operations. The tensor products are referred to as Pauli-strings. This particular Hamiltonian consists of 5 terms operating on qubits `q[0]` and `q[1]`. The problem Hamiltonian, $\hat{H}$, is defined as:
 
 # \begin{align} \hat{H} &= g_0 \hat{I}_{q[0]} \otimes \hat{I}_{q[1]} + g_1 \hat{Z}_{q[0]} \otimes \hat{I}_{q[1]} + g_2 \hat{I}_{q[0]} \otimes \hat{Z}_{q[1]} \\ &+ g_3 \hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]} + g_4 \hat{X}_{q[0]} \otimes \hat{X}_{q[1]} + g_5 \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \\ \end{align}
 
 # where $g_0, g_1, g_2$, $g_3$, $g_4$ and $g_5$ are real numercial coefficients.
 
-# The `QubitPauliOperator` is a dictionary mapping [`pytket.pauli.QubitPauliString`](https://cqcl.github.io/tket/pytket/api/pauli.html#pytket.pauli.QubitPauliString) to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types).
+# The `QubitPauliOperator` is a dictionary mapping [`pytket.pauli.QubitPauliString`](https://tket.quantinuum.com/api-docs/pauli.html#pytket.pauli.QubitPauliString) to a complex coefficient. These coefficients are sympified (converted from python `complex` types to sympy `complex` types).
 
 # The `QubitPauliString` is a map from `pytket.circuit.Qubit` to `pytket.pauli.Pauli`.
 
@@ -136,7 +136,7 @@ ground_state_energy = eig(sm)[0].real[0]
 print(f"{ground_state_energy} Ha")
 
 # To measure $\hat{H}$ on hardware, naively 5 measurement circuits are required. The Identity term does not need to measured, since its expectation value always equals 1.
-# With pytket, $\hat{H}$ only requires simulating 2 measurement circuit, thanks to measurement reduction. The four terms $\hat{X}_{q[0]} \otimes \hat{X}_{q[1]}$, $\hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$ and $\hat{I}_{q[0]} \otimes \hat{Z}_{q[1]}$, form a commuting set and can be measured with two circuits instead of three. This partitioning can be performed automatically using the [`measurement_reduction`](https://cqcl.github.io/tket/pytket/api/partition.html#pytket.partition.measurement_reduction) function available in [`pytket.partition`](https://cqcl.github.io/tket/pytket/api/partition.html#module-pytket.partition) submodule.
+# With pytket, $\hat{H}$ only requires simulating 2 measurement circuit, thanks to measurement reduction. The four terms $\hat{X}_{q[0]} \otimes \hat{X}_{q[1]}$, $\hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$ and $\hat{I}_{q[0]} \otimes \hat{Z}_{q[1]}$, form a commuting set and can be measured with two circuits instead of three. This partitioning can be performed automatically using the [`measurement_reduction`](https://tket.quantinuum.com/api-docs/partition.html#pytket.partition.measurement_reduction) function available in [`pytket.partition`](https://tket.quantinuum.com/api-docs/partition.html#module-pytket.partition) submodule.
 
 # The measurement operations for the two commuting set,
 # * $\left\{ \hat{X}_{q[0]} \otimes \hat{X}_{q[1]}, \hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]} \right\}$,
@@ -153,14 +153,14 @@ strat = PauliPartitionStrat.CommutingSets
 pauli_strings = [term for term in hamiltonian._dict.keys()]
 measurement_setup = measurement_reduction(pauli_strings, strat)
 
-# A measurement subcircuit contains the necessary operations to measure the terms in a commuting set. The subcircuit is appended to the numerical state-preparation circuit. Combining the numerical state-preparation circuit and the measurement subcircuits results in a set of measurement circuits required to solve the problem. The [`MeasurementSetup`](https://cqcl.github.io/tket/pytket/api/partition.html#pytket.partition.MeasurementSetup) instance contains all the necessary sub-circuits to measure $\hat{H}$. The next code cell lists and visualises all measurement subcircuits.
+# A measurement subcircuit contains the necessary operations to measure the terms in a commuting set. The subcircuit is appended to the numerical state-preparation circuit. Combining the numerical state-preparation circuit and the measurement subcircuits results in a set of measurement circuits required to solve the problem. The [`MeasurementSetup`](https://tket.quantinuum.com/api-docs/partition.html#pytket.partition.MeasurementSetup) instance contains all the necessary sub-circuits to measure $\hat{H}$. The next code cell lists and visualises all measurement subcircuits.
 
 from pytket.circuit.display import render_circuit_jupyter
 
 for measurement_subcircuit in measurement_setup.measurement_circs:
     render_circuit_jupyter(measurement_subcircuit)
 
-# Once the quantum computation has been completed, the measurement results can be mapped back to the Pauli-operations and coefficients in the Hamiltonian. This enables calculation of the expectation value for the Hamiltonian. The results attribute in the [`pytket.partition.MeasurementSetup`](https://cqcl.github.io/tket/pytket/api/partition.html#pytket.partition.MeasurementSetup) lists:
+# Once the quantum computation has been completed, the measurement results can be mapped back to the Pauli-operations and coefficients in the Hamiltonian. This enables calculation of the expectation value for the Hamiltonian. The results attribute in the [`pytket.partition.MeasurementSetup`](https://tket.quantinuum.com/api-docs/partition.html#pytket.partition.MeasurementSetup) lists:
 
 # * all the Pauli-strings that have been measured;
 # * information to process the quantum computed measurement result in order
@@ -179,7 +179,7 @@ for i, (term, bitmap_list) in enumerate(measurement_setup.results.items()):
 
 # The Hamiltonian we are interested in consists of Pauli-strings. The expectation value of the Pauli-string is in the interval $[-1, 1]$.
 
-# In the code cell below, a function is provided that calculates the expectation value of Pauli-string from a measured distribution. The [`MeasurementBitmap`](https://cqcl.github.io/tket/pytket/api/partition.html#pytket.partition.MeasurementBitMap) is used to extract the necessary data from the measured distribution. The resulting distribution can be summed over to estimate the expectation value of one Pauli-string.
+# In the code cell below, a function is provided that calculates the expectation value of Pauli-string from a measured distribution. The [`MeasurementBitmap`](https://tket.quantinuum.com/api-docs/partition.html#pytket.partition.MeasurementBitMap) is used to extract the necessary data from the measured distribution. The resulting distribution can be summed over to estimate the expectation value of one Pauli-string.
 
 from typing import Dict, Tuple
 from pytket.partition import MeasurementBitMap
