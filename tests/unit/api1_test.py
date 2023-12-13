@@ -27,7 +27,11 @@ from requests_mock.mocker import Mocker
 
 from pytket.backends import ResultHandle, StatusEnum
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
-from pytket.extensions.quantinuum.backends import QuantinuumBackend, Language
+from pytket.extensions.quantinuum.backends import (
+    QuantinuumBackend,
+    Language,
+    have_pecos,
+)
 from pytket.circuit import Circuit
 from pytket.architecture import FullyConnected
 from pytket.extensions.quantinuum.backends.quantinuum import (
@@ -478,7 +482,7 @@ def test_available_devices(
     )
 
     devices = QuantinuumBackend.available_devices(api_handler=mock_quum_api_handler)
-    backinfo0, backinfo1 = devices
+    backinfo0 = devices[0]
 
     assert backinfo0.device_name == mock_machine_info["name"]
     assert backinfo0.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
@@ -495,22 +499,27 @@ def test_available_devices(
         "batching": True,
         "wasm": True,
     }
-    assert backinfo1.name == "QuantinuumBackend"
-    assert backinfo1.device_name == mock_machine_info["name"] + "LE"
-    assert backinfo1.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
-    assert backinfo1.version == __extension_version__
-    assert backinfo1.supports_fast_feedforward == True
-    assert backinfo1.supports_midcircuit_measurement == True
-    assert backinfo1.supports_reset == True
-    assert backinfo1.n_cl_reg == 120
-    assert backinfo1.misc == {
-        "n_shots": 10000,
-        "system_type": "local_emulator",
-        "syntax_checker": "H9-27SC",
-        "batching": False,
-        "wasm": True,
-    }
     assert backinfo0.name == "QuantinuumBackend"
+
+    if have_pecos():
+        backinfo1 = devices[1]
+        assert backinfo1.device_name == mock_machine_info["name"] + "LE"
+        assert backinfo1.architecture == FullyConnected(
+            mock_machine_info["n_qubits"], "q"
+        )
+        assert backinfo1.version == __extension_version__
+        assert backinfo1.supports_fast_feedforward == True
+        assert backinfo1.supports_midcircuit_measurement == True
+        assert backinfo1.supports_reset == True
+        assert backinfo1.n_cl_reg == 120
+        assert backinfo1.misc == {
+            "n_shots": 10000,
+            "system_type": "local_emulator",
+            "syntax_checker": "H9-27SC",
+            "batching": False,
+            "wasm": True,
+        }
+        assert backinfo1.name == "QuantinuumBackend"
 
 
 def test_submit_qasm_api(
