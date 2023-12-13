@@ -170,7 +170,7 @@ jobs:
         PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
         PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY: 1
       working-directory: ./tests
-      run: pytest integration/backend_test.py
+      run: pytest integration/
 
   publish_to_pypi:
     name: Publish to pypi
