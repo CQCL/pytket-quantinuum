@@ -432,12 +432,10 @@ def test_classical(
 @pytest.mark.parametrize(
     "language",
     [
-        Language.QASM,
+        Language.QIR,
         pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/299"
-            ),
+            Language.QASM,
+            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1173"),
         ),
     ],
 )
@@ -457,7 +455,8 @@ def test_division(
     backend = authenticated_quum_backend
 
     c = backend.get_compiled_circuit(c)
-    assert backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+    with pytest.raises(ValueError):
+        backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1192,12 +1191,10 @@ def test_wasm_state(
 @pytest.mark.parametrize(
     "language",
     [
-        Language.QASM,
+        Language.QIR,
         pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/261"
-            ),
+            Language.QASM,
+            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1174"),
         ),
     ],
 )
@@ -1227,27 +1224,27 @@ def test_wasm_multivalue(
     backend = authenticated_quum_backend
 
     c = backend.get_compiled_circuit(c)
-    h = backend.process_circuit(
-        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
-    )
+    with pytest.raises(ValueError):
+        h = backend.process_circuit(
+            c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+        )
+        r = backend.get_result(h)
+        shots = r.get_shots()
 
-    r = backend.get_result(h)
-    shots = r.get_shots()
+        def to_int(C: np.ndarray) -> int:
+            assert len(C) == 4
+            return sum(pow(2, i) * C[i] for i in range(4))
 
-    def to_int(C: np.ndarray) -> int:
-        assert len(C) == 4
-        return sum(pow(2, i) * C[i] for i in range(4))
-
-    for shot in shots:
-        A = to_int(shot[:4])
-        B = to_int(shot[4:8])
-        X = to_int(shot[8:12])
-        Y = to_int(shot[12:16])
-        if B == 0:
-            assert X == 0
-            assert Y == 0
-        else:
-            assert A == X * B + Y
+        for shot in shots:
+            A = to_int(shot[:4])
+            B = to_int(shot[4:8])
+            X = to_int(shot[8:12])
+            Y = to_int(shot[12:16])
+            if B == 0:
+                assert X == 0
+                assert Y == 0
+            else:
+                assert A == X * B + Y
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
