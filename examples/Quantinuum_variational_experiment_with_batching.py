@@ -65,10 +65,10 @@ quantinuum_backend.login()
 # 2. [Hamiltonian Definition & Analysis](#hamiltonian)
 # 3. [Computing Expectation Values](#expval)
 # 4. [Variational Procedure with Batches](#variational)
-# 
+#
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
 # The code-cell below synthesises a two-qubit circuit consisting of arbitrary-angle two-qubit `ZZPhase` gates (`pytket.circuit.OpType.ZZPhase`) and fixed-angle single-qubit `X` gate (`pytket.circuit.OpType.X`). This state-preparation technique is inspired by the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)),  instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)).
-# 
+#
 # The hardware-efficient state-preparation method requires alternating layers of two-qubit gates and single-qubit  gates. Ultimately, this leads to fewer two-qubit gates, but requires a greater number of variational parameters, compared to UCC. The optimal parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists of one-layer `ZZPhase` gates.
 
 from pytket.circuit import Circuit
@@ -184,6 +184,7 @@ for i, (term, bitmap_list) in enumerate(measurement_setup.results.items()):
 from typing import Dict, Tuple
 from pytket.partition import MeasurementBitMap
 
+
 def compute_expectation_paulistring(
     distribution: Dict[Tuple[int, ...], float], bitmap: MeasurementBitMap
 ) -> float:
@@ -191,6 +192,7 @@ def compute_expectation_paulistring(
     for bitstring, probability in distribution.items():
         value += probability * (sum(bitstring[i] for i in bitmap.bits) % 2)
     return ((-1) ** bitmap.invert) * (-2 * value + 1)
+
 
 # In the example below, the function `compute_expectation_paulistring` is called to calculate the expectation for the $\hat{Z} \otimes \hat{Z}$. First the `QubitPauliString` is initialised, and that is used to extract the relevant data from the MeasurementSetup object defined in section 2. This data is used for postprocessing.
 
@@ -256,6 +258,7 @@ from pytket.backends.backendresult import BackendResult
 
 from sympy import Abs
 
+
 def compute_expectation_value(
     results: List[BackendResult],
     measurement_setup: MeasurementSetup,
@@ -272,6 +275,7 @@ def compute_expectation_value(
                 value += compute_expectation_paulistring(distribution, bm)
             energy += value * string_coeff / len(bitmaps)
     return energy
+
 
 # The results of the previously submitted circuits can be retrieved with the `get_results` method on `QuantinuumBackend`.
 
@@ -310,6 +314,7 @@ from numpy.random import random_sample
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.partition import PauliPartitionStrat
 from pytket.backends.resulthandle import ResultHandle
+
 
 class Objective:
     def __init__(
@@ -361,7 +366,7 @@ class Objective:
         if self._iteration_number >= self._niters:
             self._iteration_number = 0
         return value
-    
+
     def circuit_cost(self, syntax_checker: str = "H1-1SC") -> float:
         n = len(self._symbolic_circuit.free_symbols())
         random_parameters = random_sample(n)
@@ -371,7 +376,7 @@ class Objective:
                 for c in self._build_circuits(random_parameters)
             ]
         )
-    
+
     def _objective_function(
         self,
         parameters: ndarray,
@@ -388,14 +393,16 @@ class Objective:
         assert len(parameters) == len(self._symbolic_circuit.free_symbols())
         circuit_list = self._build_circuits(parameters)
         if not isinstance(self._backend, QuantinuumBackend):
-            raise RuntimeError("Batching is not supported for any backend other than QuantinuumBackend.")
+            raise RuntimeError(
+                "Batching is not supported for any backend other than QuantinuumBackend."
+            )
         if iteration_number == 0:
             self._startjob = self._backend.start_batch(
-                self._max_batch_cost, 
-                circuit_list[0], 
-                self._nshots, 
-                noisy_simulation=False, 
-                options={"tket-opt-level": None}
+                self._max_batch_cost,
+                circuit_list[0],
+                self._nshots,
+                noisy_simulation=False,
+                options={"tket-opt-level": None},
             )
             handles = [self._startjob] + self._submit_batch(circuit_list[1:])
         else:
@@ -405,7 +412,7 @@ class Objective:
             results, self._measurement_setup, self._hamiltonian
         )
         return expval
-    
+
     def _build_circuits(self, parameters: ndarray) -> List[Circuit]:
         circuit = self._symbolic_circuit.copy()
         symbol_dict = {s: p for s, p in zip(self._symbols, parameters)}
@@ -419,7 +426,7 @@ class Objective:
             circuit_list, optimisation_level=2
         )
         return cc_list
-    
+
     def _submit_batch(
         self,
         circuits: List[Circuit],
@@ -436,14 +443,15 @@ class Objective:
         """
         return [
             self._backend.add_to_batch(
-                self._startjob, 
-                c, 
-                self._nshots, 
-                options={"tket-opt-level": None}, 
-                noisy_simulation=False
+                self._startjob,
+                c,
+                self._nshots,
+                options={"tket-opt-level": None},
+                noisy_simulation=False,
             )
             for c in circuits
         ]
+
 
 # The `Objective` class is initialised with the essential data needed to perform the variational experiment. The object contains all the necessary information to compute the value of the objective function.
 
@@ -493,7 +501,11 @@ print(f"VQE Energy:\t{result.fun} Ha")
 import numpy as np
 
 abs_err = lambda experiment, benchmark: np.absolute(experiment - benchmark)
-rel_err = lambda experiment, benchmark: abs_err(experiment, benchmark)/np.absolute(benchmark) * 100
+rel_err = (
+    lambda experiment, benchmark: abs_err(experiment, benchmark)
+    / np.absolute(benchmark)
+    * 100
+)
 
 ae = abs_err(result.fun, ground_state_energy)
 re = rel_err(result.fun, ground_state_energy)
