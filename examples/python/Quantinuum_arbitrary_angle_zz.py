@@ -44,7 +44,6 @@
 
 # **Note:** In `pytket` the $RZZ$ gate is implemented with the $ZZPhase$ circuit function.
 
-import numpy as np
 from pytket import Circuit
 from pytket.circuit.display import render_circuit_jupyter
 
@@ -60,7 +59,7 @@ def control_phase(circ, theta, q0, q1, arbZZ=False):
         arbZZ (bool): enables arbitrary angle RZZ gate
     """
 
-    if arbZZ == False:
+    if not arbZZ:
         # decompose into CNOTs
         circ.Rz(theta / 2, q1)
         circ.CX(q0, q1)
@@ -68,7 +67,7 @@ def control_phase(circ, theta, q0, q1, arbZZ=False):
         circ.CX(q0, q1)
         circ.Rz(theta / 2, q0)
 
-    elif arbZZ == True:
+    elif arbZZ:
         circ.Rz(theta / 2, q0)
         circ.Rz(theta / 2, q1)
         circ.ZZPhase(-theta / 2, q0, q1)
@@ -129,11 +128,13 @@ render_circuit_jupyter(qft_arbZZ)
 
 # The QFT circuit applied to the computational basis state $|x\rangle$ creates the state
 
+# $$
 # \begin{align}
 # QFT|x\rangle&=\frac{1}{\sqrt{d}}\sum_{y=0}^{d-1} e^{2\pi i x y/d} |y\rangle\\
 # &= \bigotimes_{j=0}^{n-1}\frac{1}{\sqrt{2}}\sum_{y_j=0}^1e^{2\pi i x 2^j y_j/d}|y_j\rangle\\
 # &= \bigotimes_{j=0}^{n-1}\frac{1}{\sqrt{2}}\big(|0\rangle+e^{2\pi i x 2^j /d}|1\rangle\big)
 # \end{align}
+# $$
 
 # where $d=2^n$. Note that this state is unentangled. Therefore the state fidelity can be measured by applying only single-qubit gates to map the state back to the computational basis. In the example circuits above, the initial state $|x\rangle=|0\rangle$, and so the output state is
 
