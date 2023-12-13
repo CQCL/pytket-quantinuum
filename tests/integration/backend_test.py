@@ -400,6 +400,10 @@ def test_classical(
 
     c.add_classicalexpbox_register(a + b, d.to_list())
     c.add_classicalexpbox_register(a - b, d.to_list())
+
+    if language == Language.QASM:  # remove this when division supported in QIR
+        c.add_classicalexpbox_register(a * b // d, d.to_list())
+
     c.add_classicalexpbox_register(a << 1, a.to_list())
     c.add_classicalexpbox_register(a >> 1, b.to_list())
 
