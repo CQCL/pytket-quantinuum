@@ -23,8 +23,6 @@
 
 # Quantum circuits that use the gate sequence CNOT, RZ, CNOT can be replaced with the arbitrary angle ZZ gate, shown below. This enables a lower number of 2-qubit gates in a quantum circuit, improving performance by decreasing gate errors.
 
-# <br>
-
 # <div style="text-align: center;">
 # <img src="rzz.png" width="250"/>
 # </div>
