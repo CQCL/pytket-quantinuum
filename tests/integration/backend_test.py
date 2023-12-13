@@ -423,9 +423,6 @@ def test_classical(
     assert backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
 
 
-
-
-
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
@@ -438,9 +435,7 @@ def test_classical(
         Language.QIR,
         pytest.param(
             Language.QASM,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/tket/issues/1173"
-            ),
+            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1173"),
         ),
     ],
 )
@@ -1199,9 +1194,7 @@ def test_wasm_state(
         Language.QIR,
         pytest.param(
             Language.QASM,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/tket/issues/1174"
-            ),
+            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1174"),
         ),
     ],
 )
