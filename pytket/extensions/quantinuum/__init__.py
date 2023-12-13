@@ -24,4 +24,5 @@ from .backends import (
     QuantinuumBackendCompilationConfig,
     Language,
     prune_shots_detected_as_leaky,
+    have_pecos,
 )
