@@ -7,7 +7,7 @@
 
 # ## Repetition Code Circuit
 
-# The use of mid-circuit measurement is straightforward, note the use of `measure` and `reset` on the ancilla qubits. This example also utlizes conditional logic available with Quantinuum devices as well as Registers and IDs available in `pytket`. See [Classical and conditional operations](https://tket.quantinuum.com/user-manual/manual_circuit.html#classical-and-conditional-operations) and [Registers and IDs](https://cqcl.github.io/pytket/manual/manual_circuit.html#registers-and-ids) for additional examples.
+# The use of mid-circuit measurement is straightforward, note the use of `measure` and `reset` on the ancilla qubits. This example also utlizes conditional logic available with Quantinuum devices as well as Registers and IDs available in `pytket`. See [Classical and conditional operations](https://tket.quantinuum.com/user-manual/manual_circuit.html#classical-and-conditional-operations) and [Registers and IDs](https://tket.quantinuum.com/user-manual/manual_circuit.html#registers-and-ids) for additional examples.
 
 from pytket.circuit import Circuit, Qubit, Bit, OpType, reg_eq
 from pytket.circuit.display import render_circuit_jupyter
@@ -84,9 +84,9 @@ print(machine, "status:", backend.device_state(device_name=machine))
 
 # ### Circuit Compilation
 
-# `pytket` includes many features for optimizing circuits. This includes reducing the number of gates where possible and resynthesizing circuits for a quantum computer's native gate set. See the `pytket` [User Manual](https://cqcl.github.io/pytket/manual/index.html) for more information on all the options that are available.
+# `pytket` includes many features for optimizing circuits. This includes reducing the number of gates where possible and resynthesizing circuits for a quantum computer's native gate set. See the `pytket` [User Manual](https://tket.quantinuum.com/user-manual/manual_compiler.html) for more information on all the options that are available.
 
-# Here the circuit is compiled with `get_compiled_circuit`, which includes optimizing the gates and resynthesizing the circuit to Quantinuum's native gate set. The `optimisation_level` sets the level of optimisation to perform during compilation, check [Default Compilation](https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation) in the pytket-quantinuum documentation for more details.
+# Here the circuit is compiled with `get_compiled_circuit`, which includes optimizing the gates and resynthesizing the circuit to Quantinuum's native gate set. The `optimisation_level` sets the level of optimisation to perform during compilation, check [Default Compilation](https://tket.quantinuum.com/extensions/pytket-quantinuum/#default-compilation) in the pytket-quantinuum documentation for more details.
 
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=1)
 

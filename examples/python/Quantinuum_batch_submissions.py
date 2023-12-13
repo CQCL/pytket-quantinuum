@@ -13,7 +13,7 @@
 
 # Currently only the quantum computer and emulator targets support the batching feature. Batching is not supported on the syntax checkers.
 
-# For more information on using this feature in `pytket-quantinuum`, see [Batching](https://cqcl.github.io/pytket-quantinuum/api/index.html#batching).
+# For more information on using this feature in `pytket-quantinuum`, see [Batching](https://tket.quantinuum.com/extensions/pytket-quantinuum/#batching).
 
 # To start a batch, use the `start_batch` function, specifying the `max_batch_cost` in HQCs to enforce.
 

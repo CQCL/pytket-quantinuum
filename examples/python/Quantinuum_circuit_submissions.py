@@ -29,13 +29,13 @@
 # This notebook covers how to use `pytket` in conjunction with `pytket-quantinuum` to submit to Quantinuum devices. The quantum compilation step is demonstrated, but for a full overview of quantum compilation with TKET, the last link above is recommended.
 
 # See the links below for the `pytket` and `pytket-quantinuum` documentation:
-# - [pytket](https://cqcl.github.io/tket/pytket/api/index.html)
-# - [pytket-quantinuum](https://cqcl.github.io/pytket-quantinuum/api/index.html)
+# - [pytket](https://tket.quantinuum.com/api-docs/)
+# - [pytket-quantinuum](https://tket.quantinuum.com/extensions/pytket-quantinuum/)
 # ## Step by Step
 
 # ### Circuit Preparation
 
-# Create your circuit via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://cqcl.github.io/tket/pytket/api/getting_started.html) page.
+# Create your circuit via the pytket python library. For details on getting started with `pytket`, see pytket's [Getting Started](https://tket.quantinuum.com/examples/Getting_started.html) page.
 
 from pytket.circuit import Circuit, fresh_symbol
 from pytket.circuit.display import render_circuit_jupyter
@@ -51,7 +51,7 @@ render_circuit_jupyter(circuit)
 
 # Select a machine and login to the Quantinuum API using your credentials. See the *Quantinuum Systems User Guide* in the *Examples* tab on the *Quantinuum User Portal* for information and target names for each of the H-Series systems available.
 
-# Users need to login once per session. In the notebook, a dialogue box will ask for credentials. If running a script, users be prompted at the shell. You can also [save your email in the pytket config](https://cqcl.github.io/tket/pytket/api/config.html?highlight=pytket%20config#module-pytket.config).
+# Users need to login once per session. In the notebook, a dialogue box will ask for credentials. If running a script, users be prompted at the shell. You can also [save your email in the pytket config](https://tket.quantinuum.com/api-docs/config.html).
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
@@ -146,7 +146,7 @@ result = BackendResult.from_dict(data)
 
 # ### Analyze Results
 
-# There are multiple options for analyzing results with pytket. A few examples are highlighted here. More can be seen at [Interpreting Results](https://cqcl.github.io/pytket/manual/manual_backend.html#interpreting-results).
+# There are multiple options for analyzing results with pytket. A few examples are highlighted here. More can be seen at [Interpreting Results](https://tket.quantinuum.com/user-manual/manual_backend.html#interpreting-results).
 
 result = backend.get_result(handle)
 print(result.get_distribution())
