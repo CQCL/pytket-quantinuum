@@ -53,7 +53,7 @@ from pytket.extensions.quantinuum import (
 from pytket.extensions.quantinuum.backends.quantinuum import (
     GetResultFailed,
     _GATE_SET,
-    NoSyntaxChecker,
+    # NoSyntaxChecker,
 )
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
