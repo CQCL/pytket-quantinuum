@@ -29,3 +29,6 @@ Consult the `notebooks <https://github.com/CQCL/pytket-quantinuum/tree/develop/e
 
 .. automodule:: pytket.extensions.quantinuum.backends.leakage_gadget
     :members:
+
+.. automodule:: pytket.extensions.quantinuum.backends.credential_storage
+    :members: MemoryCredentialStorage, QuantinuumConfigCredentialStorage
