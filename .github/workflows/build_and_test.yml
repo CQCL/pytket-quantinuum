@@ -198,21 +198,14 @@ jobs:
     needs: quantinuum-checks
     runs-on: ubuntu-22.04
     steps:
-    - name: Download macos-12 wheels
+    - name: Download all wheels
+      # downloading all three files into the wheelhouse
+      # all files are identical, so there will only be one file
       uses: actions/download-artifact@v4
       with:
         path: wheelhouse
-        name: artefact-macos-12
-    - name: Download windows-2022 wheels
-      uses: actions/download-artifact@v4
-      with:
-        path: wheelhouse
-        name: artefact-windows-2022
-    - name: Download ubuntu-22.04 wheels
-      uses: actions/download-artifact@v4
-      with:
-        path: wheelhouse
-        name: artefact-ubuntu-22.04
+        pattern: artefact-*
+        merge-multiple: true
     - name: Put them all in the dist folder
       run: |
         mkdir dist
