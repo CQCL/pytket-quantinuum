@@ -135,7 +135,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
       with:
-        name: artefacts
+        name: artefact-${{ matrix.os }}
         path: wheelhouse/
     - name: Install docs dependencies
       if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
