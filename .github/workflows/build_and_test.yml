@@ -198,10 +198,21 @@ jobs:
     needs: quantinuum-checks
     runs-on: ubuntu-22.04
     steps:
-    - name: Download all wheels
+    - name: Download macos-12 wheels
       uses: actions/download-artifact@v4
       with:
         path: wheelhouse
+        name: artefact-macos-12
+    - name: Download windows-2022 wheels
+      uses: actions/download-artifact@v4
+      with:
+        path: wheelhouse
+        name: artefact-windows-2022
+    - name: Download ubuntu-22.04 wheels
+      uses: actions/download-artifact@v4
+      with:
+        path: wheelhouse
+        name: artefact-ubuntu-22.04
     - name: Put them all in the dist folder
       run: |
         mkdir dist
