@@ -302,7 +302,7 @@ def circuits(
         {"device_name": name}
         for name in [
             *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
-            *pytest.ALL_SYNTAX_CHECKER_NAMES,
+            *pytest.ALL_SYNTAX_CHECKER_NAMES,  # type: ignore
         ]
     ],
     indirect=True,
