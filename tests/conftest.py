@@ -65,11 +65,11 @@ def pytest_configure() -> None:
     are used while parametrizing the tests and not as fixtures."""
 
     #
-    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
-    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
-    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
-    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
-    pytest.ALL_LOCAL_SIMULATOR_NAMES = ALL_LOCAL_SIMULATOR_NAMES
+    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES  # type: ignore
+    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES  # type: ignore
+    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES  # type: ignore
+    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES  # type: ignore
+    pytest.ALL_LOCAL_SIMULATOR_NAMES = ALL_LOCAL_SIMULATOR_NAMES  # type: ignore
 
 
 def pytest_make_parametrize_id(
