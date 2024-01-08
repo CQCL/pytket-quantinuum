@@ -519,7 +519,7 @@ class QuantinuumBackend(Backend):
             fidelities["ZZMax_fidelity"] = 1.0
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
-        # https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html#default-compilation
+        # https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())

@@ -32,7 +32,7 @@ setup(
     author_email="tket-support@quantinuum.com",
     python_requires=">=3.9",
     project_urls={
-        "Documentation": "https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html",
+        "Documentation": "https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html",
         "Source": "https://github.com/CQCL/pytket-quantinuum",
         "Tracker": "https://github.com/CQCL/pytket-quantinuum/issues",
     },
