@@ -149,7 +149,7 @@ jobs:
 
   pecos_checks:
     name: Run local-emulator tests
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule'
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
@@ -169,7 +169,7 @@ jobs:
 
   qa_checks:
     name: Run backend tests with QA endpoint
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule'
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
