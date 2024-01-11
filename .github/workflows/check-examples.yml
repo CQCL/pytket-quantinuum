@@ -50,7 +50,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install required python packages
@@ -59,6 +59,7 @@ jobs:
         python -m pip install wheel
         python -m pip install -e .
         python -m pip install p2j jupyter
+        python -m pip install -r examples/requirements.txt
     - name: Install expect tool
       run: |
         sudo apt-get update

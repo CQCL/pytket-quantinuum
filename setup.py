@@ -32,7 +32,7 @@ setup(
     author_email="tket-support@quantinuum.com",
     python_requires=">=3.9",
     project_urls={
-        "Documentation": "https://tket.quantinuum.com/extensions/pytket-quantinuum/api/index.html",
+        "Documentation": "https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html",
         "Source": "https://github.com/CQCL/pytket-quantinuum",
         "Tracker": "https://github.com/CQCL/pytket-quantinuum/issues",
     },
@@ -43,7 +43,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket ~= 1.22",
+        "pytket ~= 1.23",
         "requests >= 2.2",
         "types-requests",
         "websockets >= 7.0",
@@ -51,6 +51,7 @@ setup(
         "pyjwt ~= 2.4",
         "msal ~= 1.18",
     ],
+    extras_require={"pecos": ["pytket-pecos >= 0.1.4"]},
     classifiers=[
         "Environment :: Console",
         "Programming Language :: Python :: 3.9",
