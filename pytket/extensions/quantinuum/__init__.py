@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Cambridge Quantum Computing
+# Copyright 2020-2024 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,4 +24,5 @@ from .backends import (
     QuantinuumBackendCompilationConfig,
     Language,
     prune_shots_detected_as_leaky,
+    have_pecos,
 )

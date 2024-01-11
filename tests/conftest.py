@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Cambridge Quantum Computing
+# Copyright 2020-2024 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,6 +46,11 @@ ALL_SYNTAX_CHECKER_NAMES = [
     "H2-1SC",
 ]
 
+ALL_LOCAL_SIMULATOR_NAMES = [
+    "H1-1LE",
+    "H2-1LE",
+]
+
 ALL_DEVICE_NAMES = [
     *ALL_QUANTUM_HARDWARE_NAMES,
     *ALL_SIMULATOR_NAMES,
@@ -60,10 +65,11 @@ def pytest_configure() -> None:
     are used while parametrizing the tests and not as fixtures."""
 
     #
-    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES
-    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES
-    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES
-    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES
+    pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES  # type: ignore
+    pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES  # type: ignore
+    pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES  # type: ignore
+    pytest.ALL_QUANTUM_HARDWARE_NAMES = ALL_QUANTUM_HARDWARE_NAMES  # type: ignore
+    pytest.ALL_LOCAL_SIMULATOR_NAMES = ALL_LOCAL_SIMULATOR_NAMES  # type: ignore
 
 
 def pytest_make_parametrize_id(
@@ -174,8 +180,8 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "batching": True,
             "wasm": True,
         },
-        {"name": "H1", "n_qubits": 20},
-        {"name": "H2", "n_qubits": 32},
+        {"name": "H1", "n_qubits": 20, "system_type": "hardware"},
+        {"name": "H2", "n_qubits": 32, "system_type": "hardware"},
     ]
 
 

@@ -1,4 +1,7 @@
-# # Quantinuum Variational Experiment on H-Series with tket
+# <div style="text-align: center;">
+# <img src="https://assets-global.website-files.com/62b9d45fb3f64842a96c9686/62d84db4aeb2f6552f3a2f78_Quantinuum%20Logo__horizontal%20blue.svg" width="200" height="200" /></div>
+
+# # Variational Experiment on Quantinuum H-Series with Batching
 
 # Hybrid Quantum-Classical variational quantum algorithms consist of optimising a trial parametric wavefunction, $| \psi (\vec{\theta}) \rangle$, to estimate the lowest eigenvalue (or expectation value) of a Hamiltonian, $\hat{H}$. This could be an Electronic Structure Hamiltonian or a Hamiltonian defining a QUBO (quadratic unconstrained binary optimisation) or MAXCUT problem. The optimal parameters of the wavefunction, $(\vec{\theta})$ are an estimation of the lowest eigenvector of the Hamiltonian.
 
@@ -64,19 +67,17 @@ quantinuum_backend.login()
 # 4. [Variational Procedure with Batches](#variational)
 #
 # ## 1. Synthesise Symbolic State-Preparation Circuit <a class="anchor" id="state-prep"></a>
-# We first prepare a two-qubit circuit consisting of fixed-angle two-qubit `CX` gates (`pytket.circuit.OpType.CX`) and variable-angle single-qubit `Ry` gates (`pytket.circuit.OpType.Rz`). This state-preparation technique is known as the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)),  instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)).
+# The code-cell below synthesises a two-qubit circuit consisting of arbitrary-angle two-qubit `ZZPhase` gates (`pytket.circuit.OpType.ZZPhase`) and fixed-angle single-qubit `X` gate (`pytket.circuit.OpType.X`). This state-preparation technique is inspired by the Hardware-Efficient Ansatz (HEA) ([nature23879](https://www.nature.com/articles/nature23879)),  instead of the usual chemistry state-preparation method, Unitary Coupled Cluster (UCC) ([arxiv.1701.02691](https://arxiv.org/abs/1701.02691)).
 #
-# The hardware-efficient state-preparation method requires alternating layers of fixed-angle two-qubit gates and variable-angle single-qubit  gates. Ultimately, this leads to fewer two-qubit gates, but requires greater variational parameters, compared to UCC. The optimal parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists of one-layer (4-parameters) and only uses `Ry` gates.
+# The hardware-efficient state-preparation method requires alternating layers of two-qubit gates and single-qubit  gates. Ultimately, this leads to fewer two-qubit gates, but requires a greater number of variational parameters, compared to UCC. The optimal parameters for HEA are governed by the noise profile of the device. The HEA circuit used in this example consists of one-layer `ZZPhase` gates.
 
 from pytket.circuit import Circuit
 from sympy import Symbol
 
-symbols = [Symbol(f"p{i}") for i in range(4)]
+symbols = [Symbol(f"p{0}")]
 symbolic_circuit = Circuit(2)
 symbolic_circuit.X(0)
-symbolic_circuit.Ry(symbols[0], 0).Ry(symbols[1], 1)
-symbolic_circuit.CX(0, 1)
-symbolic_circuit.Ry(symbols[2], 0).Ry(symbols[3], 0)
+symbolic_circuit.ZZPhase(symbols[0], 0, 1)
 
 # The symbolic state-preparation circuit can be visualised using the `pytket.circuit.display` submodule.
 
@@ -126,6 +127,14 @@ term_sum.update(term5)
 hamiltonian = QubitPauliOperator(term_sum)
 print(hamiltonian)
 
+# This Hamiltonian can be converted into a `numpy.ndarray` instance, and the lowest eigenvalue can be obtained using `numpy.linalg.eig`. This value is used as a benchmark for the VQE result. The ground-state energy is measured in units of Hartrees (Ha).
+
+from scipy.linalg import eig
+
+sm = hamiltonian.to_sparse_matrix().toarray()
+ground_state_energy = eig(sm)[0].real[0]
+print(f"{ground_state_energy} Ha")
+
 # To measure $\hat{H}$ on hardware, naively 5 measurement circuits are required. The Identity term does not need to measured, since its expectation value always equals 1.
 # With pytket, $\hat{H}$ only requires simulating 2 measurement circuit, thanks to measurement reduction. The four terms $\hat{X}_{q[0]} \otimes \hat{X}_{q[1]}$, $\hat{Y}_{q[0]} \otimes \hat{Y}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$, $\hat{Z}_{q[0]} \otimes \hat{Z}_{q[1]}$ and $\hat{I}_{q[0]} \otimes \hat{Z}_{q[1]}$, form a commuting set and can be measured with two circuits instead of three. This partitioning can be performed automatically using the [`measurement_reduction`](https://tket.quantinuum.com/api-docs/partition.html#pytket.partition.measurement_reduction) function available in [`pytket.partition`](https://tket.quantinuum.com/api-docs/partition.html#module-pytket.partition) submodule.
 
@@ -160,6 +169,7 @@ for measurement_subcircuit in measurement_setup.measurement_circs:
 
 for i, (term, bitmap_list) in enumerate(measurement_setup.results.items()):
     print(f"{term}\t{bitmap_list}\n")
+
 # ## 3. Computing Expectation Values <a class="anchor" id="expval"></a>
 
 # Once the Hamiltonian has been partitioned into commuting sets, measurement circuits need to be constructed. These measurement circuits are submitted to hardware or emulators for simulation. Once the simulation is complete, a result is available to request, and can be retrieved using `pytket`. These results are the outcomes
@@ -246,6 +256,8 @@ from pytket.utils.operators import QubitPauliOperator
 from pytket.partition import MeasurementSetup
 from pytket.backends.backendresult import BackendResult
 
+from sympy import Abs
+
 
 def compute_expectation_value(
     results: List[BackendResult],
@@ -255,12 +267,13 @@ def compute_expectation_value(
     energy = 0
     for pauli_string, bitmaps in measurement_setup.results.items():
         string_coeff = operator.get(pauli_string, 0.0)
-        if string_coeff > 0:
+        if Abs(string_coeff) > 0:
+            value = 0
             for bm in bitmaps:
                 index = bm.circ_index
                 distribution = results[index].get_distribution()
-                value = compute_expectation_paulistring(distribution, bm)
-                energy += complex(value * string_coeff).real
+                value += compute_expectation_paulistring(distribution, bm)
+            energy += value * string_coeff / len(bitmaps)
     return energy
 
 
@@ -379,9 +392,17 @@ class Objective:
         """
         assert len(parameters) == len(self._symbolic_circuit.free_symbols())
         circuit_list = self._build_circuits(parameters)
+        if not isinstance(self._backend, QuantinuumBackend):
+            raise RuntimeError(
+                "Batching is not supported for any backend other than QuantinuumBackend."
+            )
         if iteration_number == 0:
-            self._startjob = quantinuum_backend.start_batch(
-                self._max_batch_cost, circuit_list[0], self._nshots
+            self._startjob = self._backend.start_batch(
+                self._max_batch_cost,
+                circuit_list[0],
+                self._nshots,
+                noisy_simulation=False,
+                options={"tket-opt-level": None},
             )
             handles = [self._startjob] + self._submit_batch(circuit_list[1:])
         else:
@@ -422,7 +443,11 @@ class Objective:
         """
         return [
             self._backend.add_to_batch(
-                self._startjob, c, self._nshots, options={"tket-opt-level": None}
+                self._startjob,
+                c,
+                self._nshots,
+                options={"tket-opt-level": None},
+                noisy_simulation=False,
             )
             for c in circuits
         ]
@@ -458,6 +483,7 @@ from numpy.random import random_sample
 
 method = "COBYLA"
 initial_parameters = random_sample(len(symbolic_circuit.free_symbols()))
+
 result = minimize(
     objective,
     initial_parameters,
@@ -468,7 +494,22 @@ result = minimize(
 
 # The minimal value of the objective function can be retrieved with the `fun` attribute.
 
-result.fun
+print(f"VQE Energy:\t{result.fun} Ha")
+
+# The ground-state energy estimated with VQE can be compared with the value obtained from the `numpy.linalg` computation. The absolute error and the relative error is calculated here.
+
+import numpy as np
+
+abs_err = lambda experiment, benchmark: np.absolute(experiment - benchmark)
+rel_err = (
+    lambda experiment, benchmark: abs_err(experiment, benchmark)
+    / np.absolute(benchmark)
+    * 100
+)
+
+ae = abs_err(result.fun, ground_state_energy)
+re = rel_err(result.fun, ground_state_energy)
+print(f"Absolute error:\t{ae} Ha\nRelative error:\t{re}%")
 
 # The optimal parameters can be retreived with the `x` attribute.
 

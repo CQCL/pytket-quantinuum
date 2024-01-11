@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Cambridge Quantum Computing
+# Copyright 2020-2024 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
 """Backends for processing pytket circuits with Quantinuum devices
 """
 
-from .quantinuum import QuantinuumBackend, QuantinuumBackendCompilationConfig, Language
+from .quantinuum import (
+    QuantinuumBackend,
+    QuantinuumBackendCompilationConfig,
+    Language,
+    have_pecos,
+)
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline
 from .leakage_gadget import prune_shots_detected_as_leaky

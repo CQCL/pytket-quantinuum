@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Cambridge Quantum Computing
+# Copyright 2020-2024 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ from pytket.extensions.quantinuum import (
 from pytket.extensions.quantinuum.backends.quantinuum import (
     GetResultFailed,
     _GATE_SET,
-    NoSyntaxChecker,
+    # NoSyntaxChecker,
 )
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
@@ -302,7 +302,7 @@ def circuits(
         {"device_name": name}
         for name in [
             *pytest.ALL_QUANTUM_HARDWARE_NAMES,  # type: ignore
-            *pytest.ALL_SYNTAX_CHECKER_NAMES,
+            *pytest.ALL_SYNTAX_CHECKER_NAMES,  # type: ignore
         ]
     ],
     indirect=True,
@@ -400,10 +400,6 @@ def test_classical(
 
     c.add_classicalexpbox_register(a + b, d.to_list())
     c.add_classicalexpbox_register(a - b, d.to_list())
-
-    if language == Language.QASM:  # remove this when division supported in QIR
-        c.add_classicalexpbox_register(a * b // d, d.to_list())
-
     c.add_classicalexpbox_register(a << 1, a.to_list())
     c.add_classicalexpbox_register(a >> 1, b.to_list())
 
@@ -425,6 +421,42 @@ def test_classical(
 
     c = backend.get_compiled_circuit(c)
     assert backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QIR,
+        pytest.param(
+            Language.QASM,
+            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1173"),
+        ),
+    ],
+)
+@pytest.mark.timeout(120)
+def test_division(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    c = Circuit()
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 10)
+    d = c.add_c_register("d", 10)
+
+    c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
+    c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
+    c.add_classicalexpbox_register(a * b // d, d.to_list())
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    with pytest.raises(ValueError):
+        backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1159,12 +1191,10 @@ def test_wasm_state(
 @pytest.mark.parametrize(
     "language",
     [
-        Language.QASM,
+        Language.QIR,
         pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/261"
-            ),
+            Language.QASM,
+            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1174"),
         ),
     ],
 )
@@ -1194,27 +1224,27 @@ def test_wasm_multivalue(
     backend = authenticated_quum_backend
 
     c = backend.get_compiled_circuit(c)
-    h = backend.process_circuit(
-        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
-    )
+    with pytest.raises(ValueError):
+        h = backend.process_circuit(
+            c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+        )
+        r = backend.get_result(h)
+        shots = r.get_shots()
 
-    r = backend.get_result(h)
-    shots = r.get_shots()
+        def to_int(C: np.ndarray) -> int:
+            assert len(C) == 4
+            return sum(pow(2, i) * C[i] for i in range(4))
 
-    def to_int(C: np.ndarray) -> int:
-        assert len(C) == 4
-        return sum(pow(2, i) * C[i] for i in range(4))
-
-    for shot in shots:
-        A = to_int(shot[:4])
-        B = to_int(shot[4:8])
-        X = to_int(shot[8:12])
-        Y = to_int(shot[12:16])
-        if B == 0:
-            assert X == 0
-            assert Y == 0
-        else:
-            assert A == X * B + Y
+        for shot in shots:
+            A = to_int(shot[:4])
+            B = to_int(shot[4:8])
+            X = to_int(shot[8:12])
+            Y = to_int(shot[12:16])
+            if B == 0:
+                assert X == 0
+                assert Y == 0
+            else:
+                assert A == X * B + Y
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
