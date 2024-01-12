@@ -59,6 +59,9 @@ from pytket.passes import (
     SimplifyInitial,
     ZZPhaseToRz,
     CustomPass,
+    PassSelector,
+    ZXGraphlikeOptimisation,
+    PauliSimp,
     FlattenRelabelRegistersPass,
     auto_rebase_pass,
     auto_squash_pass,
@@ -228,6 +231,11 @@ def have_pecos() -> bool:
         return True
     except ImportError:
         return False
+
+
+pre_zx_rebase = auto_rebase_pass(
+    {OpType.H, OpType.X, OpType.Z, OpType.Rx, OpType.Rz, OpType.CX, OpType.CZ}
+)
 
 
 class QuantinuumBackend(Backend):
@@ -505,10 +513,12 @@ class QuantinuumBackend(Backend):
         :return: Compilation pass for compiling circuits to Quantinuum devices
         """
         assert optimisation_level in range(3)
-        passlist = [
-            DecomposeBoxes(),
-            scratch_reg_resize_pass(),
-        ]
+        pass0 = SequencePass(
+            [
+                DecomposeBoxes(),
+                scratch_reg_resize_pass(),
+            ]
+        )
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
@@ -522,9 +532,9 @@ class QuantinuumBackend(Backend):
         # https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass())
+            pass1 = self.rebase_pass()
         elif optimisation_level == 1:
-            passlist.extend(
+            pass1 = SequencePass(
                 [
                     SynthesiseTK(),
                     NormaliseTK2(),
@@ -537,7 +547,7 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
-            passlist.extend(
+            pass_main = SequencePass(
                 [
                     FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
                     NormaliseTK2(),
@@ -548,6 +558,16 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
+
+            pass1 = PassSelector(
+                [
+                    pass_main,
+                    SequencePass([pre_zx_rebase, ZXGraphlikeOptimisation(), pass_main]),
+                    SequencePass([PauliSimp(), pass_main]),
+                ],
+                lambda circ: circ.n_2qb_gates(),
+            )
+
         # In TKET, a qubit register with N qubits can have qubits
         # indexed with a a value greater than N, i.e. a single
         # qubit register can exist with index "7" or similar.
@@ -563,8 +583,7 @@ class QuantinuumBackend(Backend):
         # of qubits actually used in the Circuit.
         # The Circuit qubits attribute is iterated through, with the ith
         # qubit being assigned to the ith qubit of a new "q" register
-        passlist.append(FlattenRelabelRegistersPass("q"))
-        return SequencePass(passlist)
+        return SequencePass([pass0, pass1, FlattenRelabelRegistersPass("q")])
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
