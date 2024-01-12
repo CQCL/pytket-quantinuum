@@ -248,7 +248,7 @@ jobs:
         mkdir extensions
         ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
     - name: Upload docs as artefact
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: .github/workflows/docs/extensions
 
@@ -266,4 +266,4 @@ jobs:
     steps:
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v3
+      uses: actions/deploy-pages@v4
