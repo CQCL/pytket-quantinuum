@@ -132,7 +132,6 @@ def test_multireg(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="bug in pytket-phir?")
 def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     b = authenticated_quum_backend
     c = Circuit(1, 3)
