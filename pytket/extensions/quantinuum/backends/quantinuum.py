@@ -507,9 +507,9 @@ class QuantinuumBackend(Backend):
 
     def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
         """
-        :param optimisation_level: Allows values of 0,1 or 2, with higher values
-            prompting more computationally heavy optimising compilation that
-            can lead to reduced gate count in circuits.
+        :param optimisation_level: Allows values of 0, 1 or 2, with higher
+            values prompting more computationally heavy optimising compilation
+            that can lead to reduced gate count in circuits.
         :return: Compilation pass for compiling circuits to Quantinuum devices
         """
         assert optimisation_level in range(3)
