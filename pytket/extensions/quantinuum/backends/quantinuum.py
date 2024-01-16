@@ -98,6 +98,7 @@ _GATE_SET = {
     OpType.PhasedX,
     OpType.ZZMax,
     OpType.ZZPhase,
+    OpType.TK2,
     OpType.Reset,
     OpType.Measure,
     OpType.Barrier,
