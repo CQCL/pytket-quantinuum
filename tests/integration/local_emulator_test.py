@@ -218,3 +218,30 @@ def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
     n_shots = 10
     counts = b.run_circuit(c, n_shots=n_shots).get_counts()
     assert counts == Counter({(0, 0, 1): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_midcircuit_measurement_and_reset(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    c = Circuit(1, 4)
+    c.X(0)
+    c.Measure(0, 0)
+    c.Reset(0)
+    c.Measure(0, 1)
+    c.X(0)
+    c.Measure(0, 2)
+    c.Measure(0, 3)
+
+    b = authenticated_quum_backend
+
+    c = b.get_compiled_circuit(c)
+    n_shots = 10
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
+    assert counts == Counter({(1, 0, 1, 1): n_shots})
