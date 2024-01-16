@@ -153,7 +153,8 @@ def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
 )
 @pytest.mark.xfail(
     reason="""https://github.com/CQCL/pytket-phir/issues/86
-              https://github.com/CQCL/pytket-phir/issues/87"""
+              https://github.com/CQCL/pytket-phir/issues/87
+              https://github.com/CQCL/pytket-phir/issues/88"""
 )
 def test_classical(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = Circuit(1)
