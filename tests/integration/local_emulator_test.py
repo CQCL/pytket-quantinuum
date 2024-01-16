@@ -14,6 +14,7 @@
 
 from collections import Counter
 import os
+from pathlib import Path
 import pytest
 from pytket.circuit import (
     Circuit,
@@ -28,6 +29,7 @@ from pytket.circuit import (
     if_not_bit,
 )
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
+from pytket.wasm import WasmFileHandler
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 
@@ -132,7 +134,6 @@ def test_multireg(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="bug in pytket-phir?")
 def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     b = authenticated_quum_backend
     c = Circuit(1, 3)
@@ -152,7 +153,11 @@ def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/61")
+@pytest.mark.xfail(
+    reason="""https://github.com/CQCL/pytket-phir/issues/86
+              https://github.com/CQCL/pytket-phir/issues/87
+              https://github.com/CQCL/pytket-phir/issues/88"""
+)
 def test_classical(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = Circuit(1)
     a = c.add_c_register("a", 8)
@@ -191,3 +196,52 @@ def test_classical(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = backend.get_compiled_circuit(c)
     counts = backend.run_circuit(c, n_shots=10).get_counts()
     assert len(counts.values()) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/50")
+def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
+    wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
+    c = Circuit(1)
+    a = c.add_c_register("a", 8)
+    c.add_wasm_to_reg("add_one", wasfile, [a], [a])
+
+    b = authenticated_quum_backend
+
+    c = b.get_compiled_circuit(c)
+    n_shots = 10
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
+    assert counts == Counter({(0, 0, 1): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_midcircuit_measurement_and_reset(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    c = Circuit(1, 4)
+    c.X(0)
+    c.Measure(0, 0)
+    c.Reset(0)
+    c.Measure(0, 1)
+    c.X(0)
+    c.Measure(0, 2)
+    c.Measure(0, 3)
+
+    b = authenticated_quum_backend
+
+    c = b.get_compiled_circuit(c)
+    n_shots = 10
+    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
+    assert counts == Counter({(1, 0, 1, 1): n_shots})
