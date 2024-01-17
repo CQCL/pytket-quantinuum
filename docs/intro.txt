@@ -267,6 +267,17 @@ still necessary to use the remote emulators (such as "H1-1E").
 A few of the ``QuantinuumBackend`` methods (``submit_program()``, ``cancel()``,
 and ``get_partial_result()``) are not available for local-emulator backends.
 
+Normally using the local emulator requires one initial online API query to
+retrieve the device information. To use it completely offline (with the caveat
+that this relies on hard-coded assumptions about the available devices), you can
+use the ``QuantinuumAPIOffline`` when constructing the backend:
+
+::
+
+  from pytket.extensions.quantinuum import QuantinuumBackend, QuantinuumAPIOffline
+  api_offline = QuantinuumAPIOffline()
+  backend = QuantinuumBackend(device_name="H1-1LE", api_handler = api_offline)
+
 This option requires Python 3.10 or later.
 
 **Note**: This is still an experimental feature. Currently not all circuits can
