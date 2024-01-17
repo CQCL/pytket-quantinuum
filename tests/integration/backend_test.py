@@ -1289,7 +1289,7 @@ def test_noiseless_emulation(
     c = Circuit(2).H(0).CX(0, 1).measure_all()
     c1 = backend.get_compiled_circuit(c)
     h = backend.process_circuit(
-        c1, n_shots=100, language=language, noisy_simulation=False
+        c1, n_shots=100, language=language, noisy_simulation=False  # type: ignore
     )
     r = backend.get_result(h)
     counts = r.get_counts()
