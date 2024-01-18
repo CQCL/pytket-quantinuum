@@ -153,12 +153,7 @@ def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(
-    reason="""https://github.com/CQCL/pytket-phir/issues/86
-              https://github.com/CQCL/pytket-phir/issues/87
-              https://github.com/CQCL/pytket-phir/issues/88"""
-)
-def test_classical(authenticated_quum_backend: QuantinuumBackend) -> None:
+def test_classical_1(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = Circuit(1)
     a = c.add_c_register("a", 8)
     b = c.add_c_register("b", 10)
@@ -173,29 +168,73 @@ def test_classical(authenticated_quum_backend: QuantinuumBackend) -> None:
 
     c.add_classicalexpbox_register(a + b, d.to_list())
     c.add_classicalexpbox_register(a - b, d.to_list())
-    c.add_classicalexpbox_register(a * b // d, d.to_list())
+    c.add_classicalexpbox_register(a * b * d, d.to_list())
     c.add_classicalexpbox_register(a << 1, a.to_list())
     c.add_classicalexpbox_register(a >> 1, b.to_list())
 
     c.X(0, condition=reg_eq(a ^ b, 1))
-    c.X(0, condition=(a[0] ^ b[0]))
-    c.X(0, condition=reg_eq(a & b, 1))
-    c.X(0, condition=reg_eq(a | b, 1))
-
-    c.X(0, condition=a[0])
-    c.X(0, condition=reg_neq(a, 1))
-    c.X(0, condition=if_not_bit(a[0]))
-    c.X(0, condition=reg_gt(a, 1))
-    c.X(0, condition=reg_lt(a, 1))
-    c.X(0, condition=reg_geq(a, 1))
-    c.X(0, condition=reg_leq(a, 1))
-    c.Phase(0, condition=a[0])
+    c.Measure(Qubit(0), d[0])
 
     backend = authenticated_quum_backend
 
     c = backend.get_compiled_circuit(c)
     counts = backend.run_circuit(c, n_shots=10).get_counts()
     assert len(counts.values()) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/91")
+def test_classical_2(authenticated_quum_backend: QuantinuumBackend) -> None:
+    circ = Circuit(1)
+    a = circ.add_c_register("a", 2)
+    b = circ.add_c_register("b", 2)
+    c = circ.add_c_register("c", 1)
+    expr = a[0] ^ b[0]
+    circ.add_classicalexpbox_bit(expr, [c[0]])
+    circ.X(0)
+    circ.Measure(Qubit(0), a[1])
+    backend = authenticated_quum_backend
+    c = backend.get_compiled_circuit(circ)
+    counts = backend.run_circuit(c, n_shots=10).get_counts()
+    assert len(counts.keys()) == 1
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/92")
+def test_classical_3(authenticated_quum_backend: QuantinuumBackend) -> None:
+    circ = Circuit(1)
+    a = circ.add_c_register("a", 4)
+    b = circ.add_c_register("b", 4)
+    c = circ.add_c_register("c", 4)
+
+    circ.add_c_setreg(3, a)
+    circ.add_c_copyreg(a, b)
+
+    circ.add_classicalexpbox_register(a - b, c.to_list())
+    circ.add_classicalexpbox_register(a << 1, a.to_list())
+
+    circ.X(0)
+    circ.Measure(Qubit(0), a[3])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(circ)
+    counts = backend.run_circuit(c, n_shots=10).get_counts()
+    assert len(counts.keys()) == 1
+    result = list(counts.keys())[0]
+    assert result == (0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
