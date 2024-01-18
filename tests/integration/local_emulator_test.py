@@ -248,8 +248,8 @@ def test_classical_2(authenticated_quum_backend: QuantinuumBackend) -> None:
     circ.X(0)
     circ.Measure(Qubit(0), a[1])
     backend = authenticated_quum_backend
-    c = backend.get_compiled_circuit(circ)
-    counts = backend.run_circuit(c, n_shots=10).get_counts()
+    cc = backend.get_compiled_circuit(circ)
+    counts = backend.run_circuit(cc, n_shots=10).get_counts()
     assert len(counts.keys()) == 1
 
 
@@ -278,8 +278,8 @@ def test_classical_3(authenticated_quum_backend: QuantinuumBackend) -> None:
 
     backend = authenticated_quum_backend
 
-    c = backend.get_compiled_circuit(circ)
-    counts = backend.run_circuit(c, n_shots=10).get_counts()
+    cc = backend.get_compiled_circuit(circ)
+    counts = backend.run_circuit(cc, n_shots=10).get_counts()
     assert len(counts.keys()) == 1
     result = list(counts.keys())[0]
     assert result == (0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
