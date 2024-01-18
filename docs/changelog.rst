@@ -8,6 +8,7 @@ General:
 
 * Python 3.12 support added, 3.9 dropped.
 * pytket dependency updated to 1.24
+* pytket_pecos dependency updated to 0.1.9.
 
 0.27.0 (January 2024)
 ---------------------
