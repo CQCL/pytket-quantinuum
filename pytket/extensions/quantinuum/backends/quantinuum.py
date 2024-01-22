@@ -394,7 +394,7 @@ class QuantinuumBackend(Backend):
         devices = []
         for d in jr:
             devices.append(cls._dict_to_backendinfo(copy(d)))
-            if have_pecos() and (d["system_type"] == "hardware"):
+            if have_pecos() and (d.get("system_type") == "hardware"):
                 # Add a local-emulator variant
                 devices.append(cls._dict_to_backendinfo(d, local_emulator=True))
         return devices
