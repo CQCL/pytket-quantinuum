@@ -53,7 +53,7 @@ setup(
     ],
     extras_require={
         "pecos": ["pytket-pecos ~= 0.1.9"],
-        "pyqubit-reuse": ["pyqubit-reuse ~= 0.0.12"]
+        "pyqubit-reuse": ["pyqubit-reuse ~= 0.0.12"],
     },
     classifiers=[
         "Environment :: Console",
