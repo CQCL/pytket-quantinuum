@@ -20,7 +20,7 @@
 
 # The TKET framework (pronounced "ticket") is a software platform for the development and execution of gate-level quantum computation, providing state-of-the-art performance in circuit compilation. It was created and is maintained by Quantinuum. The toolset is designed to extract the most out of the available NISQ devices of today and is platform-agnostic.
 
-# In python, the `pytket` packages is available for python 3.9+. The `pytket` and `pytket-quantinuum` packages are included as part of the installation instructions on the user portal.
+# In python, the `pytket` packages is available for python 3.10+. The `pytket` and `pytket-quantinuum` packages are included as part of the installation instructions on the user portal.
 
 # For more information on TKET, see the following links:
 # - [TKET user manual](https://tket.quantinuum.com/user-manual/manual_intro.html)

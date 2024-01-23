@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+0.28.0 (January 2024)
+---------------------
+
+* Updated pytket version requirement to 1.24.
+* Python 3.12 support added, 3.9 dropped.
+* pytket_pecos dependency updated to 0.1.9.
+
 0.27.0 (January 2024)
 ---------------------
 

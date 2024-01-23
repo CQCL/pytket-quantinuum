@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Cambridge Quantum Computing
+# Copyright 2020-2024 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -394,7 +394,7 @@ class QuantinuumBackend(Backend):
         devices = []
         for d in jr:
             devices.append(cls._dict_to_backendinfo(copy(d)))
-            if have_pecos() and (d["system_type"] == "hardware"):
+            if have_pecos() and (d.get("system_type") == "hardware"):
                 # Add a local-emulator variant
                 devices.append(cls._dict_to_backendinfo(d, local_emulator=True))
         return devices

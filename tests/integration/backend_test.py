@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Cambridge Quantum Computing
+# Copyright 2020-2024 Cambridge Quantum Computing
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1273,3 +1273,24 @@ def test_Rz_removal_before_measurements() -> None:
         )
         assert backend.valid_circuit(compiled_circuit)
         assert compiled_circuit.n_gates_of_type(OpType.Rz) == 0
+
+
+# https://github.com/CQCL/pytket-quantinuum/issues/263
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.timeout(120)
+def test_noiseless_emulation(
+    authenticated_quum_backend: QuantinuumBackend, language: Language
+) -> None:
+    backend = authenticated_quum_backend
+    c = Circuit(2).H(0).CX(0, 1).measure_all()
+    c1 = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(
+        c1, n_shots=100, language=language, noisy_simulation=False  # type: ignore
+    )
+    r = backend.get_result(h)
+    counts = r.get_counts()
+    assert all(x0 == x1 for x0, x1 in counts.keys())
