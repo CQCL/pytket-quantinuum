@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Fix handling of results in local emulator with non-default classical
+  registers.
+
 0.28.0 (January 2024)
 ---------------------
 
