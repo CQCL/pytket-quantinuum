@@ -153,7 +153,6 @@ def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/92")
 def test_classical_0(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = Circuit(1)
     a = c.add_c_register("a", 8)
@@ -237,7 +236,6 @@ def test_classical_1(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/91")
 def test_classical_2(authenticated_quum_backend: QuantinuumBackend) -> None:
     circ = Circuit(1)
     a = circ.add_c_register("a", 2)
@@ -260,7 +258,6 @@ def test_classical_2(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/92")
 def test_classical_3(authenticated_quum_backend: QuantinuumBackend) -> None:
     circ = Circuit(1)
     a = circ.add_c_register("a", 4)
