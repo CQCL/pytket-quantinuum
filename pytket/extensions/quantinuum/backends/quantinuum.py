@@ -1146,7 +1146,7 @@ class QuantinuumBackend(Backend):
                 c0, n_shots, seed = self._local_emulator_handles[handle]
                 emu = Emulator(c0, qsim="state-vector", seed=seed)
                 res = emu.run(n_shots=n_shots)
-                backres = BackendResult(shots=res, ppcirc=ppcirc)
+                backres = BackendResult(c_bits=c0.bits, shots=res, ppcirc=ppcirc)
             else:
                 # TODO exception handling when jobid not found on backend
                 timeout = kwargs.get("timeout")

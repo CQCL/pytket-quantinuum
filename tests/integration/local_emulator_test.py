@@ -329,3 +329,28 @@ def test_midcircuit_measurement_and_reset(
     n_shots = 10
     counts = b.run_circuit(c, n_shots=n_shots).get_counts()
     assert counts == Counter({(1, 0, 1, 1): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_cbits(authenticated_quum_backend: QuantinuumBackend) -> None:
+    circ = Circuit(1)
+    a = circ.add_c_register("a", 2)
+    b = circ.add_c_register("b", 2)
+
+    circ.add_c_setreg(3, a)
+    circ.add_c_copyreg(a, b)
+    circ.X(0)
+    circ.Measure(Qubit(0), a[0])
+
+    backend = authenticated_quum_backend
+
+    cc = backend.get_compiled_circuit(circ)
+    r = backend.run_circuit(cc, n_shots=1)
+    counts = r.get_counts(cbits=list(a))
+    assert counts == Counter({(1, 1): 1})

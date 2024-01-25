@@ -5,7 +5,8 @@ Unreleased
 ----------
 
 * Updated pytket_pecos version requirement to 0.1.10.
-
+* Fix handling of results in local emulator with non-default classical
+  registers.
 
 0.28.0 (January 2024)
 ---------------------
