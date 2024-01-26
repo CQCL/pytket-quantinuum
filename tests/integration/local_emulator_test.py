@@ -15,6 +15,7 @@
 from collections import Counter
 import os
 from pathlib import Path
+import numpy as np
 import pytest
 from pytket.circuit import (
     Circuit,
@@ -301,6 +302,55 @@ def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
     n_shots = 10
     counts = b.run_circuit(c, wasm_file_handler=wasfile, n_shots=n_shots).get_counts()
     assert counts == Counter({(1, 0, 0, 0, 0, 0, 0, 0): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+# Same as test_wasm_collatz() in backend_test.py but run on local emulators.
+def test_wasm_collatz(authenticated_quum_backend: QuantinuumBackend) -> None:
+    wasfile = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "collatz.wasm")
+    )
+    c = Circuit(8)
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 8)
+
+    # Use Hadamards to set "a" register to a random value.
+    for i in range(8):
+        c.H(i)
+        c.Measure(Qubit(i), Bit("a", i))
+    # Compute the value of the Collatz function on this value.
+    c.add_wasm_to_reg("collatz", wasfile, [a], [b])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(c, n_shots=10, wasm_file_handler=wasfile)
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C: np.ndarray) -> int:
+        assert len(C) == 8
+        return sum(pow(2, i) * C[i] for i in range(8))
+
+    def collatz(n: int) -> int:
+        if n == 0:
+            return 0
+        m = 0
+        while n != 1:
+            n = (3 * n + 1) // 2 if n % 2 == 1 else n // 2
+            m += 1
+        return m
+
+    for shot in shots:
+        n, m = to_int(shot[:8]), to_int(shot[8:16])
+        assert collatz(n) == m
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
