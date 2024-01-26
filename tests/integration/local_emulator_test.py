@@ -289,7 +289,6 @@ def test_classical_3(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/50")
 def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
