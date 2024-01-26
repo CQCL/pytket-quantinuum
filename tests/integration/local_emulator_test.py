@@ -299,8 +299,8 @@ def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
 
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
-    assert counts == Counter({(0, 0, 1): n_shots})
+    counts = b.run_circuit(c, wasm_file_handler=wasfile, n_shots=n_shots).get_counts()
+    assert counts == Counter({(1, 0, 0, 0, 0, 0, 0, 0): n_shots})
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
