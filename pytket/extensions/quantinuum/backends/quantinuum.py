@@ -289,9 +289,9 @@ class QuantinuumBackend(Backend):
 
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
-        # Map from ResultHandle to (circuit, n_shots, seed)
+        # Map from ResultHandle to (circuit, wasm, n_shots, seed)
         self._local_emulator_handles: Dict[
-            ResultHandle, Tuple[Circuit, int, Optional[int]]
+            ResultHandle, Tuple[Circuit, Optional[WasmFileHandler], int, Optional[int]]
         ] = dict()
 
         self._default_2q_gate = _default_2q_gate(device_name)
@@ -850,7 +850,7 @@ class QuantinuumBackend(Backend):
                     json.dumps(results_selection),
                 )
                 handle_list.append(handle)
-                self._local_emulator_handles[handle] = (c0, n_shots, seed)
+                self._local_emulator_handles[handle] = (c0, wasm_fh, n_shots, seed)
                 if seed is not None:
                     seed += 1
             else:
@@ -1143,8 +1143,8 @@ class QuantinuumBackend(Backend):
                     )
                 from pytket_pecos import Emulator
 
-                c0, n_shots, seed = self._local_emulator_handles[handle]
-                emu = Emulator(c0, qsim="state-vector", seed=seed)
+                c0, wasm, n_shots, seed = self._local_emulator_handles[handle]
+                emu = Emulator(c0, wasm=wasm, qsim="state-vector", seed=seed)
                 res = emu.run(n_shots=n_shots)
                 backres = BackendResult(c_bits=c0.bits, shots=res, ppcirc=ppcirc)
             else:
