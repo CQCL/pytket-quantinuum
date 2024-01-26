@@ -278,12 +278,6 @@ use the ``QuantinuumAPIOffline`` when constructing the backend:
   api_offline = QuantinuumAPIOffline()
   backend = QuantinuumBackend(device_name="H1-1LE", api_handler = api_offline)
 
-This option requires Python 3.10 or later.
-
-**Note**: This is still an experimental feature. Currently not all circuits can
-be emulated locally. In particular, classical operations are not fully
-supported.
-
 .. toctree::
     api.rst
     changelog.rst
