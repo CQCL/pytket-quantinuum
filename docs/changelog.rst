@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.29.0 (January 2024)
+---------------------
 
 * Updated pytket_pecos version requirement to 0.1.13.
 * Fix handling of results in local emulator with non-default classical
