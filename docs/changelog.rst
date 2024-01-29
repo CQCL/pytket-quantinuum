@@ -4,7 +4,7 @@ Changelog
 Unreleased
 ----------
 
-* Updated pytket_pecos version requirement to 0.1.11.
+* Updated pytket_pecos version requirement to 0.1.12.
 * Fix handling of results in local emulator with non-default classical
   registers.
 * Add WASM support to local emulators.
