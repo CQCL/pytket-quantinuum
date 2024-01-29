@@ -403,3 +403,20 @@ def test_cbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     r = backend.run_circuit(cc, n_shots=1)
     counts = r.get_counts(cbits=list(a))
     assert counts == Counter({(1, 1): 1})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_multithreading(authenticated_quum_backend: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend
+    c0 = Circuit(2).H(0).CX(0, 1).measure_all()
+    c = b.get_compiled_circuit(c0)
+    h = b.process_circuit(c, n_shots=10, multithreading=True)
+    r = b.get_result(h)
+    counts = r.get_counts()
+    assert all(x0 == x1 for x0, x1 in counts.keys())
