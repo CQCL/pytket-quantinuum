@@ -165,7 +165,9 @@ jobs:
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
       working-directory: ./tests
-      run: pytest integration/local_emulator_test.py
+      run: |
+        pytest integration/local_emulator_test.py
+        pytest integration/local_emulator1_test.py
 
   qa_checks:
     name: Run backend tests with QA endpoint
