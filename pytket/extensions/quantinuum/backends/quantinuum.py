@@ -289,9 +289,10 @@ class QuantinuumBackend(Backend):
 
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
-        # Map from ResultHandle to (circuit, wasm, n_shots, seed)
+        # Map from ResultHandle to (circuit, wasm, n_shots, seed, multithreading)
         self._local_emulator_handles: Dict[
-            ResultHandle, Tuple[Circuit, Optional[WasmFileHandler], int, Optional[int]]
+            ResultHandle,
+            Tuple[Circuit, Optional[WasmFileHandler], int, Optional[int], bool],
         ] = dict()
 
         self._default_2q_gate = _default_2q_gate(device_name)
@@ -780,6 +781,8 @@ class QuantinuumBackend(Backend):
           to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
           BackendResult to get counts with leakage errors removed.
         * `seed`: for local emulators only, PRNG seed for reproduciblity (int)
+        * `multithreading`: for local emulators only, boolean to indicate
+          whether to use multithreading for emulation (defaults to False)
 
         """
         circuits = list(circuits)
@@ -823,6 +826,7 @@ class QuantinuumBackend(Backend):
         seed = kwargs.get("seed")
         if seed is not None and not isinstance(seed, int):
             raise ValueError("seed must be an integer or None")
+        multithreading = bool(kwargs.get("multithreading"))
         for circ, n_shots in zip(circuits, n_shots_list):
             if max_shots is not None and n_shots > max_shots:
                 raise MaxShotsExceeded(
@@ -850,7 +854,13 @@ class QuantinuumBackend(Backend):
                     json.dumps(results_selection),
                 )
                 handle_list.append(handle)
-                self._local_emulator_handles[handle] = (c0, wasm_fh, n_shots, seed)
+                self._local_emulator_handles[handle] = (
+                    c0,
+                    wasm_fh,
+                    n_shots,
+                    seed,
+                    multithreading,
+                )
                 if seed is not None:
                     seed += 1
             else:
@@ -1143,9 +1153,11 @@ class QuantinuumBackend(Backend):
                     )
                 from pytket_pecos import Emulator
 
-                c0, wasm, n_shots, seed = self._local_emulator_handles[handle]
+                c0, wasm, n_shots, seed, multithreading = self._local_emulator_handles[
+                    handle
+                ]
                 emu = Emulator(c0, wasm=wasm, qsim="state-vector", seed=seed)
-                res = emu.run(n_shots=n_shots)
+                res = emu.run(n_shots=n_shots, multithreading=multithreading)
                 backres = BackendResult(c_bits=c0.bits, shots=res, ppcirc=ppcirc)
             else:
                 # TODO exception handling when jobid not found on backend
