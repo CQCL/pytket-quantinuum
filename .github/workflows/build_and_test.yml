@@ -167,7 +167,7 @@ jobs:
       working-directory: ./tests
       run: |
         pytest integration/local_emulator_test.py
-        pytest integration/local_emulator1_test.py
+        pytest integration/local_emulator_multithreading_test.py
 
   qa_checks:
     name: Run backend tests with QA endpoint
