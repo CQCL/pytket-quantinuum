@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-0.29.0 (January 2024)
----------------------
+Unreleased
+----------
 
 Make pytket-qir an automatic dependency.
 
