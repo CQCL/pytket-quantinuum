@@ -25,9 +25,10 @@ in {
         cp ${../_metadata.py} $out/_metadata.py;
         
         # on nix versions of scipy and ipython, stubs are missing.
-        # adjust mypy.ini to ignore these errors.
+        # adjust mypy.ini to ignore these errors. Also some warn_unused_ignores
+        # failures come up, so disable that too.
         (
-          cat ${../mypy.ini};
+          cat ${../mypy.ini} | sed 's/warn_unused_ignores.*/warn_unused_ignores = False/g';
           cat <<EOF
 [mypy-scipy.*]
 ignore_missing_imports = True
