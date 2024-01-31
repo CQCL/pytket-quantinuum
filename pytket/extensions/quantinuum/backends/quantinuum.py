@@ -878,6 +878,7 @@ class QuantinuumBackend(Backend):
                     for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                         for i in range(count):
                             results_selection.append((name, i))
+
                     quantinuum_circ = b64encode(
                         cast(
                             bytes,
