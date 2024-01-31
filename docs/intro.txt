@@ -11,8 +11,10 @@ and Windows. To install, run:
 
     pip install pytket-quantinuum
 
-.. note::   Using the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
+.. note::   Running circuits remotely on the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
+
+            For running simulations locally see the docs on `Local Emulators`_.
 
 **Web Interface:**
 https://um.qapi.quantinuum.com/
