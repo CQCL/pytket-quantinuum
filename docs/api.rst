@@ -12,6 +12,7 @@ Consult the `notebooks <https://github.com/CQCL/pytket-quantinuum/tree/develop/e
 
 .. autoclass:: QuantinuumBackend
     :show-inheritance:
+    :special-members: __init__
     :members:
 
 .. autoclass:: QuantinuumBackendCompilationConfig
