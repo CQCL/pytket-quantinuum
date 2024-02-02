@@ -122,7 +122,7 @@ print(machine, "status:", backend.device_state(device_name=machine))
 
 # `pytket` includes many features for optimizing circuits. This includes reducing the number of gates where possible and resynthesizing circuits for a quantum computer's native gate set. See the `pytket` [User Manual](https://tket.quantinuum.com/user-manual/) for more information on all the options that are available.
 
-# Here the circuit is compiled with `get_compiled_circuit`, which includes optimizing the gates and resynthesizing the circuit to Quantinuum's native gate set. The `optimisation_level` sets the level of optimisation to perform during compilation, check [Default Compilation](https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation) in the pytket-quantinuum documentation for more details.
+# Here the circuit is compiled with `get_compiled_circuit`, which includes optimizing the gates and resynthesizing the circuit to Quantinuum's native gate set. The `optimisation_level` sets the level of optimisation to perform during compilation, check [Default Compilation](https://tket.quantinuum.com/extensions/pytket-quantinuum/#default-compilation) in the pytket-quantinuum documentation for more details.
 
 compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=2)
 
