@@ -100,6 +100,7 @@ _ADDITIONAL_GATES = {
     OpType.CopyBits,
     OpType.ClassicalExpBox,
     OpType.WASM,
+    OpType.TK2
 }
 
 _GATE_MAP = {
