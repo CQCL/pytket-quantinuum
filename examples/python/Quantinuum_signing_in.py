@@ -16,7 +16,7 @@
 
 # 1. [Login](#Login)
 # 2. [Login via Microsoft](#Login-via-Microsoft)
-    
+
 # ## Login
 
 # If you already have a verified user portal account you will be asked to provide your credentials after initializing the `QuantinuumBackend` interface. If you opted to set up a native account during your user registration we recommend you use this approach.
@@ -37,9 +37,9 @@ backend.login()
 
 # ## Login via Microsoft
 
-# If you would like to login using a Microsoft account you'll need to set the `provider` flag to `Microsoft` when initializing `QuantinuumBackend`. If you signed up with a Microsoft account during your user registration, you will be required to use this approach. 
+# If you would like to login using a Microsoft account you'll need to set the `provider` flag to `Microsoft` when initializing `QuantinuumBackend`. If you signed up with a Microsoft account during your user registration, you will be required to use this approach.
 
-# Instead of being prompted for your email and password, you will be prompted with this message:  
+# Instead of being prompted for your email and password, you will be prompted with this message:
 
 # ```
 # To sign in:
@@ -51,13 +51,12 @@ backend.login()
 
 # As the prompt suggests, you'll need to open this link and enter the provided device `code` to complete your authentication with Microsoft. The Quantinuum API will wait (at most 15 minutes) for these steps to be completed.
 
-# Once authenticated, Quantinuum will verify the federated login request and attempt to issue tokens. 
+# Once authenticated, Quantinuum will verify the federated login request and attempt to issue tokens.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
 machine = "H1-1E"  # Substitute any Quantinuum target
-backend = QuantinuumBackend(device_name=machine, 
-                            provider='Microsoft')
+backend = QuantinuumBackend(device_name=machine, provider="Microsoft")
 backend.login()
 
 # **Additional Notes**

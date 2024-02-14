@@ -5,7 +5,7 @@
 
 # Quantum states with long-range entanglement play key roles in a wide range physics such as quantum information, condensed matter, and high-energy physics. However, preparing long-range entangled states requires extensive circuit depth if restricted to unitary dynamics. This is problematic when one tries to implement it on a near-term quantum device whose coherence time is severely limited. An alternative approach is to make use of mid-circuit measurement and feed-forward, which enable constant-depth, deterministic, non-unitary state preparation.
 
-# This notebook implements the mid-circuit measurement and feed-forward strategy in [arXiv 2302.01917](https://arxiv.org/abs/2302.01917) to prepare the ground states of the [Wen-plaquette model](https://arxiv.org/abs/quant-ph/0205004) on a Torus. The Wen-Plaquette model exhibits the same topological order as the Toric code in [arXiv 0904.2771](https://arxiv.org/abs/0904.2771). 
+# This notebook implements the mid-circuit measurement and feed-forward strategy in [arXiv 2302.01917](https://arxiv.org/abs/2302.01917) to prepare the ground states of the [Wen-plaquette model](https://arxiv.org/abs/quant-ph/0205004) on a Torus. The Wen-Plaquette model exhibits the same topological order as the Toric code in [arXiv 0904.2771](https://arxiv.org/abs/0904.2771).
 
 # ## Contents
 
@@ -21,8 +21,8 @@
 # We consider a variant of the Toric code, Wen-plaquette model, which is described by the stabilizer Hamiltonian on a square lattice,
 
 # \begin{align*}
-#     H 
-#     = 
+#     H
+#     =
 #     -\sum_{a\in\mathcal{A}}A_a
 #     -\sum_{b\in\mathcal{B}}B_b,
 # \end{align*}
@@ -73,6 +73,7 @@
 
 # For instance, $X_0X_1X_2X_3$ is specified by `pauli_type="X"` and `support=[0,1,2,3]`.
 
+
 class PauliStabilizer:
     def __init__(self, pauli_type: str, support: list[int]):
         """Instantiates a Pauli stabilizer operator.
@@ -89,6 +90,7 @@ class PauliStabilizer:
         for i in self.support[1:]:
             s += f".{self.pauli_type}{i}"
         return s
+
 
 # A stabilizer operator `test_stab` is instantiated as follows.
 
@@ -151,6 +153,8 @@ for label, bucket in stabilizer_buckets.items():
 
 from pytket import Circuit, OpType
 from pytket.circuit import Qubit, Bit, QubitRegister, BitRegister
+
+
 def measure_pauli_string(
     circuit: Circuit, stabilizer: PauliStabilizer, c_bit: Bit, anc_qubit: Qubit
 ) -> Circuit:
@@ -183,6 +187,7 @@ def measure_pauli_string(
 
     return circ
 
+
 # Let us visualize the circuit for a non-destructive stabilizer (syndrome) measurement.
 # The circuit below measures the Pauli string, $X_0X_1X_2X_3$, non-destructively with use of the ancillary qubit `q_anc[0]`. The outcome is stored in the single-bit classical register `c[0]`.
 
@@ -199,6 +204,8 @@ circ.add_q_register(q_anc)
 circ = measure_pauli_string(circ, test_stab, c_reg[0], q_anc[0])
 
 render_circuit_jupyter(circ)
+
+
 def measure_pauli_string_destructively(
     circuit: Circuit, stabilizer: PauliStabilizer, c_reg: BitRegister
 ) -> Circuit:
@@ -223,6 +230,7 @@ def measure_pauli_string_destructively(
 
     return circ
 
+
 # Let us also visualize the circuit for a destructive measurement. The circuit below measures the Pauli string, $X_0X_1X_2X_3$, destructively.
 
 circ = Circuit()
@@ -237,9 +245,9 @@ render_circuit_jupyter(circ)
 
 # ## Stabilizer Measurements and Corrections
 
-# The $Z$ stabilizers are already satisfied since the qubits are initialized in the $|\bf{0}\rangle$ state. 
+# The $Z$ stabilizers are already satisfied since the qubits are initialized in the $|\bf{0}\rangle$ state.
 # We prepare $X$ stabilizers in two rounds.
- 
+
 # - 1st round:
 #     - We measure $XXXX$ Pauli strings for plaquette 4, 6, 12, and 14. If the measurement outcome for the plaquette is -1, we act with a Pauli-$Z$ gate on the upper-right qubit of the plaquette. This cleans up the plaquette and moves the error (anyon) to the diagonally adjacent $XXXX$ plaquette.
 
@@ -252,6 +260,7 @@ render_circuit_jupyter(circ)
 # Here is the implementation of decoders for the two rounds.
 
 # Let us consider what the 1st round of decoding does. Suppose the operator $A_4$ on the plaquette 4, is measured to -1. Then, we apply $Z$ on qubit 5 to flip the sign of $A_4$ and $A_1$. We similary apply conditional $Z$ gates on the plaquettes 6, 12, 14. Therefore, the stabilizer $A_4, A_6, A_{12}, A_{14}$ all take the value +1 after the 1st round.
+
 
 def decoder_1st(
     circuit: Circuit,
@@ -281,6 +290,7 @@ def decoder_1st(
 
     return circ
 
+
 # For the 2nd round, the corrections are applied according to the look-up table:
 
 # |`syndrome`| qubits where $Z$'s are applied|
@@ -298,6 +308,7 @@ def decoder_1st(
 # Let's take a look at the first row in the table, where the `syndrome` is `0011`, meaning the measurements of $A_9$ and $A_{11}$ are -1. Then, if we apply $Z$ gates on the qubits 10 and 11, the values of $A_9$ and $A_{11}$ are flipped. Also, note that the qubits are chosen in such a way that other errors are not created. In this case, 9 and 11 are both on the plaquette 6, and thus an error is not created there or anywhere else.
 
 # In the following function, $Z$ gates are applied whenever the `c_reg` flags the syndromes.
+
 
 def decoder_2nd(circuit: Circuit, c_reg: BitRegister) -> None:
     """Returns a circuit to apply Z gates according to a lookup table.
@@ -334,6 +345,7 @@ def decoder_2nd(circuit: Circuit, c_reg: BitRegister) -> None:
     correct("1111", [2, 3, 14, 15])
 
     return circ
+
 
 # ## Circuit construction
 
@@ -437,11 +449,11 @@ render_circuit_jupyter(circ)
 
 # ## Noiseless Simulation
 
-# Now we run the circuit and measure the expectation value of $XXXX$ or $ZZZZ$ stabilizer at the end. 
- 
+# Now we run the circuit and measure the expectation value of $XXXX$ or $ZZZZ$ stabilizer at the end.
+
 # ### Execution
 
-# The `pytket-quantinuum` package is used to access H-Series devices. For this simulation, the `H1-2E` emulator is used. 
+# The `pytket-quantinuum` package is used to access H-Series devices. For this simulation, the `H1-2E` emulator is used.
 # Additional configurations are provided to an instance of `QuantinuumBackend`, in order to disable the error-model.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
@@ -488,7 +500,7 @@ for i, c5_shot in enumerate(noiseless_shots_dict["c5_end"]):
         outcome.append(np.prod(1 - 2 * c5_shot[[j for j in stabilizers[idx].support]]))
     noiseless_outcomes_dict[f"{i:03d}"] = outcome
 
-# The following dataframe shows all the measurement outcomes of 
+# The following dataframe shows all the measurement outcomes of
 # - $X$-stabilizers (s1, s3, s4, s6, s9, s11, s12, s14), or
 # - $Z$-stabilizers (s2, s5, s7, s8, s10, s13, s15, s16)
 
@@ -536,7 +548,7 @@ for i, c5_shot in enumerate(noisy_shots_dict["c5_end"]):
         outcome.append(np.prod(1 - 2 * c5_shot[[j for j in stabilizers[idx].support]]))
     noisy_outcomes_dict[f"{i:03d}"] = outcome
 
-# The following dataframe shows all the noisy measurement outcomes of 
+# The following dataframe shows all the noisy measurement outcomes of
 # - $X$-stabilizers (s1, s3, s4, s6, s9, s11, s12, s14), or
 # - $Z$-stabilizers (s2, s5, s7, s8, s10, s13, s15, s16)
 

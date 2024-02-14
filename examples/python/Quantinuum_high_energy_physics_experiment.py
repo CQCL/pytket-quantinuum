@@ -10,12 +10,12 @@
 
 # Typically, LGT studies are conducted in Euclidean spacetime, where time is treated as an imaginary component. This approach is effective for many observables, but it limits the ability to analyze real-time dynamics. However, a Hamiltonian formulation in real-time could overcome this limitation, given adequate computing resources. This is where the potential of future quantum computers becomes particularly intriguing. Quantum computers could handle and evolve quantum states far beyond the capabilities of classical computers, thus offering a promising avenue for exploring real-time dynamics within LGT.
 
-# The paper [Self-mitigating Trotter circuits for SU(2) lattice gauge theory on a quantum computer](http://arxiv.org/abs/2205.09247) by Rahman, Lewis, Mendicelli, and Powell delves into the implementation of SU(2) lattice gauge theory in Minkowski spacetime using quantum computers, showcasing the real-time evolution of excitations across a lattice. While the theoretical foundations laid out in the paper are robust, practical implementation on contemporary quantum hardware requires specialized techniques and considerations. 
+# The paper [Self-mitigating Trotter circuits for SU(2) lattice gauge theory on a quantum computer](http://arxiv.org/abs/2205.09247) by Rahman, Lewis, Mendicelli, and Powell delves into the implementation of SU(2) lattice gauge theory in Minkowski spacetime using quantum computers, showcasing the real-time evolution of excitations across a lattice. While the theoretical foundations laid out in the paper are robust, practical implementation on contemporary quantum hardware requires specialized techniques and considerations.
 
 # This knowledge article, complete with detailed code, explores the implementation of methods described in this paper on the Quantinuum H-Series devices. Utilizing TKET, we detail the process of defining the SU(2) 2-Plaquette (two-qubit) Model Hamiltonian, setting up quantum circuits, and employing Trotterization to simulate the quantum dynamics of the system. For a single Trotter step, we simulate the ideal execution of a quantum circuit using a statevector simulator. The two Trotter step case is executed on the Quantinuum H1-2 emulator, and we also demonstrate an example of symbolic circuit construction for these circuits. The final section details the implementation of the SU(2) 5-Plaquette (five-qubit) Model Hamiltonian using the `Qiskit` library.
 # ## Setup
 
-# This notebook was generated using `pytket=1.23.0`, `pytket-quantinuum=0.26.0`, and `pytket-qiskit=0.47.0`. 
+# This notebook was generated using `pytket=1.23.0`, `pytket-quantinuum=0.26.0`, and `pytket-qiskit=0.47.0`.
 
 # First, we import the libraries and modules we will use:
 
@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 
 # *Note:* Plotting circuits requires an internet connection. An alternative for displaying circuits is the `pytket-offline-display` package for rendering circuits offline with no internet connection, for details see [here](https://github.com/CQCL/pytket-offline-renderer).
 
-# ## Hamiltonian Formulation 
+# ## Hamiltonian Formulation
 
 # In quantum mechanics, the Hamiltonian operator plays a pivotal role as it represents the total energy of a system and governs how quantum states evolve with time. The time evolution of a quantum state, denoted as $|ψ(t)⟩$, is described by the Schrödinger equation:
 
@@ -185,7 +185,7 @@ gate_counts(circ)
 # $$
 # ### First-Order Trotter Step
 
-# In the first-order Trotter step, the time evolution operator is approximated by 
+# In the first-order Trotter step, the time evolution operator is approximated by
 # $
 # \left(\prod_j e^{-i H_j \delta t} \right)^{N_t}
 # $
@@ -245,7 +245,7 @@ render_circuit_jupyter(pauli_exp_box.get_circuit())
 
 # For a more detailed analysis, we use the `DecomposeBoxes` pass from `pytket.passes`. This pass decomposes the circuit into fundamental quantum gates, allowing us to see the basic operations that constitute the Trotter step.
 
-# For one Trotter step: 
+# For one Trotter step:
 
 test_circuit = trotter_step_circ.copy()
 DecomposeBoxes().apply(test_circuit)
@@ -262,7 +262,7 @@ print(f"Number of CX gates = {test_circuit.n_gates_of_type(OpType.CX)}")
 
 # ## Example 1: Noiseless emulation of a circuit for one Trotter step
 
-# We will first run a noiseless statevector emulation of the circuit on Quantinuum's System Model H1 emulator. Quantinuum H-Series emulators model the physical and noise parameters of H-Series quantum computers. The emulators provide a way to turn the noise model off, while still modeling the physical properties of the device, such as ion transport. 
+# We will first run a noiseless statevector emulation of the circuit on Quantinuum's System Model H1 emulator. Quantinuum H-Series emulators model the physical and noise parameters of H-Series quantum computers. The emulators provide a way to turn the noise model off, while still modeling the physical properties of the device, such as ion transport.
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
@@ -359,7 +359,7 @@ from sympy import symbols
 
 syms = symbols("x dt")
 
-# We define various `QubitPauliString` objects to represent different Pauli operators acting on our qubits. 
+# We define various `QubitPauliString` objects to represent different Pauli operators acting on our qubits.
 zi = QubitPauliString([Qubit(0)], [Pauli.Z])
 iz = QubitPauliString([Qubit(1)], [Pauli.Z])
 
@@ -481,7 +481,7 @@ from scipy.sparse.linalg import eigs
 vals, vecs = eigs(hamiltonian.to_matrix(sparse=True), k=1)
 print(f"Energy of the ground state {vals[0].real}")
 
-# In this section, we build utility functions to translate `Qiskit`'s Hamiltonian representation into the `QubitPauliOperator` format used by `pytket`. 
+# In this section, we build utility functions to translate `Qiskit`'s Hamiltonian representation into the `QubitPauliOperator` format used by `pytket`.
 
 # - `qps_from_sparsepauliop`: This function converts a tensor of Pauli operators from `SparsePauliOp` format to pytket's `QubitPauliString`. It iterates over qubit indices and corresponding Pauli operators, mapping them to the `pytket` equivalent.
 
@@ -540,7 +540,7 @@ print(f"Time step: {time_step}")
 
 hamiltonian_slice = hamiltonian_op * time_step
 
-# Next we construct the corresponding five-qubit circuit for two Trotter steps. A product of exponential of Pauli strings can be automatically generated by `pytket` using `gen_term_sequence_circuits`, including aggregating mutually commuting terms into groups. 
+# Next we construct the corresponding five-qubit circuit for two Trotter steps. A product of exponential of Pauli strings can be automatically generated by `pytket` using `gen_term_sequence_circuits`, including aggregating mutually commuting terms into groups.
 
 initial_state = Circuit(5)
 trotter_step_circ = gen_term_sequence_circuit(hamiltonian_slice, initial_state)
@@ -601,6 +601,8 @@ def plot_counts(counts):
     count_df = pd.DataFrame().from_records(counts_record)
     sns.catplot(x="State", y="Count", kind="bar", data=count_df, aspect=12, height=2)
     plt.show()
+
+
 counts = result.get_counts()
 plot_counts(counts)
 
@@ -633,7 +635,7 @@ plot_counts(counts)
 # Definitions for the use case context in this article.
 
 # - *Quantum Field Theory (QFT):* a mathematical and conceuptual framework in theoretical physics extending quantum mechanics, which deals with particles, over to fields, which are systems with infinite number of degrees of freedom. It is used in particle physics to construct physical models of subatomic particles and condensed matter physics to construct models of quasiparticles. Difficult due to the infinite number of degrees of freedom.
-# - *Lattice Gauge Theory (LGT):* a mathematical framework in QFT. Rather than having infinite degrees of freedom, space and time are discretized to a very large number of degrees of freedom, enabling its study on computers. 
+# - *Lattice Gauge Theory (LGT):* a mathematical framework in QFT. Rather than having infinite degrees of freedom, space and time are discretized to a very large number of degrees of freedom, enabling its study on computers.
 # - *Perturbation Theory:* a method for finding an approximate solutions to a problem, by starting from the exact solution of a related, simpler problem
 # - *Quantum Chromodynamics:* theory that describes the action of the strong nuclear force, the fundamental interaction between subatomic particles of matter inside protons and neutrons.
 
