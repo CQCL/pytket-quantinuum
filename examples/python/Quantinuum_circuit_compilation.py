@@ -5,7 +5,7 @@
 
 # Circuits submitted to Quantinuum H-Series quantum computers and emulators are automatically run through TKET compilation passes for H-Series hardware. This enables circuits to be automatically optimized for H-Series systems and run more efficiently.
 
-# More information on the specific compilation passes applied can be found on the `pytket-quantinuum` documentation, specifically the [Default Compilation](https://cqcl.github.io/pytket-quantinuum/api/index.html#default-compilation) section.
+# More information on the specific compilation passes applied can be found on the `pytket-quantinuum` documentation, specifically the [Default Compilation](https://tket.quantinuum.com/extensions/pytket-quantinuum/#default-compilation) section.
 
 # In the H-Series software stack, the optimization level applied is set with the `tket-opt-level` parameter. **The default compilation setting for circuits submitted to H-Series sytems is optimization level 2.** More information is found in the *Quantinuum API Specification*.
 
@@ -21,7 +21,7 @@
 
 # Set up the quantum circuit.
 
-from pytket.circuit import Circuit, fresh_symbol
+from pytket.circuit import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend
 
 # Set up Bell State
