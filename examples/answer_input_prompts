@@ -9,7 +9,7 @@ set PYTHON_FILE [lindex $argv 0]
 set QUANTINUUM_EMAIL [lindex $argv 1]
 set QUANTINUUM_PASSWORD [lindex $argv 2]
 
-spawn python python/$PYTHON_FILE
+spawn python $PYTHON_FILE
 
 expect {
     "*Quantinuum email*" {
