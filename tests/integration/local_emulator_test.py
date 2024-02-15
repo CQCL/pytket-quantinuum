@@ -15,6 +15,7 @@
 from collections import Counter
 import os
 from pathlib import Path
+import numpy as np
 import pytest
 from pytket.circuit import (
     Circuit,
@@ -153,7 +154,6 @@ def test_setbits(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/92")
 def test_classical_0(authenticated_quum_backend: QuantinuumBackend) -> None:
     c = Circuit(1)
     a = c.add_c_register("a", 8)
@@ -237,7 +237,6 @@ def test_classical_1(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/91")
 def test_classical_2(authenticated_quum_backend: QuantinuumBackend) -> None:
     circ = Circuit(1)
     a = circ.add_c_register("a", 2)
@@ -260,7 +259,6 @@ def test_classical_2(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/92")
 def test_classical_3(authenticated_quum_backend: QuantinuumBackend) -> None:
     circ = Circuit(1)
     a = circ.add_c_register("a", 4)
@@ -292,7 +290,6 @@ def test_classical_3(authenticated_quum_backend: QuantinuumBackend) -> None:
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-phir/issues/50")
 def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
@@ -303,8 +300,57 @@ def test_wasm(authenticated_quum_backend: QuantinuumBackend) -> None:
 
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    counts = b.run_circuit(c, n_shots=n_shots).get_counts()
-    assert counts == Counter({(0, 0, 1): n_shots})
+    counts = b.run_circuit(c, wasm_file_handler=wasfile, n_shots=n_shots).get_counts()  # type: ignore
+    assert counts == Counter({(1, 0, 0, 0, 0, 0, 0, 0): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+# Same as test_wasm_collatz() in backend_test.py but run on local emulators.
+def test_wasm_collatz(authenticated_quum_backend: QuantinuumBackend) -> None:
+    wasfile = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "collatz.wasm")
+    )
+    c = Circuit(8)
+    a = c.add_c_register("a", 8)
+    b = c.add_c_register("b", 8)
+
+    # Use Hadamards to set "a" register to a random value.
+    for i in range(8):
+        c.H(i)
+        c.Measure(Qubit(i), Bit("a", i))
+    # Compute the value of the Collatz function on this value.
+    c.add_wasm_to_reg("collatz", wasfile, [a], [b])
+
+    backend = authenticated_quum_backend
+
+    c = backend.get_compiled_circuit(c)
+    h = backend.process_circuit(c, n_shots=10, wasm_file_handler=wasfile)  # type: ignore
+
+    r = backend.get_result(h)
+    shots = r.get_shots()
+
+    def to_int(C: np.ndarray) -> int:
+        assert len(C) == 8
+        return sum(pow(2, i) * C[i] for i in range(8))
+
+    def collatz(n: int) -> int:
+        if n == 0:
+            return 0
+        m = 0
+        while n != 1:
+            n = (3 * n + 1) // 2 if n % 2 == 1 else n // 2
+            m += 1
+        return m
+
+    for shot in shots:
+        n, m = to_int(shot[:8]), to_int(shot[8:16])
+        assert collatz(n) == m
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -332,3 +378,28 @@ def test_midcircuit_measurement_and_reset(
     n_shots = 10
     counts = b.run_circuit(c, n_shots=n_shots).get_counts()
     assert counts == Counter({(1, 0, 1, 1): n_shots})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_cbits(authenticated_quum_backend: QuantinuumBackend) -> None:
+    circ = Circuit(1)
+    a = circ.add_c_register("a", 2)
+    b = circ.add_c_register("b", 2)
+
+    circ.add_c_setreg(3, a)
+    circ.add_c_copyreg(a, b)
+    circ.X(0)
+    circ.Measure(Qubit(0), a[0])
+
+    backend = authenticated_quum_backend
+
+    cc = backend.get_compiled_circuit(circ)
+    r = backend.run_circuit(cc, n_shots=1)
+    counts = r.get_counts(cbits=list(a))
+    assert counts == Counter({(1, 1): 1})

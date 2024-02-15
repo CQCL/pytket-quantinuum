@@ -1,5 +1,5 @@
 pytket-quantinuum
-==================================
+=================
 
 ``pytket-quantinuum`` is an extension to ``pytket`` that allows ``pytket`` circuits to
 be executed on Quantinuum's quantum devices.
@@ -11,19 +11,21 @@ and Windows. To install, run:
 
     pip install pytket-quantinuum
 
-.. note::   Using the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
+.. note::   Running circuits remotely on the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
+
 
 **Web Interface:**
 https://um.qapi.quantinuum.com/
 
-Devices
-=======
+Available Backends
+==================
 The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the ``QuantinuumBackend`` class. The available devices are:
 
 * ``H1-1``, ``H2-1``: Quantum devices, submit specifically to ``H1-1`` or ``H2-1`` by using the device name.
 * ``H1-1E``, ``H2-1E``: Device-specific emulators of ``H1-1`` and ``H2-1``. These emulators run remotely on servers and require credentials.
 * ``H1-1SC``, ``H2-1SC``: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
+* ``H1-1LE``, a version of the ``H1-1E`` emulator that runs locally. For running simulations locally see the docs on `Local Emulators`_.
 
 There are also optional initialisation parameters ``label`` (for naming circuits), ``group`` (identifier for a collection of jobs) and ``simulator`` (see below).
 
@@ -277,12 +279,6 @@ use the ``QuantinuumAPIOffline`` when constructing the backend:
   from pytket.extensions.quantinuum import QuantinuumBackend, QuantinuumAPIOffline
   api_offline = QuantinuumAPIOffline()
   backend = QuantinuumBackend(device_name="H1-1LE", api_handler = api_offline)
-
-This option requires Python 3.10 or later.
-
-**Note**: This is still an experimental feature. Currently not all circuits can
-be emulated locally. In particular, classical operations are not fully
-supported.
 
 .. toctree::
     api.rst
