@@ -26,7 +26,7 @@
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
-machine = "H1-1E"
+machine = "H1-1SC"
 backend = QuantinuumBackend(device_name=machine)
 backend.login()
 
@@ -97,27 +97,24 @@ def build_rus_circuit(n_repetitions: int, cond_execute: int) -> Circuit:
 
 circuit = build_rus_circuit(5, 3)
 
-# compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=0)
-#
-# n_shots = 1000
-# backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
-#
-#
-# handle = backend.process_circuit(
-#    compiled_circuit, n_shots=n_shots, wasm_file_handler=wfh
-# )
-#
-# result = backend.get_result(handle)
-#
-# print(result)
+compiled_circuit = backend.get_compiled_circuit(circuit, optimisation_level=0)
+
+n_shots = 1000
+backend.cost(compiled_circuit, n_shots=n_shots, syntax_checker="H1-1SC")
+handle = backend.process_circuit(
+    compiled_circuit, n_shots=n_shots, wasm_file_handler=wfh
+)
+result = backend.get_result(handle)
+print(result)
 
 import json
 
-# with open(compiled_circuit.name + ".json", "w", encoding="utf-8") as file:
-#    json.dump(result.to_dict(), file)
-#
+with open(compiled_circuit.name + ".json", "w", encoding="utf-8") as file:
+    json.dump(result.to_dict(), file)
+
+
 from pytket.unit_id import Bit
-from pytket.backends import BackendResult
+from pytket.backends.backendresult import BackendResult
 
 
 def get_creg1_counts_from_rus_result(
@@ -135,151 +132,7 @@ def get_creg1_counts_from_rus_result(
     return creg1_0_cnts, creg1_1_cnts
 
 
-def get_rus_circuit_batch(
-    machine_name: str, limit_start: int, limit_end: int, cond_execute: int
-) -> list[Circuit]:
-    backend = QuantinuumBackend(device_name=machine_name)
-
-    circuit_list = []
-
-    for limit in range(limit_start, limit_end + 1):
-        rus_circuit = build_rus_circuit(limit, cond_execute)
-        compiled_rus_circuit = backend.get_compiled_circuit(rus_circuit)
-        circuit_list.append(compiled_rus_circuit)
-
-    return circuit_list
-
-
-# result1 = {}
-# result1[compiled_circuit.name] = result
-# creg1_0_cnts, creg1_1_cnts = get_creg1_counts_from_rus_result(result1)
-
-
-def get_batch_cost(
-    compiled_circuit_list: list[Circuit], machine: str, n_shots: int
-) -> float:
-
-    syntax_checker = machine.replace("E", "SC")
-
-    total_cost = 0
-    for compiled_circuit in compiled_circuit_list:
-        circuit_cost = backend.cost(
-            circuit=compiled_circuit, syntax_checker=syntax_checker, n_shots=n_shots
-        )
-        if circuit_cost is not None:
-            total_cost += circuit_cost
-
-    return total_cost
-
-
-def run_rus_experiment(
-    machine: str,
-    n_shots: int,
-    max_batch_cost: int,
-    cond_execute: int,
-    limit_start: int,
-    limit_end: int,
-) -> tuple[dict, float]:
-
-    backend = QuantinuumBackend(device_name=machine)
-    rus_circuit_list = get_rus_circuit_batch(
-        machine, limit_start, limit_end, cond_execute
-    )
-
-    experiment_cost: float = get_batch_cost(rus_circuit_list, machine, n_shots)
-
-    batch_handles = {}
-
-    batch_start = backend.start_batch(
-        max_batch_cost,
-        rus_circuit_list[0],
-        n_shots,
-        wasm_file_handler=wfh,
-    )
-    batch_handles[rus_circuit_list[0].name] = batch_start
-
-    for compiled_circuit in rus_circuit_list[1:-2]:
-        batch_mid = backend.add_to_batch(
-            batch_start,
-            compiled_circuit,
-            n_shots=n_shots,
-            wasm_file_handler=wfh,
-        )
-        batch_handles[compiled_circuit.name] = batch_mid
-
-    batch_end = backend.add_to_batch(
-        batch_start,
-        rus_circuit_list[-1],
-        n_shots=n_shots,
-        wasm_file_handler=wfh,
-        batch_end=True,
-    )
-    batch_handles[rus_circuit_list[-1].name] = batch_end
-
-    return batch_handles, experiment_cost
-
-
-machine = "H1-1LE"
-n_shots = 10
-cond_execute = 3
-limit_start = 1
-limit_end = 20
-max_batch_cost = 500
-
-
-batch_handles, experiment_cost = run_rus_experiment(
-    machine=machine,
-    n_shots=n_shots,
-    max_batch_cost=max_batch_cost,
-    cond_execute=cond_execute,
-    limit_start=limit_start,
-    limit_end=limit_end,
-)
-print("Total Experiment Cost:", experiment_cost)
-
-status_list = [backend.circuit_status(h) for k, h in batch_handles.items()]
-num_completed = len([x for x in status_list if x.status.name == "COMPLETED"])
-print(f"{num_completed}/{len(status_list)} completed")
-
-result = {}
-result_json = {}
-
-for key, handle in batch_handles.items():
-    result[key] = backend.get_result(handle)
-    result_json[key] = backend.get_result(handle).to_dict()
-
-with open("RUS_experiments.json", "w", encoding="utf-8") as file:
-    json.dump(result_json, file)
-
-
-# Load saved results, if coming back to the experiment results.
-from pytket.backends.backendresult import BackendResult
-
-with open("RUS_experiments.json") as file:
-    data = json.load(file)
-
-result = {}
-for key, handle in data.items():
-    result[key] = BackendResult.from_dict(handle)
-
-creg1_0_cnts, creg1_0_cnts = get_creg1_counts_from_rus_result(result)
-
-
-import matplotlib.pyplot as plt
-
-plt.figure()
-
-# Plot limit vs. Fidelity (Count of 0%)
-plt.errorbar(
-    [k[0] for k, v in creg1_0_cnts.items()],
-    [v[1] for k, v in creg1_0_cnts.items()],
-    label="RUS",
-    marker="o",
-    alpha=1.0,
-    color="red",
-)
-
-plt.ylabel("Logical fidelity")
-plt.xlabel("limit")
-plt.legend(loc="lower left")
-plt.show()
+result1 = {}
+result1[compiled_circuit.name] = result
+creg1_0_cnts, creg1_1_cnts = get_creg1_counts_from_rus_result(result1)
+print(creg1_0_cnts, creg1_1_cnts)
