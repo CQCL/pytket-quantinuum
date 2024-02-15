@@ -40,7 +40,7 @@ backend.login()
 import pathlib
 from pytket import wasm
 
-rus_dir = pathlib.Path().cwd().joinpath("repeat_until_success")
+rus_dir = pathlib.Path().cwd().joinpath("RUS_WASM")
 wasm_file = rus_dir.joinpath("rus_wasm.wasm")
 wfh = wasm.WasmFileHandler(wasm_file)
 
@@ -219,7 +219,7 @@ def run_rus_experiment(
     return batch_handles, experiment_cost
 
 
-machine = "H1-1E"
+machine = "H1-1LE"
 n_shots = 10
 cond_execute = 3
 limit_start = 1
