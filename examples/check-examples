@@ -4,6 +4,14 @@ set -e
 
 for file in $(ls *ipynb | xargs -n 1 basename)
 do
+    # skip if the file is listed in ci-excluded-notebooks.txt
+    if grep -q "^${file}$" ci-excluded-notebooks.txt; then
+        echo "============================================================"
+        echo "Skipping ${file} as it's listed in ci-excluded-notebooks.txt"
+        echo "============================================================"
+        continue
+    fi
+
     echo "============================================================"
     echo "Running: ${file}"
     echo "============================================================"
