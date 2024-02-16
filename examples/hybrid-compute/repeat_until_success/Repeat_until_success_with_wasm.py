@@ -54,7 +54,7 @@ from pytket.circuit.logic_exp import reg_lt
 def build_rus_circuit(n_repetitions: int, cond_execute: int) -> Circuit:
     """
     n_repetitions (int): number of attempts
-    cond_execute: condition to execute, i.e. run this until a total of cond_execute |1> measurements is achieved.
+    cond_execute (int): condition to execute, i.e. run this until a total of cond_execute |1> measurements is achieved.
 
     """
     # Create circuit with two qubits

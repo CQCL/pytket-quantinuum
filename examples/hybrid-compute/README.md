@@ -2,7 +2,7 @@
 
 Quantinuum's Hybrid Compute feature enables users to run classical operations within qubit coherence times. This enables research in quantum error correction and new algorithm designs not otherwise available. This guide covers how to set up and use this feature.
 
-Hybrid Compute is enabled via the use of [Web Assembly (Wasm)](https://webassembly.org/), which enables fast, real-time computations.
+Hybrid Compute is enabled via the use of [Web Assembly (WASM)](https://webassembly.org/), which enables fast, real-time computations.
 
 Wasm itself is a binary instruction format. To write in and compile programs to it, another language such as Rust or C++ is used to write your desired classical functions and compile these to Wasm. The quantum computing workflow will then contain a call to Wasm. This folder contains examples of this workflow. Wasm is used because it is a fast, safe, expressive, and easy to compile to using familiar programming languages. 
 
@@ -11,11 +11,9 @@ Wasm itself is a binary instruction format. To write in and compile programs to 
 This subfolder is organized as follows.
 
 ---
-    ├── wasm                              <- Examples of how to use Hybrid Compute via WASM
+    ├── Hybrid-compute        <- Examples of how to use Hybrid Compute via WASM
           |
-          ├── repeat_until_success        <- Repeat Until Success source code
-          │
-          └── repetition_code             <- Repetition Code source code
+          ├── RUS_WASM        <- Repeat Until Success source code
 ---
 
 ## Download
@@ -24,7 +22,7 @@ If you haven't done so already, download the complete set of examples on the use
 
 ## Notebook Example
 
-The python notebook in this directory called `Quantinuum Hybrid Compute via pytket.ipynb` can be run to show an example of the hybrid compute feature's workflow, without needing to edit any classical functions or compile to Wasm.
+The python notebook in this directory called `repeat_until_success_with_wasm.ipynb` can be run to show an example of the hybrid compute feature's workflow, without needing to edit any classical functions or compile to Wasm.
 
 ## Setup
 
@@ -53,9 +51,9 @@ This creates a new library in a subdirectory with the project name you used with
 * The `/src/lib.rs` file contains some generated Rust code. This code can be erased and replaced with code you plan to use in your hybrid compute program.
 * Inside this subdirectory is a file called `Cargo.toml`. This file will be used to configure your build.
 
-#### Create classical functions in Rust
+#### Define classical functions in Rust
 
-Create the classical functions you plan to use in your hybrid compute program in the `src/lib.rs` file. Examples of the types of functions that can be put in Rust code are provided in the `Rust` folders within each of the example folders. *We recommend looking at one of the provided examples to know which functions and attributes are required for Hybrid Compute to work.*
+Define the classical functions you plan to use in your hybrid compute program in the `src/lib.rs` file. Examples of the types of functions that can be put in Rust code are provided in the `Rust` folders within each of the example folders. *We recommend looking at one of the provided examples to know which functions and attributes are required for Hybrid Compute to work.*
 
 #### Compile code to Wasm
 
