@@ -7,7 +7,7 @@ Unreleased
 * Make pytket-qir an automatic dependency.
 * Update pytket version requirement to 1.25.
 * Update pytket-qir version requirement to 0.5.
-* Update pytket_pecos version requirement to 0.1.16.
+* Update pytket_pecos version requirement to 0.1.17.
 
 0.29.0 (January 2024)
 ---------------------
