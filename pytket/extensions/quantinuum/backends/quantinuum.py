@@ -104,7 +104,6 @@ _GATE_SET = {
     OpType.CopyBits,
     OpType.ClassicalExpBox,
     OpType.WASM,
-    OpType.TK2
 }
 
 
