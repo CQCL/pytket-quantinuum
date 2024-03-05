@@ -28,14 +28,18 @@ The pytket-quantinuum extension allows the user to access the following quantum 
     :nosignatures:
 
     QuantinuumBackend
-  
-
 
 
 * ``H1-1``, ``H2-1``: Quantum devices, submit specifically to ``H1-1`` or ``H2-1`` by using the device name.
 * ``H1-1E``, ``H2-1E``: Device-specific emulators of ``H1-1`` and ``H2-1``. These emulators run remotely on servers and require credentials.
 * ``H1-1SC``, ``H2-1SC``: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
 * ``H1-1LE``, a version of the ``H1-1E`` emulator that runs locally. For running simulations locally see the docs on `Local Emulators`_.
+
+::
+
+  from pytket.extensions.quantinuum import QuantinuumBackend
+
+  backend = QuantinuumBackend("H1-1")
 
 There are also optional initialisation parameters ``label`` (for naming circuits), ``group`` (identifier for a collection of jobs) and ``simulator`` (see below).
 
@@ -145,15 +149,6 @@ gate provided in the submitted circuit, but this behaviour may be overridden
 using the optional ``allow_2q_gate_rebase`` argument to ``process_circuit()``,
 ``process_circuits()`` or ``submit_program()``.
 
-Device Predicates
-=================
-
-Circuits must satisfy the following predicates in order to run on the ``QuantinuumBackend``.
-
-* `NoSymbolsPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
-* `GateSetPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
-* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. The ``H2-1``, ``H2-1E`` and ``H2-1SC`` support a maximum of 32 qubits.
-
 Job Statuses
 ============
 
@@ -220,6 +215,15 @@ Leakage Gadget Detection
 When running circuits on the :py:class:`QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
 Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using :py:meth:`prune_shots_detected_as_leaky`.
 For a more detailed explanation we refer to `Eliminating Leakage Errors in Hyperfine Qubits <https://arxiv.org/abs/1912.13131>`_ by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding `notebook tutorial <https://github.com/CQCL/pytket-quantinuum/blob/develop/examples/Quantinuum_leakage_detection.ipynb>`_.
+
+.. currentmodule:: pytket.extensions.quantinuum.backends.leakage_gadget
+
+.. autosummary::
+    :nosignatures:
+
+    get_detection_circuit
+    get_leakage_gadget_circuit
+    prune_shots_detected_as_leaky
 
 Batching
 --------
