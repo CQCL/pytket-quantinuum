@@ -52,7 +52,7 @@ setup(
         "pyjwt ~= 2.4",
         "msal ~= 1.18",
     ],
-    extras_require={"pecos": ["pytket-pecos ~= 0.1.17"]},
+    extras_require={"pecos": ["pytket-pecos ~= 0.1.18"]},
     classifiers=[
         "Environment :: Console",
         "Programming Language :: Python :: 3.10",
