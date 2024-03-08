@@ -1,3 +1,5 @@
 pytket-qiskit
 matplotlib
 pylatexenc
+pandas
+seaborn
