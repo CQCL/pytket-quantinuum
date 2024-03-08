@@ -910,7 +910,7 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
     # This fails on H2-1SC with QASM.
-    [{"device_name": "H1-1SC"}],  # type: ignore
+    [{"device_name": "H1-1SC"}],
     indirect=True,
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
@@ -926,7 +926,7 @@ def test_tk2(authenticated_quum_backend: QuantinuumBackend, language: Language) 
     b = authenticated_quum_backend
     b.set_compilation_config_target_2qb_gate(OpType.TK2)
     c = b.get_compiled_circuit(c0, 2)
-    h = b.process_circuit(c, n_shots=1, language=language)
+    h = b.process_circuit(c, n_shots=1, language=language)  # type: ignore
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 1
