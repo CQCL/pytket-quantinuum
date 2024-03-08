@@ -611,7 +611,8 @@ def test_retrieve_available_devices(
     )
     assert len(backend_infos) > 0
     assert all(
-        OpType.ZZPhase in backend_info.gate_set for backend_info in backend_infos
+        {OpType.TK2, OpType.ZZMax, OpType.ZZPhase} & backend_info.gate_set
+        for backend_info in backend_infos
     )
 
 
