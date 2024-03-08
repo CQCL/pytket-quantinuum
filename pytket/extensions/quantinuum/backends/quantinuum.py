@@ -26,6 +26,8 @@ import re
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 from uuid import uuid1
 import warnings
+import datetime
+import pytz
 
 import numpy as np
 import requests
@@ -1286,6 +1288,58 @@ class QuantinuumBackend(Backend):
             backend.circuit_status(handle, use_websocket=use_websocket).message
         )["cost"]
         return None if cost is None else float(cost)
+    
+    def get_calendar(
+        self,
+        start_date: datetime.date | str,
+        end_date: datetime.date | str,
+        timezone: pytz.timezone = pytz.timezone("UTC")
+    ) -> List[Dict[str, str]]:
+        r"""Retrieves the Quantinuum H-Series operational calendar
+        for the period specified by start_date and end_date in UTC-0. The 
+        calendar data returned is for the UTC-0 timezone.
+
+        The output is a list of dictionaries. Each dictionary is an event
+        on the operational calendar for the period specified by the end-user.
+        The dictionary has the following properties.
+        * 'start-date': The UTC-0 start date and start time as a datetime.datetime object. 
+        * 'end-date': The UTC-0 start date and start time as a datetime.datetime object. 
+        * 'machine': A string specifying the H-Series device attached to the event.
+        * 'event-type': The type of event as a string. The value `online` denotes queued 
+            access to the device, and the value `reservation` denotes priority access 
+            for a particular organisation.
+        * 'reservation-type': The type of reservation 
+        * 'organization': If the 'event-type' is assigned the value 'reservation', the 
+            organization with reservation access is specified. Only users within an organization 
+            have visibility on organization reservations.
+
+        :param start_date: The start date for the period to 
+            return the operational calendar. This can be a str, 
+            formatted as YYYY-MM-DD, or a datetime.date object.
+        :param end_date: The end date for the period to 
+            return the operational calendar. This can be a str, 
+            formatted as YYYY-MM-DD, or a datetime.date object.
+        :param timezone: The 
+        :return: A list of dictionaries. Each dictionary is an event for the 
+            period specified by start_date and end_date.
+        :return_type: List[Dict[str, str]] 
+        """
+        l4_calendar_data = self.api_handler.retrieve_calendar_data(start_date, end_date)
+        calendar_data = []
+        for l4_event in l4_calendar_data:
+            dt_start = datetime.datetime.fromisoformat(l4_event.get("start-date")).astimezone(timezone)
+            dt_end = datetime.datetime.fromisoformat(l4_event.get("end-date")).astimezone(timezone)
+            event = {
+                "start-date": dt_start,
+                "end-date": dt_end,
+                "machine": l4_event.get("machine"),
+                "event-type": l4_event.get("event-type"),
+                "reservation-type": l4_event.get("reservation-type"),
+                "organization": l4_event.get("organization", ""),
+                "duration": (dt_end - dt_start).seconds/3600
+            }
+            calendar_data.append(event)
+        return calendar_data
 
     def login(self) -> None:
         """Log in to Quantinuum API. Requests username and password from stdin
