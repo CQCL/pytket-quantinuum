@@ -518,6 +518,7 @@ class QuantinuumBackend(Backend):
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
         target_2qb_gate = self.compilation_config.target_2qb_gate
+        assert target_2qb_gate is not None
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
         if target_2qb_gate == OpType.TK2:
