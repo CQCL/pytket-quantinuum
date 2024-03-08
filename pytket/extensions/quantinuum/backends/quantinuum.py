@@ -88,11 +88,7 @@ _STATUS_MAP = {
     "canceled": StatusEnum.CANCELLED,
 }
 
-_GATE_SET = {
-    OpType.Rz,
-    OpType.PhasedX,
-    OpType.ZZMax,
-    OpType.ZZPhase,
+_ADDITIONAL_GATES = {
     OpType.Reset,
     OpType.Measure,
     OpType.Barrier,
@@ -106,6 +102,18 @@ _GATE_SET = {
     OpType.WASM,
 }
 
+_GATE_MAP = {
+    "Rxxyyzz": OpType.TK2,
+    "Rz": OpType.Rz,
+    "RZZ": OpType.ZZPhase,
+    "TK2": OpType.TK2,
+    "U1q": OpType.PhasedX,
+    "ZZ": OpType.ZZMax,
+}
+
+_ALL_GATES = _ADDITIONAL_GATES.copy()
+_ALL_GATES.update(_GATE_MAP.values())
+
 
 def _default_2q_gate(device_name: str) -> OpType:
     # If we change this, we should update the main documentation page and highlight it
@@ -114,9 +122,12 @@ def _default_2q_gate(device_name: str) -> OpType:
 
 
 def _get_gateset(gates: List[str]) -> Set[OpType]:
-    gs = _GATE_SET.copy()
-    if "TK2" in gates:
-        gs.add(OpType.TK2)
+    gs = _ADDITIONAL_GATES.copy()
+    for gate in gates:
+        if gate not in _GATE_MAP:
+            warnings.warn(f"Gate {gate} not recognized.")
+        else:
+            gs.add(_GATE_MAP[gate])
     return gs
 
 
@@ -442,7 +453,7 @@ class QuantinuumBackend(Backend):
     @property
     def _gate_set(self) -> Set[OpType]:
         return (
-            _GATE_SET
+            _ALL_GATES
             if self._MACHINE_DEBUG
             else cast(BackendInfo, self.backend_info).gate_set
         )

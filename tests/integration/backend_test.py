@@ -50,11 +50,7 @@ from pytket.extensions.quantinuum import (
     Language,
     prune_shots_detected_as_leaky,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    GetResultFailed,
-    _GATE_SET,
-    # NoSyntaxChecker,
-)
+from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _ALL_GATES
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
@@ -271,7 +267,7 @@ def circuits(
     total_qubits = draw(n_qubits)
     circuit = Circuit(total_qubits, total_qubits)
     for _ in range(draw(depth)):
-        gate = draw(st.sampled_from(list(_GATE_SET)))
+        gate = draw(st.sampled_from(list(_ALL_GATES)))
         control = draw(st.integers(min_value=0, max_value=total_qubits - 1))
         if gate == OpType.ZZMax:
             target = draw(
