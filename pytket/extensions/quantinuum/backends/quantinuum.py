@@ -1326,17 +1326,22 @@ class QuantinuumBackend(Backend):
         """
         l4_calendar_data = self.api_handler.retrieve_calendar_data(start_date, end_date)
         calendar_data = []
+        week_days = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"}
         for l4_event in l4_calendar_data:
             dt_start = datetime.datetime.fromisoformat(l4_event.get("start-date")).astimezone(timezone)
             dt_end = datetime.datetime.fromisoformat(l4_event.get("end-date")).astimezone(timezone)
             event = {
-                "start-date": dt_start,
-                "end-date": dt_end,
+                "start-date": dt_start.date(),
+                "start-time": dt_start.time(),
+                "start-day": week_days[dt_start.weekday()],
+                "end-date": dt_end.date(),
+                "end-time": dt_end.time(),
+                "end-day": week_days[dt_end.weekday()],
                 "machine": l4_event.get("machine"),
                 "event-type": l4_event.get("event-type"),
                 "reservation-type": l4_event.get("reservation-type"),
                 "organization": l4_event.get("organization", ""),
-                "duration": (dt_end - dt_start).seconds/3600
+                # "duration": (dt_end - dt_start).seconds/3600
             }
             calendar_data.append(event)
         return calendar_data
