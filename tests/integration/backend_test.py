@@ -908,6 +908,31 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
+    indirect=True,
+)
+@pytest.mark.timeout(120)
+def test_tk2(authenticated_quum_backend: QuantinuumBackend) -> None:
+    c0 = (
+        Circuit(2)
+        .XXPhase(0.1, 0, 1)
+        .YYPhase(0.2, 0, 1)
+        .ZZPhase(0.3, 0, 1)
+        .measure_all()
+    )
+    b = authenticated_quum_backend
+    b.set_compilation_config_target_2qb_gate(OpType.TK2)
+    c = b.get_compiled_circuit(c0, 2)
+    h = b.process_circuit(c, n_shots=1)
+    r = b.get_result(h)
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 2
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
     "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
