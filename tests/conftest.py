@@ -130,7 +130,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H1-1SC",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "gateset": ["RZZ", "Riswap", "TK2"],
             "n_classical_registers": 120,
             "n_shots": 10000,
             "system_type": "syntax checker",
@@ -139,7 +139,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H1-1E",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "gateset": ["RZZ", "Riswap", "TK2"],
             "n_classical_registers": 120,
             "n_shots": 10000,
             "system_type": "emulator",
@@ -149,7 +149,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H1-1",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "gateset": ["RZZ", "Riswap", "TK2"],
             "n_classical_registers": 120,
             "n_shots": 10000,
             "system_type": "hardware",
@@ -161,7 +161,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H2-1E",
             "n_qubits": 32,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "gateset": ["RZZ", "Riswap", "TK2"],
             "n_classical_registers": 50,
             "n_shots": 10000,
             "system_type": "emulator",
@@ -171,7 +171,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H2-1",
             "n_qubits": 32,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "gateset": ["RZZ", "Riswap", "TK2"],
             "n_classical_registers": 50,
             "n_shots": 10000,
             "system_type": "hardware",

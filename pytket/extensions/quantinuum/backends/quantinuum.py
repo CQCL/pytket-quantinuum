@@ -115,7 +115,7 @@ def _default_2q_gate(device_name: str) -> OpType:
 
 def _get_gateset(gates: List[str]) -> Set[OpType]:
     gs = _GATE_SET.copy()
-    if "Rxxyyzz" in gates:
+    if "TK2" in gates:
         gs.add(OpType.TK2)
     return gs
 
