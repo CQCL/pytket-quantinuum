@@ -525,7 +525,7 @@ class QuantinuumAPIOffline:
                 {
                     "name": "H1-1",
                     "n_qubits": 20,
-                    "gateset": ["RZZ", "Riswap", "TK2"],
+                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
                     "n_classical_registers": 120,
                     "n_shots": 10000,
                     "system_type": "hardware",
@@ -537,7 +537,7 @@ class QuantinuumAPIOffline:
                 {
                     "name": "H2-1",
                     "n_qubits": 32,
-                    "gateset": ["RZZ", "Riswap", "TK2"],
+                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
                     "n_classical_registers": 120,
                     "n_shots": 10000,
                     "system_type": "hardware",

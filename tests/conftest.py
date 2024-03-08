@@ -113,7 +113,7 @@ def mock_machine_info() -> Dict[str, Any]:
     return {
         "name": "H9-27",
         "n_qubits": 20,
-        "gateset": [],
+        "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
         "n_classical_registers": 120,
         "n_shots": 10000,
         "system_type": "hardware",
@@ -130,7 +130,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H1-1SC",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "TK2"],
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
             "n_classical_registers": 120,
             "n_shots": 10000,
             "system_type": "syntax checker",
@@ -139,7 +139,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H1-1E",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "TK2"],
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
             "n_classical_registers": 120,
             "n_shots": 10000,
             "system_type": "emulator",
@@ -149,7 +149,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H1-1",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "TK2"],
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
             "n_classical_registers": 120,
             "n_shots": 10000,
             "system_type": "hardware",
@@ -161,7 +161,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H2-1E",
             "n_qubits": 32,
-            "gateset": ["RZZ", "Riswap", "TK2"],
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
             "n_classical_registers": 50,
             "n_shots": 10000,
             "system_type": "emulator",
@@ -171,7 +171,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
         {
             "name": "H2-1",
             "n_qubits": 32,
-            "gateset": ["RZZ", "Riswap", "TK2"],
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
             "n_classical_registers": 50,
             "n_shots": 10000,
             "system_type": "hardware",
@@ -180,8 +180,18 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
             "batching": True,
             "wasm": True,
         },
-        {"name": "H1", "n_qubits": 20, "system_type": "hardware"},
-        {"name": "H2", "n_qubits": 32, "system_type": "hardware"},
+        {
+            "name": "H1",
+            "n_qubits": 20,
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
+            "system_type": "hardware",
+        },
+        {
+            "name": "H2",
+            "n_qubits": 32,
+            "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
+            "system_type": "hardware",
+        },
     ]
 
 
