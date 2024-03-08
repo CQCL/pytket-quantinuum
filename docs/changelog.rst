@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 * Update pytket_pecos version requirement to 0.1.18.
+* Support TK2 as native gate.
 
 0.30.0 (February 2024)
 ----------------------

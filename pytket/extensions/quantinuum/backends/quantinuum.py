@@ -88,11 +88,7 @@ _STATUS_MAP = {
     "canceled": StatusEnum.CANCELLED,
 }
 
-_GATE_SET = {
-    OpType.Rz,
-    OpType.PhasedX,
-    OpType.ZZMax,
-    OpType.ZZPhase,
+_ADDITIONAL_GATES = {
     OpType.Reset,
     OpType.Measure,
     OpType.Barrier,
@@ -106,6 +102,18 @@ _GATE_SET = {
     OpType.WASM,
 }
 
+_GATE_MAP = {
+    "Rxxyyzz": OpType.TK2,
+    "Rz": OpType.Rz,
+    "RZZ": OpType.ZZPhase,
+    "TK2": OpType.TK2,
+    "U1q": OpType.PhasedX,
+    "ZZ": OpType.ZZMax,
+}
+
+_ALL_GATES = _ADDITIONAL_GATES.copy()
+_ALL_GATES.update(_GATE_MAP.values())
+
 
 def _default_2q_gate(device_name: str) -> OpType:
     # If we change this, we should update the main documentation page and highlight it
@@ -114,9 +122,12 @@ def _default_2q_gate(device_name: str) -> OpType:
 
 
 def _get_gateset(gates: List[str]) -> Set[OpType]:
-    gs = _GATE_SET.copy()
-    if "Rxxyyzz" in gates:
-        gs.add(OpType.TK2)
+    gs = _ADDITIONAL_GATES.copy()
+    for gate in gates:
+        if gate not in _GATE_MAP:
+            warnings.warn(f"Gate {gate} not recognized.")
+        else:
+            gs.add(_GATE_MAP[gate])
     return gs
 
 
@@ -442,7 +453,7 @@ class QuantinuumBackend(Backend):
     @property
     def _gate_set(self) -> Set[OpType]:
         return (
-            _GATE_SET
+            _ALL_GATES
             if self._MACHINE_DEBUG
             else cast(BackendInfo, self.backend_info).gate_set
         )
@@ -506,13 +517,23 @@ class QuantinuumBackend(Backend):
             scratch_reg_resize_pass(),
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
+        target_2qb_gate = self.compilation_config.target_2qb_gate
+        assert target_2qb_gate is not None
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
-        # If ZZPhase is available we should prefer it to ZZMax.
-        if OpType.ZZPhase in self._gate_set:
-            fidelities["ZZPhase_fidelity"] = lambda x: 1.0
+        if target_2qb_gate == OpType.TK2:
+            decomposition_passes = []
+        elif target_2qb_gate == OpType.ZZPhase:
+            decomposition_passes = [
+                NormaliseTK2(),
+                DecomposeTK2(ZZPhase_fidelity=lambda x: 1.0),
+            ]
+        elif target_2qb_gate == OpType.ZZMax:
+            decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
         else:
-            fidelities["ZZMax_fidelity"] = 1.0
+            raise ValueError(
+                f"Unrecognized target 2-qubit gate: {target_2qb_gate.name}"
+            )
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
         # https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html#default-compilation
@@ -520,11 +541,10 @@ class QuantinuumBackend(Backend):
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
+            passlist.append(SynthesiseTK())
+            passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    SynthesiseTK(),
-                    NormaliseTK2(),
-                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
@@ -533,11 +553,10 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
+            passlist.append(FullPeepholeOptimise(target_2qb_gate=OpType.TK2))
+            passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
-                    NormaliseTK2(),
-                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,

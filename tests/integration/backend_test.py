@@ -50,11 +50,7 @@ from pytket.extensions.quantinuum import (
     Language,
     prune_shots_detected_as_leaky,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    GetResultFailed,
-    _GATE_SET,
-    # NoSyntaxChecker,
-)
+from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _ALL_GATES
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
@@ -271,7 +267,7 @@ def circuits(
     total_qubits = draw(n_qubits)
     circuit = Circuit(total_qubits, total_qubits)
     for _ in range(draw(depth)):
-        gate = draw(st.sampled_from(list(_GATE_SET)))
+        gate = draw(st.sampled_from(list(_ALL_GATES)))
         control = draw(st.integers(min_value=0, max_value=total_qubits - 1))
         if gate == OpType.ZZMax:
             target = draw(
@@ -615,7 +611,8 @@ def test_retrieve_available_devices(
     )
     assert len(backend_infos) > 0
     assert all(
-        OpType.ZZPhase in backend_info.gate_set for backend_info in backend_infos
+        {OpType.TK2, OpType.ZZMax, OpType.ZZPhase} & backend_info.gate_set
+        for backend_info in backend_infos
     )
 
 
@@ -905,6 +902,33 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
     c = b.get_compiled_circuit(c0, 0)
     h = b.process_circuits([c], n_shots=1, allow_2q_gate_rebase=True)
     r = b.get_results(h)[0]
+    shots = r.get_shots()
+    assert len(shots) == 1
+    assert len(shots[0]) == 2
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend",
+    # This fails on H2-1SC with QASM.
+    [{"device_name": "H1-1SC"}],
+    indirect=True,
+)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.timeout(120)
+def test_tk2(authenticated_quum_backend: QuantinuumBackend, language: Language) -> None:
+    c0 = (
+        Circuit(2)
+        .XXPhase(0.1, 0, 1)
+        .YYPhase(0.2, 0, 1)
+        .ZZPhase(0.3, 0, 1)
+        .measure_all()
+    )
+    b = authenticated_quum_backend
+    b.set_compilation_config_target_2qb_gate(OpType.TK2)
+    c = b.get_compiled_circuit(c0, 2)
+    h = b.process_circuit(c, n_shots=1, language=language)  # type: ignore
+    r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 1
     assert len(shots[0]) == 2
