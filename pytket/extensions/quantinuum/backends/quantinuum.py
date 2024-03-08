@@ -517,13 +517,22 @@ class QuantinuumBackend(Backend):
             scratch_reg_resize_pass(),
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
+        target_2qb_gate = self.compilation_config.target_2qb_gate
         # use default (perfect fidelities) for supported gates
         fidelities: Dict[str, Any] = {}
-        # If ZZPhase is available we should prefer it to ZZMax.
-        if OpType.ZZPhase in self._gate_set:
-            fidelities["ZZPhase_fidelity"] = lambda x: 1.0
+        if target_2qb_gate == OpType.TK2:
+            decomposition_passes = []
+        elif target_2qb_gate == OpType.ZZPhase:
+            decomposition_passes = [
+                NormaliseTK2(),
+                DecomposeTK2(ZZPhase_fidelity=lambda x: 1.0),
+            ]
+        elif target_2qb_gate == OpType.ZZMax:
+            decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
         else:
-            fidelities["ZZMax_fidelity"] = 1.0
+            raise ValueError(
+                f"Unrecognized target 2-qubit gate: {target_2qb_gate.name}"
+            )
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
         # https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html#default-compilation
@@ -531,11 +540,10 @@ class QuantinuumBackend(Backend):
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
+            passlist.append(SynthesiseTK())
+            passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    SynthesiseTK(),
-                    NormaliseTK2(),
-                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
@@ -544,11 +552,10 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
+            passlist.append(FullPeepholeOptimise(target_2qb_gate=OpType.TK2))
+            passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
-                    NormaliseTK2(),
-                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
