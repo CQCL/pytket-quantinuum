@@ -913,8 +913,9 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
     [{"device_name": "H1-1SC"}],  # type: ignore
     indirect=True,
 )
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
-def test_tk2(authenticated_quum_backend: QuantinuumBackend) -> None:
+def test_tk2(authenticated_quum_backend: QuantinuumBackend, language: Language) -> None:
     c0 = (
         Circuit(2)
         .XXPhase(0.1, 0, 1)
@@ -925,7 +926,7 @@ def test_tk2(authenticated_quum_backend: QuantinuumBackend) -> None:
     b = authenticated_quum_backend
     b.set_compilation_config_target_2qb_gate(OpType.TK2)
     c = b.get_compiled_circuit(c0, 2)
-    h = b.process_circuit(c, n_shots=1)
+    h = b.process_circuit(c, n_shots=1, language=language)
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 1
