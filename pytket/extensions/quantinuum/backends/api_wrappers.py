@@ -493,11 +493,9 @@ class QuantinuumAPI:
         jr = res.json()
 
         return jr  # type: ignore
-    
+
     def retrieve_calendar_data(
-        self, 
-        start_date: str, 
-        end_date: str
+        self, start_date: str, end_date: str
     ) -> List[Dict[str, str]]:
         """
         Retrieves calendar data using L4 API
@@ -508,10 +506,10 @@ class QuantinuumAPI:
         :return: (dict) output from API
 
         """
-        
+
         id_token = self.login()
-        base_url = "https://ui.qapi.quantinuum.com/beta/" # different url to self.url
-        url = f"{base_url}reservation?mode=user&start={start_date}&end={end_date}" 
+        base_url = "https://ui.qapi.quantinuum.com/beta/"  # different url to self.url
+        url = f"{base_url}reservation?mode=user&start={start_date}&end={end_date}"
         res = self.session.get(url, headers={"Authorization": id_token})
 
         self._response_check(res, "job cancel")
