@@ -1326,5 +1326,5 @@ def test_calendar(authenticated_quum_backend: QuantinuumBackend) -> None:
     backend = authenticated_quum_backend
     calendar_data = backend.get_calendar("2024-01-08", "2024-01-09")
     assert all(isinstance(a, dict) for a in calendar_data)
-    assert isinstance(calendar_data.get("start_date"), datetime.date)
-    assert isinstance(calendar_data.get("end_date"), datetime.date)
+    assert isinstance(calendar_data[0].get("start_date"), datetime.date)
+    assert isinstance(calendar_data[0].get("end_date"), datetime.date)
