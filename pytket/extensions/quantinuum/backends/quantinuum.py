@@ -27,7 +27,7 @@ from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 from uuid import uuid1
 import warnings
 import datetime
-import pytz
+import zoneinfo
 
 import numpy as np
 import requests
@@ -1293,11 +1293,12 @@ class QuantinuumBackend(Backend):
         self,
         start_date: datetime.date | str,
         end_date: datetime.date | str,
-        timezone: pytz.timezone = pytz.timezone("UTC"),
+        timezone: zoneinfo.ZoneInfo = None,
     ) -> List[Dict[str, str]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
-        for the period specified by start_date and end_date in UTC-0. The
-        calendar data returned is for the UTC-0 timezone.
+        for the period specified by start_date and end_date . 
+        The calendar data returned is for the local timezone of the 
+        end-user.
 
         The output is a list of dictionaries. Each dictionary is an event
         on the operational calendar for the period specified by the end-user.
@@ -1319,7 +1320,8 @@ class QuantinuumBackend(Backend):
         :param end_date: The end date for the period to
             return the operational calendar. This can be a str,
             formatted as YYYY-MM-DD, or a datetime.date object.
-        :param timezone: The
+        :param timezone: A zoneinfo.ZoneInfo object specifying the timezone to 
+            apply on the calendar data. If none, the local timezone is used.
         :return: A list of dictionaries. Each dictionary is an event for the
             period specified by start_date and end_date.
         :return_type: List[Dict[str, str]]
@@ -1335,6 +1337,10 @@ class QuantinuumBackend(Backend):
             5: "Saturday",
             6: "Sunday",
         }
+
+        if timezone is None:
+            timezone = datetime.datetime._local_timezone()
+
         for l4_event in l4_calendar_data:
             dt_start = datetime.datetime.fromisoformat(
                 l4_event.get("start-date")
