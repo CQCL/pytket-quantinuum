@@ -1296,8 +1296,8 @@ class QuantinuumBackend(Backend):
         timezone: zoneinfo.ZoneInfo = None,
     ) -> List[Dict[str, str]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
-        for the period specified by start_date and end_date . 
-        The calendar data returned is for the local timezone of the 
+        for the period specified by start_date and end_date .
+        The calendar data returned is for the local timezone of the
         end-user.
 
         The output is a list of dictionaries. Each dictionary is an event
@@ -1320,7 +1320,7 @@ class QuantinuumBackend(Backend):
         :param end_date: The end date for the period to
             return the operational calendar. This can be a str,
             formatted as YYYY-MM-DD, or a datetime.date object.
-        :param timezone: A zoneinfo.ZoneInfo object specifying the timezone to 
+        :param timezone: A zoneinfo.ZoneInfo object specifying the timezone to
             apply on the calendar data. If none, the local timezone is used.
         :return: A list of dictionaries. Each dictionary is an event for the
             period specified by start_date and end_date.
