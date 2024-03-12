@@ -498,7 +498,8 @@ class QuantinuumAPI:
         self, start_date: str, end_date: str
     ) -> List[Dict[str, str]]:
         """
-        Retrieves calendar data using L4 API
+        Retrieves calendar data using L4 API. All dates and times 
+        are in the UTC-0 timezone.
 
         :param start_date: String formatted start date (YYYY-MM-DD)
         :param end_date: String formatted end date (YYYY-MM-DD)
