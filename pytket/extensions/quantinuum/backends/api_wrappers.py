@@ -369,7 +369,7 @@ class QuantinuumAPI:
         """
         jr = self.retrieve_job_status(job_id, use_websocket)
         if not jr:
-            raise QuantinuumAPIError(f"Unable to retrive job {job_id}")
+            raise QuantinuumAPIError(f"Unable to retrieve job {job_id}")
         if "status" in jr and jr["status"] in self.JOB_DONE:
             return jr
 
