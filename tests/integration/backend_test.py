@@ -1320,11 +1320,14 @@ def test_noiseless_emulation(
     assert all(x0 == x1 for x0, x1 in counts.keys())
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
 @pytest.mark.timeout(120)
-def test_calendar(authenticated_quum_backend: QuantinuumBackend) -> None:
+def test_calendar(
+    authenticated_quum_backend: QuantinuumBackend, 
+) -> None:
     backend = authenticated_quum_backend
-    calendar_data = backend.get_calendar("2024-01-08", "2024-01-09")
+    calendar_data = backend.get_calendar("2024-02-08", "2024-02-16")
     assert all(isinstance(a, dict) for a in calendar_data)
-    assert isinstance(calendar_data[0].get("start_date"), datetime.date)
-    assert isinstance(calendar_data[0].get("end_date"), datetime.date)
+    assert isinstance(calendar_data[0].get("start-date"), datetime.datetime)
+    assert isinstance(calendar_data[0].get("end-date"), datetime.datetime)
