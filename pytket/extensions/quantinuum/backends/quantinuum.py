@@ -477,8 +477,8 @@ class QuantinuumBackend(Backend):
     @classmethod
     def get_calendar(
         cls,
-        start_date: datetime.date | str,
-        end_date: datetime.date | str,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
         localise: bool = True,
         **kwargs: Any,
     ) -> List[Dict[str, object]]:
@@ -517,6 +517,9 @@ class QuantinuumBackend(Backend):
         :return_type: List[Dict[str, str]]
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
+
+        if not isinstance(start_date, datetime) or not isinstance(start_date, datetime):
+            raise ValueError("start_date and end_date must be datetime.datetime objects.") 
 
         l4_calendar_data = cls._get_calendar(
             api_handler, 
