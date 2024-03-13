@@ -518,7 +518,11 @@ class QuantinuumBackend(Backend):
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
 
-        l4_calendar_data = cls._get_calendar(api_handler, start_date, end_date)
+        l4_calendar_data = cls._get_calendar(
+            api_handler, 
+            start_date.date().isoformat(), 
+            end_date.date().isoformat()
+        )
         calendar_data = []
         week_days = {
             0: "Monday",
@@ -529,9 +533,6 @@ class QuantinuumBackend(Backend):
             5: "Saturday",
             6: "Sunday",
         }
-
-        # if timezone is None:
-        #     timezone = datetime.datetime._local_timezone()
 
         for l4_event in l4_calendar_data:
             dt_start = _convert_datetime_string(
@@ -552,7 +553,6 @@ class QuantinuumBackend(Backend):
                 "event-type": l4_event.get("event-type", ""),
                 "reservation-type": l4_event.get("reservation-type", ""),
                 "organization": l4_event.get("organization", ""),
-                # "duration": (dt_end - dt_start).seconds/3600
             }
             calendar_data.append(event)
         return calendar_data
