@@ -1321,9 +1321,7 @@ def test_noiseless_emulation(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize(
-    "authenticated_quum_backend", [None], indirect=True
-)
+@pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
 @pytest.mark.timeout(120)
 def test_calendar_instance_method(
     authenticated_quum_backend: QuantinuumBackend,
@@ -1339,14 +1337,10 @@ def test_calendar_instance_method(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.timeout(120)
-def test_calendar_class_method(
-    authenticated_quum_handler: QuantinuumAPI
-) -> None:
+def test_calendar_class_method(authenticated_quum_handler: QuantinuumAPI) -> None:
     api_handler = authenticated_quum_handler
     calendar_data = QuantinuumBackend._get_calendar(
-        api_handler,
-        "2024-02-08", 
-        "2024-02-16"
+        api_handler, "2024-02-08", "2024-02-16"
     )
     assert all(isinstance(a, dict) for a in calendar_data)
     assert isinstance(calendar_data[0].get("start-date"), str)

@@ -518,13 +518,15 @@ class QuantinuumBackend(Backend):
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
 
-        if not isinstance(start_date, datetime) or not isinstance(start_date, datetime):
-            raise ValueError("start_date and end_date must be datetime.datetime objects.") 
+        if not isinstance(start_date, datetime.datetime) or not isinstance(
+            start_date, datetime.datetime
+        ):
+            raise ValueError(
+                "start_date and end_date must be datetime.datetime objects."
+            )
 
         l4_calendar_data = cls._get_calendar(
-            api_handler, 
-            start_date.date().isoformat(), 
-            end_date.date().isoformat()
+            api_handler, start_date.date().isoformat(), end_date.date().isoformat()
         )
         calendar_data = []
         week_days = {
