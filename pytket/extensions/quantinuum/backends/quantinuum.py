@@ -446,13 +446,10 @@ class QuantinuumBackend(Backend):
         )
         api_handler._response_check(res, "get machine status")
         return str(res.json()["state"])
-    
+
     @classmethod
     def _get_calendar(
-        cls,
-        api_handler: QuantinuumAPI,
-        start_date: str,
-        end_date: str
+        cls, api_handler: QuantinuumAPI, start_date: str, end_date: str
     ) -> List[Dict[str, str]]:
         """
         Retrieves calendar data using L4 API. All dates and times
@@ -474,16 +471,16 @@ class QuantinuumBackend(Backend):
             api_handler._response_check(res, "get calendar events")
             jr = res.json()
         else:
-            raise RuntimeError("api_handler must be online.") 
+            raise RuntimeError("api_handler must be online.")
         return jr
-    
+
     @classmethod
     def get_calendar(
         cls,
         start_date: datetime.date | str,
         end_date: datetime.date | str,
         localise: bool = True,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> List[Dict[str, object]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
         for the period specified by start_date and end_date .
@@ -512,7 +509,7 @@ class QuantinuumBackend(Backend):
         :param end_date: The end date for the period to
             return the operational calendar. This can be a str,
             formatted as YYYY-MM-DD, or a datetime.date object.
-        :param localise: Apply localization to the datetime based 
+        :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
         :return: A list of dictionaries. Each dictionary is an event for the
@@ -520,7 +517,7 @@ class QuantinuumBackend(Backend):
         :return_type: List[Dict[str, str]]
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
-        
+
         l4_calendar_data = cls._get_calendar(api_handler, start_date, end_date)
         calendar_data = []
         week_days = {
@@ -539,12 +536,12 @@ class QuantinuumBackend(Backend):
         for l4_event in l4_calendar_data:
             dt_start = _convert_datetime_string(
                 l4_event.get("start-date")
-            ) # datetime in UTC tz
+            )  # datetime in UTC tz
             dt_end = _convert_datetime_string(
                 l4_event.get("end-date")
-            ) # datetime in UTC tz
-            if localise: # Apply timezone localisation on UTC datetime
-                dt_start = dt_start.astimezone() # 
+            )  # datetime in UTC tz
+            if localise:  # Apply timezone localisation on UTC datetime
+                dt_start = dt_start.astimezone()  #
                 dt_end = dt_end.astimezone()
             event = {
                 "start-date": dt_start,
@@ -1487,10 +1484,16 @@ def _parse_status(response: Dict) -> CircuitStatus:
     return CircuitStatus(_STATUS_MAP[h_status], message)
 
 
-def _convert_datetime_string(
-    datetime_string: str
-) -> datetime.datetime:
+def _convert_datetime_string(datetime_string: str) -> datetime.datetime:
     year, month, day = list(map(int, datetime_string[:10].split("-")))
     hour, minute, second = list(map(int, datetime_string[11:].split(":")))
-    dt = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second, tzinfo=datetime.timezone.utc)
+    dt = datetime.datetime(
+        year=year,
+        month=month,
+        day=day,
+        hour=hour,
+        minute=minute,
+        second=second,
+        tzinfo=datetime.timezone.utc,
+    )
     return dt
