@@ -469,7 +469,7 @@ class QuantinuumBackend(Backend):
                 headers={"Authorization": id_token},
             )
             api_handler._response_check(res, "get calendar events")
-            jr = res.json()
+            jr: List[Dict[str, str]] = res.json()
         else:
             raise RuntimeError("api_handler must be online.")
         return jr
