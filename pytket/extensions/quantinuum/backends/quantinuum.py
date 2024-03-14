@@ -520,6 +520,11 @@ class QuantinuumBackend(Backend):
             raise ValueError(
                 "start_date and end_date must be datetime.datetime objects."
             )
+        
+        if self._device_name.endswith("E") | self._device_name.endswith("SC"):
+            raise RuntimeError(
+                f"Error requesting data for {self._device_name}. Calendar information not available for emulators (E) or syntax checkers (SC)."
+            )
 
         l4_calendar_data = self._get_calendar(
             api_handler, start_date.date().isoformat(), end_date.date().isoformat()
