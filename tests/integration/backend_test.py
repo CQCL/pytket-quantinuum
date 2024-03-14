@@ -910,8 +910,7 @@ def test_allow_2q_gate_rebase(authenticated_quum_backend: QuantinuumBackend) -> 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend",
-    # This fails on H2-1SC with QASM.
-    [{"device_name": "H1-1SC"}],
+    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
