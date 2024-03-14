@@ -541,10 +541,10 @@ class QuantinuumBackend(Backend):
 
         for l4_event in l4_calendar_data:
             dt_start = _convert_datetime_string(
-                l4_event.get("start-date")
+                l4_event["start-date"]
             )  # datetime in UTC tz
             dt_end = _convert_datetime_string(
-                l4_event.get("end-date")
+                l4_event["end-date"]
             )  # datetime in UTC tz
             if localise:  # Apply timezone localisation on UTC datetime
                 dt_start = dt_start.astimezone()  #
