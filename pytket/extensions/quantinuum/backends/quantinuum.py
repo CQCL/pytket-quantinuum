@@ -480,7 +480,7 @@ class QuantinuumBackend(Backend):
         end_date: datetime.datetime,
         localise: bool = True,
         **kwargs: Any,
-    ) -> List[Dict[str, object]]:
+    ) -> List[Dict[str, str]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
@@ -553,7 +553,9 @@ class QuantinuumBackend(Backend):
                 "organization": l4_event.get("organization", "fairshare"),
             }
             calendar_data.append(event)
-        calendar_data.sort(key=lambda item: datetime.datetime.strptime(item["start-date"], dt_format))
+        calendar_data.sort(
+            key=lambda item: datetime.datetime.strptime(item["start-date"], dt_format)
+        )
         return calendar_data
 
     @property
