@@ -556,7 +556,6 @@ class QuantinuumBackend(Backend):
                 "end-day": week_days[dt_end.weekday()],
                 "machine": l4_event.get("machine"),
                 "event-type": l4_event.get("event-type", ""),
-                "reservation-type": l4_event.get("reservation-type", ""),
                 "organization": l4_event.get("organization", ""),
             }
             calendar_data.append(event)
