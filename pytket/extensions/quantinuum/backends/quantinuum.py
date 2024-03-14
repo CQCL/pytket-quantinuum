@@ -486,20 +486,23 @@ class QuantinuumBackend(Backend):
         The calendar data returned is for the local timezone of the
         end-user.
 
-        The output is a list of dictionaries. Each dictionary is an event
-        on the operational calendar for the period specified by the end-user.
+        The output is a sorted list of dictionaries. Each dictionary is an
+        event on the operational calendar for the period specified by the
+        end-user. The output from this function can be readily used
+        to instantiate a pandas.DataFrame.
+
         The dictionary has the following properties.
         * 'start-date': The  start date and start time as a datetime.datetime object.
         * 'end-date': The end date and end time as a datetime.datetime object.
-        * 'start-day': The day the event will start.
-        * 'end-day': The day the event will end.
         * 'machine': A string specifying the H-Series device attached to the event.
         * 'event-type': The type of event as a string. The value `online` denotes queued
             access to the device, and the value `reservation` denotes priority access
             for a particular organisation.
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
             organization with reservation access is specified. Only users within an
-            organization have visibility on organization reservations.
+            organization have visibility on organization reservations. Otherwise,
+            organization is listed as 'fairshare', which means all users from all organizations
+            are able to submit jobs to the Fairshare queue during this period.
 
         :param start_date: The start date as datetime.date object
             for the period to return the operational calendar.
@@ -508,9 +511,13 @@ class QuantinuumBackend(Backend):
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
-        :return: A list of dictionaries. Each dictionary is an event for the
-            period specified by start_date and end_date.
+        :return: A list of events from the H-Series operational calendar,
+            sorted by the `start-date` of each event. Each event is a python
+            dictionary.
         :return_type: List[Dict[str, str]]
+        :raises: RuntimeError if an emulator or syntax-checker is specified
+        :raises: ValueError if the argument `start_date` or `end_date` are not
+            datetime.datetime objects.
         """
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
 
