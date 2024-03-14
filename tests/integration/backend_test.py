@@ -1337,6 +1337,19 @@ def test_calendar_instance_method(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
+@pytest.mark.timeout(120)
+def test_calendar_instance_method(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+    start_date = datetime.datetime(2024, 2, 8)
+    end_date = datetime.datetime(2024, 2, 16)
+    with pytest.raises(RuntimeError):
+        backend.get_calendar(start_date, end_date)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.timeout(120)
 def test_calendar_class_method(authenticated_quum_handler: QuantinuumAPI) -> None:
     api_handler = authenticated_quum_handler
