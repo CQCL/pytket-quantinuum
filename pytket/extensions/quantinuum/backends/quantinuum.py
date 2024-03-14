@@ -520,7 +520,7 @@ class QuantinuumBackend(Backend):
             raise ValueError(
                 "start_date and end_date must be datetime.datetime objects."
             )
-        
+
         if self._device_name.endswith("E") | self._device_name.endswith("SC"):
             raise RuntimeError(
                 f"Error requesting data for {self._device_name}. Calendar information not available for emulators (E) or syntax checkers (SC)."
@@ -530,15 +530,7 @@ class QuantinuumBackend(Backend):
             api_handler, start_date.date().isoformat(), end_date.date().isoformat()
         )
         calendar_data = []
-        week_days = {
-            0: "Monday",
-            1: "Tuesday",
-            2: "Wednesday",
-            3: "Thursday",
-            4: "Friday",
-            5: "Saturday",
-            6: "Sunday",
-        }
+        dt_format = "%a %Y-%m-%d %H:%M (%Z)"
 
         for l4_event in l4_calendar_data:
             device_name = l4_event["machine"]
@@ -554,13 +546,11 @@ class QuantinuumBackend(Backend):
                 dt_start = dt_start.astimezone()  #
                 dt_end = dt_end.astimezone()
             event = {
-                "start-date": dt_start,
-                "start-day": week_days[dt_start.weekday()],
-                "end-date": dt_end,
-                "end-day": week_days[dt_end.weekday()],
+                "start-date": dt_start.strftime(dt_format),
+                "end-date": dt_end.strftime(dt_format),
                 "machine": device_name,
-                "event-type": l4_event.get("event-type", ""),
-                "organization": l4_event.get("organization", ""),
+                "event-type": l4_event["event-type"],
+                "organization": l4_event.get("organization", "fairshare"),
             }
             calendar_data.append(event)
         return calendar_data
