@@ -474,16 +474,15 @@ class QuantinuumBackend(Backend):
             raise RuntimeError("api_handler must be online.")
         return jr
 
-    @classmethod
     def get_calendar(
-        cls,
+        self,
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         localise: bool = True,
         **kwargs: Any,
     ) -> List[Dict[str, object]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
-        for the period specified by start_date and end_date .
+        for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
         end-user.
 
@@ -499,12 +498,12 @@ class QuantinuumBackend(Backend):
             access to the device, and the value `reservation` denotes priority access
             for a particular organisation.
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
-            organization with reservation access is specified. Only users within an 
+            organization with reservation access is specified. Only users within an
             organization have visibility on organization reservations.
 
-        :param start_date: The start date as datetime.date object 
+        :param start_date: The start date as datetime.date object
             for the period to return the operational calendar.
-        :param end_date: The end date as datetime.date object 
+        :param end_date: The end date as datetime.date object
             for the period to return the operational calendar.
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
@@ -522,7 +521,7 @@ class QuantinuumBackend(Backend):
                 "start_date and end_date must be datetime.datetime objects."
             )
 
-        l4_calendar_data = cls._get_calendar(
+        l4_calendar_data = self._get_calendar(
             api_handler, start_date.date().isoformat(), end_date.date().isoformat()
         )
         calendar_data = []
@@ -537,6 +536,9 @@ class QuantinuumBackend(Backend):
         }
 
         for l4_event in l4_calendar_data:
+            device_name = l4_event["machine"]
+            if device_name != self._device_name:
+                continue
             dt_start = _convert_datetime_string(
                 l4_event["start-date"]
             )  # datetime in UTC tz
@@ -551,7 +553,7 @@ class QuantinuumBackend(Backend):
                 "start-day": week_days[dt_start.weekday()],
                 "end-date": dt_end,
                 "end-day": week_days[dt_end.weekday()],
-                "machine": l4_event.get("machine"),
+                "machine": device_name,
                 "event-type": l4_event.get("event-type", ""),
                 "organization": l4_event.get("organization", ""),
             }
