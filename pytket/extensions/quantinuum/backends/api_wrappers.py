@@ -18,7 +18,7 @@ Functions used to submit jobs with Quantinuum API.
 
 import time
 from http import HTTPStatus
-from typing import Optional, Dict, Tuple, List
+from typing import Optional, Dict, Tuple
 import asyncio
 import json
 import getpass
