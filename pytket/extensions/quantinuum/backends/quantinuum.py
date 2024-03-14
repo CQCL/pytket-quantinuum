@@ -519,7 +519,7 @@ class QuantinuumBackend(Backend):
         api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
 
         if not isinstance(start_date, datetime.datetime) or not isinstance(
-            start_date, datetime.datetime
+            end_date, datetime.datetime
         ):
             raise ValueError(
                 "start_date and end_date must be datetime.datetime objects."
