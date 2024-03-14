@@ -505,10 +505,10 @@ class QuantinuumBackend(Backend):
 
         :param start_date: The start date for the period to
             return the operational calendar. This can be a str,
-            formatted as YYYY-MM-DD, or a datetime.date object.
+            formatted as datetime.date object.
         :param end_date: The end date for the period to
             return the operational calendar. This can be a str,
-            formatted as YYYY-MM-DD, or a datetime.date object.
+            formatted as datetime.date object.
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
