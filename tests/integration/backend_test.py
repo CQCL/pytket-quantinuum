@@ -1339,7 +1339,7 @@ def test_calendar_instance_method(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
 @pytest.mark.timeout(120)
-def test_calendar_instance_method(
+def test_calendar_instance_method_raises_error(
     authenticated_quum_backend: QuantinuumBackend,
 ) -> None:
     backend = authenticated_quum_backend
