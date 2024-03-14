@@ -498,17 +498,14 @@ class QuantinuumBackend(Backend):
         * 'event-type': The type of event as a string. The value `online` denotes queued
             access to the device, and the value `reservation` denotes priority access
             for a particular organisation.
-        * 'reservation-type': The type of reservation
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
-            organization with reservation access is specified. Only users within an organization
-            have visibility on organization reservations.
+            organization with reservation access is specified. Only users within an 
+            organization have visibility on organization reservations.
 
-        :param start_date: The start date for the period to
-            return the operational calendar. This can be a str,
-            formatted as datetime.date object.
-        :param end_date: The end date for the period to
-            return the operational calendar. This can be a str,
-            formatted as datetime.date object.
+        :param start_date: The start date as datetime.date object 
+            for the period to return the operational calendar.
+        :param end_date: The end date as datetime.date object 
+            for the period to return the operational calendar.
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
