@@ -1432,12 +1432,12 @@ def test_get_calendar(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
+@pytest.mark.parametrize("authenticated_quum_backend_qa", [None], indirect=True)
 @pytest.mark.timeout(120)
 def test_get_calendar_raises_error(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend_qa: QuantinuumBackend,
 ) -> None:
-    backend = authenticated_quum_backend
+    backend = authenticated_quum_backend_qa
     start_date = datetime.datetime(2024, 2, 8)
     end_date = datetime.datetime(2024, 2, 16)
     with pytest.raises(RuntimeError):
