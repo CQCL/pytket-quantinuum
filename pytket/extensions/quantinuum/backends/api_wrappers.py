@@ -505,7 +505,8 @@ class QuantinuumAPI:
         :return: (dict) output from API
         """
         id_token = self.login()
-        base_url = "https://ui.qapi.quantinuum.com/beta/"
+
+        base_url = self.url.replace("https://", "https://ui.").replace("v1", "beta")
         url = f"{base_url}reservation?mode=user&start={start_date}&end={end_date}"
         res = self.session.get(
             url,
