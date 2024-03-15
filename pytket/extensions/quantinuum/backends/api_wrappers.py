@@ -513,7 +513,7 @@ class QuantinuumAPI:
         )
         self._response_check(res, "get calendar events")
         jr: List[Dict[str, str]] = res.json()
-        return jr
+        return jr  # type: ignore
 
 
 class QuantinuumAPIOffline:
