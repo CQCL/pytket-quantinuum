@@ -1434,8 +1434,8 @@ def test_get_calendar(
     end_date = datetime.datetime(2024, 2, 16)
     calendar_data = backend.get_calendar(start_date, end_date)
     assert all(isinstance(a, dict) for a in calendar_data)
-    assert isinstance(calendar_data[0].get("start-date"), str)
-    assert isinstance(calendar_data[0].get("end-date"), str)
+    assert isinstance(calendar_data[0].get("start-date"), datetime.datetime)
+    assert isinstance(calendar_data[0].get("end-date"), datetime.datetime)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
