@@ -20,6 +20,7 @@ import json
 import gc
 import os
 import time
+import datetime
 from hypothesis import given, settings
 import numpy as np
 import pytest
@@ -50,11 +51,7 @@ from pytket.extensions.quantinuum import (
     Language,
     prune_shots_detected_as_leaky,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    GetResultFailed,
-    _GATE_SET,
-    # NoSyntaxChecker,
-)
+from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _ALL_GATES
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
     QuantinuumAPI,
@@ -274,7 +271,7 @@ def circuits(
     total_qubits = draw(n_qubits)
     circuit = Circuit(total_qubits, total_qubits)
     for _ in range(draw(depth)):
-        gate = draw(st.sampled_from(list(_GATE_SET)))
+        gate = draw(st.sampled_from(list(_ALL_GATES)))
         control = draw(st.integers(min_value=0, max_value=total_qubits - 1))
         if gate == OpType.ZZMax:
             target = draw(
@@ -544,7 +541,18 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        pytest.param(
+            Language.QIR,
+            marks=pytest.mark.xfail(
+                reason="https://github.com/CQCL/pytket-quantinuum/issues/276"
+            ),
+        ),
+    ],
+)
 @pytest.mark.timeout(120)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -607,7 +615,8 @@ def test_retrieve_available_devices(
     )
     assert len(backend_infos) > 0
     assert all(
-        OpType.ZZPhase in backend_info.gate_set for backend_info in backend_infos
+        {OpType.TK2, OpType.ZZMax, OpType.ZZPhase} & backend_info.gate_set
+        for backend_info in backend_infos
     )
 
 
@@ -1371,3 +1380,37 @@ def test_noiseless_emulation(
     r = backend.get_result(h)
     counts = r.get_counts()
     assert all(x0 == x1 for x0, x1 in counts.keys())
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_get_calendar(
+    authenticated_quum_handler: QuantinuumAPI,
+) -> None:
+    if "hqapi" in authenticated_quum_handler.url:
+        machine = "deadhead"
+    else:
+        machine = "H2-1"
+
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name=machine
+    )
+    start_date = datetime.datetime(2024, 1, 8)
+    end_date = datetime.datetime(2024, 2, 16)
+    calendar_data = backend.get_calendar(start_date, end_date)
+    assert all(isinstance(a, dict) for a in calendar_data)
+    assert isinstance(calendar_data[0].get("start-date"), str)
+    assert isinstance(calendar_data[0].get("end-date"), str)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
+@pytest.mark.timeout(120)
+def test_get_calendar_raises_error(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+    start_date = datetime.datetime(2024, 2, 8)
+    end_date = datetime.datetime(2024, 2, 16)
+    with pytest.raises(RuntimeError):
+        backend.get_calendar(start_date, end_date)
