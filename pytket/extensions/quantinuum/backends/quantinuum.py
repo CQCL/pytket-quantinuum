@@ -447,33 +447,6 @@ class QuantinuumBackend(Backend):
         api_handler._response_check(res, "get machine status")
         return str(res.json()["state"])
 
-    @classmethod
-    def _get_calendar(
-        cls, api_handler: QuantinuumAPI, start_date: str, end_date: str
-    ) -> List[Dict[str, str]]:
-        """
-        Retrieves calendar data using L4 API. All dates and times
-        are in the UTC timezone.
-
-        :param start_date: String formatted start date (YYYY-MM-DD)
-        :param end_date: String formatted end date (YYYY-MM-DD)
-
-        :return: (dict) output from API
-        """
-        id_token = api_handler.login()
-        if api_handler.online:
-            base_url = "https://ui.qapi.quantinuum.com/beta/"
-            url = f"{base_url}reservation?mode=user&start={start_date}&end={end_date}"
-            res = requests.get(
-                url,
-                headers={"Authorization": id_token},
-            )
-            api_handler._response_check(res, "get calendar events")
-            jr: List[Dict[str, str]] = res.json()
-        else:
-            raise RuntimeError("api_handler must be online.")
-        return jr
-
     def get_calendar(
         self,
         start_date: datetime.datetime,
