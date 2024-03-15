@@ -452,7 +452,6 @@ class QuantinuumBackend(Backend):
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         localise: bool = True,
-        **kwargs: Any,
     ) -> List[Dict[str, str]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
         for the period specified by start_date and end_date.
@@ -474,8 +473,9 @@ class QuantinuumBackend(Backend):
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
             organization with reservation access is specified. Only users within an
             organization have visibility on organization reservations. Otherwise,
-            organization is listed as 'fairshare', which means all users from all organizations
-            are able to submit jobs to the Fairshare queue during this period.
+            organization is listed as 'fairshare', which means all users from all
+            organizations are able to submit jobs to the Fairshare queue during this
+            period.
 
         :param start_date: The start date as datetime.date object
             for the period to return the operational calendar.
@@ -492,7 +492,6 @@ class QuantinuumBackend(Backend):
         :raises: ValueError if the argument `start_date` or `end_date` are not
             datetime.datetime objects.
         """
-        api_handler = kwargs.get("api_handler", DEFAULT_API_HANDLER)
 
         if not isinstance(start_date, datetime.datetime) or not isinstance(
             end_date, datetime.datetime
@@ -506,8 +505,8 @@ class QuantinuumBackend(Backend):
                 f"Error requesting data for {self._device_name}. Calendar information not available for emulators (E) or syntax checkers (SC)."
             )
 
-        l4_calendar_data = self._get_calendar(
-            api_handler, start_date.date().isoformat(), end_date.date().isoformat()
+        l4_calendar_data = self.api_handler.get_calendar(
+            start_date.date().isoformat(), end_date.date().isoformat()
         )
         calendar_data = []
         dt_format = "%a %Y-%m-%d %H:%M (%Z)"
