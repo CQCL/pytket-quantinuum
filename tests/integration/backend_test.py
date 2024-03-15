@@ -1325,10 +1325,15 @@ def test_noiseless_emulation(
 def test_get_calendar(
     authenticated_quum_handler: QuantinuumAPI,
 ) -> None:
+    if "hqapi" in authenticated_quum_handler.url:
+        machine = "deadhead"
+    else:
+        machine = "H2-1"
+
     backend = QuantinuumBackend(
-        api_handler=authenticated_quum_handler, device_name="H2-1"
+        api_handler=authenticated_quum_handler, device_name=machine
     )
-    start_date = datetime.datetime(2024, 2, 8)
+    start_date = datetime.datetime(2024, 1, 8)
     end_date = datetime.datetime(2024, 2, 16)
     calendar_data = backend.get_calendar(start_date, end_date)
     assert all(isinstance(a, dict) for a in calendar_data)
