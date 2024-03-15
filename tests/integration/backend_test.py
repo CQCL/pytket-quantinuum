@@ -64,10 +64,13 @@ from pytket.wasm import WasmFileHandler
 
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
+skip_remote_tests_prod: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS_PROD") is None
 
 REASON = (
     "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
 )
+
+REASON_PROD = "PYTKET_RUN_REMOTE_TESTS_PROD not set (requires configuration of Quantinuum username)"
 
 
 @pytest.mark.parametrize("authenticated_quum_backend_qa", [None], indirect=True)
@@ -295,9 +298,9 @@ def circuits(
     return circuit
 
 
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend",
+    "authenticated_quum_backend_prod",
     [
         {"device_name": name}
         for name in [
@@ -318,11 +321,11 @@ def circuits(
 )
 @pytest.mark.timeout(120)
 def test_cost_estimate(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend_prod: QuantinuumBackend,
     c: Circuit,
     n_shots: int,
 ) -> None:
-    b = authenticated_quum_backend
+    b = authenticated_quum_backend_prod
     c = b.get_compiled_circuit(c)
     estimate = None
     if b._device_name.endswith("SC"):
@@ -339,9 +342,9 @@ def test_cost_estimate(
         assert estimate > 0.0
 
 
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend",
+    "authenticated_quum_backend_prod",
     [
         {"device_name": name}
         for name in [
@@ -352,23 +355,23 @@ def test_cost_estimate(
 )
 @pytest.mark.timeout(120)
 def test_cost_estimate_wrong_syntax_checker(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend_prod: QuantinuumBackend,
 ) -> None:
-    b = authenticated_quum_backend
+    b = authenticated_quum_backend_prod
     c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
     with pytest.raises(ValueError):
         _ = b.cost(c, 10, syntax_checker="H6-2SC")
 
 
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H1-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_cost_estimate_bad_syntax_checker(
-    authenticated_quum_backend: QuantinuumBackend,
+    authenticated_quum_backend_prod: QuantinuumBackend,
 ) -> None:
-    b = authenticated_quum_backend
+    b = authenticated_quum_backend_prod
     c = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
     with pytest.raises(ValueError):
         _ = b.cost(c, 10, syntax_checker="H2-1E")
@@ -779,17 +782,12 @@ def test_wasm_qa(
         [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
     )[0]
 
-    try:
-        assert b.get_result(h)
-    except GetResultFailed:
-        assert "Compile error:  Invalid creg index for creg" in str(b.circuit_status(h))
-        # if this error is not shown, remove the expected faliure from this test.
-        # and update https://github.com/CQCL/pytket-quantinuum/issues/232
+    b.get_result(h)
 
 
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",
@@ -800,7 +798,7 @@ def test_wasm_qa(
 )
 @pytest.mark.timeout(120)
 def test_wasm(
-    authenticated_quum_backend: QuantinuumBackend, language: Language
+    authenticated_quum_backend_prod: QuantinuumBackend, language: Language
 ) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
@@ -808,20 +806,14 @@ def test_wasm(
     a = c.add_c_register("a", 8)
     c.add_wasm_to_reg("add_one", wasfile, [a], [a])
 
-    b = authenticated_quum_backend
+    b = authenticated_quum_backend_prod
 
     c = b.get_compiled_circuit(c)
     h = b.process_circuits(
         [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
     )[0]
-    try:
-        assert b.get_result(h)
-    except GetResultFailed:
-        assert "Encountered Unexpected Instruction   %2 = call i64 @add_one" in str(
-            b.circuit_status(h)
-        )
-        # if this error is not shown, remove the expected faliure from this test.
-        # and update https://github.com/CQCL/pytket-quantinuum/issues/232
+
+    b.get_result(h)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -876,7 +868,7 @@ def test_submit_qasm(
 
     b = authenticated_quum_backend_qa
     h = b.submit_program(Language.QASM, qasm, n_shots=10)
-    assert b.get_result(h)
+    b.get_result(h)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -951,52 +943,33 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
     # https://github.com/CQCL/pytket-quantinuum/issues/170
     gc.disable()
     b = authenticated_quum_backend_qa
-    qir = """; ModuleID = 'result_tag.bc'
-source_filename = "qat-link"
 
-%Qubit = type opaque
-%Result = type opaque
+    with open("integration/qir/qat-link_2.ll") as f:
+        qir = f.read()
 
-@0 = internal constant [5 x i8] c"0_t0\\00"
-@1 = internal constant [5 x i8] c"0_t1\\00"
+    ctx = create_context()
+    module = parse_assembly(qir, context=ctx)
+    ir = module.as_bitcode()
+    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    r = b.get_result(h)
+    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
+    assert len(r.get_shots()) == 10
 
-define void @Quantinuum__EntangledState() #0 {
-entry:
-  call void @__quantum__qis__h__body(%Qubit* null)
-  call void @__quantum__qis__cnot__body(%Qubit* null, %Qubit* nonnull inttoptr (i64 1 to %Qubit*))
-  call void @__quantum__qis__mz__body(%Qubit* null, %Result* null)
-  call void @__quantum__qis__reset__body(%Qubit* null)
-  call void @__quantum__qis__mz__body(%Qubit* nonnull inttoptr (i64 1 to %Qubit*), %Result* nonnull inttoptr (i64 1 to %Result*))
-  call void @__quantum__qis__reset__body(%Qubit* nonnull inttoptr (i64 1 to %Qubit*))
-  call void @__quantum__rt__tuple_start_record_output()
-  call void @__quantum__rt__result_record_output(%Result* null, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @0, i32 0, i32 0))
-  call void @__quantum__rt__result_record_output(%Result* nonnull inttoptr (i64 1 to %Result*), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0))
-  call void @__quantum__rt__tuple_end_record_output()
-  ret void
-}
 
-declare %Qubit* @__quantum__rt__qubit_allocate()
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+)
+@pytest.mark.timeout(120)
+def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
+    # disable Garbage Collector because of
+    # https://github.com/CQCL/pytket-quantinuum/issues/170
+    gc.disable()
+    b = authenticated_quum_backend_prod
 
-declare void @__quantum__qis__h__body(%Qubit*)
+    with open("integration/qir/qat-link.ll") as f:
+        qir = f.read()
 
-declare void @__quantum__qis__cnot__body(%Qubit*, %Qubit*)
-
-declare %Result* @__quantum__qis__m__body(%Qubit*)
-
-declare void @__quantum__qis__reset__body(%Qubit*)
-
-declare void @__quantum__rt__qubit_release(%Qubit*)
-
-declare void @__quantum__rt__tuple_start_record_output()
-
-declare void @__quantum__rt__result_record_output(%Result*, i8*)
-
-declare void @__quantum__rt__tuple_end_record_output()
-
-declare void @__quantum__qis__mz__body(%Qubit*, %Result*)
-
-attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "requiredQubits"="2" "requiredResults"="2" }
-"""
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
@@ -1008,118 +981,51 @@ attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "require
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
-def test_qir_submission_mz_to_reg(
-    authenticated_quum_backend: QuantinuumBackend,
-) -> None:
-    # will fail with:
-    # "1000: Compile error: 12 Encountered Unexpected Instruction
-    #   call void @mz_to_creg_bit(%Qubit* null, i1* %2, i64 4)"
+def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     # disable Garbage Collector because of
     # https://github.com/CQCL/pytket-quantinuum/issues/170
     gc.disable()
-    b = authenticated_quum_backend
-    qir = """; ModuleID = 'test_pytket_qir_6'
-source_filename = "test_pytket_qir_6"
+    b = authenticated_quum_backend_qa
 
-%Qubit = type opaque
-%Result = type opaque
+    with open("integration/qir/qat-link.ll") as f:
+        qir = f.read()
 
-@0 = internal constant [5 x i8] c"0_t0\\00"
-@1 = internal constant [5 x i8] c"0_t1\\00"
-@2 = internal constant [5 x i8] c"0_t2\\00"
-@3 = internal constant [5 x i8] c"0_t3\\00"
+    ctx = create_context()
+    module = parse_assembly(qir, context=ctx)
+    ir = module.as_bitcode()
+    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    r = b.get_result(h)
+    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
+    assert len(r.get_shots()) == 10
 
-define void @main() #0 {
-entry:
-  %0 = call i1* @create_creg(i64 5)
-  %1 = call i1* @create_creg(i64 5)
-  %2 = call i1* @create_creg(i64 5)
-  %3 = call i1* @create_creg(i64 5)
-  %4 = call i64 @get_int_from_creg(i1* %0)
-  %5 = call i64 @get_int_from_creg(i1* %1)
-  %6 = or i64 %4, %5
-  call void @set_creg_to_int(i1* %2, i64 %6)
-  call void @__quantum__qis__x__body(%Qubit* null)
-  call void @__quantum__qis__h__body(%Qubit* inttoptr (i64 1 to %Qubit*))
-  call void @__quantum__qis__h__body(%Qubit* inttoptr (i64 2 to %Qubit*))
-  call void @mz_to_creg_bit(%Qubit* null, i1* %2, i64 4)
-  %7 = call i1 @get_creg_bit(i1* %2, i64 4)
-  br i1 %7, label %then, label %else
 
-then:                                             ; preds = %entry
-  call void @__quantum__qis__z__body(%Qubit* null)
-  br label %continue
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+)
+@pytest.mark.timeout(120)
+def test_qir_submission_mz_to_reg(
+    authenticated_quum_backend_prod: QuantinuumBackend,
+) -> None:
+    # disable Garbage Collector because of
+    # https://github.com/CQCL/pytket-quantinuum/issues/170
+    gc.disable()
+    b = authenticated_quum_backend_prod
+    with open("integration/qir/test_pytket_qir_6.ll") as f:
+        qir = f.read()
 
-else:                                             ; preds = %entry
-  br label %continue
-
-continue:                                         ; preds = %else, %then
-  call void @__quantum__qis__h__body(%Qubit* null)
-  call void @__quantum__rt__tuple_start_record_output()
-  %8 = call i64 @get_int_from_creg(i1* %0)
-  call void @__quantum__rt__int_record_output(i64 %8, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @0, i32 0, i32 0))
-  %9 = call i64 @get_int_from_creg(i1* %1)
-  call void @__quantum__rt__int_record_output(i64 %9, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0))
-  %10 = call i64 @get_int_from_creg(i1* %2)
-  call void @__quantum__rt__int_record_output(i64 %10, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0))
-  %11 = call i64 @get_int_from_creg(i1* %3)
-  call void @__quantum__rt__int_record_output(i64 %11, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @3, i32 0, i32 0))
-  call void @__quantum__rt__tuple_end_record_output()
-  ret void
-}
-
-declare i1 @get_creg_bit(i1*, i64)
-
-declare void @set_creg_bit(i1*, i64, i1)
-
-declare void @set_creg_to_int(i1*, i64)
-
-declare i1 @__quantum__qis__read_result__body(%Result*)
-
-declare i1* @create_creg(i64)
-
-declare i64 @get_int_from_creg(i1*)
-
-declare void @mz_to_creg_bit(%Qubit*, i1*, i64)
-
-declare void @__quantum__rt__int_record_output(i64, i8*)
-
-declare void @__quantum__rt__tuple_start_record_output()
-
-declare void @__quantum__rt__tuple_end_record_output()
-
-declare void @__quantum__qis__x__body(%Qubit*)
-
-declare void @__quantum__qis__h__body(%Qubit*)
-
-declare void @__quantum__qis__z__body(%Qubit*)
-
-attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "requiredQubits"="3" "requiredResults"="3" }
-
-!llvm.module.flags = !{!0, !1, !2, !3}
-
-!0 = !{i32 1, !"qir_major_version", i32 1}
-!1 = !{i32 7, !"qir_minor_version", i32 0}
-!2 = !{i32 1, !"dynamic_qubit_management", i1 false}
-!3 = !{i32 1, !"dynamic_result_management", i1 false}
-
-"""
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
     h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
 
-    with pytest.raises(GetResultFailed):
-        r = b.get_result(h)
+    r = b.get_result(h)
 
-    assert "Unexpected Instruction   call void @mz_to_creg_bit" in str(
-        b.circuit_status(h)
-    )
-    # if this checks fails try to solve
-    # https://github.com/CQCL/pytket-quantinuum/issues/358
+    assert len(r.get_shots()) == 10
+    assert len(r.get_bitlist()) == 128
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1134,92 +1040,9 @@ def test_qir_submission_mz_to_reg_qa(
     # https://github.com/CQCL/pytket-quantinuum/issues/170
     gc.disable()
     b = authenticated_quum_backend_qa
-    qir = """; ModuleID = 'test_pytket_qir_6'
-source_filename = "test_pytket_qir_6"
+    with open("integration/qir/test_pytket_qir_6.ll") as f:
+        qir = f.read()
 
-%Qubit = type opaque
-%Result = type opaque
-
-@0 = internal constant [5 x i8] c"0_t0\\00"
-@1 = internal constant [5 x i8] c"0_t1\\00"
-@2 = internal constant [5 x i8] c"0_t2\\00"
-@3 = internal constant [5 x i8] c"0_t3\\00"
-
-define void @main() #0 {
-entry:
-  %0 = call i1* @create_creg(i64 5)
-  %1 = call i1* @create_creg(i64 5)
-  %2 = call i1* @create_creg(i64 5)
-  %3 = call i1* @create_creg(i64 5)
-  %4 = call i64 @get_int_from_creg(i1* %0)
-  %5 = call i64 @get_int_from_creg(i1* %1)
-  %6 = or i64 %4, %5
-  call void @set_creg_to_int(i1* %2, i64 %6)
-  call void @__quantum__qis__x__body(%Qubit* null)
-  call void @__quantum__qis__h__body(%Qubit* inttoptr (i64 1 to %Qubit*))
-  call void @__quantum__qis__h__body(%Qubit* inttoptr (i64 2 to %Qubit*))
-  call void @mz_to_creg_bit(%Qubit* null, i1* %2, i64 4)
-  %7 = call i1 @get_creg_bit(i1* %2, i64 4)
-  br i1 %7, label %then, label %else
-
-then:                                             ; preds = %entry
-  call void @__quantum__qis__z__body(%Qubit* null)
-  br label %continue
-
-else:                                             ; preds = %entry
-  br label %continue
-
-continue:                                         ; preds = %else, %then
-  call void @__quantum__qis__h__body(%Qubit* null)
-  call void @__quantum__rt__tuple_start_record_output()
-  %8 = call i64 @get_int_from_creg(i1* %0)
-  call void @__quantum__rt__int_record_output(i64 %8, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @0, i32 0, i32 0))
-  %9 = call i64 @get_int_from_creg(i1* %1)
-  call void @__quantum__rt__int_record_output(i64 %9, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @1, i32 0, i32 0))
-  %10 = call i64 @get_int_from_creg(i1* %2)
-  call void @__quantum__rt__int_record_output(i64 %10, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0))
-  %11 = call i64 @get_int_from_creg(i1* %3)
-  call void @__quantum__rt__int_record_output(i64 %11, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @3, i32 0, i32 0))
-  call void @__quantum__rt__tuple_end_record_output()
-  ret void
-}
-
-declare i1 @get_creg_bit(i1*, i64)
-
-declare void @set_creg_bit(i1*, i64, i1)
-
-declare void @set_creg_to_int(i1*, i64)
-
-declare i1 @__quantum__qis__read_result__body(%Result*)
-
-declare i1* @create_creg(i64)
-
-declare i64 @get_int_from_creg(i1*)
-
-declare void @mz_to_creg_bit(%Qubit*, i1*, i64)
-
-declare void @__quantum__rt__int_record_output(i64, i8*)
-
-declare void @__quantum__rt__tuple_start_record_output()
-
-declare void @__quantum__rt__tuple_end_record_output()
-
-declare void @__quantum__qis__x__body(%Qubit*)
-
-declare void @__quantum__qis__h__body(%Qubit*)
-
-declare void @__quantum__qis__z__body(%Qubit*)
-
-attributes #0 = { "EntryPoint" "maxQubitIndex"="1" "maxResultIndex"="1" "requiredQubits"="3" "requiredResults"="3" }
-
-!llvm.module.flags = !{!0, !1, !2, !3}
-
-!0 = !{i32 1, !"qir_major_version", i32 1}
-!1 = !{i32 7, !"qir_minor_version", i32 0}
-!2 = !{i32 1, !"dynamic_qubit_management", i1 false}
-!3 = !{i32 1, !"dynamic_result_management", i1 false}
-
-"""
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
