@@ -125,11 +125,11 @@ def test_full_login(
 def test_get_calendar(
     requests_mock: Mocker, mock_quum_api_handler: QuantinuumAPI
 ) -> None:
-    machine_name = "quum-LT-S1-APIVAL"
-
     start_date = "2024-02-08"
     end_date = "2024-02-16"
-    mock_url = f"https://ui.qapi.quantinuum.com/beta/reservation?mode=user&start={start_date}&end={end_date}"
+
+    base = "https://ui.qapi.quantinuum.com/beta/reservation"
+    mock_url = f"{base}?mode=user&start={start_date}&end={end_date}"
 
     events = [
         {
