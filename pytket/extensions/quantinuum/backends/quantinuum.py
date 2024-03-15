@@ -502,7 +502,9 @@ class QuantinuumBackend(Backend):
 
         if self._device_name.endswith("E") | self._device_name.endswith("SC"):
             raise RuntimeError(
-                f"Error requesting data for {self._device_name}. Calendar information not available for emulators (E) or syntax checkers (SC)."
+                f"Error requesting data for {self._device_name}. Emulators (E) \
+                and Syntax Checkers (SC) are online 24/7. Calendar \
+                information not available."
             )
 
         l4_calendar_data = self.api_handler.get_calendar(
