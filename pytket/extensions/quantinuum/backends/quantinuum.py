@@ -26,6 +26,8 @@ import re
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 from uuid import uuid1
 import warnings
+import datetime
+import zoneinfo
 
 import numpy as np
 import requests
@@ -444,6 +446,96 @@ class QuantinuumBackend(Backend):
         )
         api_handler._response_check(res, "get machine status")
         return str(res.json()["state"])
+
+    def get_calendar(
+        self,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
+        localise: bool = True,
+    ) -> List[Dict[str, str]]:
+        r"""Retrieves the Quantinuum H-Series operational calendar
+        for the period specified by start_date and end_date.
+        The calendar data returned is for the local timezone of the
+        end-user.
+
+        The output is a sorted list of dictionaries. Each dictionary is an
+        event on the operational calendar for the period specified by the
+        end-user. The output from this function can be readily used
+        to instantiate a pandas.DataFrame.
+
+        The dictionary has the following properties.
+        * 'start-date': The  start date and start time as a datetime.datetime object.
+        * 'end-date': The end date and end time as a datetime.datetime object.
+        * 'machine': A string specifying the H-Series device attached to the event.
+        * 'event-type': The type of event as a string. The value `online` denotes queued
+            access to the device, and the value `reservation` denotes priority access
+            for a particular organisation.
+        * 'organization': If the 'event-type' is assigned the value 'reservation', the
+            organization with reservation access is specified. Only users within an
+            organization have visibility on organization reservations. Otherwise,
+            organization is listed as 'fairshare', which means all users from all
+            organizations are able to submit jobs to the Fairshare queue during this
+            period.
+
+        :param start_date: The start date as datetime.date object
+            for the period to return the operational calendar.
+        :param end_date: The end date as datetime.date object
+            for the period to return the operational calendar.
+        :param localise: Apply localization to the datetime based
+            on the end-users time zone. Default is True. Disable by
+            setting False.
+        :return: A list of events from the H-Series operational calendar,
+            sorted by the `start-date` of each event. Each event is a python
+            dictionary.
+        :return_type: List[Dict[str, str]]
+        :raises: RuntimeError if an emulator or syntax-checker is specified
+        :raises: ValueError if the argument `start_date` or `end_date` are not
+            datetime.datetime objects.
+        """
+
+        if not isinstance(start_date, datetime.datetime) or not isinstance(
+            end_date, datetime.datetime
+        ):
+            raise ValueError(
+                "start_date and end_date must be datetime.datetime objects."
+            )
+
+        if self._device_name.endswith("E") | self._device_name.endswith("SC"):
+            raise RuntimeError(
+                f"Error requesting data for {self._device_name}. Calendar information not available for emulators (E) or syntax checkers (SC)."
+            )
+
+        l4_calendar_data = self.api_handler.get_calendar(
+            start_date.date().isoformat(), end_date.date().isoformat()
+        )
+        calendar_data = []
+        dt_format = "%a %Y-%m-%d %H:%M (%Z)"
+
+        for l4_event in l4_calendar_data:
+            device_name = l4_event["machine"]
+            if device_name != self._device_name:
+                continue
+            dt_start = _convert_datetime_string(
+                l4_event["start-date"]
+            )  # datetime in UTC tz
+            dt_end = _convert_datetime_string(
+                l4_event["end-date"]
+            )  # datetime in UTC tz
+            if localise:  # Apply timezone localisation on UTC datetime
+                dt_start = dt_start.astimezone()  #
+                dt_end = dt_end.astimezone()
+            event = {
+                "start-date": dt_start.strftime(dt_format),
+                "end-date": dt_end.strftime(dt_format),
+                "machine": device_name,
+                "event-type": l4_event["event-type"],
+                "organization": l4_event.get("organization", "fairshare"),
+            }
+            calendar_data.append(event)
+        calendar_data.sort(
+            key=lambda item: datetime.datetime.strptime(item["start-date"], dt_format)
+        )
+        return calendar_data
 
     @property
     def backend_info(self) -> Optional[BackendInfo]:
@@ -1370,3 +1462,18 @@ def _parse_status(response: Dict) -> CircuitStatus:
     }
     message = json.dumps(msgdict)
     return CircuitStatus(_STATUS_MAP[h_status], message)
+
+
+def _convert_datetime_string(datetime_string: str) -> datetime.datetime:
+    year, month, day = list(map(int, datetime_string[:10].split("-")))
+    hour, minute, second = list(map(int, datetime_string[11:].split(":")))
+    dt = datetime.datetime(
+        year=year,
+        month=month,
+        day=day,
+        hour=hour,
+        minute=minute,
+        second=second,
+        tzinfo=datetime.timezone.utc,
+    )
+    return dt

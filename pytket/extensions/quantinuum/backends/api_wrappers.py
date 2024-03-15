@@ -18,7 +18,7 @@ Functions used to submit jobs with Quantinuum API.
 
 import time
 from http import HTTPStatus
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 import asyncio
 import json
 import getpass
@@ -493,6 +493,28 @@ class QuantinuumAPI:
         jr = res.json()
 
         return jr  # type: ignore
+
+    def get_calendar(self, start_date: str, end_date: str) -> List[Dict[str, str]]:
+        """
+        Retrieves calendar data using L4 API. All dates and times
+        are in the UTC timezone.
+
+        :param start_date: String formatted start date (YYYY-MM-DD)
+        :param end_date: String formatted end date (YYYY-MM-DD)
+
+        :return: (dict) output from API
+        """
+        id_token = self.login()
+
+        base_url = self.url.replace("https://", "https://ui.").replace("v1", "beta")
+        url = f"{base_url}reservation?mode=user&start={start_date}&end={end_date}"
+        res = self.session.get(
+            url,
+            headers={"Authorization": id_token},
+        )
+        self._response_check(res, "get calendar events")
+        jr: List[Dict[str, str]] = res.json()
+        return jr
 
 
 class QuantinuumAPIOffline:

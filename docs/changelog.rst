@@ -4,6 +4,8 @@ Changelog
 Unreleased
 ----------
 
+* Add method to enable visibility of 
+Quantinuum H-Series operational calendar.
 * Update pytket_pecos version requirement to 0.1.18.
 * Support TK2 as native gate.
 

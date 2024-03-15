@@ -20,6 +20,7 @@ import json
 import gc
 import os
 import time
+import datetime
 from hypothesis import given, settings
 import numpy as np
 import pytest
@@ -1317,3 +1318,37 @@ def test_noiseless_emulation(
     r = backend.get_result(h)
     counts = r.get_counts()
     assert all(x0 == x1 for x0, x1 in counts.keys())
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_get_calendar(
+    authenticated_quum_handler: QuantinuumAPI,
+) -> None:
+    if "hqapi" in authenticated_quum_handler.url:
+        machine = "deadhead"
+    else:
+        machine = "H2-1"
+
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name=machine
+    )
+    start_date = datetime.datetime(2024, 1, 8)
+    end_date = datetime.datetime(2024, 2, 16)
+    calendar_data = backend.get_calendar(start_date, end_date)
+    assert all(isinstance(a, dict) for a in calendar_data)
+    assert isinstance(calendar_data[0].get("start-date"), str)
+    assert isinstance(calendar_data[0].get("end-date"), str)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize("authenticated_quum_backend", [None], indirect=True)
+@pytest.mark.timeout(120)
+def test_get_calendar_raises_error(
+    authenticated_quum_backend: QuantinuumBackend,
+) -> None:
+    backend = authenticated_quum_backend
+    start_date = datetime.datetime(2024, 2, 8)
+    end_date = datetime.datetime(2024, 2, 16)
+    with pytest.raises(RuntimeError):
+        backend.get_calendar(start_date, end_date)
