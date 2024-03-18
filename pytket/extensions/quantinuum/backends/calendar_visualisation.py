@@ -135,3 +135,4 @@ class QuantinuumCalendar(object):
         # Place subplots in a close grid
         f.subplots_adjust(hspace=0, wspace=0)
         f.suptitle(self._title, fontsize=titlesize, fontweight="bold")
+        return f
