@@ -23,3 +23,4 @@ from .quantinuum import (
 )
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline
 from .leakage_gadget import prune_shots_detected_as_leaky
+from .calendar_visualisation import QuantinuumCalendar

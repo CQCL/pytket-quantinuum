@@ -77,6 +77,16 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
+
+try:
+    import matplotlib.figure
+    from .calendar_visualisation import QuantinuumCalendar
+
+    MATPLOTLIB_IMPORT = True
+except ImportError:
+    MATPLOTLIB_IMPORT = False
+
+
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 MAX_C_REG_WIDTH = 32
 
@@ -534,6 +544,49 @@ class QuantinuumBackend(Backend):
             calendar_data.append(event)
         calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
         return calendar_data
+
+    def view_calendar(
+        self,
+        month: int,
+        year: int,
+        figsize: Tuple[float, float] = (40, 20),
+        fontsize: float = 15,
+        titlesize: float = 40,
+    ) -> "matplotlib.figure.Figure":
+        r"""Visualise the H-Series operational calendar for a user-specified
+        month and year. The operational hours are shown for the machine name
+        used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operational
+        days are coloured. In addition, a description of the event is also
+        displayed (`start-time`, `duration` and `event-type`, see the
+        `get_calendar` method for more information).
+
+        :param month: An integer specifying the calendar month to visualise.
+            1 is January and 12 is December.
+        :param year: An integer specifying the calendar year to visualise.
+        :param figsize: A tuple specifying width and height of the output
+            matplotlib.figure.Figure.
+        :param fontsize: The fontsize of the event description within the
+            calendar.
+        :return: A matplotlib.figure.Figure visualising the H-Series
+            calendar for a user-specified calendar month.
+        :return_type: matplotlib.figure.Figure
+        """
+        if not MATPLOTLIB_IMPORT:
+            raise ImportError(
+                "Matplotlib is not installed. Please run 'pip install pytket-quantinuum[calendar]'"
+            )
+        qntm_calendar = QuantinuumCalendar(
+            year=year, month=month, title_prefix=self._device_name
+        )
+        end_day = max(qntm_calendar._cal[-1])
+        dt_start = datetime.datetime(year=year, month=month, day=1)
+        dt_end = datetime.datetime(year=year, month=month, day=end_day)
+        data = self.get_calendar(dt_start, dt_end, localise=True)
+        qntm_calendar.add_events(data)
+        calendar_figure = qntm_calendar.build_calendar(
+            figsize=figsize, fontsize=fontsize, titlesize=titlesize
+        )
+        return calendar_figure
 
     @property
     def backend_info(self) -> Optional[BackendInfo]:
