@@ -791,7 +791,9 @@ def test_wasm_qa(
         [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
     )[0]
 
-    b.get_result(h)
+    r = b.get_result(h)
+    shots = r.get_shots()
+    assert len(shots) == 10
 
 
 @pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
@@ -822,7 +824,9 @@ def test_wasm(
         [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
     )[0]
 
-    b.get_result(h)
+    r = b.get_result(h)
+    shots = r.get_shots()
+    assert len(shots) == 10
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -877,7 +881,9 @@ def test_submit_qasm(
 
     b = authenticated_quum_backend_qa
     h = b.submit_program(Language.QASM, qasm, n_shots=10)
-    b.get_result(h)
+    r = b.get_result(h)
+    shots = r.get_shots()
+    assert len(shots) == 10
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
