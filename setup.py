@@ -53,7 +53,7 @@ setup(
         "msal ~= 1.18",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.1.18"],
+        "pecos": ["pytket-pecos ~= 0.1.19"],
     },
     classifiers=[
         "Environment :: Console",
