@@ -1,4 +1,4 @@
-r"""Submodule providing calendar visualisation functionality"""
+"""Submodule providing calendar visualisation functionality"""
 
 from typing import List, Dict, NoReturn, Tuple
 import calendar
@@ -12,8 +12,10 @@ calendar.setfirstweekday(0)
 
 
 class QuantinuumCalendar(object):
-    r"""Calendar visualisation using matplotlib. The calendar
-    is rendered for a specified month and year."""
+    """Calendar visualisation using matplotlib. The calendar
+       is rendered for a specified month and year.
+    
+    """
 
     @property
     def months(self) -> List[str]:
@@ -24,7 +26,7 @@ class QuantinuumCalendar(object):
         return [calendar.day_name[i] for i in range(7)]
 
     def __init__(self, year: int, month: int, title_prefix: str):
-        r"""Construct a `QuantinuumCalendar` object.
+        """Construct a `QuantinuumCalendar` object.
 
         :param year: An integer representing the year, i.e. 2024.
         :param month: An integer representing the month in the year,
@@ -41,7 +43,7 @@ class QuantinuumCalendar(object):
         )
 
     def _add_event(self, day: int, event_str: str):
-        r"""Add event.
+        """Add event.
 
         :param day: An integer specifing day in the month
         :param event_str: A string containing the event description.
@@ -61,7 +63,7 @@ class QuantinuumCalendar(object):
             raise RuntimeError(f"Day outside of specified month")
 
     def add_events(self, events_list: List[Dict[str, object]]) -> NoReturn:
-        r"""Add list of events. Each event is a dictionary and
+        """Add list of events. Each event is a dictionary and
         must have the following keys:
         * 'start-date', a datetime.datetime object
         * 'end-date', a datetime.datetime object
@@ -87,7 +89,7 @@ class QuantinuumCalendar(object):
         fontsize=15,
         titlesize=40,
     ) -> Figure:
-        r"""Display calendar on a matplotlib.figure.Figure object.
+        """Display calendar on a matplotlib.figure.Figure object.
 
         :param figsize:
         :param fontsize:

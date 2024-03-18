@@ -463,13 +463,13 @@ class QuantinuumBackend(Backend):
         end_date: datetime.datetime,
         localise: bool = True,
     ) -> List[Dict[str, object]]:
-        r"""Retrieves the Quantinuum H-Series operational calendar
+        """Retrieves the Quantinuum H-Series operations calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
         end-user.
 
         The output is a sorted list of dictionaries. Each dictionary is an
-        event on the operational calendar for the period specified by the
+        event on the operations calendar for the period specified by the
         end-user. The output from this function can be readily used
         to instantiate a pandas.DataFrame.
 
@@ -488,13 +488,13 @@ class QuantinuumBackend(Backend):
             period.
 
         :param start_date: The start date as datetime.date object
-            for the period to return the operational calendar.
+            for the period to return the operations calendar.
         :param end_date: The end date as datetime.date object
-            for the period to return the operational calendar.
+            for the period to return the operations calendar.
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
-        :return: A list of events from the H-Series operational calendar,
+        :return: A list of events from the H-Series operations calendar,
             sorted by the `start-date` of each event. Each event is a python
             dictionary.
         :return_type: List[Dict[str, str]]
@@ -544,6 +544,11 @@ class QuantinuumBackend(Backend):
             }
             calendar_data.append(event)
         calendar_data.sort(key=lambda item: item["start-date"])
+
+        for cal_event in calendar_data:
+            if cal_event['organization'] == 'fairshare':
+                cal_event['organization'] = 'Fair-Share Queue'
+
         return calendar_data
 
     def view_calendar(
@@ -554,9 +559,9 @@ class QuantinuumBackend(Backend):
         fontsize: float = 15,
         titlesize: float = 40,
     ) -> "matplotlib.figure.Figure":
-        r"""Visualise the H-Series operational calendar for a user-specified
-        month and year. The operational hours are shown for the machine name
-        used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operational
+        """Visualise the H-Series operations calendar for a user-specified
+        month and year. The operations hours are shown for the machine name
+        used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operations
         days are coloured. In addition, a description of the event is also
         displayed (`start-time`, `duration` and `event-type`, see the
         `get_calendar` method for more information).
