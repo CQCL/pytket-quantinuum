@@ -4,8 +4,8 @@ Changelog
 Unreleased
 ----------
 
-* Add method to enable visibility of 
-Quantinuum H-Series operational calendar.
+* Add methods to enable visibility of Quantinuum H-Series 
+operational calendar with and without matplotlib.
 * Update pytket_pecos version requirement to 0.1.18.
 * Support TK2 as native gate.
 
