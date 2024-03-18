@@ -1439,3 +1439,12 @@ def test_get_calendar_raises_error(
     end_date = datetime.datetime(2024, 2, 16)
     with pytest.raises(RuntimeError):
         backend.get_calendar(start_date, end_date)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+def test_no_matplotlib(authenticated_quum_handler: QuantinuumAPI) -> None:
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name="H1-1"
+    )
+    with pytest.raises(ImportError):
+        backend.view_calendar()
