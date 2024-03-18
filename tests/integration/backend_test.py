@@ -67,7 +67,8 @@ REASON = (
     "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
 )
 
-REASON_PROD = "PYTKET_RUN_REMOTE_TESTS_PROD not set (requires configuration of Quantinuum username)"
+REASON_PROD = "PYTKET_RUN_REMOTE_TESTS_PROD not set \
+(requires configuration of Quantinuum username)"
 
 
 @pytest.mark.parametrize("authenticated_quum_backend_qa", [None], indirect=True)
