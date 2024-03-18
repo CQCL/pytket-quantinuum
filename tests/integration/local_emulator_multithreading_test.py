@@ -27,12 +27,12 @@ REASON = (
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa",
+    "authenticated_quum_backend_prod",
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
-def test_multithreading(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
-    b = authenticated_quum_backend_qa
+def test_multithreading(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend_prod
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     c = b.get_compiled_circuit(c0)
     h = b.process_circuit(c, n_shots=10, multithreading=True)
