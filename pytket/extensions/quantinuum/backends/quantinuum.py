@@ -230,7 +230,7 @@ class QuantinuumBackendCompilationConfig:
 @cache
 def have_pecos() -> bool:
     try:
-        import pytket_pecos  # noqa # pylint: disable=unused-import # type: ignore
+        import pytket_pecos  # type: ignore # noqa # pylint: disable=unused-import
 
         return True
     except ImportError:
@@ -584,7 +584,7 @@ information not available for emulators (E) or syntax checkers (SC)."
             return False
         info = self.backend_info
         assert info is not None
-        return info.get_misc("system_type") == "local_emulator"
+        return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
