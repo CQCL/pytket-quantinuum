@@ -241,10 +241,8 @@ def fixture_authenticated_quum() -> QuantinuumAPI:
     # Authenticated QuantinuumAPI used for the remote tests
     # The credentials are taken from the env variables:
     # PYTKET_REMOTE_QUANTINUUM_USERNAME and PYTKET_REMOTE_QUANTINUUM_PASSWORD
-    # The API URL is taken from the env variable: PYTKET_REMOTE_QUANTINUUM_API_URL
-    # (default if unset)
     return QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
-        api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
+        api_url="https://qapi.quantinuum.com/",
         _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
         _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
     )
@@ -282,10 +280,8 @@ def fixture_authenticated_quum_qa() -> QuantinuumAPI:
     # Authenticated QA QuantinuumAPI used for the remote tests
     # The credentials are taken from the env variables:
     # PYTKET_REMOTE_QUANTINUUM_USERNAME_QA and PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA
-    # The API URL is taken from the env variable: PYTKET_REMOTE_QUANTINUUM_API_URL_QA
-    # (default if unset)
     return QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
-        api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL_QA"),
+        api_url="https://hqapi.quantinuum.com/",
         _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME_QA"),
         _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA"),
     )
