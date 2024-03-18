@@ -539,7 +539,7 @@ class QuantinuumBackend(Backend):
                 "end-date": dt_end,
                 "machine": device_name,
                 "event-type": l4_event["event-type"],
-                "organization": l4_event.get("organization", "fairshare"),
+                "organization": l4_event.get("organization", "Fair-Share Queue"),
             }
             calendar_data.append(event)
         calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
