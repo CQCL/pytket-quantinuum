@@ -5,9 +5,9 @@ Changelog
 -------------------
 
 * Updated pytket version requirement to 1.26.
-* Add method to enable visibility of 
-Quantinuum H-Series operational calendar.
 * Update pytket_pecos version requirement to 0.1.19.
+* Add methods to enable visibility of Quantinuum H-Series 
+operations calendar with and without matplotlib.
 * Support TK2 as native gate.
 * Update pytket version requirement to 1.26.
 * Update pytket-qir version requirement to 0.9.
