@@ -482,7 +482,7 @@ class QuantinuumBackend(Backend):
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
             organization with reservation access is specified. Only users within an
             organization have visibility on organization reservations. Otherwise,
-            organization is listed as 'fairshare', which means all users from all
+            organization is listed as 'Fair-Share Queue', which means all users from all
             organizations are able to submit jobs to the Fairshare queue during this
             period.
 

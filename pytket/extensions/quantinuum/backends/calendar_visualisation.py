@@ -67,7 +67,7 @@ class QuantinuumCalendar(object):
         must have the following keys:
         * 'start-date', a datetime.datetime object
         * 'end-date', a datetime.datetime object
-        * 'event-type', a string specifying if the device is `online` or reserved.
+        * 'event-type', a string specifying if the device is `online` or has a `reservation`.
         * 'organization', a string specifying the organisation with reservation
             access. Otherwise, if the event-type is `online`, the organization
             is listed as `fairshare`.
