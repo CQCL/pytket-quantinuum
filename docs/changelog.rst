@@ -1,6 +1,15 @@
 Changelog
 ~~~~~~~~~
 
+0.31.0 (March 2024)
+-------------------
+
+* Updated pytket version requirement to 1.26.
+* Add method to enable visibility of 
+Quantinuum H-Series operational calendar.
+* Update pytket_pecos version requirement to 0.1.19.
+* Support TK2 as native gate.
+
 0.30.0 (February 2024)
 ----------------------
 

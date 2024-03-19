@@ -18,7 +18,7 @@ Functions used to submit jobs with Quantinuum API.
 
 import time
 from http import HTTPStatus
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 import asyncio
 import json
 import getpass
@@ -369,7 +369,7 @@ class QuantinuumAPI:
         """
         jr = self.retrieve_job_status(job_id, use_websocket)
         if not jr:
-            raise QuantinuumAPIError(f"Unable to retrive job {job_id}")
+            raise QuantinuumAPIError(f"Unable to retrieve job {job_id}")
         if "status" in jr and jr["status"] in self.JOB_DONE:
             return jr
 
@@ -494,6 +494,28 @@ class QuantinuumAPI:
 
         return jr  # type: ignore
 
+    def get_calendar(self, start_date: str, end_date: str) -> List[Dict[str, str]]:
+        """
+        Retrieves calendar data using L4 API. All dates and times
+        are in the UTC timezone.
+
+        :param start_date: String formatted start date (YYYY-MM-DD)
+        :param end_date: String formatted end date (YYYY-MM-DD)
+
+        :return: (dict) output from API
+        """
+        id_token = self.login()
+
+        base_url = self.url.replace("https://", "https://ui.").replace("v1", "beta")
+        url = f"{base_url}reservation?mode=user&start={start_date}&end={end_date}"
+        res = self.session.get(
+            url,
+            headers={"Authorization": id_token},
+        )
+        self._response_check(res, "get calendar events")
+        jr: List[Dict[str, str]] = res.json()
+        return jr
+
 
 class QuantinuumAPIOffline:
     """
@@ -515,7 +537,7 @@ class QuantinuumAPIOffline:
             {
             "name": "H1-1",
             "n_qubits": 20,
-            "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+            "gateset": ["RZZ", "Riswap", "TK2"],
             "n_shots": 10000,
             "batching": True,
             }
@@ -525,7 +547,7 @@ class QuantinuumAPIOffline:
                 {
                     "name": "H1-1",
                     "n_qubits": 20,
-                    "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
                     "n_classical_registers": 120,
                     "n_shots": 10000,
                     "system_type": "hardware",
@@ -537,7 +559,7 @@ class QuantinuumAPIOffline:
                 {
                     "name": "H2-1",
                     "n_qubits": 32,
-                    "gateset": ["RZZ", "Riswap", "Rxxyyzz"],
+                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
                     "n_classical_registers": 120,
                     "n_shots": 10000,
                     "system_type": "hardware",
