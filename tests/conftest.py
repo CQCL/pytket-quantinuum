@@ -241,17 +241,15 @@ def fixture_authenticated_quum() -> QuantinuumAPI:
     # Authenticated QuantinuumAPI used for the remote tests
     # The credentials are taken from the env variables:
     # PYTKET_REMOTE_QUANTINUUM_USERNAME and PYTKET_REMOTE_QUANTINUUM_PASSWORD
-    # The API URL is taken from the env variable: PYTKET_REMOTE_QUANTINUUM_API_URL
-    # (default if unset)
     return QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
-        api_url=os.getenv("PYTKET_REMOTE_QUANTINUUM_API_URL"),
+        api_url="https://qapi.quantinuum.com/",
         _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
         _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD"),
     )
 
 
-@pytest.fixture(name="authenticated_quum_backend")
-def fixture_authenticated_quum_backend(
+@pytest.fixture(name="authenticated_quum_backend_prod")
+def fixture_authenticated_quum_backend_prod(
     request: SubRequest,
     authenticated_quum_handler: QuantinuumAPI,
 ) -> QuantinuumBackend:
@@ -260,16 +258,55 @@ def fixture_authenticated_quum_backend(
     # PYTKET_REMOTE_QUANTINUUM_USERNAME and PYTKET_REMOTE_QUANTINUUM_PASSWORD
     # Note: this fixture should only be used in tests where PYTKET_RUN_REMOTE_TESTS
     #       is true, by marking it with @parametrize, using the
-    #       "authenticated_quum_backend" as parameter and `indirect=True`
+    #       "authenticated_quum_backend_prod" as parameter and `indirect=True`
 
     # By default, the backend is created with device_name="H1-1SC" only,
     # but other params can be specified when parametrizing the
-    # authenticated_quum_backend
+    # authenticated_quum_backend_prod
     if (not hasattr(request, "param")) or request.param is None:
         backend = QuantinuumBackend("H1-1SC", api_handler=authenticated_quum_handler)
     else:
         backend = QuantinuumBackend(
             api_handler=authenticated_quum_handler, **request.param
+        )
+    # In case machine_debug was specified by mistake in the params
+    backend._MACHINE_DEBUG = False
+
+    return backend
+
+
+@pytest.fixture(scope="module", name="authenticated_quum_handler_qa")
+def fixture_authenticated_quum_qa() -> QuantinuumAPI:
+    # Authenticated QA QuantinuumAPI used for the remote tests
+    # The credentials are taken from the env variables:
+    # PYTKET_REMOTE_QUANTINUUM_USERNAME_QA and PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA
+    return QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
+        api_url="https://hqapi.quantinuum.com/",
+        _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME_QA"),
+        _QuantinuumAPI__pwd=os.getenv("PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA"),
+    )
+
+
+@pytest.fixture(name="authenticated_quum_backend_qa")
+def fixture_authenticated_quum_backend_qa(
+    request: SubRequest,
+    authenticated_quum_handler_qa: QuantinuumAPI,
+) -> QuantinuumBackend:
+    # Authenticated QuantinuumBackend used for the remote tests
+    # The credentials are taken from the env variables:
+    # PYTKET_REMOTE_QUANTINUUM_USERNAME and PYTKET_REMOTE_QUANTINUUM_PASSWORD
+    # Note: this fixture should only be used in tests where PYTKET_RUN_REMOTE_TESTS
+    #       is true, by marking it with @parametrize, using the
+    #       "authenticated_quum_backend_qa" as parameter and `indirect=True`
+
+    # By default, the backend is created with device_name="H1-1SC" only,
+    # but other params can be specified when parametrizing the
+    # authenticated_quum_backend_qa
+    if (not hasattr(request, "param")) or request.param is None:
+        backend = QuantinuumBackend("H1-1SC", api_handler=authenticated_quum_handler_qa)
+    else:
+        backend = QuantinuumBackend(
+            api_handler=authenticated_quum_handler_qa, **request.param
         )
     # In case machine_debug was specified by mistake in the params
     backend._MACHINE_DEBUG = False

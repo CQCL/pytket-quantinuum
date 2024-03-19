@@ -27,7 +27,6 @@ from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 from uuid import uuid1
 import warnings
 import datetime
-import zoneinfo
 
 import numpy as np
 import requests
@@ -231,7 +230,7 @@ class QuantinuumBackendCompilationConfig:
 @cache
 def have_pecos() -> bool:
     try:
-        import pytket_pecos  # type: ignore
+        import pytket_pecos  # type: ignore # noqa # pylint: disable=unused-import
 
         return True
     except ImportError:
@@ -502,7 +501,8 @@ class QuantinuumBackend(Backend):
 
         if self._device_name.endswith("E") | self._device_name.endswith("SC"):
             raise RuntimeError(
-                f"Error requesting data for {self._device_name}. Calendar information not available for emulators (E) or syntax checkers (SC)."
+                f"Error requesting data for {self._device_name}. Calendar \
+information not available for emulators (E) or syntax checkers (SC)."
             )
 
         l4_calendar_data = self.api_handler.get_calendar(
@@ -584,10 +584,7 @@ class QuantinuumBackend(Backend):
             return False
         info = self.backend_info
         assert info is not None
-        if info.get_misc("system_type") == "local_emulator":
-            return True
-        else:
-            return False
+        return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
@@ -612,8 +609,6 @@ class QuantinuumBackend(Backend):
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
         target_2qb_gate = self.compilation_config.target_2qb_gate
         assert target_2qb_gate is not None
-        # use default (perfect fidelities) for supported gates
-        fidelities: Dict[str, Any] = {}
         if target_2qb_gate == OpType.TK2:
             decomposition_passes = []
         elif target_2qb_gate == OpType.ZZPhase:
@@ -996,6 +991,7 @@ class QuantinuumBackend(Backend):
                     for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                         for i in range(count):
                             results_selection.append((name, i))
+
                     quantinuum_circ = b64encode(
                         cast(
                             bytes,
@@ -1245,7 +1241,8 @@ class QuantinuumBackend(Backend):
             if self.is_local_emulator:
                 if not have_pecos():
                     raise RuntimeError(
-                        "Local emulator not available: try installing with the `pecos` option."
+                        "Local emulator not available: \
+try installing with the `pecos` option."
                     )
                 from pytket_pecos import Emulator
 
