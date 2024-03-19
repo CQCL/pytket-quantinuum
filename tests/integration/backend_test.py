@@ -662,7 +662,7 @@ def test_submission_with_group(
     shots = b.run_circuit(
         c,
         n_shots=n_shots,
-        group="DEFAULT",
+        group=os.getenv("PYTKET_REMOTE_QUANTINUUM_GROUP", default="DEFAULT"),
         language=language,  # type: ignore
     ).get_shots()
     assert all(q[0] == q[1] for q in shots)
