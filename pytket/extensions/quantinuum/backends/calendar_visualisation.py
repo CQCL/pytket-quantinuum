@@ -13,8 +13,8 @@ calendar.setfirstweekday(0)
 
 class QuantinuumCalendar(object):
     """Calendar visualisation using matplotlib. The calendar
-       is rendered for a specified month and year.
-    
+    is rendered for a specified month and year.
+
     """
 
     @property
@@ -57,7 +57,7 @@ class QuantinuumCalendar(object):
                 self._events[week, week_day] = event_str
             else:
                 event_str1 = self._events[week, week_day]
-                self._events[week, week_day] = f"{event_str1}\n{event_str}"
+                self._events[week, week_day] = f"{event_str1}\n\n{event_str}"
             self._colors[week, week_day] = "mistyrose"
         except RuntimeError:
             raise RuntimeError(f"Day outside of specified month")
@@ -76,10 +76,11 @@ class QuantinuumCalendar(object):
             event_start: datetime.datetime = event["start-date"]
             event_end: datetime.datetime = event["end-date"]
             event_type: str = event["event-type"]
-            event_org: str = event["organization"]
             dt_format = f"%H:%M"
             duration = (event_end - event_start).seconds / 3600
-            event_str = f"{event_type}-{event_org}\nStart: {event_start.strftime(dt_format)} ({duration}h)"
+            event_str = (
+                f"{event_type}\nStart: {event_start.strftime(dt_format)} ({duration}h)"
+            )
             day = event_start.day
             self._add_event(day, event_str)
 
