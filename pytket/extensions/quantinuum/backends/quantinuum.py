@@ -532,7 +532,7 @@ class QuantinuumBackend(Backend):
                 "organization": l4_event.get("organization", "fairshare"),
             }
             calendar_data.append(event)
-        calendar_data.sort(key=lambda item: item["start-date"]) # type: ignore
+        calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
         return calendar_data
 
     @property
