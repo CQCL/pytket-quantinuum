@@ -9,7 +9,7 @@ Quantinuum H-Series operational calendar.
 * Update pytket_pecos version requirement to 0.1.19.
 * Support TK2 as native gate.
 * Update pytket version requirement to 1.26.
-* Update pytket-qir version requirement to 0.8.
+* Update pytket-qir version requirement to 0.9.
 
 0.30.0 (February 2024)
 ----------------------
