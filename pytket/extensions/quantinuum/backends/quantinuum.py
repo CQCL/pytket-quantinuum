@@ -80,7 +80,9 @@ from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
 try:
     import matplotlib.figure
-    from .calendar_visualisation import QuantinuumCalendar
+    from pytket.extensions.quantinuum.backends.calendar_visualisation import (
+        QuantinuumCalendar,
+    )
 
     MATPLOTLIB_IMPORT = True
 except ImportError:
