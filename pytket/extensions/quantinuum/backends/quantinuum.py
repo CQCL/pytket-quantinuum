@@ -741,7 +741,6 @@ information not available for emulators (E) or syntax checkers (SC)."
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        allow_2q_gate_rebase: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
         results_selection: Optional[List[Tuple[str, int]]] = None,
@@ -758,8 +757,6 @@ information not available for emulators (E) or syntax checkers (SC)."
           tracking. Overrides the instance variable `group`, defaults to None
         :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
             module, defaults to None
-        :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
-           a higher-fidelity alternative gate at the discretion of the backend
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :param options: Items to add to the "options" dictionary of the request body
@@ -789,7 +786,7 @@ information not available for emulators (E) or syntax checkers (SC)."
             "options": {
                 "simulator": self.simulator_type,
                 "no-opt": True,
-                "noreduce": not allow_2q_gate_rebase,
+                "noreduce": True,
                 "error-model": noisy_simulation,
                 "tket": dict(),
                 "tket-opt-level": None,
@@ -868,8 +865,6 @@ information not available for emulators (E) or syntax checkers (SC)."
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
-        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
-           higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -913,8 +908,6 @@ information not available for emulators (E) or syntax checkers (SC)."
         wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
-
-        allow_2q_gate_rebase = cast(bool, kwargs.get("allow_2q_gate_rebase", False))
 
         language = cast(Language, kwargs.get("language", Language.QASM))
 
@@ -1018,7 +1011,6 @@ information not available for emulators (E) or syntax checkers (SC)."
                         group=group,
                         wasm_file_handler=wasm_fh,
                         pytket_pass=pytket_pass,
-                        allow_2q_gate_rebase=allow_2q_gate_rebase,
                         options=cast(Dict[str, Any], kwargs.get("options", {})),
                         request_options=cast(
                             Dict[str, Any], kwargs.get("request_options", {})
