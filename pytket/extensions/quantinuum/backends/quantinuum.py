@@ -451,7 +451,7 @@ class QuantinuumBackend(Backend):
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         localise: bool = True,
-    ) -> List[Dict[str, object]]:
+    ) -> List[Dict[str, Any]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
