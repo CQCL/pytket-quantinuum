@@ -794,6 +794,7 @@ information not available for emulators (E) or syntax checkers (SC)."
                 "noreduce": not allow_2q_gate_rebase,
                 "error-model": noisy_simulation,
                 "tket": dict(),
+                "tket-opt-level": None,
             },
         }
 
