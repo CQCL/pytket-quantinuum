@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# original source: https://github.com/meta4/mplcal.git
+# Copyright (c) 2020, Peter Wilson
+# All rights reserved.
 """Submodule providing calendar visualisation functionality"""
 
 from typing import List, Dict, NoReturn, Tuple
