@@ -193,6 +193,15 @@ jobs:
         PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY: 1
       working-directory: ./tests
       run: pytest integration/
+    - name: Run tests with mpl test
+      env:
+        PYTKET_RUN_MPL_TESTS: 1
+        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
+      working-directory: ./tests
+      run: |
+        pip install pytest-mpl
+        pytest integration/ --mpl
 
   prod_checks:
     name: Run backend tests with QA and prod endpoint
@@ -219,6 +228,15 @@ jobs:
         PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY: 1
       working-directory: ./tests
       run: pytest integration/
+    - name: Run tests with mpl test
+      env:
+        PYTKET_RUN_MPL_TESTS: 1
+        PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
+      working-directory: ./tests
+      run: |
+        pip install pytest-mpl
+        pytest integration/ --mpl
 
   publish_to_pypi:
     name: Publish to pypi
