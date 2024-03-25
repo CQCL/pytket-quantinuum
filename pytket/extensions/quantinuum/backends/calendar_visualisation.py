@@ -50,7 +50,8 @@ class QuantinuumCalendar(object):
             i.e. 2 for February.
         :param title_prefix: A prefix to add to the title
         """
-        self._title: str = f"{title_prefix} Operations Calendar\n{self.months[month-1]} {year} ({datetime.datetime.now().astimezone().strftime('%Z')})"
+        self._title: str = f"{title_prefix} Operations Calendar\n{self.months[month-1]} {year}\
+            ({datetime.datetime.now().astimezone().strftime('%Z')})"
         self._cal: np.ndarray = np.asarray(calendar.monthcalendar(year, month))
         self._events: np.ndarray = np.full(
             self._cal.shape, fill_value=None, dtype=object
@@ -84,10 +85,11 @@ class QuantinuumCalendar(object):
         must have the following keys:
         * 'start-date', a datetime.datetime object
         * 'end-date', a datetime.datetime object
-        * 'event-type', a string specifying if the device is `online` or has a `reservation`.
-        * 'organization', a string specifying the organisation with reservation
-            access. Otherwise, if the event-type is `online`, the organization
-            is listed as `fairshare`.
+        * 'event-type', a string specifying if the device is `online`
+            or has a `reservation`.
+        * 'organization', a string specifying the organisation with
+            reservation access. Otherwise, if the event-type is `online`,
+            the organization is listed as `fairshare`.
         """
         for event in events_list:
             event_start: datetime.datetime = event["start-date"]

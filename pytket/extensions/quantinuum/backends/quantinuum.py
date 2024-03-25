@@ -79,7 +79,6 @@ from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
 
 try:
-    import matplotlib.figure
     from pytket.extensions.quantinuum.backends.calendar_visualisation import (
         QuantinuumCalendar,
     )
@@ -575,7 +574,8 @@ class QuantinuumBackend(Backend):
         """
         if not MATPLOTLIB_IMPORT:
             raise ImportError(
-                "Matplotlib is not installed. Please run 'pip install pytket-quantinuum[calendar]'"
+                "Matplotlib is not installed. Please run \
+                'pip install pytket-quantinuum[calendar]'"
             )
         qntm_calendar = QuantinuumCalendar(
             year=year, month=month, title_prefix=self._device_name
