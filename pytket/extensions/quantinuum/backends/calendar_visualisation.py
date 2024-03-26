@@ -95,7 +95,7 @@ class QuantinuumCalendar(object):
         for event in events_list:
             event_start: datetime.datetime = event["start-date"]  # type: ignore
             event_end: datetime.datetime = event["end-date"]  # type: ignore
-            event_type: str = event["event-type"]
+            event_type: str = event["event-type"] # type: ignore
             dt_format = f"%H:%M"
             duration = (event_end - event_start).seconds / 3600
             event_str = (
