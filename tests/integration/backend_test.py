@@ -1151,12 +1151,7 @@ def test_scratch_removal(authenticated_quum_backend_qa: QuantinuumBackend) -> No
     "language",
     [
         Language.QASM,
-        pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/232"
-            ),
-        ),
+        Language.QIR,
     ],
 )
 @pytest.mark.timeout(120)
@@ -1213,12 +1208,7 @@ def test_wasm_collatz(
     "language",
     [
         Language.QASM,
-        pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/232"
-            ),
-        ),
+        Language.QIR,
     ],
 )
 @pytest.mark.timeout(120)
