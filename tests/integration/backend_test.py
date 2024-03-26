@@ -333,7 +333,7 @@ def test_cost_estimate(
         # All other real hardware backends should have the
         # "syntax_checker" misc property set, so there should be no
         # need of providing it explicitly.
-        estimate = b.cost(c, n_shots, no_opt=False)
+        estimate = b.cost(c, n_shots)
         if estimate is None:
             pytest.skip("API is flaky, sometimes returns None unexpectedly.")
         assert isinstance(estimate, float)
@@ -907,46 +907,6 @@ def test_options(
     shots = r.get_shots()
     assert len(shots) == 1
     assert len(shots[0]) == 1
-
-
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize(
-    "authenticated_quum_backend_qa",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
-    indirect=True,
-)
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
-@pytest.mark.timeout(120)
-def test_no_opt(
-    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
-) -> None:
-    c0 = Circuit(1).H(0).measure_all()
-    b = authenticated_quum_backend_qa
-    c = b.get_compiled_circuit(c0, 0)
-    h = b.process_circuits([c], n_shots=1, no_opt=True, language=language)  # type: ignore
-    r = b.get_results(h)[0]
-    shots = r.get_shots()
-    assert len(shots) == 1
-    assert len(shots[0]) == 1
-
-
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize(
-    "authenticated_quum_backend_qa",
-    [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
-    indirect=True,
-)
-@pytest.mark.timeout(120)
-def test_allow_2q_gate_rebase(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
-    c0 = Circuit(2).H(0).CX(0, 1).measure_all()
-    b = authenticated_quum_backend_qa
-    b.set_compilation_config_target_2qb_gate(OpType.ZZMax)
-    c = b.get_compiled_circuit(c0, 0)
-    h = b.process_circuits([c], n_shots=1, allow_2q_gate_rebase=True)
-    r = b.get_results(h)[0]
-    shots = r.get_shots()
-    assert len(shots) == 1
-    assert len(shots[0]) == 2
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
