@@ -195,7 +195,7 @@ jobs:
       run: pytest integration/
 
   calendar_visualisation_tests:
-    name: Run backend tests with QA endpoint
+    name: Run calendar visualisation test
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule'
     runs-on: ubuntu-22.04
     steps:
@@ -217,6 +217,7 @@ jobs:
         PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
       working-directory: ./tests
       run: |
+        pytest --mpl-generate-path=integration/baseline
         pytest integration/ --mpl
 
   prod_checks:
