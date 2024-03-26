@@ -140,12 +140,6 @@ default. This may be overridden using the method
 ``QuantinuumBackend.set_compilation_config_target_2qb_gate()`` or by passing a
 ``QuantinuumBackendCompilationConfig`` when constructing the backend.
 
-If desired, backends may be allowed to rebase to a different two-qubit gate
-judged to have better fidelity before being run. The default is to run with the
-gate provided in the submitted circuit, but this behaviour may be overridden
-using the optional ``allow_2q_gate_rebase`` argument to ``process_circuit()``,
-``process_circuits()`` or ``submit_program()``.
-
 Device Predicates
 =================
 

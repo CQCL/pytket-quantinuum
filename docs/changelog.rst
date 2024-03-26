@@ -1,6 +1,13 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Remove ``no_opt`` and ``allow_2q_gate_rebase`` options to
+  ``process_circuits()`` and ``submit_program()``, and assume that the submitted
+  circuit is exactly what is desired to be run.
+
 0.31.0 (March 2024)
 -------------------
 
