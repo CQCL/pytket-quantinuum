@@ -739,8 +739,6 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        no_opt: bool = False,
-        allow_2q_gate_rebase: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
         results_selection: Optional[List[Tuple[str, int]]] = None,
@@ -757,9 +755,6 @@ class QuantinuumBackend(Backend):
           tracking. Overrides the instance variable `group`, defaults to None
         :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
             module, defaults to None
-        :param no_opt: if true, requests that the backend perform no optimizations
-        :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
-           a higher-fidelity alternative gate at the discretion of the backend
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :param options: Items to add to the "options" dictionary of the request body
@@ -788,10 +783,11 @@ class QuantinuumBackend(Backend):
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
-                "no-opt": no_opt,
-                "noreduce": not allow_2q_gate_rebase,
+                "no-opt": True,
+                "noreduce": True,
                 "error-model": noisy_simulation,
                 "tket": dict(),
+                "tket-opt-level": None,
             },
         }
 
@@ -867,9 +863,6 @@ class QuantinuumBackend(Backend):
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
-        * `no_opt`: if true, requests that the backend perform no optimizations
-        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
-           higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -913,10 +906,6 @@ class QuantinuumBackend(Backend):
         wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
-
-        no_opt = cast(bool, kwargs.get("no_opt", False))
-
-        allow_2q_gate_rebase = cast(bool, kwargs.get("allow_2q_gate_rebase", False))
 
         language = cast(Language, kwargs.get("language", Language.QASM))
 
@@ -1020,8 +1009,6 @@ class QuantinuumBackend(Backend):
                         group=group,
                         wasm_file_handler=wasm_fh,
                         pytket_pass=pytket_pass,
-                        no_opt=no_opt,
-                        allow_2q_gate_rebase=allow_2q_gate_rebase,
                         options=cast(Dict[str, Any], kwargs.get("options", {})),
                         request_options=cast(
                             Dict[str, Any], kwargs.get("request_options", {})
