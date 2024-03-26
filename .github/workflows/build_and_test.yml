@@ -29,6 +29,8 @@ on:
 env:
   PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
   PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
+  PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+  PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
 
 jobs:
   quantinuum-checks:
@@ -183,13 +185,37 @@ jobs:
       run: python -m pip install -v -e .
     - name: Install test requirements
       run: python -m pip install --pre -r tests/test-requirements.txt
-    - name: Run tests with QA endpoint
+    - name: Run tests with QA and prod endpoint
       env:
         PYTKET_RUN_REMOTE_TESTS: 1
-        PYTKET_REMOTE_QUANTINUUM_API_URL: https://hqapi.quantinuum.com/
-        PYTKET_REMOTE_QUANTINUUM_GROUP: DEFAULT
-        PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
-        PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
+        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
+        PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY: 1
+      working-directory: ./tests
+      run: pytest integration/
+
+  prod_checks:
+    name: Run backend tests with QA and prod endpoint
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || contains(github.ref_name, 'runci/prod/')
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install module
+      run: python -m pip install -v -e .
+    - name: Install test requirements
+      run: python -m pip install --pre -r tests/test-requirements.txt
+    - name: Run tests with QA and prod endpoint
+      env:
+        PYTKET_RUN_REMOTE_TESTS: 1
+        PYTKET_RUN_REMOTE_TESTS_PROD: 1
+        PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
+        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
         PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY: 1
       working-directory: ./tests
       run: pytest integration/
