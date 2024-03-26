@@ -17,13 +17,13 @@
 # All rights reserved.
 """Submodule providing calendar visualisation functionality"""
 
-from typing import List, Dict, NoReturn, Tuple
+from typing import List, Dict, Tuple
 import calendar
 import datetime
 
 import numpy as np
-import matplotlib.pyplot as mpl
-from matplotlib.figure import Figure
+import matplotlib.pyplot as mpl # type: ignore
+from matplotlib.figure import Figure # type: ignore
 
 calendar.setfirstweekday(0)
 
@@ -61,7 +61,7 @@ class QuantinuumCalendar(object):
             self._cal.shape, fill_value=None, dtype=object
         )
 
-    def _add_event(self, day: int, event_str: str):
+    def _add_event(self, day: int, event_str: str) -> None:
         """Add event.
 
         :param day: An integer specifing day in the month
@@ -81,7 +81,7 @@ class QuantinuumCalendar(object):
         except RuntimeError:
             raise RuntimeError(f"Day outside of specified month")
 
-    def add_events(self, events_list: List[Dict[str, object]]) -> NoReturn:
+    def add_events(self, events_list: List[Dict[str, object]]) -> None:
         """Add list of events. Each event is a dictionary and
         must have the following keys:
         * 'start-date', a datetime.datetime object
@@ -93,8 +93,8 @@ class QuantinuumCalendar(object):
             the organization is listed as `fairshare`.
         """
         for event in events_list:
-            event_start: datetime.datetime = event["start-date"]
-            event_end: datetime.datetime = event["end-date"]
+            event_start: datetime.datetime = event["start-date"] # type: ignore
+            event_end: datetime.datetime = event["end-date"] # type: ignore
             event_type: str = event["event-type"]
             dt_format = f"%H:%M"
             duration = (event_end - event_start).seconds / 3600
