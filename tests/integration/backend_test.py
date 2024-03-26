@@ -1458,7 +1458,7 @@ def test_no_matplotlib(authenticated_quum_handler: QuantinuumAPI) -> None:
 @pytest.mark.skipif(skip_mpl_tests, reason=REASON_MPL)
 @pytest.mark.timeout(120)
 @pytest.mark.mpl_image_compare
-def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> None:
+def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
     backend = QuantinuumBackend(
         api_handler=authenticated_quum_handler, device_name="H1-1"
     )
