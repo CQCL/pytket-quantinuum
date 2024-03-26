@@ -107,8 +107,8 @@ class QuantinuumCalendar(object):
     def build_calendar(
         self,
         figsize: Tuple[float, float] = (40, 20),
-        fontsize=15,
-        titlesize=40,
+        fontsize: float = 15,
+        titlesize: float = 40,
     ) -> Figure:
         """Display calendar on a matplotlib.figure.Figure object.
 
