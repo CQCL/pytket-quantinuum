@@ -22,8 +22,8 @@ import calendar
 import datetime
 
 import numpy as np
-import matplotlib.pyplot as mpl # type: ignore
-from matplotlib.figure import Figure # type: ignore
+import matplotlib.pyplot as mpl  # type: ignore
+from matplotlib.figure import Figure  # type: ignore
 
 calendar.setfirstweekday(0)
 
@@ -93,8 +93,8 @@ class QuantinuumCalendar(object):
             the organization is listed as `fairshare`.
         """
         for event in events_list:
-            event_start: datetime.datetime = event["start-date"] # type: ignore
-            event_end: datetime.datetime = event["end-date"] # type: ignore
+            event_start: datetime.datetime = event["start-date"]  # type: ignore
+            event_end: datetime.datetime = event["end-date"]  # type: ignore
             event_type: str = event["event-type"]
             dt_format = f"%H:%M"
             duration = (event_end - event_start).seconds / 3600

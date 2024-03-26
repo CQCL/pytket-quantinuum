@@ -82,7 +82,8 @@ try:
     from pytket.extensions.quantinuum.backends.calendar_visualisation import (
         QuantinuumCalendar,
     )
-    import matplotlib # type: ignore
+    import matplotlib  # type: ignore
+
     MATPLOTLIB_IMPORT = True
 except ImportError:
     MATPLOTLIB_IMPORT = False
@@ -553,7 +554,7 @@ class QuantinuumBackend(Backend):
         figsize: Tuple[float, float] = (40, 20),
         fontsize: float = 15,
         titlesize: float = 40,
-    ) -> matplotlib.figure.Figure:
+    ) -> "matplotlib.figure.Figure":
         """Visualise the H-Series operations calendar for a user-specified
         month and year. The operations hours are shown for the machine name
         used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operations
