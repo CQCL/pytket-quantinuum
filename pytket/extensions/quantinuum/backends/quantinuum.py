@@ -451,7 +451,7 @@ class QuantinuumBackend(Backend):
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         localise: bool = True,
-    ) -> List[Dict[str, str]]:
+    ) -> List[Dict[str, Any]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
@@ -501,15 +501,15 @@ class QuantinuumBackend(Backend):
 
         if self._device_name.endswith("E") | self._device_name.endswith("SC"):
             raise RuntimeError(
-                f"Error requesting data for {self._device_name}. Calendar \
-information not available for emulators (E) or syntax checkers (SC)."
+                f"Error requesting data for {self._device_name}. Emulators (E) \
+                and Syntax Checkers (SC) are online 24/7. Calendar \
+                information not available."
             )
 
         l4_calendar_data = self.api_handler.get_calendar(
             start_date.date().isoformat(), end_date.date().isoformat()
         )
         calendar_data = []
-        dt_format = "%a %Y-%m-%d %H:%M (%Z)"
 
         for l4_event in l4_calendar_data:
             device_name = l4_event["machine"]
@@ -522,19 +522,17 @@ information not available for emulators (E) or syntax checkers (SC)."
                 l4_event["end-date"]
             )  # datetime in UTC tz
             if localise:  # Apply timezone localisation on UTC datetime
-                dt_start = dt_start.astimezone()  #
+                dt_start = dt_start.astimezone()
                 dt_end = dt_end.astimezone()
             event = {
-                "start-date": dt_start.strftime(dt_format),
-                "end-date": dt_end.strftime(dt_format),
+                "start-date": dt_start,
+                "end-date": dt_end,
                 "machine": device_name,
                 "event-type": l4_event["event-type"],
                 "organization": l4_event.get("organization", "fairshare"),
             }
             calendar_data.append(event)
-        calendar_data.sort(
-            key=lambda item: datetime.datetime.strptime(item["start-date"], dt_format)
-        )
+        calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
         return calendar_data
 
     @property
