@@ -53,7 +53,7 @@ setup(
         "msal ~= 1.18",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.1.19"],
+        "pecos": ["pytket-pecos ~= 0.1.21"],
         "calendar": ["matplotlib ~= 3.8.3", "pandas ~= 2.2.1"],
     },
     classifiers=[

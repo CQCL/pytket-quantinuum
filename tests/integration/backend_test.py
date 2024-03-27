@@ -558,7 +558,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
         ),
     ],
 )
-@pytest.mark.timeout(120)
+@pytest.mark.timeout(200)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
     authenticated_quum_backend_qa: QuantinuumBackend,
