@@ -19,7 +19,7 @@ and Windows. To install, run:
 
 ::
 
-    pip install pytket-quantinuum["calendar"]
+    pip install pytket-quantinuum[calendar]
 
 .. note::   `view_calendar` requires the extra-install-argument above. The method `get_calendar` can be used with the base installation of pytket-quantinuum.
 
