@@ -1,0 +1,14 @@
+# For more info on the Cargo.toml format see: https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "rus_wasm"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+# cdylib specifies a dynamic system library will be produced. This is used when 
+# compiling a dynamic library to be loaded from another language, as is the 
+# case for hybrid compute.
+crate-type = ["cdylib"]
+
+[dependencies]
