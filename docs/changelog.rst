@@ -1,6 +1,14 @@
 Changelog
 ~~~~~~~~~
 
+0.32.0 (March 2024)
+-------------------
+
+* Remove ``no_opt`` and ``allow_2q_gate_rebase`` options to
+  ``process_circuits()`` and ``submit_program()``, and assume that the submitted
+  circuit is exactly what is desired to be run.
+* Update pytket_pecos version requirement to 0.1.21.
+
 0.31.0 (March 2024)
 -------------------
 
@@ -9,6 +17,8 @@ Changelog
 Quantinuum H-Series operational calendar.
 * Update pytket_pecos version requirement to 0.1.19.
 * Support TK2 as native gate.
+* Update pytket version requirement to 1.26.
+* Update pytket-qir version requirement to 0.9.
 
 0.30.0 (February 2024)
 ----------------------

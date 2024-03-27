@@ -451,7 +451,7 @@ class QuantinuumBackend(Backend):
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         localise: bool = True,
-    ) -> List[Dict[str, str]]:
+    ) -> List[Dict[str, Any]]:
         r"""Retrieves the Quantinuum H-Series operational calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
@@ -501,15 +501,15 @@ class QuantinuumBackend(Backend):
 
         if self._device_name.endswith("E") | self._device_name.endswith("SC"):
             raise RuntimeError(
-                f"Error requesting data for {self._device_name}. Calendar \
-information not available for emulators (E) or syntax checkers (SC)."
+                f"Error requesting data for {self._device_name}. Emulators (E) \
+                and Syntax Checkers (SC) are online 24/7. Calendar \
+                information not available."
             )
 
         l4_calendar_data = self.api_handler.get_calendar(
             start_date.date().isoformat(), end_date.date().isoformat()
         )
         calendar_data = []
-        dt_format = "%a %Y-%m-%d %H:%M (%Z)"
 
         for l4_event in l4_calendar_data:
             device_name = l4_event["machine"]
@@ -522,19 +522,17 @@ information not available for emulators (E) or syntax checkers (SC)."
                 l4_event["end-date"]
             )  # datetime in UTC tz
             if localise:  # Apply timezone localisation on UTC datetime
-                dt_start = dt_start.astimezone()  #
+                dt_start = dt_start.astimezone()
                 dt_end = dt_end.astimezone()
             event = {
-                "start-date": dt_start.strftime(dt_format),
-                "end-date": dt_end.strftime(dt_format),
+                "start-date": dt_start,
+                "end-date": dt_end,
                 "machine": device_name,
                 "event-type": l4_event["event-type"],
                 "organization": l4_event.get("organization", "fairshare"),
             }
             calendar_data.append(event)
-        calendar_data.sort(
-            key=lambda item: datetime.datetime.strptime(item["start-date"], dt_format)
-        )
+        calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
         return calendar_data
 
     @property
@@ -741,8 +739,6 @@ information not available for emulators (E) or syntax checkers (SC)."
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        no_opt: bool = False,
-        allow_2q_gate_rebase: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
         results_selection: Optional[List[Tuple[str, int]]] = None,
@@ -759,9 +755,6 @@ information not available for emulators (E) or syntax checkers (SC)."
           tracking. Overrides the instance variable `group`, defaults to None
         :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
             module, defaults to None
-        :param no_opt: if true, requests that the backend perform no optimizations
-        :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
-           a higher-fidelity alternative gate at the discretion of the backend
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :param options: Items to add to the "options" dictionary of the request body
@@ -790,10 +783,11 @@ information not available for emulators (E) or syntax checkers (SC)."
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
-                "no-opt": no_opt,
-                "noreduce": not allow_2q_gate_rebase,
+                "no-opt": True,
+                "noreduce": True,
                 "error-model": noisy_simulation,
                 "tket": dict(),
+                "tket-opt-level": None,
             },
         }
 
@@ -869,9 +863,6 @@ information not available for emulators (E) or syntax checkers (SC)."
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
-        * `no_opt`: if true, requests that the backend perform no optimizations
-        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
-           higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -915,10 +906,6 @@ information not available for emulators (E) or syntax checkers (SC)."
         wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
-
-        no_opt = cast(bool, kwargs.get("no_opt", False))
-
-        allow_2q_gate_rebase = cast(bool, kwargs.get("allow_2q_gate_rebase", False))
 
         language = cast(Language, kwargs.get("language", Language.QASM))
 
@@ -1022,8 +1009,6 @@ information not available for emulators (E) or syntax checkers (SC)."
                         group=group,
                         wasm_file_handler=wasm_fh,
                         pytket_pass=pytket_pass,
-                        no_opt=no_opt,
-                        allow_2q_gate_rebase=allow_2q_gate_rebase,
                         options=cast(Dict[str, Any], kwargs.get("options", {})),
                         request_options=cast(
                             Dict[str, Any], kwargs.get("request_options", {})

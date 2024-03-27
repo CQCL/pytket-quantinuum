@@ -44,7 +44,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pytket ~= 1.26",
-        "pytket-qir ~= 0.5.0",
+        "pytket-qir ~= 0.9.0",
         "requests >= 2.2",
         "types-requests",
         "websockets >= 7.0",
@@ -53,7 +53,7 @@ setup(
         "msal ~= 1.18",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.1.19"],
+        "pecos": ["pytket-pecos ~= 0.1.21"],
     },
     classifiers=[
         "Environment :: Console",
