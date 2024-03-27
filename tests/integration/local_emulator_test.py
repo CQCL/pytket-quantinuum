@@ -290,6 +290,35 @@ def test_classical_3(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
+def test_classical_4(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/395
+    circ = Circuit(1)
+    ctrl = circ.add_c_register(name="control", size=1)
+    meas = circ.add_c_register(name="measure", size=1)
+    circ.add_c_setreg(1, ctrl)
+    circ.X(0, condition=ctrl[0])
+    circ.add_c_setreg(0, ctrl)
+    circ.X(0, condition=ctrl[0])
+    circ.add_c_setreg(1, ctrl)
+    circ.X(0, condition=ctrl[0])
+    circ.Measure(
+        qubit=circ.qubits[0],
+        bit=meas[0],
+    )
+    backend = authenticated_quum_backend_prod
+    compiled_circ = backend.get_compiled_circuit(circ, optimisation_level=0)
+    result = backend.run_circuit(compiled_circ, n_shots=100, no_opt=True)
+    counts = result.get_counts(meas.to_list())
+    assert counts == Counter({(0,): 100})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
 def test_wasm(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
