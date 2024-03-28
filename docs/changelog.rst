@@ -7,7 +7,7 @@ Changelog
 * Remove ``no_opt`` and ``allow_2q_gate_rebase`` options to
   ``process_circuits()`` and ``submit_program()``, and assume that the submitted
   circuit is exactly what is desired to be run.
-* Update pytket_pecos version requirement to 0.1.21.
+* Update pytket_pecos version requirement to 0.1.22.
 
 0.31.0 (March 2024)
 -------------------
