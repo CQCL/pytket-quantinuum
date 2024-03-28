@@ -77,6 +77,18 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
+
+try:
+    from pytket.extensions.quantinuum.backends.calendar_visualisation import (
+        QuantinuumCalendar,
+    )
+    import matplotlib  # type: ignore
+
+    MATPLOTLIB_IMPORT = True
+except ImportError:
+    MATPLOTLIB_IMPORT = False
+
+
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 MAX_C_REG_WIDTH = 32
 
@@ -452,13 +464,13 @@ class QuantinuumBackend(Backend):
         end_date: datetime.datetime,
         localise: bool = True,
     ) -> List[Dict[str, Any]]:
-        r"""Retrieves the Quantinuum H-Series operational calendar
+        """Retrieves the Quantinuum H-Series operations calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
         end-user.
 
         The output is a sorted list of dictionaries. Each dictionary is an
-        event on the operational calendar for the period specified by the
+        event on the operations calendar for the period specified by the
         end-user. The output from this function can be readily used
         to instantiate a pandas.DataFrame.
 
@@ -472,18 +484,18 @@ class QuantinuumBackend(Backend):
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
             organization with reservation access is specified. Only users within an
             organization have visibility on organization reservations. Otherwise,
-            organization is listed as 'fairshare', which means all users from all
+            organization is listed as 'Fair-Share Queue', which means all users from all
             organizations are able to submit jobs to the Fairshare queue during this
             period.
 
         :param start_date: The start date as datetime.date object
-            for the period to return the operational calendar.
+            for the period to return the operations calendar.
         :param end_date: The end date as datetime.date object
-            for the period to return the operational calendar.
+            for the period to return the operations calendar.
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
-        :return: A list of events from the H-Series operational calendar,
+        :return: A list of events from the H-Series operations calendar,
             sorted by the `start-date` of each event. Each event is a python
             dictionary.
         :return_type: List[Dict[str, str]]
@@ -529,11 +541,55 @@ class QuantinuumBackend(Backend):
                 "end-date": dt_end,
                 "machine": device_name,
                 "event-type": l4_event["event-type"],
-                "organization": l4_event.get("organization", "fairshare"),
+                "organization": l4_event.get("organization", "Fair-Share Queue"),
             }
             calendar_data.append(event)
         calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
         return calendar_data
+
+    def view_calendar(
+        self,
+        month: int,
+        year: int,
+        figsize: Tuple[float, float] = (40, 20),
+        fontsize: float = 15,
+        titlesize: float = 40,
+    ) -> "matplotlib.figure.Figure":
+        """Visualise the H-Series operations calendar for a user-specified
+        month and year. The operations hours are shown for the machine name
+        used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operations
+        days are coloured. In addition, a description of the event is also
+        displayed (`start-time`, `duration` and `event-type`, see the
+        `get_calendar` method for more information).
+
+        :param month: An integer specifying the calendar month to visualise.
+            1 is January and 12 is December.
+        :param year: An integer specifying the calendar year to visualise.
+        :param figsize: A tuple specifying width and height of the output
+            matplotlib.figure.Figure.
+        :param fontsize: The fontsize of the event description within the
+            calendar.
+        :return: A matplotlib.figure.Figure visualising the H-Series
+            calendar for a user-specified calendar month.
+        :return_type: matplotlib.figure.Figure
+        """
+        if not MATPLOTLIB_IMPORT:
+            raise ImportError(
+                "Matplotlib is not installed. Please run \
+                'pip install pytket-quantinuum[calendar]'"
+            )
+        qntm_calendar = QuantinuumCalendar(
+            year=year, month=month, title_prefix=self._device_name
+        )
+        end_day = max(qntm_calendar._cal[-1])
+        dt_start = datetime.datetime(year=year, month=month, day=1)
+        dt_end = datetime.datetime(year=year, month=month, day=end_day)
+        data = self.get_calendar(dt_start, dt_end, localise=True)
+        qntm_calendar.add_events(data)
+        calendar_figure = qntm_calendar.build_calendar(
+            figsize=figsize, fontsize=fontsize, titlesize=titlesize
+        )
+        return calendar_figure
 
     @property
     def backend_info(self) -> Optional[BackendInfo]:
