@@ -62,12 +62,16 @@ from pytket.wasm import WasmFileHandler
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 skip_remote_tests_prod: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS_PROD") is None
+skip_mpl_tests: bool = os.getenv("PYTKET_RUN_MPL_TESTS") is None
 
 REASON = (
     "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
 )
 
 REASON_PROD = "PYTKET_RUN_REMOTE_TESTS_PROD not set \
+(requires configuration of Quantinuum username)"
+
+REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 (requires configuration of Quantinuum username)"
 
 
@@ -542,19 +546,8 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QASM,
-        pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/276"
-            ),
-        ),
-    ],
-)
-@pytest.mark.timeout(120)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.timeout(200)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
     authenticated_quum_backend_qa: QuantinuumBackend,
@@ -1384,8 +1377,11 @@ def test_get_calendar(
     end_date = datetime.datetime(2024, 2, 16)
     calendar_data = backend.get_calendar(start_date, end_date)
     assert all(isinstance(a, dict) for a in calendar_data)
-    assert isinstance(calendar_data[0].get("start-date"), datetime.datetime)
-    assert isinstance(calendar_data[0].get("end-date"), datetime.datetime)
+    assert all(
+        isinstance(a.get(attr), datetime.datetime)
+        for a in calendar_data
+        for attr in ["start-date", "end-date"]
+    )
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1399,3 +1395,23 @@ def test_get_calendar_raises_error(
     end_date = datetime.datetime(2024, 2, 16)
     with pytest.raises(RuntimeError):
         backend.get_calendar(start_date, end_date)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_no_matplotlib(authenticated_quum_handler: QuantinuumAPI) -> None:
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name="H1-1"
+    )
+    with pytest.raises(ImportError):
+        backend.view_calendar(month=2, year=2024)
+
+
+@pytest.mark.skipif(skip_mpl_tests, reason=REASON_MPL)
+@pytest.mark.timeout(120)
+@pytest.mark.mpl_image_compare
+def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name="H1-1"
+    )
+    return backend.view_calendar(month=2, year=2024)
