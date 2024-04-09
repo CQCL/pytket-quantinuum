@@ -27,6 +27,8 @@ and Windows. To install, run:
 **Web Interface:**
 https://um.qapi.quantinuum.com/
 
+In case of questions about the hardware you can get in contact with the team sending an email to QCsupport@quantinuum.com.
+
 Available Backends
 ==================
 The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the ``QuantinuumBackend`` class. The available devices are:
