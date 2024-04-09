@@ -1028,9 +1028,6 @@ class QuantinuumBackend(Backend):
                             results_selection.append((name, i))
                 else:
                     assert language == Language.QIR
-                    warnings.warn(
-                        "Support for Language.QIR is experimental; this may fail!"
-                    )
                     for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                         for i in range(count):
                             results_selection.append((name, i))
