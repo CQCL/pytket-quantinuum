@@ -4,7 +4,7 @@ Changelog
 Unreleased
 ----------
 
-* Update pytket_pecos version requirement to 0.1.23.
+* Update pytket_pecos version requirement to 0.1.24.
 
 0.32.0 (March 2024)
 -------------------
