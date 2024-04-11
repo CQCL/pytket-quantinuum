@@ -319,6 +319,26 @@ def test_classical_4(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
     indirect=True,
 )
+def test_classical_5(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
+    # https://github.com/CQCL/pytket-phir/issues/159
+    circ = Circuit()
+    targ_reg = circ.add_c_register("targ_reg", 1)
+    ctrl_reg = circ.add_c_register("ctrl_reg", 1)
+    circ.add_c_not(arg_in=targ_reg[0], arg_out=targ_reg[0], condition=ctrl_reg[0])
+    backend = authenticated_quum_backend_prod
+    compiled_circ = backend.get_compiled_circuit(circuit=circ)
+    result = backend.run_circuit(circuit=compiled_circ, n_shots=10)
+    counts = result.get_counts()
+    assert counts == Counter({(0, 0): 10})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
 def test_wasm(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
