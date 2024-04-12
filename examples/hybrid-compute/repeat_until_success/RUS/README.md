@@ -13,7 +13,7 @@ This subfolder is organized as follows.
 ---
     ├── Hybrid-compute        <- Examples of how to use Hybrid Compute via WASM
           |
-          ├── RUS_WASM        <- Repeat Until Success source code
+          ├── repeat_until_success        <- Repeat Until Success source code
 ---
 
 ## Download
@@ -22,7 +22,7 @@ If you haven't done so already, download the complete set of examples on the use
 
 ## Notebook Example
 
-The python notebook in this directory called `repeat_until_success_with_wasm.ipynb` can be run to show an example of the hybrid compute feature's workflow, without needing to edit any classical functions or compile to Wasm.
+The python notebook in this directory called `batched_RUS_example.ipynb` can be run to show an example of the hybrid compute feature's workflow, without needing to edit any classical functions or compile to Wasm.
 
 ## Setup
 

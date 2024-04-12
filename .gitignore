@@ -3,6 +3,7 @@
 build
 dist
 *.pyc
+*.DS_Store
 .venv
 .vscode
 .mypy_cache
