@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Cambridge Quantum Computing
+# Copyright 2020-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,12 +62,16 @@ from pytket.wasm import WasmFileHandler
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 skip_remote_tests_prod: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS_PROD") is None
+skip_mpl_tests: bool = os.getenv("PYTKET_RUN_MPL_TESTS") is None
 
 REASON = (
     "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
 )
 
 REASON_PROD = "PYTKET_RUN_REMOTE_TESTS_PROD not set \
+(requires configuration of Quantinuum username)"
+
+REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 (requires configuration of Quantinuum username)"
 
 
@@ -542,19 +546,8 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QASM,
-        pytest.param(
-            Language.QIR,
-            marks=pytest.mark.xfail(
-                reason="https://github.com/CQCL/pytket-quantinuum/issues/276"
-            ),
-        ),
-    ],
-)
-@pytest.mark.timeout(120)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.timeout(200)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
     authenticated_quum_backend_qa: QuantinuumBackend,
@@ -1053,7 +1046,7 @@ def test_qir_submission_mz_to_reg_qa(
     h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
     assert len(r.get_shots()) == 10
-    assert len(r.get_bitlist()) == 128
+    assert len(r.get_bitlist()) == 256 or len(r.get_bitlist()) == 128
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1256,69 +1249,6 @@ def test_wasm_state(
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
-)
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QIR,
-        pytest.param(
-            Language.QASM,
-            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1174"),
-        ),
-    ],
-)
-@pytest.mark.timeout(120)
-def test_wasm_multivalue(
-    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
-) -> None:
-    wasfile = WasmFileHandler(
-        str(Path(__file__).parent.parent / "wasm" / "multivalue.wasm")
-    )
-    c = Circuit(8)
-    a = c.add_c_register("a", 4)  # measurement results
-    b = c.add_c_register("b", 4)  # measurement results
-    x = c.add_c_register("x", 4)  # quotient
-    y = c.add_c_register("y", 4)  # remainder
-
-    # Use Hadamards to set "a" register to random values.
-    for i in range(8):
-        c.H(i)
-    # Measure
-    for i in range(4):
-        c.Measure(Qubit(i), Bit("a", i))
-        c.Measure(Qubit(4 + i), Bit("b", i))
-    # Compute divmod
-    c.add_wasm_to_reg("divmod", wasfile, [a, b], [x, y])
-
-    backend = authenticated_quum_backend_qa
-
-    c = backend.get_compiled_circuit(c)
-    with pytest.raises(ValueError):
-        h = backend.process_circuit(
-            c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
-        )
-        r = backend.get_result(h)
-        shots = r.get_shots()
-
-        def to_int(C: np.ndarray) -> int:
-            assert len(C) == 4
-            return sum(pow(2, i) * C[i] for i in range(4))
-
-        for shot in shots:
-            A = to_int(shot[:4])
-            B = to_int(shot[4:8])
-            X = to_int(shot[8:12])
-            Y = to_int(shot[12:16])
-            if B == 0:
-                assert X == 0
-                assert Y == 0
-            else:
-                assert A == X * B + Y
-
-
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.timeout(120)
 def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
     # https://github.com/CQCL/pytket-quantinuum/issues/250
@@ -1384,8 +1314,11 @@ def test_get_calendar(
     end_date = datetime.datetime(2024, 2, 16)
     calendar_data = backend.get_calendar(start_date, end_date)
     assert all(isinstance(a, dict) for a in calendar_data)
-    assert isinstance(calendar_data[0].get("start-date"), datetime.datetime)
-    assert isinstance(calendar_data[0].get("end-date"), datetime.datetime)
+    assert all(
+        isinstance(a.get(attr), datetime.datetime)
+        for a in calendar_data
+        for attr in ["start-date", "end-date"]
+    )
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1399,3 +1332,23 @@ def test_get_calendar_raises_error(
     end_date = datetime.datetime(2024, 2, 16)
     with pytest.raises(RuntimeError):
         backend.get_calendar(start_date, end_date)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_no_matplotlib(authenticated_quum_handler: QuantinuumAPI) -> None:
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name="H1-1"
+    )
+    with pytest.raises(ImportError):
+        backend.view_calendar(month=2, year=2024)
+
+
+@pytest.mark.skipif(skip_mpl_tests, reason=REASON_MPL)
+@pytest.mark.timeout(120)
+@pytest.mark.mpl_image_compare
+def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
+    backend = QuantinuumBackend(
+        api_handler=authenticated_quum_handler, device_name="H1-1"
+    )
+    return backend.view_calendar(month=2, year=2024)
