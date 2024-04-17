@@ -9,7 +9,7 @@ at the top, and any other int-to-int functions below.
 Run:
 
 ```shell
-clang --target=wasm32 -mcollatz.c -Xclang -target-abi -Xclang experimental-mv --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o <filename>.wasm <filename>.c
+clang --target=wasm32 -Xclang -target-abi -Xclang experimental-mv --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o <filename>.wasm <filename>.c
 ```
 
 to generate the wasm file.
