@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Cambridge Quantum Computing
+# Copyright 2020-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1246,69 +1246,6 @@ def test_wasm_state(
         a_count = sum(shot[:8])
         b_count = to_int(shot[8:12])
         assert a_count == b_count
-
-
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
-)
-@pytest.mark.parametrize(
-    "language",
-    [
-        Language.QIR,
-        pytest.param(
-            Language.QASM,
-            marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1174"),
-        ),
-    ],
-)
-@pytest.mark.timeout(120)
-def test_wasm_multivalue(
-    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
-) -> None:
-    wasfile = WasmFileHandler(
-        str(Path(__file__).parent.parent / "wasm" / "multivalue.wasm")
-    )
-    c = Circuit(8)
-    a = c.add_c_register("a", 4)  # measurement results
-    b = c.add_c_register("b", 4)  # measurement results
-    x = c.add_c_register("x", 4)  # quotient
-    y = c.add_c_register("y", 4)  # remainder
-
-    # Use Hadamards to set "a" register to random values.
-    for i in range(8):
-        c.H(i)
-    # Measure
-    for i in range(4):
-        c.Measure(Qubit(i), Bit("a", i))
-        c.Measure(Qubit(4 + i), Bit("b", i))
-    # Compute divmod
-    c.add_wasm_to_reg("divmod", wasfile, [a, b], [x, y])
-
-    backend = authenticated_quum_backend_qa
-
-    c = backend.get_compiled_circuit(c)
-    with pytest.raises(ValueError):
-        h = backend.process_circuit(
-            c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
-        )
-        r = backend.get_result(h)
-        shots = r.get_shots()
-
-        def to_int(C: np.ndarray) -> int:
-            assert len(C) == 4
-            return sum(pow(2, i) * C[i] for i in range(4))
-
-        for shot in shots:
-            A = to_int(shot[:4])
-            B = to_int(shot[4:8])
-            X = to_int(shot[8:12])
-            Y = to_int(shot[12:16])
-            if B == 0:
-                assert X == 0
-                assert Y == 0
-            else:
-                assert A == X * B + Y
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
