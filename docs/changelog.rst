@@ -4,9 +4,34 @@ Changelog
 Unreleased
 ----------
 
+* Update pytket_pecos version requirement to 0.1.24.
+
+0.32.0 (March 2024)
+-------------------
+
+* Remove ``no_opt`` and ``allow_2q_gate_rebase`` options to
+  ``process_circuits()`` and ``submit_program()``, and assume that the submitted
+  circuit is exactly what is desired to be run.
+* Update pytket_pecos version requirement to 0.1.22.
+
+0.31.0 (March 2024)
+-------------------
+
+* Updated pytket version requirement to 1.26.
+* Update pytket_pecos version requirement to 0.1.19.
+* Add methods to enable visibility of Quantinuum H-Series 
+operations calendar with and without matplotlib.
+* Support TK2 as native gate.
+* Update pytket version requirement to 1.26.
+* Update pytket-qir version requirement to 0.9.
+
+0.30.0 (February 2024)
+----------------------
+
 * Make pytket-qir an automatic dependency.
+* Update pytket version requirement to 1.25.
 * Update pytket-qir version requirement to 0.5.
-* Update pytket_pecos version requirement to 0.1.15.
+* Update pytket_pecos version requirement to 0.1.17.
 
 0.29.0 (January 2024)
 ---------------------

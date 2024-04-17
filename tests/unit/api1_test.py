@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Cambridge Quantum Computing
+# Copyright 2020-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -498,6 +498,7 @@ def test_available_devices(
         "syntax_checker": "H9-27SC",
         "batching": True,
         "wasm": True,
+        "cl_reg_width": 32,
     }
     assert backinfo0.name == "QuantinuumBackend"
 
@@ -518,6 +519,7 @@ def test_available_devices(
             "syntax_checker": "H9-27SC",
             "batching": False,
             "wasm": True,
+            "cl_reg_width": 32,
         }
         assert backinfo1.name == "QuantinuumBackend"
 

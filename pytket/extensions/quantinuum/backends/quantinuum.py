@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Cambridge Quantum Computing
+# Copyright 2020-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import re
 from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
 from uuid import uuid1
 import warnings
+import datetime
 
 import numpy as np
 import requests
@@ -76,6 +77,18 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
 
+
+try:
+    from pytket.extensions.quantinuum.backends.calendar_visualisation import (
+        QuantinuumCalendar,
+    )
+    import matplotlib  # type: ignore
+
+    MATPLOTLIB_IMPORT = True
+except ImportError:
+    MATPLOTLIB_IMPORT = False
+
+
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 MAX_C_REG_WIDTH = 32
 
@@ -88,11 +101,7 @@ _STATUS_MAP = {
     "canceled": StatusEnum.CANCELLED,
 }
 
-_GATE_SET = {
-    OpType.Rz,
-    OpType.PhasedX,
-    OpType.ZZMax,
-    OpType.ZZPhase,
+_ADDITIONAL_GATES = {
     OpType.Reset,
     OpType.Measure,
     OpType.Barrier,
@@ -106,6 +115,18 @@ _GATE_SET = {
     OpType.WASM,
 }
 
+_GATE_MAP = {
+    "Rxxyyzz": OpType.TK2,
+    "Rz": OpType.Rz,
+    "RZZ": OpType.ZZPhase,
+    "TK2": OpType.TK2,
+    "U1q": OpType.PhasedX,
+    "ZZ": OpType.ZZMax,
+}
+
+_ALL_GATES = _ADDITIONAL_GATES.copy()
+_ALL_GATES.update(_GATE_MAP.values())
+
 
 def _default_2q_gate(device_name: str) -> OpType:
     # If we change this, we should update the main documentation page and highlight it
@@ -114,9 +135,12 @@ def _default_2q_gate(device_name: str) -> OpType:
 
 
 def _get_gateset(gates: List[str]) -> Set[OpType]:
-    gs = _GATE_SET.copy()
-    if "Rxxyyzz" in gates:
-        gs.add(OpType.TK2)
+    gs = _ADDITIONAL_GATES.copy()
+    for gate in gates:
+        if gate not in _GATE_MAP:
+            warnings.warn(f"Gate {gate} not recognized.")
+        else:
+            gs.add(_GATE_MAP[gate])
     return gs
 
 
@@ -218,7 +242,7 @@ class QuantinuumBackendCompilationConfig:
 @cache
 def have_pecos() -> bool:
     try:
-        import pytket_pecos  # type: ignore
+        import pytket_pecos  # type: ignore # noqa # pylint: disable=unused-import
 
         return True
     except ImportError:
@@ -360,6 +384,7 @@ class QuantinuumBackend(Backend):
             dct1["system_type"] = "local_emulator"
             dct1.pop("emulator", None)
             dct1["batching"] = False
+        dct1["cl_reg_width"] = 32 if n_qubits <= 32 else 64
         return BackendInfo(
             name=cls.__name__,
             device_name=name + "LE" if local_emulator else name,
@@ -433,6 +458,139 @@ class QuantinuumBackend(Backend):
         api_handler._response_check(res, "get machine status")
         return str(res.json()["state"])
 
+    def get_calendar(
+        self,
+        start_date: datetime.datetime,
+        end_date: datetime.datetime,
+        localise: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Retrieves the Quantinuum H-Series operations calendar
+        for the period specified by start_date and end_date.
+        The calendar data returned is for the local timezone of the
+        end-user.
+
+        The output is a sorted list of dictionaries. Each dictionary is an
+        event on the operations calendar for the period specified by the
+        end-user. The output from this function can be readily used
+        to instantiate a pandas.DataFrame.
+
+        The dictionary has the following properties.
+        * 'start-date': The  start date and start time as a datetime.datetime object.
+        * 'end-date': The end date and end time as a datetime.datetime object.
+        * 'machine': A string specifying the H-Series device attached to the event.
+        * 'event-type': The type of event as a string. The value `online` denotes queued
+            access to the device, and the value `reservation` denotes priority access
+            for a particular organisation.
+        * 'organization': If the 'event-type' is assigned the value 'reservation', the
+            organization with reservation access is specified. Only users within an
+            organization have visibility on organization reservations. Otherwise,
+            organization is listed as 'Fair-Share Queue', which means all users from all
+            organizations are able to submit jobs to the Fairshare queue during this
+            period.
+
+        :param start_date: The start date as datetime.date object
+            for the period to return the operations calendar.
+        :param end_date: The end date as datetime.date object
+            for the period to return the operations calendar.
+        :param localise: Apply localization to the datetime based
+            on the end-users time zone. Default is True. Disable by
+            setting False.
+        :return: A list of events from the H-Series operations calendar,
+            sorted by the `start-date` of each event. Each event is a python
+            dictionary.
+        :return_type: List[Dict[str, str]]
+        :raises: RuntimeError if an emulator or syntax-checker is specified
+        :raises: ValueError if the argument `start_date` or `end_date` are not
+            datetime.datetime objects.
+        """
+
+        if not isinstance(start_date, datetime.datetime) or not isinstance(
+            end_date, datetime.datetime
+        ):
+            raise ValueError(
+                "start_date and end_date must be datetime.datetime objects."
+            )
+
+        if self._device_name.endswith("E") | self._device_name.endswith("SC"):
+            raise RuntimeError(
+                f"Error requesting data for {self._device_name}. Emulators (E) \
+                and Syntax Checkers (SC) are online 24/7. Calendar \
+                information not available."
+            )
+
+        l4_calendar_data = self.api_handler.get_calendar(
+            start_date.date().isoformat(), end_date.date().isoformat()
+        )
+        calendar_data = []
+
+        for l4_event in l4_calendar_data:
+            device_name = l4_event["machine"]
+            if device_name != self._device_name:
+                continue
+            dt_start = _convert_datetime_string(
+                l4_event["start-date"]
+            )  # datetime in UTC tz
+            dt_end = _convert_datetime_string(
+                l4_event["end-date"]
+            )  # datetime in UTC tz
+            if localise:  # Apply timezone localisation on UTC datetime
+                dt_start = dt_start.astimezone()
+                dt_end = dt_end.astimezone()
+            event = {
+                "start-date": dt_start,
+                "end-date": dt_end,
+                "machine": device_name,
+                "event-type": l4_event["event-type"],
+                "organization": l4_event.get("organization", "Fair-Share Queue"),
+            }
+            calendar_data.append(event)
+        calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
+        return calendar_data
+
+    def view_calendar(
+        self,
+        month: int,
+        year: int,
+        figsize: Tuple[float, float] = (40, 20),
+        fontsize: float = 15,
+        titlesize: float = 40,
+    ) -> "matplotlib.figure.Figure":
+        """Visualise the H-Series operations calendar for a user-specified
+        month and year. The operations hours are shown for the machine name
+        used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operations
+        days are coloured. In addition, a description of the event is also
+        displayed (`start-time`, `duration` and `event-type`, see the
+        `get_calendar` method for more information).
+
+        :param month: An integer specifying the calendar month to visualise.
+            1 is January and 12 is December.
+        :param year: An integer specifying the calendar year to visualise.
+        :param figsize: A tuple specifying width and height of the output
+            matplotlib.figure.Figure.
+        :param fontsize: The fontsize of the event description within the
+            calendar.
+        :return: A matplotlib.figure.Figure visualising the H-Series
+            calendar for a user-specified calendar month.
+        :return_type: matplotlib.figure.Figure
+        """
+        if not MATPLOTLIB_IMPORT:
+            raise ImportError(
+                "Matplotlib is not installed. Please run \
+                'pip install pytket-quantinuum[calendar]'"
+            )
+        qntm_calendar = QuantinuumCalendar(
+            year=year, month=month, title_prefix=self._device_name
+        )
+        end_day = max(qntm_calendar._cal[-1])
+        dt_start = datetime.datetime(year=year, month=month, day=1)
+        dt_end = datetime.datetime(year=year, month=month, day=end_day)
+        data = self.get_calendar(dt_start, dt_end, localise=True)
+        qntm_calendar.add_events(data)
+        calendar_figure = qntm_calendar.build_calendar(
+            figsize=figsize, fontsize=fontsize, titlesize=titlesize
+        )
+        return calendar_figure
+
     @property
     def backend_info(self) -> Optional[BackendInfo]:
         if self._backend_info is None and not self._MACHINE_DEBUG:
@@ -442,7 +600,7 @@ class QuantinuumBackend(Backend):
     @property
     def _gate_set(self) -> Set[OpType]:
         return (
-            _GATE_SET
+            _ALL_GATES
             if self._MACHINE_DEBUG
             else cast(BackendInfo, self.backend_info).gate_set
         )
@@ -480,10 +638,7 @@ class QuantinuumBackend(Backend):
             return False
         info = self.backend_info
         assert info is not None
-        if info.get_misc("system_type") == "local_emulator":
-            return True
-        else:
-            return False
+        return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
@@ -506,13 +661,21 @@ class QuantinuumBackend(Backend):
             scratch_reg_resize_pass(),
         ]
         squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
-        # use default (perfect fidelities) for supported gates
-        fidelities: Dict[str, Any] = {}
-        # If ZZPhase is available we should prefer it to ZZMax.
-        if OpType.ZZPhase in self._gate_set:
-            fidelities["ZZPhase_fidelity"] = lambda x: 1.0
+        target_2qb_gate = self.compilation_config.target_2qb_gate
+        assert target_2qb_gate is not None
+        if target_2qb_gate == OpType.TK2:
+            decomposition_passes = []
+        elif target_2qb_gate == OpType.ZZPhase:
+            decomposition_passes = [
+                NormaliseTK2(),
+                DecomposeTK2(ZZPhase_fidelity=lambda x: 1.0),
+            ]
+        elif target_2qb_gate == OpType.ZZMax:
+            decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
         else:
-            fidelities["ZZMax_fidelity"] = 1.0
+            raise ValueError(
+                f"Unrecognized target 2-qubit gate: {target_2qb_gate.name}"
+            )
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
         # https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html#default-compilation
@@ -520,11 +683,10 @@ class QuantinuumBackend(Backend):
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())
         elif optimisation_level == 1:
+            passlist.append(SynthesiseTK())
+            passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    SynthesiseTK(),
-                    NormaliseTK2(),
-                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
@@ -533,11 +695,10 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
+            passlist.append(FullPeepholeOptimise(target_2qb_gate=OpType.TK2))
+            passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    FullPeepholeOptimise(target_2qb_gate=OpType.TK2),
-                    NormaliseTK2(),
-                    DecomposeTK2(**fidelities),
                     self.rebase_pass(),
                     RemoveRedundancies(),
                     squash,
@@ -634,8 +795,6 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        no_opt: bool = False,
-        allow_2q_gate_rebase: bool = False,
         options: Optional[Dict[str, Any]] = None,
         request_options: Optional[Dict[str, Any]] = None,
         results_selection: Optional[List[Tuple[str, int]]] = None,
@@ -652,9 +811,6 @@ class QuantinuumBackend(Backend):
           tracking. Overrides the instance variable `group`, defaults to None
         :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
             module, defaults to None
-        :param no_opt: if true, requests that the backend perform no optimizations
-        :param allow_2q_gate_rebase: if true, allow rebasing of the two-qubit gates to
-           a higher-fidelity alternative gate at the discretion of the backend
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :param options: Items to add to the "options" dictionary of the request body
@@ -683,10 +839,11 @@ class QuantinuumBackend(Backend):
             "priority": "normal",
             "options": {
                 "simulator": self.simulator_type,
-                "no-opt": no_opt,
-                "noreduce": not allow_2q_gate_rebase,
+                "no-opt": True,
+                "noreduce": True,
                 "error-model": noisy_simulation,
                 "tket": dict(),
+                "tket-opt-level": None,
             },
         }
 
@@ -762,9 +919,6 @@ class QuantinuumBackend(Backend):
         * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
         * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored).
-        * `no_opt`: if true, requests that the backend perform no optimizations
-        * `allow_2q_gate_rebase`: if true, allow rebasing of the two-qubit gates to a
-           higher-fidelity alternative gate at the discretion of the backend
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
           constructor)
@@ -808,10 +962,6 @@ class QuantinuumBackend(Backend):
         wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
-
-        no_opt = cast(bool, kwargs.get("no_opt", False))
-
-        allow_2q_gate_rebase = cast(bool, kwargs.get("allow_2q_gate_rebase", False))
 
         language = cast(Language, kwargs.get("language", Language.QASM))
 
@@ -861,7 +1011,13 @@ class QuantinuumBackend(Backend):
             else:
                 results_selection = []
                 if language == Language.QASM:
-                    quantinuum_circ = circuit_to_qasm_str(c0, header="hqslib1")
+                    quantinuum_circ = circuit_to_qasm_str(
+                        c0,
+                        header="hqslib1",
+                        maxwidth=self.backend_info.misc["cl_reg_width"]
+                        if self.backend_info
+                        else 32,
+                    )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(
                         bit.reg_name
@@ -872,12 +1028,10 @@ class QuantinuumBackend(Backend):
                             results_selection.append((name, i))
                 else:
                     assert language == Language.QIR
-                    warnings.warn(
-                        "Support for Language.QIR is experimental; this may fail!"
-                    )
                     for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                         for i in range(count):
                             results_selection.append((name, i))
+
                     quantinuum_circ = b64encode(
                         cast(
                             bytes,
@@ -908,8 +1062,6 @@ class QuantinuumBackend(Backend):
                         group=group,
                         wasm_file_handler=wasm_fh,
                         pytket_pass=pytket_pass,
-                        no_opt=no_opt,
-                        allow_2q_gate_rebase=allow_2q_gate_rebase,
                         options=cast(Dict[str, Any], kwargs.get("options", {})),
                         request_options=cast(
                             Dict[str, Any], kwargs.get("request_options", {})
@@ -1127,7 +1279,8 @@ class QuantinuumBackend(Backend):
             if self.is_local_emulator:
                 if not have_pecos():
                     raise RuntimeError(
-                        "Local emulator not available: try installing with the `pecos` option."
+                        "Local emulator not available: \
+try installing with the `pecos` option."
                     )
                 from pytket_pecos import Emulator
 
@@ -1344,3 +1497,18 @@ def _parse_status(response: Dict) -> CircuitStatus:
     }
     message = json.dumps(msgdict)
     return CircuitStatus(_STATUS_MAP[h_status], message)
+
+
+def _convert_datetime_string(datetime_string: str) -> datetime.datetime:
+    year, month, day = list(map(int, datetime_string[:10].split("-")))
+    hour, minute, second = list(map(int, datetime_string[11:].split(":")))
+    dt = datetime.datetime(
+        year=year,
+        month=month,
+        day=day,
+        hour=hour,
+        minute=minute,
+        second=second,
+        tzinfo=datetime.timezone.utc,
+    )
+    return dt

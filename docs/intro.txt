@@ -15,8 +15,19 @@ and Windows. To install, run:
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
 
 
+``pytket-quantinuum`` provides calendar visualization capabilities. The ``calendar`` extra-install-argument must be specified to install matplotlib and pandas.
+
+::
+
+    pip install pytket-quantinuum[calendar]
+
+.. note::   `view_calendar` requires the extra-install-argument above. The method `get_calendar` can be used with the base installation of pytket-quantinuum.
+
+
 **Web Interface:**
 https://um.qapi.quantinuum.com/
+
+In case of questions about the hardware you can get in contact with the team sending an email to QCsupport@quantinuum.com.
 
 Available Backends
 ==================
@@ -77,10 +88,10 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `SynthesiseTket <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.SynthesiseTket>`_
      - `FullPeepholeOptimise [3] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
-     - `NormaliseTK2  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2 [5]  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
      - `NormaliseTK2  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
    * -
-     - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
+     - `DecomposeTK2 [5] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
      - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
    * -
      - self.rebase_pass [2]
@@ -110,6 +121,8 @@ The passes applied by different levels of optimisation are specified in the tabl
 
 * [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX, OpType.Rz})``
 
+* [5] Omitted if the target two-qubit gate is ``OpType.TK2``.
+
 .. note::   If ``optimisation_level = 0`` the device constraints are solved but no additional optimisation is applied. Setting ``optimisation_level = 1`` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
 .. note::   The pass ``ZZPhaseToRz`` is left out of ``optimisation_level=2`` as the passes applied by ``FullPeepholeOptimise`` will already cover these optimisations.
 
@@ -128,12 +141,6 @@ The default compilation pass and rebase pass will target the default gate by
 default. This may be overridden using the method
 ``QuantinuumBackend.set_compilation_config_target_2qb_gate()`` or by passing a
 ``QuantinuumBackendCompilationConfig`` when constructing the backend.
-
-If desired, backends may be allowed to rebase to a different two-qubit gate
-judged to have better fidelity before being run. The default is to run with the
-gate provided in the submitted circuit, but this behaviour may be overridden
-using the optional ``allow_2q_gate_rebase`` argument to ``process_circuit()``,
-``process_circuits()`` or ``submit_program()``.
 
 Device Predicates
 =================
