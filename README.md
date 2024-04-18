@@ -27,6 +27,10 @@ Please file bugs and feature requests on the Github
 
 There is also a Slack channel for discussion and support. Click [here](https://tketusers.slack.com/join/shared_invite/zt-18qmsamj9-UqQFVdkRzxnXCcKtcarLRA#/shared-invite/email) to join.
 
+## Hardware Support
+
+In case of questions about the hardware you can contact QCsupport@quantinuum.com.
+
 ## Development
 
 To install this extension in editable mode, simply change to this directory, and run:
