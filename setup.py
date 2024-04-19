@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Cambridge Quantum Computing
+# Copyright 2020-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket ~= 1.26",
+        "pytket ~= 1.27",
         "pytket-qir ~= 0.9.0",
         "requests >= 2.2",
         "types-requests",
@@ -53,7 +53,7 @@ setup(
         "msal ~= 1.18",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.1.23"],
+        "pecos": ["pytket-pecos ~= 0.1.24"],
         "calendar": ["matplotlib ~= 3.8.3", "pandas ~= 2.2.1"],
     },
     classifiers=[

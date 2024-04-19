@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Cambridge Quantum Computing
+# Copyright 2020-2024 Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1028,9 +1028,6 @@ class QuantinuumBackend(Backend):
                             results_selection.append((name, i))
                 else:
                     assert language == Language.QIR
-                    warnings.warn(
-                        "Support for Language.QIR is experimental; this may fail!"
-                    )
                     for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                         for i in range(count):
                             results_selection.append((name, i))
