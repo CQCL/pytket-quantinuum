@@ -249,6 +249,18 @@ def have_pecos() -> bool:
         return False
 
 
+@dataclass
+class _LocalEmulatorConfiguration:
+    """Options stored internally when running circuits on the local emulator."""
+
+    circuit: Circuit
+    wasm_fh: Optional[WasmFileHandler]
+    n_shots: int
+    seed: Optional[int]
+    multithreading: bool
+    noisy_simulation: bool
+
+
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
@@ -308,10 +320,9 @@ class QuantinuumBackend(Backend):
 
         self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
 
-        # Map from ResultHandle to (circuit, wasm, n_shots, seed, multithreading)
         self._local_emulator_handles: Dict[
             ResultHandle,
-            Tuple[Circuit, Optional[WasmFileHandler], int, Optional[int], bool],
+            _LocalEmulatorConfiguration,
         ] = dict()
 
         self._default_2q_gate = _default_2q_gate(device_name)
@@ -999,12 +1010,13 @@ class QuantinuumBackend(Backend):
                     json.dumps(results_selection),
                 )
                 handle_list.append(handle)
-                self._local_emulator_handles[handle] = (
+                self._local_emulator_handles[handle] = _LocalEmulatorConfiguration(
                     c0,
                     wasm_fh,
                     n_shots,
                     seed,
                     multithreading,
+                    noisy_simulation,
                 )
                 if seed is not None:
                     seed += 1
@@ -1284,12 +1296,20 @@ try installing with the `pecos` option."
                     )
                 from pytket_pecos import Emulator
 
-                c0, wasm, n_shots, seed, multithreading = self._local_emulator_handles[
-                    handle
-                ]
-                emu = Emulator(c0, wasm=wasm, qsim="state-vector", seed=seed)
-                res = emu.run(n_shots=n_shots, multithreading=multithreading)
-                backres = BackendResult(c_bits=c0.bits, shots=res, ppcirc=ppcirc)
+                configuration = self._local_emulator_handles[handle]
+                emu = Emulator(
+                    configuration.circuit,
+                    wasm=configuration.wasm_fh,
+                    qsim="state-vector",
+                    seed=configuration.seed,
+                )
+                res = emu.run(
+                    n_shots=configuration.n_shots,
+                    multithreading=configuration.multithreading,
+                )
+                backres = BackendResult(
+                    c_bits=configuration.circuit.bits, shots=res, ppcirc=ppcirc
+                )
             else:
                 # TODO exception handling when jobid not found on backend
                 timeout = kwargs.get("timeout")
