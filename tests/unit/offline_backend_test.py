@@ -35,7 +35,7 @@ from pytket.passes import (
 def test_quantinuum_offline(language: Language) -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+        device_name="H1-1", machine_debug=False, api_handler=qapioffline
     )
     c = Circuit(4, 4, "test 1")
     c.H(0)
@@ -72,7 +72,7 @@ def test_quantinuum_offline(language: Language) -> None:
 def test_max_classical_register_ii() -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+        device_name="H1-1", machine_debug=False, api_handler=qapioffline
     )
 
     c = Circuit(4, 4, "test 1")
@@ -167,4 +167,6 @@ def test_custom_api_handler(device_name: str) -> None:
     backend_2 = QuantinuumBackend(device_name, api_handler=handler_2)
 
     assert backend_1.api_handler is not backend_2.api_handler
+    assert isinstance(backend_1.api_handler, QuantinuumAPI)
+    assert isinstance(backend_2.api_handler, QuantinuumAPI)
     assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store
