@@ -517,6 +517,34 @@ class QuantinuumAPI:
         return jr
 
 
+OFFLINE_MACHINE_LIST = [
+    {
+        "name": "H1-1",
+        "n_qubits": 20,
+        "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
+        "n_classical_registers": 120,
+        "n_shots": 10000,
+        "system_type": "hardware",
+        "emulator": "H1-1E",
+        "syntax_checker": "H1-1SC",
+        "batching": True,
+        "wasm": True,
+    },
+    {
+        "name": "H2-1",
+        "n_qubits": 32,
+        "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
+        "n_classical_registers": 120,
+        "n_shots": 10000,
+        "system_type": "hardware",
+        "emulator": "H2-1E",
+        "syntax_checker": "H2-1SC",
+        "batching": True,
+        "wasm": True,
+    },
+]
+
+
 class QuantinuumAPIOffline:
     """
     Offline copy of the interface to the Quantinuum remote API.
@@ -543,32 +571,7 @@ class QuantinuumAPIOffline:
             }
         """
         if machine_list == None:
-            machine_list = [
-                {
-                    "name": "H1-1",
-                    "n_qubits": 20,
-                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
-                    "n_classical_registers": 120,
-                    "n_shots": 10000,
-                    "system_type": "hardware",
-                    "emulator": "H1-1E",
-                    "syntax_checker": "H1-1SC",
-                    "batching": True,
-                    "wasm": True,
-                },
-                {
-                    "name": "H2-1",
-                    "n_qubits": 32,
-                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
-                    "n_classical_registers": 120,
-                    "n_shots": 10000,
-                    "system_type": "hardware",
-                    "emulator": "H2-1E",
-                    "syntax_checker": "H2-1SC",
-                    "batching": True,
-                    "wasm": True,
-                },
-            ]
+            machine_list = OFFLINE_MACHINE_LIST
         self.provider = ""
         self.url = ""
         self.online = False
