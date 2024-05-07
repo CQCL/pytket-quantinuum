@@ -183,6 +183,24 @@ For the Quantinuum ``Backend``, ``process_circuits`` returns a ``ResultHandle`` 
 
 The ``logout()`` method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.
 
+Persistent Authentication Token Storage
+---------------------------------------
+
+Following a successful login, the refresh token and the ID token, which are required for making further requests, will be saved. 
+This means you won't need to re-enter your credentials until these tokens expire. By default, these tokens are only stored in memory and will be removed once the Python session ends or if you manually log out.
+
+For more persistent storage, consider using the ``QuantinuumConfigCredentialStorage``. This storage option saves your username and the authentication tokens to the ``pytket`` configuration file, ensuring they persist beyond the current session.
+::
+
+  from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+  from pytket.extensions.quantinuum.backends.credential_storage import (
+      QuantinuumConfigCredentialStorage,
+  )
+  backend = QuantinuumBackend(
+      device_name=machine,
+      api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+  )
+
 Partial Results Retrieval 
 -------------------------
 
