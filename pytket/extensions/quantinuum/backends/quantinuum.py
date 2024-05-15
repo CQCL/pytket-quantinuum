@@ -1327,7 +1327,8 @@ try installing with the `pecos` option."
                     StatusEnum.CANCELLED,
                 ):
                     raise GetResultFailed(
-                        f"Cannot retrieve result; job status is {circ_status}, jobid is {jobid}"
+                        f"Cannot retrieve result; job status is {circ_status}, \
+jobid is {jobid}"
                     )
                 try:
                     res = job_retrieve["results"]
