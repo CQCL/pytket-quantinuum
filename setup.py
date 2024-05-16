@@ -44,7 +44,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pytket ~= 1.27",
-        "pytket-qir ~= 0.9.0",
+        "pytket-qir >= 0.9,< 0.11",
         "requests >= 2.2",
         "types-requests",
         "websockets >= 7.0",
@@ -54,7 +54,7 @@ setup(
     ],
     extras_require={
         "pecos": ["pytket-pecos ~= 0.1.25"],
-        "calendar": ["matplotlib ~= 3.8.3", "pandas ~= 2.2.1"],
+        "calendar": ["matplotlib >= 3.8.3,< 3.10.0", "pandas ~= 2.2.1"],
     },
     classifiers=[
         "Environment :: Console",
