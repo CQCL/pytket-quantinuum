@@ -54,7 +54,7 @@ setup(
     ],
     extras_require={
         "pecos": ["pytket-pecos ~= 0.1.26"],
-        "calendar": ["matplotlib ~= 3.8.3", "pandas ~= 2.2.1"],
+        "calendar": ["matplotlib >= 3.8.3,< 3.10.0", "pandas ~= 2.2.1"],
     },
     classifiers=[
         "Environment :: Console",
