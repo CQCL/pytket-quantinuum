@@ -30,7 +30,7 @@ To create and use your own Hybrid Compute functions in your workflow, it is nece
 
 It is recommended to either use Rust or C++ for the compilation language to Wasm. The languages have functionality that easily compiles to Wasm. For other language options see [Wasm Getting Started Developer's page](https://webassembly.org/getting-started/developers-guide/).
 
-### Option 1: Rust
+### 1. Rust Setup
 
 If you're new to Rust, see the [The Rust Programming Language](https://doc.rust-lang.org/book/title-page.html) book. Note that Cargo is the Rust package manager. For more info on Cargo, see [The Cargo Book](https://doc.rust-lang.org/cargo/guide/).
 
@@ -70,6 +70,34 @@ Congratulations! You've succesfully compiled Rust code to Wasm.
 #### Use compiled Wasm
 
 In order to use the compiled wasm from your quantum program, you will want to find the associated `.wasm` file that the compilation step created. This can be found in the `./target/wasm32-unknown-unknown/release` folder of your project. You'll note a file with the name of your project with the extension `.wasm`. To use this in your quantum program, you can copy-paste it into another folder, or ensure that the file path for your Wasm file handler points to this location.
+
+### 2. C/ C++ Setup
+
+#### Install C/ C++
+
+For Windows 10/ 11 users, the Visual Studio build tools (also available through a standard Visual Studio installation) should be downloaded from here. The C++ Desktop Development group should be selected and the clang and LLVM option should be selected.
+
+For Ubuntu 20.04 users, the development tools group needs to be installed with aptitude. The LLVM and clang compilers need to be installed seperately.
+
+MacOS users must install XCode command line tools and also brew. The latest version of clang can be installed with brew.
+
+#### Define Classical Functions in C/ C++
+
+Define the classical functions you plan to use in your hybrid compute program in the `src/lib.c` file. Examples of the types of functions that can be put in C code are provided in the `C` folders within each of the example folders. *We recommend looking at one of the provided examples to know which functions and attributes are required for Hybrid Compute to work.*
+
+The standard C (C++) library cannot be used in a program that is intended to be compiled to Wasm.
+
+#### Compilation to Wasm
+
+The command below will compile a *.c source file into a Wasm binary. For a *.cpp source file, clang++ should be used intead of clang and lib.c should be replaced by lib.cpp.
+
+```
+clang --no-standard-library -Wl,--no-entry -Wl,--export-all -o lib.wasm lib.c
+```
+
+#### Use Compiled Wasm
+
+The compiled Wasm binary is located in the same location as *.c source file. To use this in your quantum program, you can copy-paste it into another folder, or ensure that the file path for your Wasm file handler points to this location.
 
 ## Wasm Usage
 
