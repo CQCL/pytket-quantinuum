@@ -37,7 +37,7 @@ jobs:
     name: Quantinuum - Build and test module
     strategy:
       matrix:
-        os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
+        os: ['ubuntu-22.04', 'macos-latest', 'windows-2022']
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -61,7 +61,7 @@ jobs:
     - name: Build and test (3.11) mypy
       shell: bash
       if: |
-        matrix.os == 'macos-12' &&
+        matrix.os == 'macos-latest' &&
         (
           github.event_name == 'push' ||
           (
@@ -78,7 +78,7 @@ jobs:
         ./.github/workflows/build-test mypy
     - name: Build and test (3.11) nomypy
       if: |
-        matrix.os != 'macos-12' &&
+        matrix.os != 'macos-latest' &&
         (
           github.event_name == 'push' ||
           (
