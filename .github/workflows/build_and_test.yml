@@ -197,7 +197,7 @@ jobs:
   calendar_visualisation_tests:
     name: Run calendar visualisation test
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule'
-    runs-on: ubuntu-22.04
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.11
