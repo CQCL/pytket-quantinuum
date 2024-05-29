@@ -1,3 +1,8 @@
+
+int init() {
+    return 0;
+}
+
 int decode3(int syn, int pfu) {
     int val;
     if (syn == 1) {
