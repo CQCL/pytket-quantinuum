@@ -1,6 +1,5 @@
-
-int init() {
-    return 0;
+void init() {
+    return;
 }
 
 int decode3(int syn, int pfu) {
