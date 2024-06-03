@@ -43,8 +43,8 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket ~= 1.27",
-        "pytket-qir ~= 0.9.0",
+        "pytket ~= 1.28",
+        "pytket-qir ~= 0.11.0",
         "requests >= 2.2",
         "types-requests",
         "websockets >= 7.0",
@@ -53,8 +53,8 @@ setup(
         "msal ~= 1.18",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.1.25"],
-        "calendar": ["matplotlib ~= 3.8.3", "pandas ~= 2.2.1"],
+        "pecos": ["pytket-pecos ~= 0.1.26"],
+        "calendar": ["matplotlib >= 3.8.3,< 3.10.0", "pandas ~= 2.2.1"],
     },
     classifiers=[
         "Environment :: Console",

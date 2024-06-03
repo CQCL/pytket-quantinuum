@@ -1327,12 +1327,15 @@ try installing with the `pecos` option."
                     StatusEnum.CANCELLED,
                 ):
                     raise GetResultFailed(
-                        f"Cannot retrieve result; job status is {circ_status}"
+                        f"Cannot retrieve result; job status is {circ_status}, \
+jobid is {jobid}"
                     )
                 try:
                     res = job_retrieve["results"]
                 except KeyError:
-                    raise GetResultFailed("Results missing in device return data.")
+                    raise GetResultFailed(
+                        f"Results missing in device return data, jobid is {jobid}"
+                    )
 
                 backres = _convert_result(res, ppcirc, n_bits, results_selection)
             self._update_cache_result(handle, backres)

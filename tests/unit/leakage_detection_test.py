@@ -19,6 +19,7 @@ from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
 from pytket.backends.backendresult import BackendResult
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_detection_circuit,
+    get_leakage_gadget_circuit,
     prune_shots_detected_as_leaky,
     LEAKAGE_DETECTION_BIT_NAME_,
     LEAKAGE_DETECTION_QUBIT_NAME_,
@@ -32,6 +33,7 @@ def test_postselection_circuits_1qb_task_gen() -> None:
     lg_b = Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
     comparison_circuit.add_qubit(lg_qb)
     comparison_circuit.add_bit(lg_b)
+    comparison_circuit.add_gate(OpType.Reset, [lg_qb])
     comparison_circuit.X(lg_qb).H(0)
     comparison_circuit.add_barrier([Qubit(0), lg_qb])
     comparison_circuit.H(lg_qb).ZZMax(lg_qb, Qubit(0))
@@ -39,7 +41,6 @@ def test_postselection_circuits_1qb_task_gen() -> None:
     comparison_circuit.ZZMax(lg_qb, Qubit(0)).H(lg_qb).Z(0)
     comparison_circuit.add_barrier([Qubit(0), lg_qb])
     comparison_circuit.Measure(0, 0).Measure(lg_qb, lg_b)
-    comparison_circuit.add_gate(OpType.Reset, [lg_qb])
     assert comparison_circuit == get_detection_circuit(
         Circuit(1, 1).H(0).Measure(0, 0), 2
     )
@@ -55,6 +56,8 @@ def test_postselection_circuits_2qb_2_spare_task_gen() -> None:
     comparison_circuit.add_bit(lg_b0)
     comparison_circuit.add_qubit(lg_qb1)
     comparison_circuit.add_bit(lg_b1)
+    comparison_circuit.add_gate(OpType.Reset, [lg_qb0])
+    comparison_circuit.add_gate(OpType.Reset, [lg_qb1])
     comparison_circuit.X(lg_qb0).X(lg_qb1).H(0).CZ(0, 1)
     comparison_circuit.add_barrier([Qubit(0), lg_qb0])
     comparison_circuit.add_barrier([Qubit(1), lg_qb1])
@@ -70,8 +73,6 @@ def test_postselection_circuits_2qb_2_spare_task_gen() -> None:
     comparison_circuit.Measure(0, 0).Measure(1, 1).Measure(lg_qb0, lg_b0).Measure(
         lg_qb1, lg_b1
     )
-    comparison_circuit.add_gate(OpType.Reset, [lg_qb0])
-    comparison_circuit.add_gate(OpType.Reset, [lg_qb1])
 
     assert comparison_circuit == get_detection_circuit(
         Circuit(2, 2).H(0).CZ(0, 1).Measure(0, 0).Measure(1, 1), 4
@@ -86,6 +87,7 @@ def test_postselection_circuits_2qb_1_spare_task_gen() -> None:
     comparison_circuit.add_qubit(lg_qb)
     comparison_circuit.add_bit(lg_b0)
     comparison_circuit.add_bit(lg_b1)
+    comparison_circuit.add_gate(OpType.Reset, [lg_qb])
 
     comparison_circuit.X(lg_qb).H(0).CZ(0, 1)
     comparison_circuit.add_barrier([Qubit(0), lg_qb])
@@ -94,15 +96,16 @@ def test_postselection_circuits_2qb_1_spare_task_gen() -> None:
     comparison_circuit.ZZMax(lg_qb, Qubit(0)).H(lg_qb).Z(0)
     comparison_circuit.add_barrier([Qubit(0), lg_qb])
     comparison_circuit.Measure(0, 0).Measure(lg_qb, lg_b0)
-    comparison_circuit.add_gate(OpType.Reset, [lg_qb])
-    comparison_circuit.X(lg_qb)
-    comparison_circuit.add_barrier([Qubit(1), lg_qb])
-    comparison_circuit.H(lg_qb).ZZMax(lg_qb, Qubit(1))
-    comparison_circuit.add_barrier([Qubit(1), lg_qb])
-    comparison_circuit.ZZMax(lg_qb, Qubit(1)).H(lg_qb).Z(1)
-    comparison_circuit.add_barrier([Qubit(1), lg_qb])
-    comparison_circuit.Measure(1, 1).Measure(lg_qb, lg_b1)
-    comparison_circuit.add_gate(OpType.Reset, [lg_qb])
+
+    # with reuse of pre-measured qubits, this will now use Qubit 0 from the circuit
+    comparison_circuit.add_gate(OpType.Reset, [Qubit(0)])
+    comparison_circuit.X(Qubit(0))
+    comparison_circuit.add_barrier([Qubit(1), Qubit(0)])
+    comparison_circuit.H(Qubit(0)).ZZMax(Qubit(0), Qubit(1))
+    comparison_circuit.add_barrier([Qubit(1), Qubit(0)])
+    comparison_circuit.ZZMax(Qubit(0), Qubit(1)).H(Qubit(0)).Z(1)
+    comparison_circuit.add_barrier([Qubit(1), Qubit(0)])
+    comparison_circuit.Measure(1, 1).Measure(Qubit(0), lg_b1)
 
     assert comparison_circuit == get_detection_circuit(
         Circuit(2, 2).H(0).CZ(0, 1).Measure(0, 0).Measure(1, 1), 3
@@ -114,9 +117,45 @@ def test_postselection_no_qubits() -> None:
         get_detection_circuit(Circuit(0), 1)
 
 
-def test_postselection_not_enough_device_qubits() -> None:
-    with pytest.raises(ValueError):
-        get_detection_circuit(Circuit(2, 2).CX(0, 1).measure_all(), 2)
+def test_postselection_not_enough_device_qubits_0() -> None:
+    comparison_circuit = Circuit(2, 2)
+    comparison_circuit.CX(0, 1).Measure(0, 0)
+    comparison_circuit.append(
+        get_leakage_gadget_circuit(
+            Qubit(1), Qubit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
+        )
+    )
+    comparison_circuit.Measure(1, 1)
+    assert comparison_circuit == get_detection_circuit(
+        Circuit(2, 2).CX(0, 1).measure_all(), 2
+    )
+
+
+def test_postselection_not_enough_device_qubits_1() -> None:
+    comparison_circuit = Circuit(4, 4)
+    comparison_circuit.CX(0, 1).Measure(0, 0).CX(1, 2)
+    comparison_circuit.CX(2, 3)
+    comparison_circuit.append(
+        get_leakage_gadget_circuit(
+            Qubit(1), Qubit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)
+        )
+    )
+    comparison_circuit.Measure(1, 1)
+    comparison_circuit.append(
+        get_leakage_gadget_circuit(
+            Qubit(2), Qubit(1), Bit(LEAKAGE_DETECTION_BIT_NAME_, 1)
+        )
+    )
+    comparison_circuit.Measure(2, 2)
+    comparison_circuit.append(
+        get_leakage_gadget_circuit(
+            Qubit(3), Qubit(2), Bit(LEAKAGE_DETECTION_BIT_NAME_, 2)
+        )
+    )
+    comparison_circuit.Measure(3, 3)
+    assert comparison_circuit == get_detection_circuit(
+        Circuit(4, 4).CX(0, 1).CX(1, 2).CX(2, 3).measure_all(), 4
+    )
 
 
 def test_postselection_existing_qubit() -> None:
@@ -189,4 +228,5 @@ if __name__ == "__main__":
     test_postselection_existing_qubit()
     test_postselection_existing_bit()
     test_postselection_no_qubits()
-    test_postselection_not_enough_device_qubits()
+    test_postselection_not_enough_device_qubits_0()
+    test_postselection_not_enough_device_qubits_1()
