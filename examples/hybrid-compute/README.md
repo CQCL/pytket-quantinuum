@@ -1,34 +1,27 @@
-# Getting Started with Quantinuum's Hybrid Compute Feature
+# Hybrid Compute for QEC Workflows
 
 Quantinuum's Hybrid Compute feature enables users to run classical operations within qubit coherence times. This enables research in quantum error correction and new algorithm designs not otherwise available. This guide covers how to set up and use this feature.
 
 Hybrid Compute is enabled via the use of [Web Assembly (WASM)](https://webassembly.org/), which enables fast, real-time computations.
 
-Wasm itself is a binary instruction format. To write in and compile programs to it, another language such as Rust or C++ is used to write your desired classical functions and compile these to Wasm. The quantum computing workflow will then contain a call to Wasm. This folder contains examples of this workflow. Wasm is used because it is a fast, safe, expressive, and easy to compile to using familiar programming languages. 
+Wasm itself is a binary instruction format. To write in and compile programs to it, another language such as Rust or C/ C++ is used to write your desired classical functions and compile these to Wasm. The quantum computing workflow will then contain a call to Wasm. This folder contains examples of this workflow. Wasm is used because it is a fast, safe, expressive, and easy to compile to using familiar programming languages. 
 
 ## Organization
 
 This subfolder is organized as follows.
 
 ---
-    ├── Hybrid-compute        <- Examples of how to use Hybrid Compute via WASM
-          |
-          ├── repeat_until_success        <- Repeat Until Success source code
+    ├── Hybrid-compute              <- Examples of how to use Hybrid Compute via WASM
+        |
+        ├── repeat_until_success    <- Repeat Until Success source code
+        ├── repetition_code         <- Repetition Code source code
 ---
-
-## Download
-
-If you haven't done so already, download the complete set of examples on the user portal by clicking the **Download** button on the bottom-left of the folder viewer.
-
-## Notebook Example
-
-The python notebook in this directory called `batched_RUS_example.ipynb` can be run to show an example of the hybrid compute feature's workflow, without needing to edit any classical functions or compile to Wasm.
 
 ## Setup
 
-To create and use your own Hybrid Compute functions in your workflow, it is necessary to use Wasm and a language that compiles code to Wasm. These instructions contain the steps for setting up an environment to do this.
+To create and use your own Hybrid Compute functions in your workflow, it is necessary to use `Wasm` and a language that compiles code to `Wasm`. These instructions contain the steps for setting up an environment to do this.
 
-It is recommended to either use Rust or C++ for the compilation language to Wasm. The languages have functionality that easily compiles to Wasm. For other language options see [Wasm Getting Started Developer's page](https://webassembly.org/getting-started/developers-guide/).
+It is recommended to either use Rust or C++ for the compilation language to `Wasm`. The languages have functionality that easily compiles to `Wasm`. For other language options see [Wasm Getting Started Developer's page](https://webassembly.org/getting-started/developers-guide/).
 
 ### 1. Rust Setup
 
@@ -77,7 +70,7 @@ In order to use the compiled wasm from your quantum program, you will want to fi
 
 For Windows 10/ 11 users, the Visual Studio build tools (also available through a standard Visual Studio installation) should be downloaded from here. The C++ Desktop Development group should be selected and the clang and LLVM option should be selected.
 
-For Ubuntu 20.04 users, the development tools group needs to be installed with aptitude. The LLVM and clang compilers need to be installed seperately.
+For Ubuntu 20.04 users, the development tools group needs to be installed with aptitude. The LLVM and clang compilers need to be installed separately.
 
 MacOS users must install XCode command line tools and also brew. The latest version of clang can be installed with brew.
 
@@ -89,25 +82,8 @@ The standard C (C++) library cannot be used in a program that is intended to be 
 
 #### Compilation to Wasm
 
-The command below will compile a *.c source file into a Wasm binary. For a *.cpp source file, clang++ should be used intead of clang and lib.c should be replaced by lib.cpp.
+The command below will compile a *.c source file into a Wasm binary. The Wasm binary, `lib.wasm` will be located in the directory clang is executed. For a *.cpp source file, clang++ should be used intead of clang and lib.c should be replaced by lib.cpp.
 
 ```
 clang --no-standard-library -Wl,--no-entry -Wl,--export-all -o lib.wasm lib.c
 ```
-
-#### Use Compiled Wasm
-
-The compiled Wasm binary is located in the same location as *.c source file. To use this in your quantum program, you can copy-paste it into another folder, or ensure that the file path for your Wasm file handler points to this location.
-
-## Wasm Usage
-
-Some limitations exist on what kinds of functions or capabilities are enabled. 
-
-1. Users can submit Wasm files generated from Rust or other languages so long as they don’t use Wasi features or break the Wasm memory sandbox. Random number generation* and file I/O are not allowed.
-2. Quantum programs can only call Wasm functions that accept multiple integers and return an integer. 
-    * For example, examine the call `x = wasm_func(a, b, c);` The `wasm_func` function can exist in QASM where `a`, `b`, `c`, and `x` are classical registers. 
-    * Such function calls do have timing restrictions. Wasm calls in quantum programs have been run that took multiple milliseconds.
-3. The state of a Wasm program persists between calls in the quantum programs within the limits of the chunking window (~300 shots). 
-    * This means global variables can hold mutable state that is modified between calls.
-    * One can imagine using various global arrays. It's possible to have global pointers work with heap allocated data structures (for example using unsafe Rust features when compiling to Wasm).
-4. Quantum + Web Assembly programs have to come in under 6 MB*, currently.
