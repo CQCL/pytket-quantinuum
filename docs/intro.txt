@@ -149,7 +149,7 @@ Circuits must satisfy the following predicates in order to run on the ``Quantinu
 
 * `NoSymbolsPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
 * `GateSetPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
-* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. The ``H2-1``, ``H2-1E`` and ``H2-1SC`` support a maximum of 32 qubits.
+* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits; ``H2-1`` supports a maximum of 56 qubits; ``H2-1E`` and ``H2-1SC`` support a maximum of 32 qubits.
 
 Job Statuses
 ============
