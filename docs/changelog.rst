@@ -1,8 +1,8 @@
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.34.0 (June 2024)
+------------------
 
 * Update pytket_pecos version requirement to 0.1.27.
 * Update Leakage Detection to reuse circuit qubits.
