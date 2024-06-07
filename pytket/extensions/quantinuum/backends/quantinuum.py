@@ -75,7 +75,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 )
 
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
-from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
+from .api_wrappers import QuantinuumAPIError, QuantinuumAPI, QuantinuumAPIProtocol
 
 
 try:
@@ -281,7 +281,7 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         provider: Optional[str] = None,
         machine_debug: bool = False,
-        api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
+        api_handler: QuantinuumAPIProtocol = DEFAULT_API_HANDLER,
         compilation_config: Optional[QuantinuumBackendCompilationConfig] = None,
         **kwargs: QuumKwargTypes,
     ):
@@ -878,7 +878,7 @@ class QuantinuumBackend(Backend):
         body.update(request_options or {})
 
         try:
-            res = self.api_handler._submit_job(body)
+            res = self.api_handler.submit_job(body)
             if self.api_handler.online:
                 jobdict = res.json()
                 if res.status_code != HTTPStatus.OK:
@@ -1026,9 +1026,11 @@ class QuantinuumBackend(Backend):
                     quantinuum_circ = circuit_to_qasm_str(
                         c0,
                         header="hqslib1",
-                        maxwidth=self.backend_info.misc["cl_reg_width"]
-                        if self.backend_info
-                        else 32,
+                        maxwidth=(
+                            self.backend_info.misc["cl_reg_width"]
+                            if self.backend_info
+                            else 32
+                        ),
                     )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(

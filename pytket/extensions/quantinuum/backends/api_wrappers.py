@@ -18,7 +18,7 @@ Functions used to submit jobs with Quantinuum API.
 
 import time
 from http import HTTPStatus
-from typing import Optional, Dict, Tuple, List
+from typing import Optional, Dict, Protocol, Tuple, List
 import asyncio
 import json
 import getpass
@@ -46,7 +46,7 @@ class QuantinuumAPIError(Exception):
 class _OverrideManager:
     def __init__(
         self,
-        api_handler: "QuantinuumAPI",
+        api_handler: "QuantinuumAPIProtocol",
         timeout: Optional[int] = None,
         retry_timeout: Optional[int] = None,
     ):
@@ -67,7 +67,54 @@ class _OverrideManager:
         self.api_handler.retry_timeout = self._orig_retry
 
 
-class QuantinuumAPI:
+class QuantinuumAPIProtocol(Protocol):
+    """
+    Protocol for classes that can interact with the Quantinuum API.
+    """
+
+    online: bool
+    provider: str | None
+    timeout: Optional[int]
+    retry_timeout: Optional[int]
+
+    def override_timeouts(
+        self, timeout: Optional[int] = None, retry_timeout: Optional[int] = None
+    ) -> _OverrideManager:
+        ...
+
+    def full_login(self) -> None:
+        ...
+
+    def login(self) -> str:
+        ...
+
+    def delete_authentication(self) -> None:
+        ...
+
+    def submit_job(self, body: Dict) -> Response:
+        ...
+
+    def retrieve_job_status(
+        self, job_id: str, use_websocket: Optional[bool] = None
+    ) -> Optional[Dict]:
+        ...
+
+    def retrieve_job(
+        self, job_id: str, use_websocket: Optional[bool] = None
+    ) -> Optional[Dict]:
+        ...
+
+    def status(self, machine: str) -> str:
+        ...
+
+    def cancel(self, job_id: str) -> dict:
+        ...
+
+    def get_calendar(self, start_date: str, end_date: str) -> List[Dict[str, str]]:
+        ...
+
+
+class QuantinuumAPI(QuantinuumAPIProtocol):
     """
     Interface to the Quantinuum online remote API.
     """
@@ -302,7 +349,7 @@ class QuantinuumAPI:
         """Remove stored credentials and tokens"""
         self._cred_store.delete_credential()
 
-    def _submit_job(self, body: Dict) -> Response:
+    def submit_job(self, body: Dict) -> Response:
         id_token = self.login()
         # send job request
         return self.session.post(
@@ -585,7 +632,7 @@ OFFLINE_MACHINE_LIST = [
 ]
 
 
-class QuantinuumAPIOffline:
+class QuantinuumAPIOffline(QuantinuumAPIProtocol):
     """
     Offline copy of the interface to the Quantinuum remote API.
     """
@@ -618,6 +665,8 @@ class QuantinuumAPIOffline:
         self.machine_list = machine_list
         self._cred_store = None
         self.submitted: list = []
+        self.timeout = None
+        self.retry_timeout = None
 
     def _get_machine_list(self) -> Optional[list]:
         """returns the given list of the avilable machines
@@ -625,6 +674,11 @@ class QuantinuumAPIOffline:
         """
 
         return self.machine_list
+
+    def override_timeouts(
+        self, timeout: Optional[int] = None, retry_timeout: Optional[int] = None
+    ) -> _OverrideManager:
+        return _OverrideManager(self, timeout=timeout, retry_timeout=retry_timeout)
 
     def full_login(self) -> None:
         """No login offline with the offline API"""
@@ -636,7 +690,10 @@ class QuantinuumAPIOffline:
         return an empty api token"""
         return ""
 
-    def _submit_job(self, body: Dict) -> None:
+    def delete_authentication(self) -> None:
+        return None
+
+    def submit_job(self, body: Dict) -> Response:
         """The function will take the submitted job and store it for later
 
         :param body: submitted job
@@ -644,7 +701,7 @@ class QuantinuumAPIOffline:
         :return: None
         """
         self.submitted.append(body)
-        return None
+        return Response()
 
     def get_jobs(self) -> Optional[list]:
         """The function will return all the jobs that have been submitted
@@ -666,7 +723,7 @@ class QuantinuumAPIOffline:
 
     def retrieve_job_status(
         self, job_id: str, use_websocket: Optional[bool] = None
-    ) -> None:
+    ) -> Optional[Dict]:
         """No retrieve_job_status offline"""
         raise QuantinuumAPIError(
             (
@@ -675,7 +732,9 @@ class QuantinuumAPIOffline:
             )
         )
 
-    def retrieve_job(self, job_id: str, use_websocket: Optional[bool] = None) -> None:
+    def retrieve_job(
+        self, job_id: str, use_websocket: Optional[bool] = None
+    ) -> Optional[Dict]:
         """No retrieve_job_status offline"""
         raise QuantinuumAPIError(
             (
@@ -692,3 +751,6 @@ class QuantinuumAPIOffline:
     def cancel(self, job_id: str) -> dict:
         """No cancel offline"""
         raise QuantinuumAPIError((f"Can't cancel job offline: job_id {job_id}."))
+
+    def get_calendar(self, start_date: str, end_date: str) -> List[Dict[str, str]]:
+        return []

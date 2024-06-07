@@ -295,6 +295,7 @@ def test_mfa_login_flow(
     assert normal_login_route.called_once
     # Check that the mfa login has been invoked
     assert mfa_login_route.called_once
+    assert isinstance(backend.api_handler, QuantinuumAPI)
     assert backend.api_handler._cred_store.id_token is not None
     assert backend.api_handler._cred_store.refresh_token is not None
 
@@ -331,6 +332,7 @@ def test_federated_login(
 
     mock_microsoft_login.assert_called_once()
     assert login_route.called_once
+    assert isinstance(backend.api_handler, QuantinuumAPI)
     assert backend.api_handler._cred_store.id_token is not None
     assert backend.api_handler._cred_store.refresh_token is not None
 
