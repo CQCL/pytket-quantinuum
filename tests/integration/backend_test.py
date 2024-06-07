@@ -1046,7 +1046,7 @@ def test_qir_submission_mz_to_reg_qa(
     h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
     assert len(r.get_shots()) == 10
-    assert len(r.get_bitlist()) == 256 or len(r.get_bitlist()) == 128
+    assert len(r.get_bitlist()) == 128
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1332,16 +1332,6 @@ def test_get_calendar_raises_error(
     end_date = datetime.datetime(2024, 2, 16)
     with pytest.raises(RuntimeError):
         backend.get_calendar(start_date, end_date)
-
-
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
-@pytest.mark.timeout(120)
-def test_no_matplotlib(authenticated_quum_handler: QuantinuumAPI) -> None:
-    backend = QuantinuumBackend(
-        api_handler=authenticated_quum_handler, device_name="H1-1"
-    )
-    with pytest.raises(ImportError):
-        backend.view_calendar(month=2, year=2024)
 
 
 @pytest.mark.skipif(skip_mpl_tests, reason=REASON_MPL)

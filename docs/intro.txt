@@ -149,7 +149,7 @@ Circuits must satisfy the following predicates in order to run on the ``Quantinu
 
 * `NoSymbolsPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
 * `GateSetPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
-* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. The ``H2-1``, ``H2-1E`` and ``H2-1SC`` support a maximum of 32 qubits.
+* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. ``H2-1``, ``H2-1E`` and ``H2-1SC`` all support a maximum of 56 qubits.
 
 Job Statuses
 ============
@@ -182,6 +182,24 @@ The ``process_circuits`` method for the QuantinuumBackend accepts the following 
 For the Quantinuum ``Backend``, ``process_circuits`` returns a ``ResultHandle`` object containing a ``job_id`` and a postprocessing ( ``ppcirc``) circuit if there is one.
 
 The ``logout()`` method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.
+
+Persistent Authentication Token Storage
+---------------------------------------
+
+Following a successful login, the refresh token and the ID token, which are required for making further requests, will be saved. 
+This means you won't need to re-enter your credentials until these tokens expire. By default, these tokens are only stored in memory and will be removed once the Python session ends or if you manually log out.
+
+For more persistent storage, consider using the ``QuantinuumConfigCredentialStorage``. This storage option saves your username and the authentication tokens to the ``pytket`` configuration file, ensuring they persist beyond the current session.
+::
+
+  from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+  from pytket.extensions.quantinuum.backends.credential_storage import (
+      QuantinuumConfigCredentialStorage,
+  )
+  backend = QuantinuumBackend(
+      device_name=machine,
+      api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+  )
 
 Partial Results Retrieval 
 -------------------------

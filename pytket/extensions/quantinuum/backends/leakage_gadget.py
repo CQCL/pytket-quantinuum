@@ -38,6 +38,7 @@ def get_leakage_gadget_circuit(
     c = Circuit()
     c.add_qubit(circuit_qubit)
     c.add_qubit(postselection_qubit)
+    c.add_gate(OpType.Reset, [postselection_qubit])
     c.add_bit(postselection_bit)
     c.X(postselection_qubit)
     c.add_barrier([circuit_qubit, postselection_qubit])
@@ -46,7 +47,6 @@ def get_leakage_gadget_circuit(
     c.ZZMax(postselection_qubit, circuit_qubit).H(postselection_qubit).Z(circuit_qubit)
     c.add_barrier([circuit_qubit, postselection_qubit])
     c.Measure(postselection_qubit, postselection_bit)
-    c.add_gate(OpType.Reset, [postselection_qubit])
     return c
 
 
@@ -70,8 +70,8 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
             "Circuit for Leakage Gadget Postselection must have at least one Qubit."
         )
     n_spare_qubits: int = n_device_qubits - n_qubits
-    if n_spare_qubits <= 0:
-        raise ValueError("Device has no spare qubits for adding leakage detection.")
+    # N.b. even if n_spare_qubits == 0 , we will reuse measured data qubits
+
     # construct detection circuit
     detection_circuit: Circuit = Circuit()
     postselection_qubits: List[Qubit] = [
@@ -107,6 +107,15 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     # we try to use each free architecture qubit as few times as possible
     ps_q_index: int = 0
     ps_b_index: int = 0
+
+    # if there are no spare qubits we measure the first qubit and then use it as
+    # an ancilla qubit for leakage detection
+    if not postselection_qubits:
+        qb: Qubit = next(iter(end_circuit_measures))
+        bb: Bit = end_circuit_measures.pop(qb)
+        detection_circuit.Measure(qb, bb)
+        postselection_qubits.append(qb)
+
     for q in end_circuit_measures:
         if q.reg_name == LEAKAGE_DETECTION_QUBIT_NAME_:
             raise ValueError(
@@ -114,7 +123,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
                 "'leakage_detection_qubit' but this already exists in"
                 " the passed circuit."
             )
-        ps_q_index = 0 if ps_q_index == n_spare_qubits else ps_q_index
+        ps_q_index = 0 if ps_q_index == len(postselection_qubits) else ps_q_index
         leakage_detection_bit: Bit = Bit(LEAKAGE_DETECTION_BIT_NAME_, ps_b_index)
         if leakage_detection_bit in circuit.bits:
             raise ValueError(
@@ -129,10 +138,10 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
         ps_q_index += 1
         ps_b_index += 1
 
-    # finally measure the original qubits
+        detection_circuit.Measure(q, end_circuit_measures[q])
 
-    for q, b in end_circuit_measures.items():
-        detection_circuit.Measure(q, b)
+        # we can now add this qubit to the set of qubits used for postselection
+        postselection_qubits.append(q)
 
     detection_circuit.remove_blank_wires()
     return detection_circuit

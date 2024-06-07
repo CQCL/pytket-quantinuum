@@ -517,6 +517,74 @@ class QuantinuumAPI:
         return jr
 
 
+OFFLINE_MACHINE_LIST = [
+    {
+        "wasm": True,
+        "batching": True,
+        "benchmarks": {"qv": {"date": "2024-04-04", "value": 1048576.0}},
+        "max_classical_register_width": 32,
+        "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
+        "name": "H1-1",
+        "syntax_checker": "H1-1SC",
+        "n_gate_zones": "5",
+        "noise_specs": {
+            "date": "2024-02-04",
+            "sq_gate_error": {"p1": 2.08e-05, "p1_unc": 2.77e-06},
+            "spam_error": {
+                "p_meas_1_unc": 0.000199,
+                "p_meas_0": 0.00095,
+                "p_meas_1": 0.00397,
+                "p_meas_0_unc": 9.74e-05,
+            },
+            "crosstalk_error": {
+                "p_crosstalk_meas_unc": 1.02e-06,
+                "p_crosstalk_meas": 1.453e-05,
+            },
+            "memory_error": {"memory_error_unc": 2.52e-05, "memory_error": 0.000208},
+            "tq_gate_error": {"p2_unc": 2.85e-05, "p2": 0.000882},
+        },
+        "max_n_shots": 10000,
+        "n_qubits": 20,
+        "n_classical_registers": 120,
+        "system_type": "hardware",
+        "connectivity": "all-to-all",
+        "emulator": "H1-1E",
+    },
+    {
+        "wasm": True,
+        "batching": True,
+        "benchmarks": {"qv": {"date": "2024-05-31", "value": 262144.0}},
+        "max_classical_register_width": 63,
+        "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
+        "name": "H2-1",
+        "syntax_checker": "H2-1SC",
+        "n_gate_zones": "4",
+        "noise_specs": {
+            "date": "2024-05-20",
+            "sq_gate_error": {"p1": 2.9e-05, "p1_unc": 4e-06},
+            "spam_error": {
+                "p_meas_1_unc": 0.0002,
+                "p_meas_0": 0.0005,
+                "p_meas_1": 0.0025,
+                "p_meas_0_unc": 8e-05,
+            },
+            "crosstalk_error": {
+                "p_crosstalk_meas_unc": 8e-07,
+                "p_crosstalk_meas": 7.4e-06,
+            },
+            "memory_error": {"memory_error_unc": 2e-05, "memory_error": 0.0005},
+            "tq_gate_error": {"p2_unc": 8e-05, "p2": 0.00128},
+        },
+        "max_n_shots": 10000,
+        "n_qubits": 56,
+        "n_classical_registers": 50,
+        "system_type": "hardware",
+        "connectivity": "all-to-all",
+        "emulator": "H2-1E",
+    },
+]
+
+
 class QuantinuumAPIOffline:
     """
     Offline copy of the interface to the Quantinuum remote API.
@@ -543,32 +611,7 @@ class QuantinuumAPIOffline:
             }
         """
         if machine_list == None:
-            machine_list = [
-                {
-                    "name": "H1-1",
-                    "n_qubits": 20,
-                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
-                    "n_classical_registers": 120,
-                    "n_shots": 10000,
-                    "system_type": "hardware",
-                    "emulator": "H1-1E",
-                    "syntax_checker": "H1-1SC",
-                    "batching": True,
-                    "wasm": True,
-                },
-                {
-                    "name": "H2-1",
-                    "n_qubits": 32,
-                    "gateset": ["Rz", "RZZ", "TK2", "U1q", "ZZ"],
-                    "n_classical_registers": 120,
-                    "n_shots": 10000,
-                    "system_type": "hardware",
-                    "emulator": "H2-1E",
-                    "syntax_checker": "H2-1SC",
-                    "batching": True,
-                    "wasm": True,
-                },
-            ]
+            machine_list = OFFLINE_MACHINE_LIST
         self.provider = ""
         self.url = ""
         self.online = False
