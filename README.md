@@ -42,7 +42,7 @@ pip install -e .
 ## Contributing
 
 Pull requests are welcome. To make a PR, first fork the repo, make your proposed
-changes on the `develop` branch, and open a PR from your fork. If it passes
+changes on the `main` branch, and open a PR from your fork. If it passes
 tests and is accepted after review, it will be merged in.
 
 ### Code style
