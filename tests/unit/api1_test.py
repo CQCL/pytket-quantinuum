@@ -498,7 +498,6 @@ def test_available_devices(
         "syntax_checker": "H9-27SC",
         "batching": True,
         "wasm": True,
-        "cl_reg_width": 32,
     }
     assert backinfo0.name == "QuantinuumBackend"
 
@@ -519,7 +518,6 @@ def test_available_devices(
             "syntax_checker": "H9-27SC",
             "batching": False,
             "wasm": True,
-            "cl_reg_width": 32,
         }
         assert backinfo1.name == "QuantinuumBackend"
 
