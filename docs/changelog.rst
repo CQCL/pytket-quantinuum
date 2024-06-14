@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Restrict classical registers to a maximum size of 32 (until pytket can
+  support larger values).
+
 0.34.0 (June 2024)
 ------------------
 

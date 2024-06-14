@@ -395,7 +395,6 @@ class QuantinuumBackend(Backend):
             dct1["system_type"] = "local_emulator"
             dct1.pop("emulator", None)
             dct1["batching"] = False
-        dct1["cl_reg_width"] = 32 if n_qubits <= 32 else 64
         return BackendInfo(
             name=cls.__name__,
             device_name=name + "LE" if local_emulator else name,
@@ -1026,9 +1025,9 @@ class QuantinuumBackend(Backend):
                     quantinuum_circ = circuit_to_qasm_str(
                         c0,
                         header="hqslib1",
-                        maxwidth=self.backend_info.misc["cl_reg_width"]
-                        if self.backend_info
-                        else 32,
+                        maxwidth=32,
+                        # TODO Get maxwidth from self.backend_info once
+                        # https://github.com/CQCL/tket/issues/1445 fixed in pytket
                     )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(
