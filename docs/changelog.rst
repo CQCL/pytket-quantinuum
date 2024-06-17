@@ -4,10 +4,11 @@ Changelog
 Unreleased
 ----------
 
-* Update pytket_pecos version requirement to 0.1.26.
+* Update pytket_pecos version requirement to 0.1.27.
 * Update Leakage Detection to reuse circuit qubits.
 * Update pytket version requirement to 1.28.
 * Update pytket-qir version requirement to 0.11.
+* Update offline machine specs to match real devices as at 5 June 2024.
 
 0.33.0 (April 2024)
 -------------------
