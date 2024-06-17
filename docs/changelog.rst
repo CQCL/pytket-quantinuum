@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Determine maximum classical register width from backend info.
+
 0.36.0 (July 2024)
 ------------------
 
