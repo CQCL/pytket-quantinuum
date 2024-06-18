@@ -2,5 +2,5 @@ pytest
 pytest-timeout
 hypothesis
 requests_mock
-llvmlite ~= 0.42.0
+llvmlite ~= 0.43.0
 pytest-rerunfailures
