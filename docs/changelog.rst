@@ -1,6 +1,12 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Update pytket version requirement to 1.29.
+* Update pytket_pecos version requirement to 0.1.28.
+
 0.34.1 (June 2024)
 ------------------
 
