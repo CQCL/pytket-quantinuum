@@ -3,6 +3,7 @@
 build
 dist
 *.pyc
+*.DS_Store
 .venv
 .vscode
 .mypy_cache
@@ -11,3 +12,5 @@ obj
 docs/extensions
 .ipynb_checkpoints
 pytket/extensions/quantinuum/_metadata.py
+**/target/**
+*.lock
