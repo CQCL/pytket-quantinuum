@@ -19,7 +19,7 @@ jobs:
     - name: Update pip
       run: pip install --upgrade pip
     - name: Install black and pylint
-      run: pip install "black[jupyter]"~=22.3 pylint~=3.0
+      run: pip install "black[jupyter]" pylint
     - name: Check files are formatted with black
       run: |
         black --check .
