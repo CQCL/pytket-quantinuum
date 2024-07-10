@@ -23,6 +23,9 @@ jobs:
     - name: Check files are formatted with black
       run: |
         black --check .
+    - name: Run ruff
+      run: |
+        ruff check .
     - name: Run pylint
       run: |        
         pylint */
