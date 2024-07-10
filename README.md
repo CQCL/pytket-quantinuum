@@ -6,6 +6,9 @@ with tket, a quantum computing toolkit and optimising compiler developed by Quan
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
 be executed on Quantinuum's quantum devices.
 
+Some useful links:
+- [API Documentation](https://tket.quantinuum.com/extensions/pytket-quantinuum/)
+
 ## Getting started
 
 `pytket-quantinuum` is available for Python 3.10, 3.11 and 3.12, on Linux, MacOS
