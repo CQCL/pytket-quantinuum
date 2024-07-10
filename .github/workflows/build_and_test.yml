@@ -308,23 +308,3 @@ jobs:
         cd .github/workflows/docs
         mkdir extensions
         ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
-    - name: Upload docs as artefact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: .github/workflows/docs/extensions
-
-  publish_docs:
-    name: Publish docs
-    if: github.event_name == 'release'
-    needs: build_docs
-    runs-on: ubuntu-22.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
