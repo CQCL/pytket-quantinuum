@@ -211,8 +211,8 @@ jobs:
     - name: Run tests with mpl test
       env:
         PYTKET_RUN_MPL_TESTS: 1
-        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
-        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
       working-directory: ./tests
       run: |
         pytest --mpl-generate-path=integration/baseline
