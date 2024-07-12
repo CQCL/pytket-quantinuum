@@ -639,7 +639,6 @@ class QuantinuumBackend(Backend):
     @property
     def default_two_qubit_gate(self) -> OpType:
         """Returns the default two-qubit gate for the device."""
-        assert self._default_2q_gate in self.two_qubit_gate_set
         return self._default_2q_gate
 
     @property
@@ -660,7 +659,7 @@ class QuantinuumBackend(Backend):
         return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
-        assert self.compilation_config.target_2qb_gate is not None
+        assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
         return auto_rebase_pass(
             (self._gate_set - self.two_qubit_gate_set)
             | {self.compilation_config.target_2qb_gate},
