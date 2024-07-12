@@ -151,8 +151,8 @@ def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
 @pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
 def test_defaultapi_handler(device_name: str) -> None:
     """Test that the default API handler is used on backend construction."""
-    backend_1 = QuantinuumBackend(device_name)
-    backend_2 = QuantinuumBackend(device_name)
+    backend_1 = QuantinuumBackend(device_name, machine_debug=True)
+    backend_2 = QuantinuumBackend(device_name, machine_debug=True)
 
     assert backend_1.api_handler is backend_2.api_handler
 
@@ -163,8 +163,12 @@ def test_custom_api_handler(device_name: str) -> None:
     handler_1 = QuantinuumAPI()
     handler_2 = QuantinuumAPI()
 
-    backend_1 = QuantinuumBackend(device_name, api_handler=handler_1)
-    backend_2 = QuantinuumBackend(device_name, api_handler=handler_2)
+    backend_1 = QuantinuumBackend(
+        device_name, api_handler=handler_1, machine_debug=True
+    )
+    backend_2 = QuantinuumBackend(
+        device_name, api_handler=handler_2, machine_debug=True
+    )
 
     assert backend_1.api_handler is not backend_2.api_handler
     assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store

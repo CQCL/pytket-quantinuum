@@ -327,6 +327,13 @@ class QuantinuumBackend(Backend):
 
         self._default_2q_gate = _default_2q_gate(device_name)
 
+        if self._default_2q_gate in self.two_qubit_gate_set:
+            pass
+        elif len(self.two_qubit_gate_set) > 0:
+            self._default_2q_gate = list(self.two_qubit_gate_set)[0]
+        else:
+            raise ValueError("The device is not supporting any two qubit gates")
+
         if compilation_config is None:
             self.compilation_config = QuantinuumBackendCompilationConfig(
                 allow_implicit_swaps=True, target_2qb_gate=self._default_2q_gate
@@ -632,6 +639,7 @@ class QuantinuumBackend(Backend):
     @property
     def default_two_qubit_gate(self) -> OpType:
         """Returns the default two-qubit gate for the device."""
+        assert self._default_2q_gate in self.two_qubit_gate_set
         return self._default_2q_gate
 
     @property
@@ -652,13 +660,6 @@ class QuantinuumBackend(Backend):
         return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
-        if self.compilation_config.target_2qb_gate in self.two_qubit_gate_set:
-            pass
-        elif len(self.two_qubit_gate_set) > 0:
-            self.compilation_config.target_2qb_gate = list(self.two_qubit_gate_set)[0]
-        else:
-            raise ValueError("The device is not supporting any two qubit gates")
-
         return auto_rebase_pass(
             (self._gate_set - self.two_qubit_gate_set)
             | {self.compilation_config.target_2qb_gate},
