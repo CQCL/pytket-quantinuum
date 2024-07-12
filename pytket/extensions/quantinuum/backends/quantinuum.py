@@ -1025,11 +1025,13 @@ class QuantinuumBackend(Backend):
                     quantinuum_circ = circuit_to_qasm_str(
                         c0,
                         header="hqslib1",
-                        maxwidth=self.backend_info.misc.get(
-                            "max_classical_register_width", 32
-                        )
-                        if self.backend_info
-                        else 32,
+                        maxwidth=(
+                            self.backend_info.misc.get(
+                                "max_classical_register_width", 32
+                            )
+                            if self.backend_info
+                            else 32
+                        ),
                     )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(
