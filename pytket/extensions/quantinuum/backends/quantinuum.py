@@ -1033,9 +1033,13 @@ class QuantinuumBackend(Backend):
                     quantinuum_circ = circuit_to_qasm_str(
                         c0,
                         header="hqslib1",
-                        maxwidth=32,
-                        # TODO Get maxwidth from self.backend_info once
-                        # https://github.com/CQCL/tket/issues/1445 fixed in pytket
+                        maxwidth=(
+                            self.backend_info.misc.get(
+                                "max_classical_register_width", 32
+                            )
+                            if self.backend_info
+                            else 32
+                        ),
                     )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(
