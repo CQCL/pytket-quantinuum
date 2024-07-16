@@ -326,6 +326,14 @@ class QuantinuumBackend(Backend):
         ] = dict()
 
         self._default_2q_gate = _default_2q_gate(device_name)
+
+        if self._default_2q_gate in self.two_qubit_gate_set:
+            pass
+        elif len(self.two_qubit_gate_set) > 0:
+            self._default_2q_gate = list(self.two_qubit_gate_set)[0]
+        else:
+            raise ValueError("The device is not supporting any two qubit gates")
+
         if compilation_config is None:
             self.compilation_config = QuantinuumBackendCompilationConfig(
                 allow_implicit_swaps=True, target_2qb_gate=self._default_2q_gate

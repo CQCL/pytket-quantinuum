@@ -189,9 +189,13 @@ def test_custom_login_flow(
         ),
     )
 
+    qcc = QuantinuumConfigCredentialStorage()
+    qcc.save_user_name("user3")
+    qcc.save_refresh_token("token")
+
     backend_3 = QuantinuumBackend(
         device_name=fake_device,
-        api_handler=QuantinuumAPI(QuantinuumConfigCredentialStorage()),
+        api_handler=QuantinuumAPI(qcc),
     )
 
     circ = Circuit(2, name="default_login_flow_test").H(0).CX(0, 1).measure_all()
@@ -391,9 +395,8 @@ def test_device_family(
     )
 
     backend = QuantinuumBackend(
-        device_name=chosen_device,
+        device_name=chosen_device, api_handler=mock_quum_api_handler
     )
-    backend.api_handler = mock_quum_api_handler
 
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
     circ = backend.get_compiled_circuit(circ)
@@ -443,8 +446,8 @@ def test_resumed_batching(
 
     backend = QuantinuumBackend(
         device_name="H1-1E",
+        api_handler=mock_quum_api_handler,
     )
-    backend.api_handler = mock_quum_api_handler
 
     circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
     circ = backend.get_compiled_circuit(circ)
@@ -553,8 +556,8 @@ def test_submit_qasm_api(
 
     backend = QuantinuumBackend(
         device_name="H1-1SC",
+        api_handler=mock_quum_api_handler,
     )
-    backend.api_handler = mock_quum_api_handler
 
     qasm = """
     OPENQASM 2.0;
