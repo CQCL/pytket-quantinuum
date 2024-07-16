@@ -1038,7 +1038,7 @@ class QuantinuumBackend(Backend):
                                 "max_classical_register_width", 32
                             )
                             if self.backend_info
-                            else 32
+                            else 64
                         ),
                     )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
