@@ -54,7 +54,6 @@ from pytket.passes import (
     NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
-    CustomPass,
     FlattenRelabelRegistersPass,
     auto_rebase_pass,
     auto_squash_pass,

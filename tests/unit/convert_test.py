@@ -15,8 +15,7 @@
 import pytest
 
 from pytket.architecture import FullyConnected
-from pytket.circuit import Circuit, OpType, Qubit, reg_eq
-from pytket.unit_id import _TEMP_BIT_NAME, _TEMP_BIT_REG_BASE
+from pytket.circuit import Circuit, OpType, Qubit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIError
