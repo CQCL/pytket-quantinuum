@@ -6,13 +6,13 @@ Unreleased
 
 * Determine maximum classical register width from backend info.
 * Permit numpy 2.
+* Update pytket_pecos version requirement to 0.1.29.
 
 0.36.0 (July 2024)
 ------------------
 
 * Updated pytket version requirement to 1.30.
 * Update pytket-qir version requirement to 0.12.
-* Update pytket_pecos version requirement to 0.1.29.
 
 0.35.0 (June 2024)
 ------------------
