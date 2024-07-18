@@ -51,7 +51,7 @@ setup(
         "nest_asyncio >= 1.2",
         "pyjwt ~= 2.4",
         "msal ~= 1.18",
-        "numpy < 2",
+        "numpy >= 1.26.4",
     ],
     extras_require={
         "pecos": ["pytket-pecos ~= 0.1.28"],
