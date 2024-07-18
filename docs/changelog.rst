@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 * Determine maximum classical register width from backend info.
+* Permit numpy 2.
 
 0.36.0 (July 2024)
 ------------------
