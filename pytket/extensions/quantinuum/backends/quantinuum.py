@@ -54,10 +54,10 @@ from pytket.passes import (
     NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
-    CustomPass,
     FlattenRelabelRegistersPass,
     auto_rebase_pass,
     auto_squash_pass,
+    scratch_reg_resize_pass,
 )
 from pytket.predicates import (
     GateSetPredicate,
@@ -158,25 +158,6 @@ def _used_scratch_registers(qasm: str) -> Set[str]:
         if reg := def_matcher.match(line):
             regs.add(reg.group(1))
     return regs
-
-
-def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> BasePass:
-    """Given a max scratch register width, return a compiler pass that
-    breaks up the internal scratch bit registers into smaller registers
-    """
-
-    def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
-        # Find all scratch bits
-        scratch_bits = list(filter(_is_scratch, circ.bits))
-        # If the total number of scratch bits exceeds the max width, rename them
-        if len(scratch_bits) > max_size:
-            bits_map = {}
-            for i, bit in enumerate(scratch_bits):
-                bits_map[bit] = Bit(f"{_TEMP_BIT_NAME}_{i//max_size}", i % max_size)
-            circ.rename_units(bits_map)  # type: ignore
-        return circ
-
-    return CustomPass(trans, label="resize scratch bits")
 
 
 class GetResultFailed(Exception):
