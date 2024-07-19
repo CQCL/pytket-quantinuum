@@ -75,16 +75,14 @@ REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 (requires configuration of Quantinuum username)"
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("authenticated_quum_backend_qa", [None], indirect=True)
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_quantinuum(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
 ) -> None:
-    if skip_remote_tests:
-        backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
-    else:
-        backend = authenticated_quum_backend_qa
+    backend = authenticated_quum_backend_qa
     c = Circuit(4, 4, "test 1")
     c.H(0)
     c.CX(0, 1)
