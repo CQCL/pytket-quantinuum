@@ -1,10 +1,16 @@
 # pytket-quantinuum
 
+[![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://tketusers.slack.com/join/shared_invite/zt-18qmsamj9-UqQFVdkRzxnXCcKtcarLRA#)
+[![Stack Exchange](https://img.shields.io/badge/StackExchange-%23ffffff.svg?style=for-the-badge&logo=StackExchange)](https://quantumcomputing.stackexchange.com/tags/pytket)
+
 [Pytket](https://tket.quantinuum.com/api-docs/index.html) is a python module for interfacing
 with tket, a quantum computing toolkit and optimising compiler developed by Quantinuum.
 
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
 be executed on Quantinuum's quantum devices.
+
+Some useful links:
+- [API Documentation](https://tket.quantinuum.com/extensions/pytket-quantinuum/)
 
 ## Getting started
 
@@ -42,7 +48,7 @@ pip install -e .
 ## Contributing
 
 Pull requests are welcome. To make a PR, first fork the repo, make your proposed
-changes on the `develop` branch, and open a PR from your fork. If it passes
+changes on the `main` branch, and open a PR from your fork. If it passes
 tests and is accepted after review, it will be merged in.
 
 ### Code style

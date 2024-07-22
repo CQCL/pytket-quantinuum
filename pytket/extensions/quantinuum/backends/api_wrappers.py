@@ -427,6 +427,7 @@ class QuantinuumAPI:
                         "action": "OpenConnection",
                         "task_token": task_token,
                         "executionArn": execution_arn,
+                        "partial": False,
                     }
                     await websocket.send(json.dumps(body))
                     while True:

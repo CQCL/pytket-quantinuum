@@ -4,6 +4,31 @@ Changelog
 Unreleased
 ----------
 
+* Determine maximum classical register width from backend info.
+* Permit numpy 2.
+* Update pytket_pecos version requirement to 0.1.29.
+
+0.36.0 (July 2024)
+------------------
+
+* Updated pytket version requirement to 1.30.
+* Update pytket-qir version requirement to 0.12.
+
+0.35.0 (June 2024)
+------------------
+
+* Update pytket version requirement to 1.29.
+* Update pytket_pecos version requirement to 0.1.28.
+
+0.34.1 (June 2024)
+------------------
+
+* Restrict classical registers to a maximum size of 32 (until pytket can
+  support larger values).
+
+0.34.0 (June 2024)
+------------------
+
 * Update pytket_pecos version requirement to 0.1.27.
 * Update Leakage Detection to reuse circuit qubits.
 * Update pytket version requirement to 1.28.

@@ -54,10 +54,10 @@ from pytket.passes import (
     NormaliseTK2,
     SimplifyInitial,
     ZZPhaseToRz,
-    CustomPass,
     FlattenRelabelRegistersPass,
     auto_rebase_pass,
     auto_squash_pass,
+    scratch_reg_resize_pass,
 )
 from pytket.predicates import (
     GateSetPredicate,
@@ -158,25 +158,6 @@ def _used_scratch_registers(qasm: str) -> Set[str]:
         if reg := def_matcher.match(line):
             regs.add(reg.group(1))
     return regs
-
-
-def scratch_reg_resize_pass(max_size: int = MAX_C_REG_WIDTH) -> BasePass:
-    """Given a max scratch register width, return a compiler pass that
-    breaks up the internal scratch bit registers into smaller registers
-    """
-
-    def trans(circ: Circuit, max_size: int = max_size) -> Circuit:
-        # Find all scratch bits
-        scratch_bits = list(filter(_is_scratch, circ.bits))
-        # If the total number of scratch bits exceeds the max width, rename them
-        if len(scratch_bits) > max_size:
-            bits_map = {}
-            for i, bit in enumerate(scratch_bits):
-                bits_map[bit] = Bit(f"{_TEMP_BIT_NAME}_{i//max_size}", i % max_size)
-            circ.rename_units(bits_map)  # type: ignore
-        return circ
-
-    return CustomPass(trans, label="resize scratch bits")
 
 
 class GetResultFailed(Exception):
@@ -326,6 +307,14 @@ class QuantinuumBackend(Backend):
         ] = dict()
 
         self._default_2q_gate = _default_2q_gate(device_name)
+
+        if self._default_2q_gate in self.two_qubit_gate_set:
+            pass
+        elif len(self.two_qubit_gate_set) > 0:
+            self._default_2q_gate = list(self.two_qubit_gate_set)[0]
+        else:
+            raise ValueError("The device is not supporting any two qubit gates")
+
         if compilation_config is None:
             self.compilation_config = QuantinuumBackendCompilationConfig(
                 allow_implicit_swaps=True, target_2qb_gate=self._default_2q_gate
@@ -395,7 +384,6 @@ class QuantinuumBackend(Backend):
             dct1["system_type"] = "local_emulator"
             dct1.pop("emulator", None)
             dct1["batching"] = False
-        dct1["cl_reg_width"] = 32 if n_qubits <= 32 else 64
         return BackendInfo(
             name=cls.__name__,
             device_name=name + "LE" if local_emulator else name,
@@ -1026,9 +1014,13 @@ class QuantinuumBackend(Backend):
                     quantinuum_circ = circuit_to_qasm_str(
                         c0,
                         header="hqslib1",
-                        maxwidth=self.backend_info.misc["cl_reg_width"]
-                        if self.backend_info
-                        else 32,
+                        maxwidth=(
+                            self.backend_info.misc.get(
+                                "max_classical_register_width", 32
+                            )
+                            if self.backend_info
+                            else 32
+                        ),
                     )
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(

@@ -4,11 +4,9 @@ on:
   pull_request:
     branches:
       - main
-      - develop
   push:
     branches:
       - main
-      - develop
       - 'wheel/**'
       - 'runci/**'
   release:
@@ -213,8 +211,8 @@ jobs:
     - name: Run tests with mpl test
       env:
         PYTKET_RUN_MPL_TESTS: 1
-        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
-        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+        PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+        PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
       working-directory: ./tests
       run: |
         pytest --mpl-generate-path=integration/baseline
@@ -310,23 +308,3 @@ jobs:
         cd .github/workflows/docs
         mkdir extensions
         ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
-    - name: Upload docs as artefact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: .github/workflows/docs/extensions
-
-  publish_docs:
-    name: Publish docs
-    if: github.event_name == 'release'
-    needs: build_docs
-    runs-on: ubuntu-22.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4

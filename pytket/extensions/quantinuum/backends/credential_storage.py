@@ -20,7 +20,6 @@ from .config import QuantinuumConfig
 
 
 class CredentialStorage(ABC):
-
     """Storage for Quantinuum username and tokens"""
 
     def __init__(
@@ -65,7 +64,6 @@ class CredentialStorage(ABC):
 
 
 class MemoryCredentialStorage(CredentialStorage):
-
     """In memory credential storage. Intended use is only to store id tokens,
     refresh tokens and user_name. Password storage is only included for debug
     purposes."""
@@ -138,7 +136,6 @@ class MemoryCredentialStorage(CredentialStorage):
 
 
 class QuantinuumConfigCredentialStorage(CredentialStorage):
-
     """Store tokens in the default pytket configuration file."""
 
     def __init__(

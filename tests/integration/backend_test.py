@@ -75,16 +75,14 @@ REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 (requires configuration of Quantinuum username)"
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("authenticated_quum_backend_qa", [None], indirect=True)
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 @pytest.mark.timeout(120)
 def test_quantinuum(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
 ) -> None:
-    if skip_remote_tests:
-        backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
-    else:
-        backend = authenticated_quum_backend_qa
+    backend = authenticated_quum_backend_qa
     c = Circuit(4, 4, "test 1")
     c.H(0)
     c.CX(0, 1)
@@ -1025,6 +1023,7 @@ def test_qir_submission_mz_to_reg(
     assert len(r.get_bitlist()) == 128
 
 
+@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-quantinuum/issues/443")
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
@@ -1177,7 +1176,7 @@ def test_wasm_collatz(
 
     def to_int(C: np.ndarray) -> int:
         assert len(C) == 8
-        return sum(pow(2, i) * C[i] for i in range(8))
+        return sum(pow(2, i) * int(C[i]) for i in range(8))
 
     def collatz(n: int) -> int:
         if n == 0:
