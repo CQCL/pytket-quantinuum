@@ -72,11 +72,9 @@ class QuantinuumCalendar(object):
             i.e. 2 for February.
         :param title_prefix: A prefix to add to the title
         """
-        self._title: str = (
-            f"{title_prefix} Operations Calendar\n\
+        self._title: str = f"{title_prefix} Operations Calendar\n\
             {self.months[month-1]} {year}\
             ({datetime.datetime.now().astimezone().strftime('%Z')})"
-        )
         self._cal: np.ndarray = np.asarray(calendar.monthcalendar(year, month))
         self._events: np.ndarray = np.full(
             self._cal.shape, fill_value=None, dtype=object
