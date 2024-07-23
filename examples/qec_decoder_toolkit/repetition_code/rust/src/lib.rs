@@ -19,8 +19,8 @@ fn decode3(syn: i32, pfu: i32) -> i32  { //takes in a string and returns and a s
         return pfu;
     }
     else {
-        let pfu_new = pfu ^ decoder[&syn];
-        return pfu_new;
+        let pfu_old = pfu ^ decoder[&syn];
+        return pfu_old;
     }
 }
 
