@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 void init() {
     return;
 }
@@ -19,3 +21,9 @@ int decode3(int syn, int pfu) {
     syn_old = syn;
     return val ^ pfu;
 }
+
+// int main() {
+//     int pfu = decode3(1, 2);
+//     printf("%d", pfu);
+//     return 0;
+// }
