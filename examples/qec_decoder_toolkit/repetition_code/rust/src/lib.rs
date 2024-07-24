@@ -30,11 +30,6 @@ fn decode3(syn: i32, pfu: i32) -> i32  { //takes in a string and returns and a s
     }
 }
 
-// fn main() {
-//     let pfu: i32 = decode3(3, 1);
-//     println!("{}", pfu)
-// }
-
 // #[test]
 // fn test_decode3() {
 //     let val = decode3(3, 1);
