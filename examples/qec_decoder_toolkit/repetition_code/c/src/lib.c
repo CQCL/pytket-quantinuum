@@ -18,9 +18,10 @@ void init() {
 
 int syn_old;
 
-int decode3(int syn, int pfu) {
+int decode3(int syn) {
     int syn_new = syn ^ syn_old;
     int val;
+    int pfu = 0;
     if (syn_new == 1) {
         val = 1;
     } else if (syn_new == 3) {

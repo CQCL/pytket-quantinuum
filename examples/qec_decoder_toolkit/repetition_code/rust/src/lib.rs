@@ -24,11 +24,13 @@ fn init(){
 }
 
 #[no_mangle]
-fn decode3(syn: i32, pfu: i32) -> i32  { //takes in a string and returns and a string
+fn decode3(syn: i32) -> i32  { //takes in a string and returns and a string
     let mut decoder:HashMap<i32,i32> = HashMap::new();
     decoder.insert(1, 1); //001 = 1, if syn = 1 then error on qubit 0
     decoder.insert(3, 2); //010 = 2, if sny = 3 then error on qubit 1
     decoder.insert(2, 4); //100 = 4, if syn = 2 then error on qubit 2
+
+    let pfu = 0; //Define a register to hold our correction
 
     unsafe{
         let syn_new: i32 = SYN_OLD ^ syn;
@@ -42,6 +44,14 @@ fn decode3(syn: i32, pfu: i32) -> i32  { //takes in a string and returns and a s
             return pfu ^ decoder[&syn_new];
         }
     }
+}
+
+#[no_mangle]
+fn reset(){
+  unsafe{
+    SYN_OLD = 0;
+  }
+  
 }
 
 // #[test]
