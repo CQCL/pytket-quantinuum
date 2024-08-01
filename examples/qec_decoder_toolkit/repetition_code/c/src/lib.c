@@ -16,7 +16,7 @@ void init() {
     return;
 }
 
-int syn_old;
+int syn_old = 0;
 
 int decode3(int syn) {
     int syn_new = syn ^ syn_old;
@@ -33,4 +33,8 @@ int decode3(int syn) {
     }
     syn_old = syn;
     return val ^ pfu;
+}
+
+void set_global_syn_old() {
+    syn_old = 0;
 }

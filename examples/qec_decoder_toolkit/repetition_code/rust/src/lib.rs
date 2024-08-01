@@ -47,7 +47,7 @@ fn decode3(syn: i32) -> i32  { //takes in a string and returns and a string
 }
 
 #[no_mangle]
-fn reset(){
+fn set_global_syn_old(){
   unsafe{
     SYN_OLD = 0;
   }
