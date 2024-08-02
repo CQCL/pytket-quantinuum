@@ -49,7 +49,7 @@ def test_quantinuum_offline(language: Language) -> None:
     c.measure_all()
     c = backend.get_compiled_circuit(c)
     n_shots = 4
-    _ = backend.process_circuits([c], n_shots, language=language)[0]  # type: ignore
+    _ = backend.process_circuits([c], n_shots, language=language)[0]
     expected_result = {
         "name": "test 1",
         "count": 4,
@@ -111,7 +111,7 @@ def test_tket_pass_submission(language: Language) -> None:
     c.measure_all()
     c = backend.get_compiled_circuit(c)
     n_shots = 4
-    backend.process_circuits([c], n_shots, pytketpass=sequence_pass, language=language)  # type: ignore
+    backend.process_circuits([c], n_shots, pytketpass=sequence_pass, language=language)
 
 
 @given(
@@ -130,7 +130,7 @@ def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
     c = Circuit(n_bits, n_bits)
 
     # TODO TKET-813 add more shot based backends and move to integration tests
-    h = quantinuum_backend.process_circuit(c, n_shots, language=language)  # type: ignore
+    h = quantinuum_backend.process_circuit(c, n_shots, language=language)
     res = quantinuum_backend.get_result(h)
 
     correct_shots = np.zeros((n_shots, n_bits), dtype=int)
@@ -142,7 +142,7 @@ def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
     assert res.get_counts() == correct_counts
 
     # Direct
-    res = quantinuum_backend.run_circuit(c, n_shots=n_shots, language=language)  # type: ignore
+    res = quantinuum_backend.run_circuit(c, n_shots=n_shots, language=language)
     assert np.array_equal(res.get_shots(), correct_shots)
     assert res.get_shots().shape == correct_shape
     assert res.get_counts() == correct_counts
