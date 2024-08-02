@@ -1414,7 +1414,7 @@ jobid is {jobid}"
             raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
 
         try:
-            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)  # type: ignore
+            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)
         except DeviceNotAvailable as e:
             raise ValueError(
                 f"Cannot find syntax checker for device {self._device_name}. "

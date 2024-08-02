@@ -349,7 +349,7 @@ def test_wasm(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
 
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    counts = b.run_circuit(c, wasm_file_handler=wasfile, n_shots=n_shots).get_counts()  # type: ignore
+    counts = b.run_circuit(c, wasm_file_handler=wasfile, n_shots=n_shots).get_counts()
     assert counts == Counter({(1, 0, 0, 0, 0, 0, 0, 0): n_shots})
 
 
@@ -379,7 +379,7 @@ def test_wasm_collatz(authenticated_quum_backend_prod: QuantinuumBackend) -> Non
     backend = authenticated_quum_backend_prod
 
     c = backend.get_compiled_circuit(c)
-    h = backend.process_circuit(c, n_shots=10, wasm_file_handler=wasfile)  # type: ignore
+    h = backend.process_circuit(c, n_shots=10, wasm_file_handler=wasfile)
 
     r = backend.get_result(h)
     shots = r.get_shots()
