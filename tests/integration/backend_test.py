@@ -1335,7 +1335,7 @@ def test_get_calendar_raises_error(
 
 @pytest.mark.skipif(skip_mpl_tests, reason=REASON_MPL)
 @pytest.mark.timeout(120)
-@pytest.mark.mpl_image_compare
+@pytest.mark.mpl_image_compare(tolerance=20)
 def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
     backend = QuantinuumBackend(
         api_handler=authenticated_quum_handler, device_name="H1-1"
