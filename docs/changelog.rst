@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Update machine specs in offline API.
+
 0.37.0 (August 2024)
 --------------------
 
