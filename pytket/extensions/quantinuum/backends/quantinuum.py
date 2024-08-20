@@ -1292,11 +1292,13 @@ try installing with the `pecos` option."
                 # workaround for https://github.com/CQCL/pytket-quantinuum/issues/473
                 # add redundant SetBits so unused bits won't be omitted during
                 # pytket to phir conversion
-                circ = Circuit()
-                for bit in configuration.circuit.bits:
-                    circ.add_bit(bit)
+                circ = configuration.circuit.copy()
+                unused_bits = set(circ.bits)
+                for cmd in circ.get_commands():
+                    unused_bits = unused_bits - set(cmd.args)
+                for bit in unused_bits:
                     circ.add_c_setbits([False], [bit])
-                circ.append(configuration.circuit)
+
                 emu = Emulator(
                     circ,
                     wasm=configuration.wasm_fh,
