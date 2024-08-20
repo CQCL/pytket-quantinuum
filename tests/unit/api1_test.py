@@ -434,14 +434,21 @@ def test_available_devices(
     assert backinfo0.supports_midcircuit_measurement == True
     assert backinfo0.supports_reset == True
     assert backinfo0.n_cl_reg == 120
-    assert backinfo0.misc == {
-        "n_shots": 10000,
-        "system_type": "hardware",
-        "emulator": "H9-27E",
-        "syntax_checker": "H9-27SC",
-        "batching": True,
-        "wasm": True,
-    }
+    assert (
+        backinfo0.misc.items()
+        >= {
+            "wasm": True,
+            "batching": True,
+            "max_classical_register_width": 32,
+            "syntax_checker": "H9-27SC",
+            "n_gate_zones": "5",
+            "max_n_shots": 10000,
+            "system_type": "hardware",
+            "connectivity": "all-to-all",
+            "emulator": "H9-27E",
+        }.items()
+    )
+
     assert backinfo0.name == "QuantinuumBackend"
 
     if have_pecos():
@@ -455,13 +462,19 @@ def test_available_devices(
         assert backinfo1.supports_midcircuit_measurement == True
         assert backinfo1.supports_reset == True
         assert backinfo1.n_cl_reg == 120
-        assert backinfo1.misc == {
-            "n_shots": 10000,
-            "system_type": "local_emulator",
-            "syntax_checker": "H9-27SC",
-            "batching": False,
-            "wasm": True,
-        }
+        assert (
+            backinfo1.misc.items()
+            >= {
+                "wasm": True,
+                "batching": False,
+                "max_classical_register_width": 32,
+                "syntax_checker": "H9-27SC",
+                "n_gate_zones": "5",
+                "max_n_shots": 10000,
+                "system_type": "local_emulator",
+                "connectivity": "all-to-all",
+            }.items()
+        )
         assert backinfo1.name == "QuantinuumBackend"
 
 
