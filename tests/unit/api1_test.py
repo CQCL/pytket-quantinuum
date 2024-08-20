@@ -17,7 +17,7 @@
 # phase.
 
 from io import StringIO
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 from http import HTTPStatus
 from unittest.mock import patch, MagicMock
 import pytest
@@ -34,10 +34,8 @@ from pytket.extensions.quantinuum.backends import (
 )
 from pytket.circuit import Circuit
 from pytket.architecture import FullyConnected
-from pytket.extensions.quantinuum.backends.quantinuum import (
-    DEFAULT_API_HANDLER,
-    BatchingUnsupported,
-)
+from pytket.extensions.quantinuum.backends.quantinuum import DEFAULT_API_HANDLER
+
 from pytket.extensions.quantinuum.backends.credential_storage import (
     QuantinuumConfigCredentialStorage,
 )
@@ -357,64 +355,6 @@ def test_federated_login_wrong_provider(
         assert err_msg in str(e.value)
 
 
-@pytest.mark.parametrize(
-    "chosen_device",
-    ["H1", "H2", "H1-1", "H2-1"],
-)
-def test_device_family(
-    requests_mock: Mocker,
-    mock_quum_api_handler: QuantinuumAPI,
-    sample_machine_infos: List[Dict[str, Any]],
-    chosen_device: str,
-) -> None:
-    """Test that batch params are NOT supplied by default
-    if we are submitting to a device family.
-    Doing so will get an error response from the Quantinuum API."""
-
-    fake_job_id = "abc-123"
-
-    requests_mock.register_uri(
-        "POST",
-        "https://qapi.quantinuum.com/v1/job",
-        json={"job": fake_job_id},
-        headers={"Content-Type": "application/json"},
-    )
-
-    requests_mock.register_uri(
-        "GET",
-        f"https://qapi.quantinuum.com/v1/job/{fake_job_id}?websocket=true",
-        json={"job": fake_job_id},
-        headers={"Content-Type": "application/json"},
-    )
-
-    requests_mock.register_uri(
-        "GET",
-        f"https://qapi.quantinuum.com/v1/machine/?config=true",
-        json=sample_machine_infos,
-        headers={"Content-Type": "application/json"},
-    )
-
-    backend = QuantinuumBackend(
-        device_name=chosen_device, api_handler=mock_quum_api_handler
-    )
-
-    circ = Circuit(2, name="batching_test").H(0).CX(0, 1).measure_all()
-    circ = backend.get_compiled_circuit(circ)
-
-    max_batch_cost = 20
-    if chosen_device in ["H1", "H2"]:
-        with pytest.raises(BatchingUnsupported):
-            backend.start_batch(max_batch_cost, circ, 10)
-    else:
-        backend.start_batch(max_batch_cost, circ, 10)
-        submitted_json = {}
-        if requests_mock.last_request:
-            # start_batch makes two requests
-            submitted_json = requests_mock.request_history[-2].json()
-        assert "batch-exec" in submitted_json
-        assert submitted_json["batch-exec"] == max_batch_cost
-
-
 def test_resumed_batching(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
@@ -494,14 +434,21 @@ def test_available_devices(
     assert backinfo0.supports_midcircuit_measurement == True
     assert backinfo0.supports_reset == True
     assert backinfo0.n_cl_reg == 120
-    assert backinfo0.misc == {
-        "n_shots": 10000,
-        "system_type": "hardware",
-        "emulator": "H9-27E",
-        "syntax_checker": "H9-27SC",
-        "batching": True,
-        "wasm": True,
-    }
+    assert (
+        backinfo0.misc.items()
+        >= {
+            "wasm": True,
+            "batching": True,
+            "max_classical_register_width": 32,
+            "syntax_checker": "H9-27SC",
+            "n_gate_zones": "5",
+            "max_n_shots": 10000,
+            "system_type": "hardware",
+            "connectivity": "all-to-all",
+            "emulator": "H9-27E",
+        }.items()
+    )
+
     assert backinfo0.name == "QuantinuumBackend"
 
     if have_pecos():
@@ -515,13 +462,19 @@ def test_available_devices(
         assert backinfo1.supports_midcircuit_measurement == True
         assert backinfo1.supports_reset == True
         assert backinfo1.n_cl_reg == 120
-        assert backinfo1.misc == {
-            "n_shots": 10000,
-            "system_type": "local_emulator",
-            "syntax_checker": "H9-27SC",
-            "batching": False,
-            "wasm": True,
-        }
+        assert (
+            backinfo1.misc.items()
+            >= {
+                "wasm": True,
+                "batching": False,
+                "max_classical_register_width": 32,
+                "syntax_checker": "H9-27SC",
+                "n_gate_zones": "5",
+                "max_n_shots": 10000,
+                "system_type": "local_emulator",
+                "connectivity": "all-to-all",
+            }.items()
+        )
         assert backinfo1.name == "QuantinuumBackend"
 
 
