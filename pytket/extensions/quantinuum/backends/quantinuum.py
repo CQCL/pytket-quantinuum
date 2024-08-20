@@ -190,7 +190,7 @@ class Language(Enum):
 
     QASM = "OPENQASM 2.0"
     QIR = "QIR 1.0"
-    PQIR = "QIR - adaptive profile"
+    PQIR = "QIR 1.0"
 
 
 # DEFAULT_CREDENTIALS_STORAGE for use with the DEFAULT_API_HANDLER.

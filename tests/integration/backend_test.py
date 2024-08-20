@@ -948,7 +948,7 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.PQIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
     assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
     assert len(r.get_shots()) == 10
@@ -971,7 +971,7 @@ def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> 
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.PQIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
     assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
     assert len(r.get_shots()) == 10
@@ -994,7 +994,7 @@ def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) ->
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.PQIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
     assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
     assert len(r.get_shots()) == 10
@@ -1018,7 +1018,7 @@ def test_qir_submission_mz_to_reg(
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.PQIR, b64encode(ir).decode("utf-8"), n_shots=10)
 
     r = b.get_result(h)
 
@@ -1045,7 +1045,7 @@ def test_qir_submission_mz_to_reg_qa(
     ctx = create_context()
     module = parse_assembly(qir, context=ctx)
     ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.PQIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
     assert len(r.get_shots()) == 10
     assert len(r.get_bitlist()) == 128
@@ -1060,7 +1060,7 @@ def test_qir_conversion(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     b = authenticated_quum_backend_qa
     c = b.get_compiled_circuit(c0)
-    h = b.process_circuit(c, n_shots=10, language=Language.QIR)
+    h = b.process_circuit(c, n_shots=10, language=Language.PQIR)
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 10
