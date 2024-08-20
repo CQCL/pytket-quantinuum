@@ -1,6 +1,11 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Fix handling of unused bits in local emulator.
+
 0.37.0 (August 2024)
 --------------------
 
