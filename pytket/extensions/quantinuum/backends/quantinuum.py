@@ -1413,8 +1413,8 @@ jobid is {jobid}"
             if syntax_checker is not None and syntax_checker != syntax_checker_name:
                 raise ValueError(
                     f"Device {self._device_name}'s syntax checker is "
-                    "{syntax_checker_name} but a different syntax checker "
-                    "({syntax_checker}) was specified. You should omit the "
+                    f"{syntax_checker_name} but a different syntax checker "
+                    f"({syntax_checker}) was specified. You should omit the "
                     "`syntax_checker` argument to ensure the correct one is "
                     "used."
                 )
