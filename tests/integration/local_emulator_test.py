@@ -452,3 +452,28 @@ def test_cbits(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
     r = backend.run_circuit(cc, n_shots=1)
     counts = r.get_counts(cbits=list(a))
     assert counts == Counter({(1, 1): 1})
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_result_handling_for_empty_bits(
+    authenticated_quum_backend_prod: QuantinuumBackend,
+) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/473
+
+    circuit = Circuit(1, 2)
+    circuit.X(0, condition=circuit.bits[1])
+
+    backend = authenticated_quum_backend_prod
+
+    compiled_circuit = backend.get_compiled_circuit(circuit=circuit)
+    result = backend.run_circuit(
+        circuit=compiled_circuit,
+        n_shots=1,
+    )
+    assert result.get_counts() == {(0, 0): 1}
