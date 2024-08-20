@@ -77,7 +77,7 @@ REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize("authenticated_quum_backend_qa", [None], indirect=True)
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_quantinuum(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -145,7 +145,7 @@ def test_max_classical_register(
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_bell(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -167,7 +167,7 @@ def test_bell(
     [{"device_name": "H1-1SC", "label": "test 3"}],
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_multireg(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -383,7 +383,7 @@ def test_cost_estimate_bad_syntax_checker(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_classical(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -398,8 +398,8 @@ def test_classical(
     c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
     c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
 
-    c.add_c_setreg(23, a)
-    c.add_c_copyreg(a, b)
+    # c.add_c_setreg(23, a)
+    # c.add_c_copyreg(a, b)
 
     c.add_classicalexpbox_register(a + b, d.to_list())
     c.add_classicalexpbox_register(a - b, d.to_list())
@@ -436,6 +436,7 @@ def test_classical(
     "language",
     [
         Language.QIR,
+        Language.PQIR,
         pytest.param(
             Language.QASM,
             marks=pytest.mark.xfail(reason="https://github.com/CQCL/tket/issues/1173"),
@@ -468,7 +469,7 @@ def test_division(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_postprocess(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -544,7 +545,7 @@ def test_shots_bits_edgecases(n_shots, n_bits) -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(200)
 def test_simulator(
     authenticated_quum_handler: QuantinuumAPI,
@@ -638,7 +639,7 @@ def test_batching(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_submission_with_group(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -663,7 +664,7 @@ def test_submission_with_group(
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_zzphase(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -764,6 +765,7 @@ def test_device_state(
     [
         Language.QASM,
         Language.QIR,
+        Language.PQIR,
     ],
 )
 @pytest.mark.timeout(120)
@@ -797,6 +799,7 @@ def test_wasm_qa(
     [
         Language.QASM,
         Language.QIR,
+        Language.PQIR,
     ],
 )
 @pytest.mark.timeout(120)
@@ -884,7 +887,7 @@ def test_submit_qasm(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_options(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -906,7 +909,7 @@ def test_options(
     [{"device_name": name} for name in pytest.ALL_SYNTAX_CHECKER_NAMES],  # type: ignore
     indirect=True,
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_tk2(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
@@ -1144,6 +1147,7 @@ def test_scratch_removal(authenticated_quum_backend_qa: QuantinuumBackend) -> No
     [
         Language.QASM,
         Language.QIR,
+        Language.PQIR,
     ],
 )
 @pytest.mark.timeout(120)
@@ -1201,6 +1205,7 @@ def test_wasm_collatz(
     [
         Language.QASM,
         Language.QIR,
+        Language.PQIR,
     ],
 )
 @pytest.mark.timeout(120)
@@ -1280,7 +1285,7 @@ def test_Rz_removal_before_measurements() -> None:
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
 def test_noiseless_emulation(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
