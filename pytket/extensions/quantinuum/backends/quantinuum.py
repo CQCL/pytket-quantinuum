@@ -1289,8 +1289,16 @@ try installing with the `pecos` option."
                 from pytket_pecos import Emulator
 
                 configuration = self._local_emulator_handles[handle]
+                # workaround for https://github.com/CQCL/pytket-quantinuum/issues/473
+                # add redundant SetBits so unused bits won't be omitted during
+                # pytket to phir conversion
+                circ = Circuit()
+                for bit in configuration.circuit.bits:
+                    circ.add_bit(bit)
+                    circ.add_c_setbits([False], [bit])
+                circ.append(configuration.circuit)
                 emu = Emulator(
-                    configuration.circuit,
+                    circ,
                     wasm=configuration.wasm_fh,
                     qsim="state-vector",
                     seed=configuration.seed,
@@ -1299,9 +1307,7 @@ try installing with the `pecos` option."
                     n_shots=configuration.n_shots,
                     multithreading=configuration.multithreading,
                 )
-                backres = BackendResult(
-                    c_bits=configuration.circuit.bits, shots=res, ppcirc=ppcirc
-                )
+                backres = BackendResult(c_bits=circ.bits, shots=res, ppcirc=ppcirc)
             else:
                 # TODO exception handling when jobid not found on backend
                 timeout = kwargs.get("timeout")

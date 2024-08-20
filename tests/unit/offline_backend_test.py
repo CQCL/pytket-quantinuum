@@ -93,6 +93,25 @@ def test_max_classical_register_ii() -> None:
         backend._check_all_circuits([c])
 
 
+def test_result_handling_for_empty_bits() -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/473
+    backend = QuantinuumBackend(
+        device_name="H1-1LE",
+        api_handler=QuantinuumAPIOffline(),
+    )
+
+    circuit = Circuit(1, 2)
+    circuit.X(0, condition=circuit.bits[1])
+
+    n_shots = 100
+    compiled_circuit = backend.get_compiled_circuit(circuit=circuit)
+    result = backend.run_circuit(
+        circuit=compiled_circuit,
+        n_shots=n_shots,
+    )
+    assert result.get_counts() == {(0, 0): 100}
+
+
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
 def test_tket_pass_submission(language: Language) -> None:
     backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
