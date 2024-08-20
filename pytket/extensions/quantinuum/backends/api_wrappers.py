@@ -530,7 +530,6 @@ OFFLINE_MACHINE_LIST = [
         "n_gate_zones": "5",
         "noise_specs": {
             "date": "2024-02-04",
-            "sq_gate_error": {"p1": 2.08e-05, "p1_unc": 2.77e-06},
             "spam_error": {
                 "p_meas_1_unc": 0.000199,
                 "p_meas_0": 0.00095,
@@ -542,7 +541,8 @@ OFFLINE_MACHINE_LIST = [
                 "p_crosstalk_meas": 1.453e-05,
             },
             "memory_error": {"memory_error_unc": 2.52e-05, "memory_error": 0.000208},
-            "tq_gate_error": {"p2_unc": 2.85e-05, "p2": 0.000882},
+            "1q_gate_error": {"p1": 2.08e-05, "p1_unc": 2.77e-06},
+            "2q_gate_error": {"p2_unc": 2.85e-05, "p2": 0.000882},
         },
         "max_n_shots": 10000,
         "n_qubits": 20,
@@ -562,7 +562,6 @@ OFFLINE_MACHINE_LIST = [
         "n_gate_zones": "4",
         "noise_specs": {
             "date": "2024-05-20",
-            "sq_gate_error": {"p1": 2.9e-05, "p1_unc": 4e-06},
             "spam_error": {
                 "p_meas_1_unc": 0.0002,
                 "p_meas_0": 0.0005,
@@ -574,7 +573,8 @@ OFFLINE_MACHINE_LIST = [
                 "p_crosstalk_meas": 7.4e-06,
             },
             "memory_error": {"memory_error_unc": 2e-05, "memory_error": 0.0005},
-            "tq_gate_error": {"p2_unc": 8e-05, "p2": 0.00128},
+            "1q_gate_error": {"p1": 2.9e-05, "p1_unc": 4e-06},
+            "2q_gate_error": {"p2_unc": 8e-05, "p2": 0.00128},
         },
         "max_n_shots": 10000,
         "n_qubits": 56,
