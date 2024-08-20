@@ -5,6 +5,7 @@ Unreleased
 ----------
 
 * Fix handling of unused bits in local emulator.
+* Update machine specs in offline API.
 
 0.37.0 (August 2024)
 --------------------
