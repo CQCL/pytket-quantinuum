@@ -24,9 +24,6 @@ and Windows. To install, run:
 .. note::   `view_calendar` requires the extra-install-argument above. The method `get_calendar` can be used with the base installation of pytket-quantinuum.
 
 
-**Web Interface:**
-https://um.qapi.quantinuum.com/
-
 In case of questions about the hardware you can get in contact with the team sending an email to QCsupport@quantinuum.com.
 
 Available Backends
