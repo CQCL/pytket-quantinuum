@@ -17,6 +17,8 @@ and Windows. To install, run:
 .. note::   Running circuits remotely on the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
 
+**User Interface:**
+https://um.qapi.quantinuum.com/
 
 ``pytket-quantinuum`` provides calendar visualization capabilities. The ``calendar`` extra-install-argument must be specified to install matplotlib and pandas.
 
