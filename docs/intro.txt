@@ -12,7 +12,7 @@ and Windows. To install, run:
     pip install pytket-quantinuum
 
 
-.. note:: pytket-quantinuum is not intended to be used with Quantinuum Nexus. For guidance on how to access H-Series through Nexus, please see the Nexus documentation <https://docs.quantinuum.com/nexus>_ and the qnexus <https://pypi.org/project/qnexus/>_ Python package.
+.. note:: pytket-quantinuum is not intended to be used with Quantinuum Nexus. For guidance on how to access H-Series through Nexus, please see the `Nexus documentation <https://docs.quantinuum.com/nexus>`_ and the `qnexus <https://pypi.org/project/qnexus/>`_ Python package.
 
 .. note::   Running circuits remotely on the ``QuantinuumBackend`` requires a `Quantinuum <https://www.quantinuum.com/>`_ account.
             The user will be prompted for their login credentials when making API calls such as calling the ``process_circuits`` method or querying ``backend_info``.
