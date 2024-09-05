@@ -1023,7 +1023,6 @@ def test_qir_submission_mz_to_reg(
     assert len(r.get_bitlist()) == 128
 
 
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-quantinuum/issues/443")
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
