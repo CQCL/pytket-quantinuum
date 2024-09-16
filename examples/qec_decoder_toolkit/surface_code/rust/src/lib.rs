@@ -13,9 +13,7 @@
 // limitations under the License.
 
 
-static mut PFU:i32 = 0; // global variable to track the value of the Pauli Frame Update
-static mut PFU1:i32 = 0; // global variable to track the value of the Pauli Frame Update
-
+static mut PFU:i32 = 0; // global variable to track the value of the Pauli Frame Update (000000000)
 
 #[no_mangle]
 fn init(){
@@ -26,7 +24,7 @@ fn init(){
 
 
 #[no_mangle]
-fn set_pfu_values(syn: i32) {
+fn set_pfu_value(syn: i32) {
     unsafe{
         if syn == 1 {
             PFU = 4; // 000000100
@@ -50,37 +48,39 @@ fn set_pfu_values(syn: i32) {
             PFU = 8; // 000001000
         }
         if syn == 5 {
-            PFU = 16; // 000010000
-            PFU1 = 32; // 000001000
+            PFU = 48; // 000110000
         }
         if syn == 10 {
-            PFU = 8; // 000001000
-            PFU1 = 16; // 000001000
+            PFU = 24; // 000011000
         }
         if syn == 9 {
-            PFU = 4; // 000000100
-            PFU1 = 64; // 001000000
+            PFU = 68; // 001000100
         }
         if syn == 7 {
-            PFU = 1; // 000000001
-            PFU1 = 32; // 000100000
+            PFU = 33; // 000100001
         }
         if syn == 11 {
-            PFU = 32; // 000100000
-            PFU1 = 64; // 001000000
+            PFU = 96; // 001100000
         }
         if syn == 13 {
-            PFU = 8; // 000000100
-            PFU1 = 4; // 000000010
+            PFU = 12; // 000001100
         }
         if syn == 14 {
-            PFU = 8; // 000000100
-            PFU1 = 128; // 010000000
+            PFU = 136; // 010001000
         }
         if syn == 15 {
-            PFU = 8; // 000000100
-            PFU1 = 32; // 000010000
+            PFU = 40; // 000101000
         }
+    }
+}
+
+
+#[no_mangle]
+fn update_pfu(syn: i32) {
+    unsafe{
+        let pfu_temp: i32 = PFU.clone();
+        set_pfu_value(syn);
+        PFU = pfu_temp ^ PFU;
     }
 }
 
@@ -92,19 +92,11 @@ fn get_pfu() -> i32 {
     }
 }
 
-#[no_mangle]
-fn get_pfu1() -> i32 {
-    unsafe{
-        return PFU1;
-    }
-}
-
 
 #[no_mangle]
 fn reset_pfu() {
     unsafe{
-        PFU = 0;
-        PFU1 = 0;
+        PFU = 0; // 000000000
     }
 }
 
@@ -117,25 +109,22 @@ mod tests {
     fn test1() {
         reset_pfu();
         let val: i32 = 15;
-        set_pfu_values(val);
-        assert_eq!(get_pfu(), 8);
-        assert_eq!(get_pfu1(), 32);
+        set_pfu_value(val);
+        assert_eq!(get_pfu(), 40);
     }
 
     #[test]
     fn test2() {
         reset_pfu();
         let val: i32 = 4;
-        set_pfu_values(val);
+        set_pfu_value(val);
         assert_eq!(get_pfu(), 1);
-        assert_eq!(get_pfu1(), 0);
     }
 
     #[test]
     fn test3() {
-        set_pfu_values(5);
+        set_pfu_value(5);
         reset_pfu();
         assert_eq!(get_pfu(), 0);
-        assert_eq!(get_pfu1(), 0);
     }
 }
