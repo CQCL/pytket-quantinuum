@@ -13,26 +13,24 @@
 // limitations under the License.
 
 
-#include <gtest/gtest.h>
-#include "../src/lib.c"
+int TOTAL_MEAS = 0;
+
+const int ARRAY_SIZE = 20;
+int MEAS_ARRAY[ARRAY_SIZE];
 
 
-TEST(RUS_TESTS, test_add_count0) {
-    int cond = add_count(0, 0);
-    EXPECT_EQ(cond, 0);
-    EXPECT_EQ(MEAS_ARRAY[0], 0);
+void init() {
+    // initialize the Wasm runtime environment
 }
 
 
-TEST(RUS_TESTS, test_add_count1) {
-    int cond = add_count(1, 1);
-    EXPECT_EQ(cond, 1);
-    EXPECT_EQ(MEAS_ARRAY[1], 1);
+int add_count(int meas, int count) {
+    TOTAL_MEAS += meas;
+    MEAS_ARRAY[count] = meas;
+    int cond = TOTAL_MEAS;
+    return cond;
 }
 
-
-TEST(RUS_TESTS, test_add_count2) {
-    int cond = add_count(0, 2);
-    EXPECT_EQ(cond, 0);
-    EXPECT_EQ(MEAS_ARRAY[2], 0);
+void reset_total_meas() {
+    TOTAL_MEAS = 0;
 }
