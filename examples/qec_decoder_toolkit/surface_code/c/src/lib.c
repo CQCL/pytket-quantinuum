@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 int PFU = 0;
-int PFU1 = 0;
 
 
 void init() {
@@ -21,7 +21,7 @@ void init() {
 }
 
 
-void set_pfu_values(int syn) {
+void set_pfu_value(int syn) {
     if (syn == 1) {
         PFU = 4; // 000000100
     }
@@ -44,37 +44,36 @@ void set_pfu_values(int syn) {
         PFU = 8; // 000001000
     }
     if (syn == 5) {
-        PFU = 16; // 000010000
-        PFU1 = 32; // 000001000
+        PFU = 48; // 000110000
     }
     if (syn == 10) {
-        PFU = 8; // 000001000
-        PFU1 = 16; // 000001000
+        PFU = 24; // 000011000
     }
     if (syn == 9) {
-        PFU = 4; // 000000100
-        PFU1 = 64; // 001000000
+        PFU = 68; // 001000100
     }
     if (syn == 7) {
-        PFU = 1; // 000000001
-        PFU1 = 32; // 000100000
+        PFU = 33; // 000100001
     }
     if (syn == 11) {
-        PFU = 32; // 000100000
-        PFU1 = 64; // 001000000
+        PFU = 96; // 001100000
     }
     if (syn == 13) {
-        PFU = 8; // 000000100
-        PFU1 = 4; // 000000010
+        PFU = 12; // 000001100
     }
     if (syn == 14) {
-        PFU = 8; // 000000100
-        PFU1 = 128; // 010000000
+        PFU = 136; // 010001000
     }
     if (syn == 15) {
-        PFU = 8; // 000000100
-        PFU1 = 32; // 000010000
+        PFU = 40; // 000101000
     }
+}
+
+
+void update_pfu(int syn) {
+    int pfu_temp = PFU;
+    set_pfu_value(syn);
+    PFU = pfu_temp ^ PFU;
 }
 
 
@@ -83,12 +82,7 @@ int get_pfu() {
 }
 
 
-int get_pfu1() {
-    return PFU1;
-}
-
 
 void reset_pfu() {
-    PFU = 0;
-    PFU1 = 0;
+    PFU = 0; // 000000000
 }
