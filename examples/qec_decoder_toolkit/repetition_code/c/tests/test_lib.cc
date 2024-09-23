@@ -12,29 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-void init() {
-    return;
+
+#include <gtest/gtest.h>
+#include "../src/lib.c"
+
+
+TEST(TESTS, test_decode3) {
+    int pfu = decode3(2);
+    EXPECT_EQ(pfu, 4);
 }
 
-int SYN_OLD = 0;
-
-int decode3(int syn) {
-    int syn_new = syn ^ SYN_OLD;
-    int val;
-    int pfu = 0;
-    if (syn_new == 1) {
-        val = 1;
-    } else if (syn_new == 3) {
-        val = 2;
-    } else if (syn_new == 2) {
-        val = 4;
-    } else {
-        return 0;
-    }
-    SYN_OLD = syn;
-    return val ^ pfu;
-}
-
-void reset_syn_old() {
-    SYN_OLD = 0;
+TEST(TESTS, test_reset) {
+    reset_syn_old();
+    EXPECT_EQ(SYN_OLD, 0);
 }
