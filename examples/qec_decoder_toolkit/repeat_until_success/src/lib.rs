@@ -33,14 +33,22 @@ fn add_count(meas: i32, count: usize) -> i32 {
     }
 }
 
-// The [test] attribute indicate which functions are tests
-#[test]
-fn Test_Rust_code() {
-    add_count(0, 0);
-    add_count(1, 1);
-    add_count(0, 2);
-    unsafe {
-        println!("The total is {:?}", TOTAL_MEAS);
-        println!("The qubit measurement array is {:?}", MEAS_ARRAY);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add_count() {
+        add_count(0, 0);
+        add_count(1, 1);
+        add_count(0, 2);
+        
+        unsafe{
+            assert_eq!(TOTAL_MEAS, 1);
+            assert_eq!(MEAS_ARRAY[0], 0);
+            assert_eq!(MEAS_ARRAY[1], 1);
+            assert_eq!(MEAS_ARRAY[2], 0);
+        }
     }
 }

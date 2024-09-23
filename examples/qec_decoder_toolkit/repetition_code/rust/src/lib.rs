@@ -30,34 +30,43 @@ fn decode3(syn: i32) -> i32  { //takes in a string and returns and a string
     decoder.insert(3, 2); //010 = 2, if sny = 3 then error on qubit 1
     decoder.insert(2, 4); //100 = 4, if syn = 2 then error on qubit 2
 
-    let pfu = 0; //Define a register to hold our correction
-
     unsafe{
         let syn_new: i32 = SYN_OLD ^ syn;
         SYN_OLD = syn;
         println!("{}", syn_new);
 
         if syn == 0 {
-            return pfu;
+            return 0;
         }
         else {
-            return pfu ^ decoder[&syn_new];
+            return 0 ^ decoder[&syn_new];
         }
     }
 }
 
 #[no_mangle]
-fn set_global_syn_old(){
+fn reset_syn_old(){
   unsafe{
     SYN_OLD = 0;
   }
   
 }
 
-// #[test]
-// fn test_decode3() {
-//     let val = decode3(3, 1);
-//     unsafe{
-//         println!("{}", val);
-//     }
-// }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_decode3() {
+        assert_eq!(decode3(2), 4)
+    }
+
+    #[test]
+    fn test_reset() {
+        reset_syn_old();
+        unsafe{
+            assert_eq!(SYN_OLD, 0);
+        }
+    }
+}
