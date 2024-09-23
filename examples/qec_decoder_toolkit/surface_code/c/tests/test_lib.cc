@@ -14,7 +14,7 @@
 
 
 #include <gtest/gtest.h>
-#include "lib.c"
+#include "../src/lib.c"
 
 TEST(TESTS, Test1) {
     reset_pfu();

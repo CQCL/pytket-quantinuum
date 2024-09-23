@@ -19,7 +19,7 @@ enable_testing()
 
 add_executable(
   test_lib
-  src/test_lib.cc
+  test_lib.cc
 )
 target_link_libraries(
   test_lib
