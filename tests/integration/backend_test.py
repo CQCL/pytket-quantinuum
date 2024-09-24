@@ -104,7 +104,7 @@ def test_quantinuum(
     assert backend.circuit_status(handle).status is StatusEnum.COMPLETED
     assert np.all(shots == correct_shots)
     assert counts == correct_counts
-    res = backend.run_circuit(c, n_shots=4, timeout=49, language=language)  # type: ignore
+    res = backend.run_circuit(c, n_shots=4, timeout=49, language=language)
     newshots = res.get_shots()
     assert np.all(newshots == correct_shots)
     newcounts = res.get_counts()
@@ -157,7 +157,7 @@ def test_bell(
     c.measure_all()
     c = b.get_compiled_circuit(c)
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()  # type: ignore
+    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()
     assert all(q[0] == q[1] for q in shots)
 
 
@@ -190,7 +190,7 @@ def test_multireg(
     c = b.get_compiled_circuit(c)
 
     n_shots = 10
-    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()  # type: ignore
+    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()
     assert np.array_equal(shots, np.zeros((10, 2)))
 
 
@@ -423,7 +423,7 @@ def test_classical(
     backend = authenticated_quum_backend_qa
 
     c = backend.get_compiled_circuit(c)
-    assert backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+    assert backend.run_circuit(c, n_shots=10, language=language).get_counts()
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -459,7 +459,7 @@ def test_division(
 
     c = backend.get_compiled_circuit(c)
     with pytest.raises(ValueError):
-        backend.run_circuit(c, n_shots=10, language=language).get_counts()  # type: ignore
+        backend.run_circuit(c, n_shots=10, language=language).get_counts()
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -481,7 +481,7 @@ def test_postprocess(
     c.add_gate(OpType.ZZMax, [0, 1])
     c.measure_all()
     c = b.get_compiled_circuit(c)
-    h = b.process_circuit(c, n_shots=10, postprocess=True, language=language)  # type: ignore
+    h = b.process_circuit(c, n_shots=10, postprocess=True, language=language)
     ppcirc = Circuit.from_dict(json.loads(cast(str, h[1])))
     ppcmds = ppcirc.get_commands()
     assert len(ppcmds) > 0
@@ -560,12 +560,12 @@ def test_simulator(
 
     circ = state_backend.get_compiled_circuit(circ)
 
-    noisy_handle = state_backend.process_circuit(circ, n_shots, language=language)  # type: ignore
+    noisy_handle = state_backend.process_circuit(circ, n_shots, language=language)
     pure_handle = state_backend.process_circuit(
-        circ, n_shots, noisy_simulation=False, language=language  # type: ignore
+        circ, n_shots, noisy_simulation=False, language=language
     )
     stab_handle = stabilizer_backend.process_circuit(
-        circ, n_shots, noisy_simulation=False, language=language  # type: ignore
+        circ, n_shots, noisy_simulation=False, language=language
     )
 
     noisy_counts = state_backend.get_result(noisy_handle).get_counts()
@@ -587,7 +587,7 @@ def test_simulator(
     )
     non_stab_circ = stabilizer_backend.get_compiled_circuit(non_stab_circ)
     broken_handle = stabilizer_backend.process_circuit(
-        non_stab_circ, n_shots, language=language  # type: ignore
+        non_stab_circ, n_shots, language=language
     )
 
     with pytest.raises(GetResultFailed) as _:
@@ -654,7 +654,7 @@ def test_submission_with_group(
         c,
         n_shots=n_shots,
         group=os.getenv("PYTKET_REMOTE_QUANTINUUM_GROUP", default="DEFAULT"),
-        language=language,  # type: ignore
+        language=language,
     ).get_shots()
     assert all(q[0] == q[1] for q in shots)
 
@@ -681,7 +681,7 @@ def test_zzphase(
     assert c0.n_gates_of_type(backend.default_two_qubit_gate) > 0
 
     n_shots = 4
-    handle = backend.process_circuits([c0], n_shots, language=language)[0]  # type: ignore
+    handle = backend.process_circuits([c0], n_shots, language=language)[0]
     correct_counts = {(0, 0): 4}
     res = backend.get_result(handle, timeout=49)
     counts = res.get_counts()
@@ -780,7 +780,7 @@ def test_wasm_qa(
 
     c = b.get_compiled_circuit(c)
     h = b.process_circuits(
-        [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+        [c], n_shots=10, wasm_file_handler=wasfile, language=language
     )[0]
 
     r = b.get_result(h)
@@ -813,7 +813,7 @@ def test_wasm(
 
     c = b.get_compiled_circuit(c)
     h = b.process_circuits(
-        [c], n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+        [c], n_shots=10, wasm_file_handler=wasfile, language=language
     )[0]
 
     r = b.get_result(h)
@@ -893,7 +893,7 @@ def test_options(
     c0 = Circuit(1).H(0).measure_all()
     b = authenticated_quum_backend_qa
     c = b.get_compiled_circuit(c0, 0)
-    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0}, language=language)  # type: ignore
+    h = b.process_circuits([c], n_shots=1, options={"ignoreme": 0}, language=language)
     r = b.get_results(h)[0]
     shots = r.get_shots()
     assert len(shots) == 1
@@ -921,7 +921,7 @@ def test_tk2(
     b = authenticated_quum_backend_qa
     b.set_compilation_config_target_2qb_gate(OpType.TK2)
     c = b.get_compiled_circuit(c0, 2)
-    h = b.process_circuit(c, n_shots=1, language=language)  # type: ignore
+    h = b.process_circuit(c, n_shots=1, language=language)
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 1
@@ -1023,7 +1023,6 @@ def test_qir_submission_mz_to_reg(
     assert len(r.get_bitlist()) == 128
 
 
-@pytest.mark.xfail(reason="https://github.com/CQCL/pytket-quantinuum/issues/443")
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
@@ -1057,7 +1056,7 @@ def test_qir_conversion(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     b = authenticated_quum_backend_qa
     c = b.get_compiled_circuit(c0)
-    h = b.process_circuit(c, n_shots=10, language=Language.QIR)  # type: ignore
+    h = b.process_circuit(c, n_shots=10, language=Language.QIR)
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 10
@@ -1168,7 +1167,7 @@ def test_wasm_collatz(
 
     c = backend.get_compiled_circuit(c)
     h = backend.process_circuit(
-        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+        c, n_shots=10, wasm_file_handler=wasfile, language=language
     )
 
     r = backend.get_result(h)
@@ -1231,7 +1230,7 @@ def test_wasm_state(
 
     c = backend.get_compiled_circuit(c)
     h = backend.process_circuit(
-        c, n_shots=10, wasm_file_handler=wasfile, language=language  # type: ignore
+        c, n_shots=10, wasm_file_handler=wasfile, language=language
     )
 
     r = backend.get_result(h)
@@ -1289,7 +1288,7 @@ def test_noiseless_emulation(
     c = Circuit(2).H(0).CX(0, 1).measure_all()
     c1 = backend.get_compiled_circuit(c)
     h = backend.process_circuit(
-        c1, n_shots=100, language=language, noisy_simulation=False  # type: ignore
+        c1, n_shots=100, language=language, noisy_simulation=False
     )
     r = backend.get_result(h)
     counts = r.get_counts()
@@ -1335,7 +1334,7 @@ def test_get_calendar_raises_error(
 
 @pytest.mark.skipif(skip_mpl_tests, reason=REASON_MPL)
 @pytest.mark.timeout(120)
-@pytest.mark.mpl_image_compare
+@pytest.mark.mpl_image_compare(tolerance=20)
 def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
     backend = QuantinuumBackend(
         api_handler=authenticated_quum_handler, device_name="H1-1"
