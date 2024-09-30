@@ -71,7 +71,7 @@ def microsoft_login() -> Tuple[str, str]:
 
         # a token was not returned (an error occurred or the request timed out)
         raise RuntimeError(
-            f"Unable to authorize federated login", HTTPStatus.UNAUTHORIZED
+            "Unable to authorize federated login", HTTPStatus.UNAUTHORIZED
         )
 
     return username, token

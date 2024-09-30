@@ -16,10 +16,15 @@
 """
 
 from .quantinuum import (
-    QuantinuumBackend,
-    QuantinuumBackendCompilationConfig,
-    Language,
-    have_pecos,
+    QuantinuumBackend as QuantinuumBackend,
+    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,
+    Language as Language,
+    have_pecos as have_pecos,
 )
-from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline
-from .leakage_gadget import prune_shots_detected_as_leaky
+from .api_wrappers import (
+    QuantinuumAPI as QuantinuumAPI,
+    QuantinuumAPIOffline as QuantinuumAPIOffline,
+)
+from .leakage_gadget import (
+    prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,
+)

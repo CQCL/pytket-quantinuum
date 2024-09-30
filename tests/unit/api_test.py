@@ -42,9 +42,9 @@ def test_quum_login(
 
     # Delete authentication and verify
     mock_quum_api_handler.delete_authentication()
-    assert mock_quum_api_handler._cred_store.id_token == None
-    assert mock_quum_api_handler._cred_store._password == None
-    assert mock_quum_api_handler._cred_store.refresh_token == None
+    assert mock_quum_api_handler._cred_store.id_token is None
+    assert mock_quum_api_handler._cred_store._password is None
+    assert mock_quum_api_handler._cred_store.refresh_token is None
 
 
 def test_machine_status(

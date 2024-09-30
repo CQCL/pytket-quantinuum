@@ -3,6 +3,17 @@
 # Configuration file for the Sphinx documentation builder.
 # See https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+# The following code is for resolving broken hyperlinks in the doc.
+
+import re
+from typing import Any, Dict, Optional
+from urllib.parse import urljoin
+
+from docutils import nodes
+from docutils.nodes import Element, TextElement
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
+
 copyright = "2024 Quantinuum"
 author = "Quantinuum"
 
@@ -47,16 +58,7 @@ intersphinx_mapping = {
 
 autodoc_member_order = "groupwise"
 
-# The following code is for resolving broken hyperlinks in the doc.
 
-import re
-from typing import Any, Dict, List, Optional
-from urllib.parse import urljoin
-
-from docutils import nodes
-from docutils.nodes import Element, TextElement
-from sphinx.application import Sphinx
-from sphinx.environment import BuildEnvironment
 
 # Mappings for broken hyperlinks that intersphinx cannot resolve
 external_url_mapping = {

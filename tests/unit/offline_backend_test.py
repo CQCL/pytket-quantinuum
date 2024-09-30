@@ -54,7 +54,7 @@ def test_quantinuum_offline(language: Language) -> None:
         "name": "test 1",
         "count": 4,
         "machine": "H1-1",
-        "language": language.value,
+        "language": ["OPENQASM 2.0", "QIR 1.0", "QIR 1.0"][language.value],
         "program": "...",  # not checked
         "priority": "normal",
         "options": {"simulator": "state-vector", "error-model": True, "tket": {}},

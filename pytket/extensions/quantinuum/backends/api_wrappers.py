@@ -199,7 +199,7 @@ class QuantinuumAPI:
             _, token = microsoft_login()
         else:
             raise RuntimeError(
-                f"Unsupported provider for login", HTTPStatus.UNAUTHORIZED
+                "Unsupported provider for login", HTTPStatus.UNAUTHORIZED
             )
 
         body = {"provider-token": token}
@@ -611,7 +611,7 @@ class QuantinuumAPIOffline:
             "batching": True,
             }
         """
-        if machine_list == None:
+        if machine_list is None:
             machine_list = OFFLINE_MACHINE_LIST
         self.provider = ""
         self.url = ""

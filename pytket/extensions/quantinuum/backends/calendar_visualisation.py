@@ -103,7 +103,7 @@ class QuantinuumCalendar(object):
                 self._events[week, week_day] = f"{event_str1}\n\n{event_str}"
             self._colors[week, week_day] = "mistyrose"
         except RuntimeError:
-            raise RuntimeError(f"Day outside of specified month")
+            raise RuntimeError("Day outside of specified month")
 
     def add_events(self, events_list: List[Dict[str, object]]) -> None:
         """Add list of events. Each event is a dictionary and
@@ -120,7 +120,7 @@ class QuantinuumCalendar(object):
             event_start: datetime.datetime = event["start-date"]  # type: ignore
             event_end: datetime.datetime = event["end-date"]  # type: ignore
             event_type: str = event["event-type"]  # type: ignore
-            dt_format = f"%H:%M"
+            dt_format = "%H:%M"
             duration = (event_end - event_start).seconds / 3600
             event_str = (
                 f"{event_type}\nStart: {event_start.strftime(dt_format)} ({duration}h)"

@@ -16,13 +16,16 @@
 """
 
 # _metadata.py is copied to the folder after installation.
-from ._metadata import __extension_version__, __extension_name__
+from ._metadata import (
+    __extension_version__ as __extension_version__,
+    __extension_name__ as __extension_name__,
+)
 from .backends import (
-    QuantinuumBackend,
-    QuantinuumAPI,
-    QuantinuumAPIOffline,
-    QuantinuumBackendCompilationConfig,
-    Language,
-    prune_shots_detected_as_leaky,
-    have_pecos,
+    QuantinuumBackend as QuantinuumBackend,
+    QuantinuumAPI as QuantinuumAPI,
+    QuantinuumAPIOffline as QuantinuumAPIOffline,
+    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,
+    Language as Language,
+    prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,
+    have_pecos as have_pecos,
 )
