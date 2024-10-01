@@ -79,7 +79,7 @@ def pytest_make_parametrize_id(
     if isinstance(val, QuantinuumBackend):
         return val._device_name
     if isinstance(val, dict):
-        return val.get("device_name")  # type: ignore
+        return val.get("device_name")
     return None
 
 
