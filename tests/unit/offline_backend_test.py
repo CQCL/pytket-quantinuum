@@ -13,12 +13,14 @@
 # limitations under the License.
 
 from collections import Counter
+
 import numpy as np
 import pytest
 from hypothesis import given, strategies
+
 from pytket.backends import CircuitNotValidError
 from pytket.circuit import Circuit
-from pytket.extensions.quantinuum import QuantinuumBackend, Language
+from pytket.extensions.quantinuum import Language, QuantinuumBackend
 from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIOffline,

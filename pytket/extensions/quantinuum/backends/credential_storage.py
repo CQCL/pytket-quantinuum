@@ -13,9 +13,11 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta, timezone
 from typing import Optional
-from datetime import timedelta, datetime, timezone
+
 import jwt
+
 from .config import QuantinuumConfig
 
 
@@ -113,9 +115,12 @@ class MemoryCredentialStorage(CredentialStorage):
 
     @property
     def refresh_token(self) -> Optional[str]:
-        if self._refresh_token is not None and self._refresh_token_timeout is not None:
-            if datetime.now(timezone.utc) > self._refresh_token_timeout:
-                self._refresh_token = None
+        if (
+            self._refresh_token is not None
+            and self._refresh_token_timeout is not None
+            and datetime.now(timezone.utc) > self._refresh_token_timeout
+        ):
+            self._refresh_token = None
         return self._refresh_token
 
     @property

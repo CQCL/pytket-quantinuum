@@ -13,16 +13,20 @@
 # limitations under the License.
 
 
-from typing import Counter, Sequence, cast
+from collections import Counter
+from collections.abc import Sequence
+from typing import cast
+
 import pytest
-from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
+
+from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
 from pytket.backends.backendresult import BackendResult
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
+    LEAKAGE_DETECTION_BIT_NAME_,
+    LEAKAGE_DETECTION_QUBIT_NAME_,
     get_detection_circuit,
     get_leakage_gadget_circuit,
     prune_shots_detected_as_leaky,
-    LEAKAGE_DETECTION_BIT_NAME_,
-    LEAKAGE_DETECTION_QUBIT_NAME_,
 )
 from pytket.utils.outcomearray import OutcomeArray
 

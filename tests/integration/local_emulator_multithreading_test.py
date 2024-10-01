@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import os
+
 import pytest
+
 from pytket.circuit import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
@@ -38,4 +40,4 @@ def test_multithreading(authenticated_quum_backend_prod: QuantinuumBackend) -> N
     h = b.process_circuit(c, n_shots=10, multithreading=True)
     r = b.get_result(h)
     counts = r.get_counts()
-    assert all(x0 == x1 for x0, x1 in counts.keys())
+    assert all(x0 == x1 for x0, x1 in counts)

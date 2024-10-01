@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import os
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Optional
 
+import jwt
 import pytest
 from _pytest.fixtures import SubRequest
 from requests_mock.mocker import Mocker
-import jwt
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
@@ -78,13 +78,13 @@ def pytest_make_parametrize_id(
     """Custom ids for the parametrized tests."""
     if isinstance(val, QuantinuumBackend):
         return val._device_name
-    if isinstance(val, Dict):
-        return val["device_name"] if "device_name" in val.keys() else None
+    if isinstance(val, dict):
+        return val.get("device_name", None)  # type: ignore
     return None
 
 
 @pytest.fixture()
-def mock_credentials() -> Tuple[str, str]:
+def mock_credentials() -> tuple[str, str]:
     username = "mark.quantinuum@mail.com"
     pwd = "1906"
     return (username, pwd)
@@ -109,7 +109,7 @@ def mock_ms_provider_token() -> str:
 
 
 @pytest.fixture()
-def mock_machine_info() -> Dict[str, Any]:
+def mock_machine_info() -> dict[str, Any]:
     return {
         "wasm": True,
         "batching": True,
@@ -148,7 +148,7 @@ def mock_machine_info() -> Dict[str, Any]:
 
 
 @pytest.fixture()
-def sample_machine_infos() -> List[Dict[str, Any]]:
+def sample_machine_infos() -> list[dict[str, Any]]:
     return [
         {
             "wasm": True,
@@ -328,7 +328,7 @@ def sample_machine_infos() -> List[Dict[str, Any]]:
 def fixture_mock_quum_api_handler(
     request: SubRequest,
     requests_mock: Mocker,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
 ) -> QuantinuumAPI:
     """A logged-in QuantinuumQAPI fixture.

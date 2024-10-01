@@ -39,29 +39,28 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """Submodule providing calendar visualisation functionality"""
 
-from typing import List, Dict, Tuple
 import calendar
 import datetime
 
-import numpy as np
 import matplotlib.pyplot as mpl  # type: ignore
+import numpy as np
 from matplotlib.figure import Figure  # type: ignore
 
 calendar.setfirstweekday(0)
 
 
-class QuantinuumCalendar(object):
+class QuantinuumCalendar:
     """Calendar visualisation using matplotlib. The calendar
     is rendered for a specified month and year.
 
     """
 
     @property
-    def months(self) -> List[str]:
+    def months(self) -> list[str]:
         return [calendar.month_name[i] for i in range(1, 13)]
 
     @property
-    def weekdays(self) -> List[str]:
+    def weekdays(self) -> list[str]:
         return [calendar.day_name[i] for i in range(7)]
 
     def __init__(self, year: int, month: int, title_prefix: str):
@@ -103,9 +102,9 @@ class QuantinuumCalendar(object):
                 self._events[week, week_day] = f"{event_str1}\n\n{event_str}"
             self._colors[week, week_day] = "mistyrose"
         except RuntimeError:
-            raise RuntimeError(f"Day outside of specified month")
+            raise RuntimeError("Day outside of specified month")
 
-    def add_events(self, events_list: List[Dict[str, object]]) -> None:
+    def add_events(self, events_list: list[dict[str, object]]) -> None:
         """Add list of events. Each event is a dictionary and
         must have the following keys:
         * 'start-date', a datetime.datetime object
@@ -120,7 +119,7 @@ class QuantinuumCalendar(object):
             event_start: datetime.datetime = event["start-date"]  # type: ignore
             event_end: datetime.datetime = event["end-date"]  # type: ignore
             event_type: str = event["event-type"]  # type: ignore
-            dt_format = f"%H:%M"
+            dt_format = "%H:%M"
             duration = (event_end - event_start).seconds / 3600
             event_str = (
                 f"{event_type}\nStart: {event_start.strftime(dt_format)} ({duration}h)"
@@ -130,7 +129,7 @@ class QuantinuumCalendar(object):
 
     def build_calendar(
         self,
-        figsize: Tuple[float, float] = (40, 20),
+        figsize: tuple[float, float] = (40, 20),
         fontsize: float = 15,
         titlesize: float = 40,
     ) -> Figure:
