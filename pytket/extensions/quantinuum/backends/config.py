@@ -14,8 +14,9 @@
 
 """Quantinuum config."""
 
-from typing import Any, Dict, Optional, Type, ClassVar
 from dataclasses import dataclass
+from typing import Any, ClassVar, Optional
+
 from pytket.config import PytketExtConfig
 
 
@@ -37,14 +38,14 @@ class QuantinuumConfig(PytketExtConfig):
 
     @classmethod
     def from_extension_dict(
-        cls: Type["QuantinuumConfig"], ext_dict: Dict[str, Any]
+        cls: type["QuantinuumConfig"], ext_dict: dict[str, Any]
     ) -> "QuantinuumConfig":
         return cls(
-            ext_dict.get("username", None),
-            ext_dict.get("refresh_token", None),
-            ext_dict.get("id_token", None),
-            ext_dict.get("refresh_token_timeout", None),
-            ext_dict.get("id_token_timeout", None),
+            ext_dict.get("username"),
+            ext_dict.get("refresh_token"),
+            ext_dict.get("id_token"),
+            ext_dict.get("refresh_token_timeout"),
+            ext_dict.get("id_token_timeout"),
         )
 
 

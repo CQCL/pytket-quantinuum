@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Tuple
-from http import HTTPStatus
 import json
+from http import HTTPStatus
+
 import msal  # type: ignore
 
 AZURE_AD_APP_ID = "4ae73294-a491-45b7-bab4-945c236ee67a"
@@ -22,7 +22,7 @@ AZURE_AD_AUTHORITY = "https://login.microsoftonline.com/common"
 AZURE_AD_SCOPE = ["User.Read"]
 
 
-def microsoft_login() -> Tuple[str, str]:
+def microsoft_login() -> tuple[str, str]:
     """Allows a user to login via Microsoft Azure Active Directory"""
 
     # Create a preferably long-lived app instance which maintains a token cache.
@@ -34,7 +34,7 @@ def microsoft_login() -> Tuple[str, str]:
     # check if the device code is available in the flow
     if "user_code" not in flow:
         raise ValueError(
-            "Fail to create device flow. Err: %s" % json.dumps(flow, indent=4)
+            f"Fail to create device flow. Err: {json.dumps(flow, indent=4)}"
         )
 
     # this prompts the user to visit https://microsoft.com/devicelogin and
@@ -42,11 +42,11 @@ def microsoft_login() -> Tuple[str, str]:
     code = flow["user_code"]
     link = flow["verification_uri"]
 
-    print("To sign in:")
-    print("1) Open a web browser (using any device)")
-    print("2) Visit " + link)
-    print("3) Enter code '" + code + "'")
-    print("4) Enter your Microsoft credentials")
+    print("To sign in:")  # noqa: T201
+    print("1) Open a web browser (using any device)")  # noqa: T201
+    print("2) Visit " + link)  # noqa: T201
+    print("3) Enter code '" + code + "'")  # noqa: T201
+    print("4) Enter your Microsoft credentials")  # noqa: T201
 
     # This will block until the we've reached the flow's expiration time
     result = app.acquire_token_by_device_flow(flow)
@@ -55,23 +55,21 @@ def microsoft_login() -> Tuple[str, str]:
     if "id_token" in result:
         token = result["id_token"]
         username = result["id_token_claims"]["preferred_username"]
-        print("Authentication successful")
 
     else:
         # Check if a timeout occurred
         if "authorization_pending" in result.get("error"):
-            print("Authorization code expired. Please try again.")
+            print("Authorization code expired. Please try again.")  # noqa: T201
         else:
             # some other error occurred
-            print(result.get("error"))
-            print(result.get("error_description"))
-            print(
-                result.get("correlation_id")
-            )  # You may need this when reporting a bug
+            print(result.get("error"))  # noqa: T201
+            print(result.get("error_description"))  # noqa: T201
+            print(result.get("correlation_id"))  # noqa: T201
+            # You may need this when reporting a bug
 
         # a token was not returned (an error occurred or the request timed out)
         raise RuntimeError(
-            f"Unable to authorize federated login", HTTPStatus.UNAUTHORIZED
+            "Unable to authorize federated login", HTTPStatus.UNAUTHORIZED
         )
 
     return username, token

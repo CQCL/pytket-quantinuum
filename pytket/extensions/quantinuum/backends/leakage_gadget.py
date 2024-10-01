@@ -14,8 +14,11 @@
 """Methods for generating a leakage detection Pytket Circuit."""
 
 
-from typing import List, Dict, Tuple, Counter, cast, Sequence
-from pytket import Circuit, Qubit, Bit, OpType  # type: ignore
+from collections import Counter
+from collections.abc import Sequence
+from typing import cast
+
+from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
 from pytket.backends.backendresult import BackendResult
 from pytket.utils.outcomearray import OutcomeArray
 
@@ -74,7 +77,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
 
     # construct detection circuit
     detection_circuit: Circuit = Circuit()
-    postselection_qubits: List[Qubit] = [
+    postselection_qubits: list[Qubit] = [
         Qubit(LEAKAGE_DETECTION_QUBIT_NAME_, i) for i in range(n_spare_qubits)
     ]
     for q in circuit.qubits + postselection_qubits:
@@ -84,7 +87,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
 
     # construct a Circuit that is the original Circuit without
     # end of Circuit Measure gates
-    end_circuit_measures: Dict[Qubit, Bit] = {}
+    end_circuit_measures: dict[Qubit, Bit] = {}
     for com in circuit:
         if com.op.type == OpType.Barrier:
             detection_circuit.add_barrier(com.args)
@@ -106,7 +109,6 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
     # for each entry in end_circuit_measures, we want to add a leakage_gadget_circuit
     # we try to use each free architecture qubit as few times as possible
     ps_q_index: int = 0
-    ps_b_index: int = 0
 
     # if there are no spare qubits we measure the first qubit and then use it as
     # an ancilla qubit for leakage detection
@@ -116,7 +118,7 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
         detection_circuit.Measure(qb, bb)
         postselection_qubits.append(qb)
 
-    for q in end_circuit_measures:
+    for ps_b_index, q in enumerate(end_circuit_measures):
         if q.reg_name == LEAKAGE_DETECTION_QUBIT_NAME_:
             raise ValueError(
                 "Leakage Gadget scheme makes a qubit register named "
@@ -136,7 +138,6 @@ def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
         detection_circuit.append(leakage_gadget_circuit)
         # increment value for adding postselection to
         ps_q_index += 1
-        ps_b_index += 1
 
         detection_circuit.Measure(q, end_circuit_measures[q])
 
@@ -157,16 +158,16 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
     :return: Shots with leakage cases removed.
     :rtype: BackendResult
     """
-    regular_bits: List[Bit] = [
+    regular_bits: list[Bit] = [
         b for b in result.c_bits if b.reg_name != LEAKAGE_DETECTION_BIT_NAME_
     ]
-    leakage_bits: List[Bit] = [
+    leakage_bits: list[Bit] = [
         b for b in result.c_bits if b.reg_name == LEAKAGE_DETECTION_BIT_NAME_
     ]
-    received_counts: Counter[Tuple[int, ...]] = result.get_counts(
+    received_counts: Counter[tuple[int, ...]] = result.get_counts(
         cbits=regular_bits + leakage_bits
     )
-    discarded_counts: Counter[Tuple[int, ...]] = Counter(
+    discarded_counts: Counter[tuple[int, ...]] = Counter(
         {
             tuple(state[: len(regular_bits)]): received_counts[state]
             for state in received_counts
