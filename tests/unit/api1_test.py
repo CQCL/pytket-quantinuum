@@ -16,37 +16,36 @@
 # issue on the MacOS CI, whereby pytest would hang indefinitely after the collection
 # phase.
 
-from io import StringIO
-from typing import Any, Dict, Tuple
 from http import HTTPStatus
-from unittest.mock import patch, MagicMock
-import pytest
+from io import StringIO
+from typing import Any
+from unittest.mock import MagicMock, patch
 
+import pytest
 import requests
 from requests_mock.mocker import Mocker
 
+from pytket.architecture import FullyConnected
 from pytket.backends import ResultHandle, StatusEnum
-from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+from pytket.circuit import Circuit
+from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.extensions.quantinuum.backends import (
-    QuantinuumBackend,
     Language,
+    QuantinuumBackend,
     have_pecos,
 )
-from pytket.circuit import Circuit
-from pytket.architecture import FullyConnected
-from pytket.extensions.quantinuum.backends.quantinuum import DEFAULT_API_HANDLER
-
+from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends.credential_storage import (
     QuantinuumConfigCredentialStorage,
 )
-from pytket.extensions.quantinuum._metadata import __extension_version__
+from pytket.extensions.quantinuum.backends.quantinuum import DEFAULT_API_HANDLER
 
 
 def test_default_login_flow(
     requests_mock: Mocker,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
     monkeypatch: Any,
 ) -> None:
     """Test that when an api_handler is not provided to
@@ -127,9 +126,9 @@ def test_default_login_flow(
 
 def test_custom_login_flow(
     requests_mock: Mocker,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
     monkeypatch: Any,
 ) -> None:
     """Test that when an api_handler is provided to
@@ -244,10 +243,10 @@ def test_custom_login_flow(
 
 def test_mfa_login_flow(
     requests_mock: Mocker,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
     mock_mfa_code: str,
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
     monkeypatch: Any,
 ) -> None:
     """Test that the MFA authentication works as expected"""
@@ -305,10 +304,10 @@ def test_mfa_login_flow(
 def test_federated_login(
     mock_microsoft_login: MagicMock,
     requests_mock: Mocker,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
     mock_ms_provider_token: str,
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
 ) -> None:
     """Test that the federated authentication works as expected"""
     DEFAULT_API_HANDLER.delete_authentication()
@@ -338,7 +337,7 @@ def test_federated_login(
 
 
 def test_federated_login_wrong_provider(
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
 ) -> None:
     """Test that the federated authentication works as expected"""
     DEFAULT_API_HANDLER.delete_authentication()
@@ -358,7 +357,7 @@ def test_federated_login_wrong_provider(
 def test_resumed_batching(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
-    sample_machine_infos: Dict[str, Any],
+    sample_machine_infos: dict[str, Any],
 ) -> None:
     """Test that you can resume using a batch."""
 
@@ -414,7 +413,7 @@ def test_resumed_batching(
 def test_available_devices(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
 ) -> None:
     """Test that we can get a list of available devices."""
     requests_mock.register_uri(
@@ -430,9 +429,9 @@ def test_available_devices(
     assert backinfo0.device_name == mock_machine_info["name"]
     assert backinfo0.architecture == FullyConnected(mock_machine_info["n_qubits"], "q")
     assert backinfo0.version == __extension_version__
-    assert backinfo0.supports_fast_feedforward is True
-    assert backinfo0.supports_midcircuit_measurement is True
-    assert backinfo0.supports_reset is True
+    assert backinfo0.supports_fast_feedforward
+    assert backinfo0.supports_midcircuit_measurement
+    assert backinfo0.supports_reset
     assert backinfo0.n_cl_reg == 120
     assert (
         backinfo0.misc.items()
@@ -458,9 +457,9 @@ def test_available_devices(
             mock_machine_info["n_qubits"], "q"
         )
         assert backinfo1.version == __extension_version__
-        assert backinfo1.supports_fast_feedforward is True
-        assert backinfo1.supports_midcircuit_measurement is True
-        assert backinfo1.supports_reset is True
+        assert backinfo1.supports_fast_feedforward
+        assert backinfo1.supports_midcircuit_measurement
+        assert backinfo1.supports_reset
         assert backinfo1.n_cl_reg == 120
         assert (
             backinfo1.misc.items()
@@ -481,7 +480,7 @@ def test_available_devices(
 def test_submit_qasm_api(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
-    sample_machine_infos: Dict[str, Any],
+    sample_machine_infos: dict[str, Any],
 ) -> None:
     """Test that we can submit a QASM program."""
 
@@ -532,7 +531,7 @@ def test_submit_qasm_api(
 def test_get_partial_result(
     requests_mock: Mocker,
     mock_quum_api_handler: QuantinuumAPI,
-    mock_machine_info: Dict[str, Any],
+    mock_machine_info: dict[str, Any],
 ) -> None:
     """Test that we can get partial results."""
     queued_job_id = "abc-123"

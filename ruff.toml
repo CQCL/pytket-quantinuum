@@ -1,0 +1,44 @@
+target-version = "py39"
+
+line-length = 88
+
+extend-exclude = ["examples"]
+
+select = [
+  "E",    # pycodestyle Errors
+  "W",    # pycodestyle Warnings
+
+  # "A",    # flake8-builtins
+  # "B",    # flake8-Bugbear
+  # "C4",   # flake8-comprehensions
+  # "COM",  # flake8-commas
+  # "EXE",  # flake8-executable
+  "F",    # pyFlakes
+  # "FA",   # flake8-future-annotations
+  # "FIX",  # flake8-fixme
+  # "FLY",  # flynt
+  "I",    # isort
+  # "INP",  # flake8-no-pep420
+  # "ISC",  # flake8-implicit-str-concat
+  # "N",    # pep8-Naming
+  # "NPY",  # NumPy-specific
+  # "PERF", # Perflint
+  # "PGH",  # pygrep-hooks
+  # "PIE",  # flake8-pie
+  # "PL",   # pylint
+  # "PT",   # flake8-pytest-style
+  # "RSE",  # flake8-raise
+  # "RUF",  # Ruff-specific
+  # "S",    # flake8-bandit (Security)
+  "SIM",  # flake8-simplify
+  # "SLF",  # flake8-self
+  "T20",  # flake8-print
+  "TCH",  # flake8-type-checking
+  # "TRY",  # tryceratops
+  "UP",   # pyupgrade
+  # "YTT",  # flake8-2020
+]
+
+[per-file-ignores]
+".github/workflows/docs/conf.py"  = ["E402"]
+"__init__.py"                     = ["F401"]    # module imported but unused (6)

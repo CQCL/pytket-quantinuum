@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from io import StringIO
-from typing import Any, Tuple
 import json
+from io import StringIO
+from typing import Any
 
 from requests_mock.mocker import Mocker
 
@@ -26,7 +26,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 
 def test_quum_login(
     mock_quum_api_handler: QuantinuumAPI,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
 ) -> None:
     """Test that credentials are storable and deletable using
@@ -43,7 +43,7 @@ def test_quum_login(
     # Delete authentication and verify
     mock_quum_api_handler.delete_authentication()
     assert mock_quum_api_handler._cred_store.id_token is None
-    assert mock_quum_api_handler._cred_store._password is None
+    assert mock_quum_api_handler._cred_store._password is None  # type: ignore
     assert mock_quum_api_handler._cred_store.refresh_token is None
 
 
@@ -73,7 +73,7 @@ def test_machine_status(
 
 def test_full_login(
     requests_mock: Mocker,
-    mock_credentials: Tuple[str, str],
+    mock_credentials: tuple[str, str],
     mock_token: str,
     monkeypatch: Any,
 ) -> None:

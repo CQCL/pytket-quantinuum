@@ -16,27 +16,27 @@
 Functions used to submit jobs with Quantinuum API.
 """
 
+import asyncio
+import contextlib
+import getpass
+import json
 import time
 from http import HTTPStatus
-from typing import Optional, Dict, Tuple, List
-import asyncio
-import json
-import getpass
+from typing import Optional
+
+import nest_asyncio  # type: ignore
 from requests import Session
 from requests.models import Response
 from websockets import connect, exceptions
-import nest_asyncio  # type: ignore
 
 from .config import QuantinuumConfig
 from .credential_storage import CredentialStorage, MemoryCredentialStorage
 from .federated_login import microsoft_login
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
-try:
+# May fail in some cloud environments: ignore.
+with contextlib.suppress(RuntimeError, ValueError):
     nest_asyncio.apply()
-except (RuntimeError, ValueError):
-    # May fail in some cloud environments: ignore.
-    pass
 
 
 class QuantinuumAPIError(Exception):
@@ -247,7 +247,7 @@ class QuantinuumAPI:
             del refresh_token
             del body
 
-    def _get_credentials(self) -> Tuple[str, str]:
+    def _get_credentials(self) -> tuple[str, str]:
         """Method to ask for user's credentials"""
         user_name = self._cred_store.user_name
         pwd = None
@@ -302,7 +302,7 @@ class QuantinuumAPI:
         """Remove stored credentials and tokens"""
         self._cred_store.delete_credential()
 
-    def _submit_job(self, body: Dict) -> Response:
+    def _submit_job(self, body: dict) -> Response:
         id_token = self.login()
         # send job request
         return self.session.post(
@@ -317,10 +317,8 @@ class QuantinuumAPI:
         if res.status_code == HTTPStatus.UNAUTHORIZED:
             jr = res.json()
             raise QuantinuumAPIError(
-                (
-                    f"Authorization failure attempting: {description}."
-                    f"\n\nServer Response: {jr}"
-                )
+                f"Authorization failure attempting: {description}."
+                f"\n\nServer Response: {jr}"
             )
         elif res.status_code != HTTPStatus.OK:
             jr = res.json()
@@ -330,7 +328,7 @@ class QuantinuumAPI:
 
     def retrieve_job_status(
         self, job_id: str, use_websocket: Optional[bool] = None
-    ) -> Optional[Dict]:
+    ) -> Optional[dict]:
         """
         Retrieves job status from device.
 
@@ -347,7 +345,7 @@ class QuantinuumAPI:
             job_url += "?websocket=true"
         res = self.session.get(job_url, headers={"Authorization": id_token})
 
-        jr: Optional[Dict] = None
+        jr: Optional[dict] = None
         # Check for invalid responses, and raise an exception if so
         self._response_check(res, "job status")
         # if we successfully got status return the decoded details
@@ -357,7 +355,7 @@ class QuantinuumAPI:
 
     def retrieve_job(
         self, job_id: str, use_websocket: Optional[bool] = None
-    ) -> Optional[Dict]:
+    ) -> Optional[dict]:
         """
         Retrieves job from device.
 
@@ -387,7 +385,7 @@ class QuantinuumAPI:
             jr = self._poll_results(job_id)
         return jr
 
-    def _poll_results(self, job_id: str) -> Optional[Dict]:
+    def _poll_results(self, job_id: str) -> Optional[dict]:
         jr = None
         start_time = time.time()
         while True:
@@ -407,16 +405,14 @@ class QuantinuumAPI:
                 raise RuntimeError("Keyboard Interrupted")
         return jr
 
-    async def _wait_results(self, job_id: str) -> Optional[Dict]:
+    async def _wait_results(self, job_id: str) -> Optional[dict]:
         start_time = time.time()
         while True:
             if self.timeout is not None and time.time() > (start_time + self.timeout):
                 break
             self.login()
             jr = self.retrieve_job_status(job_id, True)
-            if jr is None:
-                return jr
-            elif "status" in jr and jr["status"] in self.JOB_DONE:
+            if jr is None or "status" in jr and jr["status"] in self.JOB_DONE:
                 return jr
             else:
                 task_token = jr["websocket"]["task_token"]
@@ -436,7 +432,7 @@ class QuantinuumAPI:
                                 websocket.recv(), timeout=self.ws_timeout
                             )
                             jr = json.loads(res)
-                            if not isinstance(jr, Dict):
+                            if not isinstance(jr, dict):
                                 raise RuntimeError("Unable to decode response.")
                             if "status" in jr and jr["status"] in self.JOB_DONE:
                                 return jr
@@ -495,7 +491,7 @@ class QuantinuumAPI:
 
         return jr  # type: ignore
 
-    def get_calendar(self, start_date: str, end_date: str) -> List[Dict[str, str]]:
+    def get_calendar(self, start_date: str, end_date: str) -> list[dict[str, str]]:
         """
         Retrieves calendar data using L4 API. All dates and times
         are in the UTC timezone.
@@ -514,7 +510,7 @@ class QuantinuumAPI:
             headers={"Authorization": id_token},
         )
         self._response_check(res, "get calendar events")
-        jr: List[Dict[str, str]] = res.json()
+        jr: list[dict[str, str]] = res.json()
         return jr
 
 
@@ -637,7 +633,7 @@ class QuantinuumAPIOffline:
         return an empty api token"""
         return ""
 
-    def _submit_job(self, body: Dict) -> None:
+    def _submit_job(self, body: dict) -> None:
         """The function will take the submitted job and store it for later
 
         :param body: submitted job
@@ -659,10 +655,8 @@ class QuantinuumAPIOffline:
 
         jr = res.json()
         raise QuantinuumAPIError(
-            (
-                f"Reponse can't be checked offline: {description}."
-                f"\n\nServer Response: {jr}"
-            )
+            f"Reponse can't be checked offline: {description}."
+            f"\n\nServer Response: {jr}"
         )
 
     def retrieve_job_status(
@@ -670,19 +664,15 @@ class QuantinuumAPIOffline:
     ) -> None:
         """No retrieve_job_status offline"""
         raise QuantinuumAPIError(
-            (
-                f"Can't retrieve job status offline: job_id {job_id}."
-                f"\n use_websocket {use_websocket}"
-            )
+            f"Can't retrieve job status offline: job_id {job_id}."
+            f"\n use_websocket {use_websocket}"
         )
 
     def retrieve_job(self, job_id: str, use_websocket: Optional[bool] = None) -> None:
         """No retrieve_job_status offline"""
         raise QuantinuumAPIError(
-            (
-                f"Can't retrieve job status offline: job_id {job_id}."
-                f"\n use_websocket {use_websocket}"
-            )
+            f"Can't retrieve job status offline: job_id {job_id}."
+            f"\n use_websocket {use_websocket}"
         )
 
     def status(self, machine: str) -> str:
@@ -692,4 +682,4 @@ class QuantinuumAPIOffline:
 
     def cancel(self, job_id: str) -> dict:
         """No cancel offline"""
-        raise QuantinuumAPIError((f"Can't cancel job offline: job_id {job_id}."))
+        raise QuantinuumAPIError(f"Can't cancel job offline: job_id {job_id}.")

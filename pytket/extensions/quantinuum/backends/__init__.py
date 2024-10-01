@@ -15,16 +15,24 @@
 """Backends for processing pytket circuits with Quantinuum devices
 """
 
-from .quantinuum import (
-    QuantinuumBackend as QuantinuumBackend,
-    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,
-    Language as Language,
-    have_pecos as have_pecos,
-)
 from .api_wrappers import (
     QuantinuumAPI as QuantinuumAPI,
+)
+from .api_wrappers import (
     QuantinuumAPIOffline as QuantinuumAPIOffline,
 )
 from .leakage_gadget import (
     prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,
+)
+from .quantinuum import (
+    Language as Language,
+)
+from .quantinuum import (
+    QuantinuumBackend as QuantinuumBackend,
+)
+from .quantinuum import (
+    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,
+)
+from .quantinuum import (
+    have_pecos as have_pecos,
 )
