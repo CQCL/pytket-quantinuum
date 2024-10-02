@@ -669,7 +669,7 @@ class QuantinuumBackend(Backend):
         elif target_2qb_gate == OpType.ZZPhase:
             decomposition_passes = [
                 NormaliseTK2(),
-                DecomposeTK2(ZZPhase_fidelity=lambda x: 1.0),
+                DecomposeTK2(ZZPhase_fidelity=1.0),
             ]
         elif target_2qb_gate == OpType.ZZMax:
             decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
