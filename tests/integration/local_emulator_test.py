@@ -12,22 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import Counter
 import os
+from collections import Counter
 from pathlib import Path
+
 import numpy as np
 import pytest
+
 from pytket.circuit import (
+    Bit,
     Circuit,
     Qubit,
-    Bit,
+    if_not_bit,
     reg_eq,
-    reg_neq,
-    reg_lt,
+    reg_geq,
     reg_gt,
     reg_leq,
-    reg_geq,
-    if_not_bit,
+    reg_lt,
+    reg_neq,
 )
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 from pytket.wasm import WasmFileHandler
@@ -78,7 +80,7 @@ def test_circuit_with_conditional(
     r = b.get_result(h)
     counts = r.get_counts()
     assert sum(counts.values()) == 10
-    assert all(v0 == v1 for v0, v1 in counts.keys())
+    assert all(v0 == v1 for v0, v1 in counts)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -125,7 +127,7 @@ def test_multireg(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
     n_shots = 10
     counts = b.run_circuit(c, n_shots=n_shots).get_counts()
     assert sum(counts.values()) == 10
-    assert all(v0 == v1 for v0, v1 in counts.keys())
+    assert all(v0 == v1 for v0, v1 in counts)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)

@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import shutil
 import os
-from setuptools import setup, find_namespace_packages  # type: ignore
+import shutil
+from pathlib import Path
+
+from setuptools import find_namespace_packages, setup  # type: ignore
 
 metadata: dict = {}
 with open("_metadata.py") as fp:
@@ -37,13 +39,13 @@ setup(
         "Tracker": "https://github.com/CQCL/pytket-quantinuum/issues",
     },
     description="Extension for pytket, providing access to Quantinuum backends",
-    long_description=open("README.md").read(),
+    long_description=(Path(__file__).parent / "README.md").read_text(),
     long_description_content_type="text/markdown",
     license="Apache 2",
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket >= 1.31.0",
+        "pytket >= 1.33.0",
         "pytket-qir >= 0.12.0",
         "requests >= 2.2",
         "types-requests",

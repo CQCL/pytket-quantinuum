@@ -12,53 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+import gc
+import json
+import os
+import time
 from base64 import b64encode
 from collections import Counter
 from pathlib import Path
-from typing import cast, Callable, Any, Tuple  # pylint: disable=unused-import
-import json
-import gc
-import os
-import time
-import datetime
-from hypothesis import given, settings
+from typing import Any, Callable, cast  # pylint: disable=unused-import
+
+import hypothesis.strategies as st
 import numpy as np
 import pytest
-import hypothesis.strategies as st
+from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies._internal import SearchStrategy
-from hypothesis import HealthCheck
 from llvmlite.binding import create_context, parse_assembly  # type: ignore
-from pytket.backends import CircuitNotValidError
-from pytket.predicates import CompilationUnit
 
+from pytket.backends import CircuitNotValidError
+from pytket.backends.status import StatusEnum
 from pytket.circuit import (
-    Circuit,
-    Qubit,
     Bit,
+    Circuit,
     Node,
     OpType,
+    Qubit,
+    if_not_bit,
     reg_eq,
-    reg_neq,
-    reg_lt,
+    reg_geq,
     reg_gt,
     reg_leq,
-    reg_geq,
-    if_not_bit,
+    reg_lt,
+    reg_neq,
 )
 from pytket.extensions.quantinuum import (
+    Language,
     QuantinuumBackend,
     QuantinuumBackendCompilationConfig,
-    Language,
     prune_shots_detected_as_leaky,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import GetResultFailed, _ALL_GATES
 from pytket.extensions.quantinuum.backends.api_wrappers import (
-    QuantinuumAPIError,
     QuantinuumAPI,
+    QuantinuumAPIError,
 )
-from pytket.backends.status import StatusEnum
+from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, GetResultFailed
+from pytket.predicates import CompilationUnit
 from pytket.wasm import WasmFileHandler
-
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 skip_remote_tests_prod: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS_PROD") is None
@@ -1292,7 +1291,7 @@ def test_noiseless_emulation(
     )
     r = backend.get_result(h)
     counts = r.get_counts()
-    assert all(x0 == x1 for x0, x1 in counts.keys())
+    assert all(x0 == x1 for x0, x1 in counts)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -1300,10 +1299,7 @@ def test_noiseless_emulation(
 def test_get_calendar(
     authenticated_quum_handler: QuantinuumAPI,
 ) -> None:
-    if "hqapi" in authenticated_quum_handler.url:
-        machine = "deadhead"
-    else:
-        machine = "H2-1"
+    machine = "deadhead" if "hqapi" in authenticated_quum_handler.url else "H2-1"
 
     backend = QuantinuumBackend(
         api_handler=authenticated_quum_handler, device_name=machine

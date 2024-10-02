@@ -13,76 +13,78 @@
 # limitations under the License.
 """Pytket Backend for Quantinuum devices."""
 
+import datetime
+import json
+import re
+import warnings
 from ast import literal_eval
 from base64 import b64encode
 from collections import Counter
+from collections.abc import Sequence
 from copy import copy
 from dataclasses import dataclass
 from enum import Enum
 from functools import cache
-import json
 from http import HTTPStatus
-import re
-from typing import Dict, List, Set, Optional, Sequence, Union, Any, cast, Tuple
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 from uuid import uuid1
-import warnings
-import datetime
 
 import numpy as np
 import requests
 
-from pytket.backends import Backend, ResultHandle, CircuitStatus, StatusEnum
-from pytket.backends.backend import KwargTypes
-from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.architecture import FullyConnected
+from pytket.backends import Backend, CircuitStatus, ResultHandle, StatusEnum
+from pytket.backends.backend import KwargTypes
+from pytket.backends.backend_exceptions import CircuitNotRunError
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
-from pytket.backends.backend_exceptions import CircuitNotRunError
-from pytket.circuit import Circuit, OpType, Bit
-from pytket.unit_id import _TEMP_BIT_NAME
+from pytket.backends.resulthandle import _ResultIdTuple
+from pytket.circuit import Bit, Circuit, OpType
 from pytket.extensions.quantinuum._metadata import __extension_version__
-from pytket.qir import pytket_to_qir, QIRFormat
-from pytket.qasm import circuit_to_qasm_str
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    MemoryCredentialStorage,
+)
+from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from pytket.passes import (
     BasePass,
-    DecomposeTK2,
-    SequencePass,
-    SynthesiseTK,
-    RemoveRedundancies,
-    FullPeepholeOptimise,
     DecomposeBoxes,
-    NormaliseTK2,
-    SimplifyInitial,
-    ZZPhaseToRz,
+    DecomposeTK2,
     FlattenRelabelRegistersPass,
+    FullPeepholeOptimise,
+    NormaliseTK2,
+    RemoveRedundancies,
+    SequencePass,
+    SimplifyInitial,
+    SynthesiseTK,
+    ZZPhaseToRz,
     auto_rebase_pass,
     auto_squash_pass,
     scratch_reg_resize_pass,
 )
 from pytket.predicates import (
     GateSetPredicate,
-    MaxNQubitsPredicate,
     MaxNClRegPredicate,
-    Predicate,
+    MaxNQubitsPredicate,
     NoSymbolsPredicate,
+    Predicate,
 )
+from pytket.qasm import circuit_to_qasm_str
+from pytket.qir import QIRFormat, pytket_to_qir
+from pytket.unit_id import _TEMP_BIT_NAME
 from pytket.utils import prepare_circuit
 from pytket.utils.outcomearray import OutcomeArray
 from pytket.wasm import WasmFileHandler
 
-from pytket.extensions.quantinuum.backends.credential_storage import (
-    MemoryCredentialStorage,
-)
+from .api_wrappers import QuantinuumAPI, QuantinuumAPIError
 
-from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
-from .api_wrappers import QuantinuumAPIError, QuantinuumAPI
-
+if TYPE_CHECKING:
+    import matplotlib  # type: ignore
 
 try:
+
     from pytket.extensions.quantinuum.backends.calendar_visualisation import (
         QuantinuumCalendar,
     )
-    import matplotlib  # type: ignore
 
     MATPLOTLIB_IMPORT = True
 except ImportError:
@@ -134,7 +136,7 @@ def _default_2q_gate(device_name: str) -> OpType:
     return OpType.ZZPhase
 
 
-def _get_gateset(gates: List[str]) -> Set[OpType]:
+def _get_gateset(gates: list[str]) -> set[OpType]:
     gs = _ADDITIONAL_GATES.copy()
     for gate in gates:
         if gate not in _GATE_MAP:
@@ -149,10 +151,10 @@ def _is_scratch(bit: Bit) -> bool:
     return bool(reg_name == _TEMP_BIT_NAME) or reg_name.startswith(f"{_TEMP_BIT_NAME}_")
 
 
-def _used_scratch_registers(qasm: str) -> Set[str]:
+def _used_scratch_registers(qasm: str) -> set[str]:
     # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
     # pytket/pytket/qasm/qasm.py#L966
-    def_matcher = re.compile(r"creg ({}\_*\d*)\[\d+\]".format(_TEMP_BIT_NAME))
+    def_matcher = re.compile(rf"creg ({_TEMP_BIT_NAME}\_*\d*)\[\d+\]")
     regs = set()
     for line in qasm.split("\n"):
         if reg := def_matcher.match(line):
@@ -202,7 +204,7 @@ DEFAULT_CREDENTIALS_STORAGE = MemoryCredentialStorage()
 # without requiring them to acquire new tokens.
 DEFAULT_API_HANDLER = QuantinuumAPI(DEFAULT_CREDENTIALS_STORAGE)
 
-QuumKwargTypes = Union[KwargTypes, WasmFileHandler, Dict[str, Any], OpType, bool]
+QuumKwargTypes = Union[KwargTypes, WasmFileHandler, dict[str, Any], OpType, bool]
 
 
 @dataclass
@@ -299,9 +301,9 @@ class QuantinuumBackend(Backend):
 
         self.api_handler.provider = provider
 
-        self._process_circuits_options = cast(Dict[str, Any], kwargs.get("options", {}))
+        self._process_circuits_options = cast(dict[str, Any], kwargs.get("options", {}))
 
-        self._local_emulator_handles: Dict[
+        self._local_emulator_handles: dict[
             ResultHandle,
             _LocalEmulatorConfiguration,
         ] = dict()
@@ -348,7 +350,7 @@ class QuantinuumBackend(Backend):
     def _available_devices(
         cls,
         api_handler: QuantinuumAPI,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """List devices available from Quantinuum.
 
         >>> QuantinuumBackend._available_devices()
@@ -371,7 +373,7 @@ class QuantinuumBackend(Backend):
 
     @classmethod
     def _dict_to_backendinfo(
-        cls, dct: Dict[str, Any], local_emulator: bool = False
+        cls, dct: dict[str, Any], local_emulator: bool = False
     ) -> BackendInfo:
         dct1 = copy(dct)
         name: str = dct1.pop("name")
@@ -379,7 +381,7 @@ class QuantinuumBackend(Backend):
         n_cl_reg: Optional[int] = None
         if "n_classical_registers" in dct:
             n_cl_reg = dct1.pop("n_classical_registers")
-        gate_set: List[str] = dct1.pop("gateset", [])
+        gate_set: list[str] = dct1.pop("gateset", [])
         if local_emulator:
             dct1["system_type"] = "local_emulator"
             dct1.pop("emulator", None)
@@ -401,7 +403,7 @@ class QuantinuumBackend(Backend):
     def available_devices(
         cls,
         **kwargs: Any,
-    ) -> List[BackendInfo]:
+    ) -> list[BackendInfo]:
         """
         See :py:meth:`pytket.backends.Backend.available_devices`.
 
@@ -462,7 +464,7 @@ class QuantinuumBackend(Backend):
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         localise: bool = True,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Retrieves the Quantinuum H-Series operations calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
@@ -550,7 +552,7 @@ class QuantinuumBackend(Backend):
         self,
         month: int,
         year: int,
-        figsize: Tuple[float, float] = (40, 20),
+        figsize: tuple[float, float] = (40, 20),
         fontsize: float = 15,
         titlesize: float = 40,
     ) -> "matplotlib.figure.Figure":
@@ -597,7 +599,7 @@ class QuantinuumBackend(Backend):
         return self._backend_info
 
     @property
-    def _gate_set(self) -> Set[OpType]:
+    def _gate_set(self) -> set[OpType]:
         return (
             _ALL_GATES
             if self._MACHINE_DEBUG
@@ -605,7 +607,7 @@ class QuantinuumBackend(Backend):
         )
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         preds = [
             NoSymbolsPredicate(),
             GateSetPredicate(self._gate_set),
@@ -623,7 +625,7 @@ class QuantinuumBackend(Backend):
         return self._default_2q_gate
 
     @property
-    def two_qubit_gate_set(self) -> Set[OpType]:
+    def two_qubit_gate_set(self) -> set[OpType]:
         """Returns the set of supported two-qubit gates.
 
         Submitted circuits must contain only one of these.
@@ -667,7 +669,7 @@ class QuantinuumBackend(Backend):
         elif target_2qb_gate == OpType.ZZPhase:
             decomposition_passes = [
                 NormaliseTK2(),
-                DecomposeTK2(ZZPhase_fidelity=lambda x: 1.0),
+                DecomposeTK2(ZZPhase_fidelity=1.0),
             ]
         elif target_2qb_gate == OpType.ZZMax:
             decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
@@ -794,9 +796,9 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
-        options: Optional[Dict[str, Any]] = None,
-        request_options: Optional[Dict[str, Any]] = None,
-        results_selection: Optional[List[Tuple[str, int]]] = None,
+        options: Optional[dict[str, Any]] = None,
+        request_options: Optional[dict[str, Any]] = None,
+        results_selection: Optional[list[tuple[str, int]]] = None,
     ) -> ResultHandle:
         """Submit a program directly to the backend.
 
@@ -829,7 +831,7 @@ class QuantinuumBackend(Backend):
                 "submit_program() not supported with local emulator"
             )
 
-        body: Dict[str, Any] = {
+        body: dict[str, Any] = {
             "name": name or f"{self._label}",
             "count": n_shots,
             "machine": self._device_name,
@@ -899,7 +901,7 @@ class QuantinuumBackend(Backend):
         n_shots: Union[None, int, Sequence[Optional[int]]] = None,
         valid_check: bool = True,
         **kwargs: QuumKwargTypes,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         """
         See :py:meth:`pytket.backends.Backend.process_circuits`.
 
@@ -1066,9 +1068,9 @@ class QuantinuumBackend(Backend):
                         group=group,
                         wasm_file_handler=wasm_fh,
                         pytket_pass=pytket_pass,
-                        options=cast(Dict[str, Any], kwargs.get("options", {})),
+                        options=cast(dict[str, Any], kwargs.get("options", {})),
                         request_options=cast(
-                            Dict[str, Any], kwargs.get("request_options", {})
+                            dict[str, Any], kwargs.get("request_options", {})
                         ),
                     )
 
@@ -1084,9 +1086,8 @@ class QuantinuumBackend(Backend):
         return handle_list
 
     def _check_batchable(self) -> None:
-        if self.backend_info:
-            if not self.backend_info.misc.get("batching", False):
-                raise BatchingUnsupported()
+        if self.backend_info and not self.backend_info.misc.get("batching", False):
+            raise BatchingUnsupported()
 
     def start_batch(
         self,
@@ -1145,7 +1146,7 @@ class QuantinuumBackend(Backend):
         """
         self._check_batchable()
 
-        req_opt: Dict[str, Any] = {"batch-exec": self.get_jobid(batch_start_job)}
+        req_opt: dict[str, Any] = {"batch-exec": self.get_jobid(batch_start_job)}
         if batch_end:
             req_opt["batch-end"] = True
         kwargs["request_options"] = req_opt
@@ -1157,7 +1158,7 @@ class QuantinuumBackend(Backend):
         timeout: Optional[int] = None,
         wait: Optional[int] = None,
         use_websocket: Optional[bool] = True,
-    ) -> Dict:
+    ) -> dict:
         if not self.api_handler:
             raise RuntimeError("API handler not set")
         with self.api_handler.override_timeouts(timeout=timeout, retry_timeout=wait):
@@ -1211,25 +1212,20 @@ class QuantinuumBackend(Backend):
         if response is None:
             raise RuntimeError(f"Unable to retrieve circuit status for handle {handle}")
         circ_status = _parse_status(response)
-        if circ_status.status is StatusEnum.COMPLETED:
-            if "results" in response:
-                ppcirc_rep = self.get_ppcirc_rep(handle)
-                n_bits = self.get_results_width(handle)
-                results_selection = self.get_results_selection(handle)
-                ppcirc = (
-                    Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
-                )
-                self._update_cache_result(
-                    handle,
-                    _convert_result(
-                        response["results"], ppcirc, n_bits, results_selection
-                    ),
-                )
+        if circ_status.status is StatusEnum.COMPLETED and "results" in response:
+            ppcirc_rep = self.get_ppcirc_rep(handle)
+            n_bits = self.get_results_width(handle)
+            results_selection = self.get_results_selection(handle)
+            ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
+            self._update_cache_result(
+                handle,
+                _convert_result(response["results"], ppcirc, n_bits, results_selection),
+            )
         return circ_status
 
     def get_partial_result(
         self, handle: ResultHandle
-    ) -> Tuple[Optional[BackendResult], CircuitStatus]:
+    ) -> tuple[Optional[BackendResult], CircuitStatus]:
         """
         Retrieve partial results for a given job, regardless of its current state.
 
@@ -1318,7 +1314,7 @@ try installing with the `pecos` option."
                 wait = kwargs.get("wait")
                 if wait is not None:
                     wait = int(wait)
-                use_websocket = cast(Optional[bool], kwargs.get("use_websocket", None))
+                use_websocket = cast(Optional[bool], kwargs.get("use_websocket"))
 
                 job_retrieve = self._retrieve_job(jobid, timeout, wait, use_websocket)
                 circ_status = _parse_status(job_retrieve)
@@ -1457,10 +1453,10 @@ _xcirc.add_phase(0.5)
 
 
 def _convert_result(
-    resultdict: Dict[str, List[str]],
+    resultdict: dict[str, list[str]],
     ppcirc: Optional[Circuit] = None,
     n_bits: Optional[int] = None,
-    results_selection: Optional[List[Tuple[str, int]]] = None,
+    results_selection: Optional[list[tuple[str, int]]] = None,
 ) -> BackendResult:
     if results_selection is None:
         array_dict = {
@@ -1476,7 +1472,7 @@ def _convert_result(
         if n_bits is not None:
             assert n_bits >= 0 and n_bits <= len(c_bits)
             c_bits = c_bits[:n_bits]
-            for creg in array_dict.keys():
+            for creg in array_dict:
                 array_dict[creg] = array_dict[creg][:, :n_bits]
 
         stacked_array = cast(
@@ -1505,10 +1501,10 @@ def _convert_result(
     )
 
 
-def _parse_status(response: Dict) -> CircuitStatus:
+def _parse_status(response: dict) -> CircuitStatus:
     h_status = response["status"]
     msgdict = {
-        k: response.get(k, None)
+        k: response.get(k)
         for k in (
             "name",
             "submit-date",
