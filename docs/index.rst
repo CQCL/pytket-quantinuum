@@ -310,3 +310,9 @@ use the ``QuantinuumAPIOffline`` when constructing the backend:
 .. toctree::
     api.rst
     changelog.rst
+
+.. toctree::
+   :caption: Useful links
+
+   Issue tracker <https://github.com/CQCL/pytket-quantinuum/issues>
+   PyPi <https://pypi.org/project/pytket-quantinuum/>
