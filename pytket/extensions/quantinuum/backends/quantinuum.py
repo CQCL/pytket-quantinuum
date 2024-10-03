@@ -1521,7 +1521,7 @@ def _convert_result(
             ]
         except IndexError:
             # this is only a temporary solution and not fully working
-            # see issue
+            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
             stacked_array = [
                 [
                     int(
