@@ -867,9 +867,7 @@ class QuantinuumBackend(Backend):
         if wasm_file_handler is not None:
             if self.backend_info and not self.backend_info.misc.get("wasm", False):
                 raise WasmUnsupported("Backend does not support wasm calls.")
-            # body["bytecode_base64"] = wasm_file_handler._wasm_file_encoded
-            # see https://github.com/CQCL/pytket-quantinuum/issues/496
-            body["cfl"] = wasm_file_handler._wasm_file_encoded.decode("utf-8")
+            body["cfl"] = wasm_file_handler.bytecode_base64.decode("utf-8")
 
         body["options"].update(self._process_circuits_options)
         if options is not None:
