@@ -975,7 +975,7 @@ class QuantinuumBackend(Backend):
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
 
-        language: Optional[Language] = cast(Language, kwargs.get("language", None))
+        language: Optional[Language] = cast(Language, kwargs.get("language"))
 
         if language is None:
             language = Language.QASM
