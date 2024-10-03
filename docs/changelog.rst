@@ -6,6 +6,8 @@ Unreleased
 
 * Fix handling of unused bits in local emulator.
 * Update machine specs in offline API.
+* Update pytket-qir version requirement to 0.13.
+* Add language option for profile compatible QIR
 
 0.37.0 (August 2024)
 --------------------

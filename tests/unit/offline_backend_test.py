@@ -33,7 +33,7 @@ from pytket.passes import (
 )
 
 
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 def test_quantinuum_offline(language: Language) -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
@@ -56,7 +56,7 @@ def test_quantinuum_offline(language: Language) -> None:
         "name": "test 1",
         "count": 4,
         "machine": "H1-1",
-        "language": language.value,
+        "language": "OPENQASM 2.0" if language == Language.QASM else "QIR 1.0",
         "program": "...",  # not checked
         "priority": "normal",
         "options": {"simulator": "state-vector", "error-model": True, "tket": {}},
@@ -95,7 +95,7 @@ def test_max_classical_register_ii() -> None:
         backend._check_all_circuits([c])
 
 
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR])
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 def test_tket_pass_submission(language: Language) -> None:
     backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
 
@@ -125,6 +125,7 @@ def test_tket_pass_submission(language: Language) -> None:
     [
         Language.QASM,
         Language.QIR,
+        Language.PQIR,
     ],
 )
 def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
