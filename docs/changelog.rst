@@ -1,3 +1,5 @@
+.. currentmodule:: pytket.extensions.quantinuum
+
 Changelog
 ~~~~~~~~~
 
