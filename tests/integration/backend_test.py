@@ -20,7 +20,7 @@ import time
 from base64 import b64encode
 from collections import Counter
 from pathlib import Path
-from typing import Any, Callable, cast # pylint: disable=unused-import
+from typing import Any, Callable, cast  # pylint: disable=unused-import
 
 import hypothesis.strategies as st
 import numpy as np
