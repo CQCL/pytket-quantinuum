@@ -195,7 +195,7 @@ class Language(Enum):
     PQIR = 2  # profile QIR: "QIR 1.0"
 
 
-def _language2str(language: Language):
+def _language2str(language: Language) -> str:
     """returns matching string for Language enum"""
     if language == Language.QASM:
         return "OPENQASM 2.0"
