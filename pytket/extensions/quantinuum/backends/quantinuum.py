@@ -980,7 +980,7 @@ class QuantinuumBackend(Backend):
             warnings.warn(
                 "The circuit is currently submitted as QASM by default. \
 The default is going to change. If you want to continue to use QASM \
-please add `language=Language.QASM` to the process_circuits function \
+please add `language=Language.QASM` as an argument to `process_circuits()` or `process_circuit()` \
 to ensure the expected behavior. If you want to try QIR, please add \
 `language=Language.QIR`"
             )
