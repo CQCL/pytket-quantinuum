@@ -867,9 +867,7 @@ class QuantinuumBackend(Backend):
         if wasm_file_handler is not None:
             if self.backend_info and not self.backend_info.misc.get("wasm", False):
                 raise WasmUnsupported("Backend does not support wasm calls.")
-            # body["bytecode_base64"] = wasm_file_handler._wasm_file_encoded
-            # see https://github.com/CQCL/pytket-quantinuum/issues/496
-            body["cfl"] = wasm_file_handler._wasm_file_encoded.decode("utf-8")
+            body["cfl"] = wasm_file_handler.bytecode_base64.decode("utf-8")
 
         body["options"].update(self._process_circuits_options)
         if options is not None:
@@ -975,7 +973,17 @@ class QuantinuumBackend(Backend):
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
 
-        language = cast(Language, kwargs.get("language", Language.QASM))
+        language: Optional[Language] = cast(Language, kwargs.get("language"))
+
+        if language is None:
+            language = Language.QASM
+            warnings.warn(
+                "The circuit is currently submitted as QASM by default. \
+The default is going to change. If you want to continue to use QASM \
+please add `language=Language.QASM` as an argument to `process_circuits()` \
+or `process_circuit()` to ensure consistent behaviour. If you want to try \
+QIR, please add `language=Language.QIR`."
+            )
 
         handle_list = []
 
