@@ -1,9 +1,12 @@
+.. currentmodule:: pytket.extensions.quantinuum
+
 Changelog
 ~~~~~~~~~
 
-Unreleased
-----------
+0.38.0 (October 2024)
+---------------------
 
+* Updated pytket version requirement to 1.33.
 * Fix handling of unused bits in local emulator.
 * Update machine specs in offline API.
 * Update pytket-qir version requirement to 0.13.
