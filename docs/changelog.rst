@@ -3,6 +3,11 @@
 Changelog
 ~~~~~~~~~
 
+0.38.1 (October 2024)
+---------------------
+
+* Query device information only when needed to avoid unnecessary API calls.
+
 0.38.0 (October 2024)
 ---------------------
 
