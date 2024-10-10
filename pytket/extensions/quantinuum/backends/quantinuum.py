@@ -629,16 +629,16 @@ class QuantinuumBackend(Backend):
     @cached_property
     def default_two_qubit_gate(self) -> OpType:
         """Returns the default two-qubit gate for the device."""
-        self._default_2q_gate = _default_2q_gate(self._device_name)
+        default_2q_gate = _default_2q_gate(self._device_name)
 
-        if self._default_2q_gate in self.two_qubit_gate_set:
+        if default_2q_gate in self.two_qubit_gate_set:
             pass
         elif len(self.two_qubit_gate_set) > 0:
-            self._default_2q_gate = list(self.two_qubit_gate_set)[0]
+            default_2q_gate = list(self.two_qubit_gate_set)[0]
         else:
             raise ValueError("The device is not supporting any two qubit gates")
 
-        return self._default_2q_gate
+        return default_2q_gate
 
     @cached_property
     def two_qubit_gate_set(self) -> set[OpType]:
