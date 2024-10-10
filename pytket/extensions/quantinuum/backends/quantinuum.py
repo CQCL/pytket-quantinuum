@@ -330,7 +330,7 @@ class QuantinuumBackend(Backend):
         has not already been set.
         """
         if self._compilation_config.target_2qb_gate is None:
-            self._compilation_config.target_2qb_gate = self._default_2q_gate
+            self._compilation_config.target_2qb_gate = self.default_two_qubit_gate
         return self._compilation_config
 
     def get_compilation_config(self) -> QuantinuumBackendCompilationConfig:
