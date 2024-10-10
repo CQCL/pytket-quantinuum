@@ -24,7 +24,7 @@ from collections.abc import Sequence
 from copy import copy
 from dataclasses import dataclass
 from enum import Enum
-from functools import cache
+from functools import cache, cached_property
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any, Optional, Union, cast
 from uuid import uuid1
@@ -317,23 +317,21 @@ class QuantinuumBackend(Backend):
             _LocalEmulatorConfiguration,
         ] = dict()
 
-        self._default_2q_gate = _default_2q_gate(device_name)
-
-        if self._default_2q_gate in self.two_qubit_gate_set:
-            pass
-        elif len(self.two_qubit_gate_set) > 0:
-            self._default_2q_gate = list(self.two_qubit_gate_set)[0]
-        else:
-            raise ValueError("The device is not supporting any two qubit gates")
-
         if compilation_config is None:
-            self.compilation_config = QuantinuumBackendCompilationConfig(
-                allow_implicit_swaps=True, target_2qb_gate=self._default_2q_gate
-            )
+            self._compilation_config = QuantinuumBackendCompilationConfig()
         else:
-            self.compilation_config = compilation_config
-            if self.compilation_config.target_2qb_gate is None:
-                self.compilation_config.target_2qb_gate = self._default_2q_gate
+            self._compilation_config = compilation_config
+
+    @property
+    def compilation_config(self) -> QuantinuumBackendCompilationConfig:
+        """The current compilation configuration for the Backend.
+
+        Accessing this property will set the target_2qb_gate if it
+        has not already been set.
+        """
+        if self._compilation_config.target_2qb_gate is None:
+            self._compilation_config.target_2qb_gate = self.default_two_qubit_gate
+        return self._compilation_config
 
     def get_compilation_config(self) -> QuantinuumBackendCompilationConfig:
         """Get the current compilation configuration."""
@@ -607,7 +605,7 @@ class QuantinuumBackend(Backend):
             self._backend_info = self._retrieve_backendinfo(self._device_name)
         return self._backend_info
 
-    @property
+    @cached_property
     def _gate_set(self) -> set[OpType]:
         return (
             _ALL_GATES
@@ -628,12 +626,21 @@ class QuantinuumBackend(Backend):
 
         return preds
 
-    @property
+    @cached_property
     def default_two_qubit_gate(self) -> OpType:
         """Returns the default two-qubit gate for the device."""
-        return self._default_2q_gate
+        default_2q_gate = _default_2q_gate(self._device_name)
 
-    @property
+        if default_2q_gate in self.two_qubit_gate_set:
+            pass
+        elif len(self.two_qubit_gate_set) > 0:
+            default_2q_gate = list(self.two_qubit_gate_set)[0]
+        else:
+            raise ValueError("The device is not supporting any two qubit gates")
+
+        return default_2q_gate
+
+    @cached_property
     def two_qubit_gate_set(self) -> set[OpType]:
         """Returns the set of supported two-qubit gates.
 
