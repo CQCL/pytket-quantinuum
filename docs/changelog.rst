@@ -7,6 +7,7 @@ Changelog
 ---------------------
 
 * Query device information only when needed to avoid unnecessary API calls.
+* Update minimum versions of some dependencies (requests, websockets).
 
 0.38.0 (October 2024)
 ---------------------
