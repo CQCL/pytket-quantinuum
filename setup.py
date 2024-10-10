@@ -47,9 +47,9 @@ setup(
     install_requires=[
         "pytket >= 1.33.0",
         "pytket-qir >= 0.13",
-        "requests >= 2.2",
+        "requests >= 2.32.2",
         "types-requests",
-        "websockets >= 7.0",
+        "websockets >= 13.1",
         "nest_asyncio >= 1.2",
         "pyjwt ~= 2.4",
         "msal ~= 1.18",
