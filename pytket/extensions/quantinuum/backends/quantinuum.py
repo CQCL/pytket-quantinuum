@@ -325,7 +325,7 @@ class QuantinuumBackend(Backend):
     @property
     def compilation_config(self) -> QuantinuumBackendCompilationConfig:
         """The current compilation configuration for the Backend.
-        
+
         Accessing this property will set the target_2qb_gate if it
         has not already been set.
         """
