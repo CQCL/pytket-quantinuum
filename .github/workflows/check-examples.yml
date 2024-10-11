@@ -18,7 +18,7 @@ env:
 jobs:
 
   changes:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       examples: ${{ steps.filter.outputs.examples }}
     steps:
@@ -42,7 +42,7 @@ jobs:
         github.event_name == 'pull_request' &&
         needs.changes.outputs.examples == 'true'
       )
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
