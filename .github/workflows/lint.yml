@@ -21,11 +21,8 @@ jobs:
     - name: Install black and pylint
       run: pip install "black[jupyter]" pylint ruff
     - name: Check files are formatted with black
-      run: |
-        black --check .
+      run: black --check .
     - name: Run ruff
-      run: |
-        ruff check .        
+      run: ruff check .
     - name: Run pylint
-      run: |        
-        pylint */
+      run: pylint */
