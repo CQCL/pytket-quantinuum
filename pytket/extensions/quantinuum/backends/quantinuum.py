@@ -1450,18 +1450,9 @@ jobid is {jobid}"
         if backend.backend_info.get_misc("system_type") != "syntax checker":
             raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
 
-        wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
-        language: Optional[Language] = cast(
-            Language, kwargs.get("language", Language.QASM)
-        )
-
         try:
             handle = backend.process_circuit(
-                circuit,
-                n_shots,
-                kwargs=kwargs,
-                wasm_file_handler=wasm_fh,
-                language=language,
+                circuit=circuit, n_shots=n_shots, valid_check=True, **kwargs
             )
         except DeviceNotAvailable as e:
             raise ValueError(
