@@ -1050,6 +1050,7 @@ QIR, please add `language=Language.QIR`."
                             else 32
                         ),
                     )
+
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
                     for name, count in Counter(
                         bit.reg_name
@@ -1062,9 +1063,6 @@ QIR, please add `language=Language.QIR`."
                 else:
                     assert language == Language.QIR or language == Language.PQIR
                     profile = language == Language.PQIR
-                    for name, count in Counter(bit.reg_name for bit in c0.bits).items():
-                        for i in range(count):
-                            results_selection.append((name, i))
 
                     quantinuum_circ = b64encode(
                         cast(
@@ -1078,6 +1076,12 @@ QIR, please add `language=Language.QIR`."
                             ),
                         )
                     ).decode("utf-8")
+
+                    for name, count in Counter(
+                        bit.reg_name for bit in c0.bits if not _is_scratch(bit)
+                    ).items():
+                        for i in range(count):
+                            results_selection.append((name, i))
                 if self._MACHINE_DEBUG:
                     handle_list.append(
                         ResultHandle(
@@ -1446,8 +1450,19 @@ jobid is {jobid}"
         if backend.backend_info.get_misc("system_type") != "syntax checker":
             raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
 
+        wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
+        language: Optional[Language] = cast(
+            Language, kwargs.get("language", Language.QASM)
+        )
+
         try:
-            handle = backend.process_circuit(circuit, n_shots, kwargs=kwargs)
+            handle = backend.process_circuit(
+                circuit,
+                n_shots,
+                kwargs=kwargs,
+                wasm_file_handler=wasm_fh,
+                language=language,
+            )
         except DeviceNotAvailable as e:
             raise ValueError(
                 f"Cannot find syntax checker for device {self._device_name}. "

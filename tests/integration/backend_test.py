@@ -834,9 +834,18 @@ def test_wasm(
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        Language.QIR,
+        Language.PQIR,
+    ],
+)
 @pytest.mark.timeout(120)
 def test_wasm_costs(
     authenticated_quum_backend_qa: QuantinuumBackend,
+    language: Language,
 ) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
     c = Circuit(1)
@@ -847,7 +856,13 @@ def test_wasm_costs(
     b = authenticated_quum_backend_qa
 
     c = b.get_compiled_circuit(c)
-    costs = b.cost(c, n_shots=10, syntax_checker="H1-1SC", wasm_file_handler=wasfile)
+    costs = b.cost(
+        c,
+        n_shots=10,
+        syntax_checker="H1-1SC",
+        wasm_file_handler=wasfile,
+        language=language,
+    )
     if costs is None:
         pytest.skip("API is flaky, sometimes returns None unexpectedly.")
     assert isinstance(costs, float)
@@ -1106,12 +1121,22 @@ def test_old_handle(
     assert (r0.get_shots() == r1.get_shots()).all()
 
 
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        Language.QIR,
+        Language.PQIR,
+    ],
+)
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
-def test_scratch_removal(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
+def test_scratch_removal(
+    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
+) -> None:
     # https://github.com/CQCL/pytket-quantinuum/issues/213
     c = Circuit()
     qb0 = c.add_q_register("qb0", 3)
@@ -1136,7 +1161,7 @@ def test_scratch_removal(authenticated_quum_backend_qa: QuantinuumBackend) -> No
 
     b = authenticated_quum_backend_qa
     c1 = b.get_compiled_circuit(c, optimisation_level=1)
-    h = b.process_circuit(c1, n_shots=3)
+    h = b.process_circuit(c1, n_shots=3, language=language)
     r = b.get_result(h)
     shots = r.get_shots()
     assert len(shots) == 3
