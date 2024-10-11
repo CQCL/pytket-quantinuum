@@ -1152,6 +1152,7 @@ def test_scratch_removal(
     assert len(shots) == 3
     assert all(len(shot) == 5 for shot in shots)
 
+
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
