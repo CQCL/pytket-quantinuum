@@ -1452,7 +1452,7 @@ jobid is {jobid}"
 
         wasm_fh = cast(Optional[WasmFileHandler], kwargs.get("wasm_file_handler"))
         language: Optional[Language] = cast(
-            Language, kwargs.get("language"), Language.QASM
+            Language, kwargs.get("language", Language.QASM)
         )
 
         try:
