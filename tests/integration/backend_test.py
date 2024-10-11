@@ -856,7 +856,13 @@ def test_wasm_costs(
     b = authenticated_quum_backend_qa
 
     c = b.get_compiled_circuit(c)
-    costs = b.cost(c, n_shots=10, syntax_checker="H1-1SC", wasm_file_handler=wasfile)
+    costs = b.cost(
+        c,
+        n_shots=10,
+        syntax_checker="H1-1SC",
+        wasm_file_handler=wasfile,
+        language=language,
+    )
     if costs is None:
         pytest.skip("API is flaky, sometimes returns None unexpectedly.")
     assert isinstance(costs, float)
