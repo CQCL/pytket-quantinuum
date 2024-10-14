@@ -3,6 +3,11 @@
 Changelog
 ~~~~~~~~~
 
+Unreleased
+----------
+
+* Use QIR by default for program submission.
+
 0.38.1 (October 2024)
 ---------------------
 

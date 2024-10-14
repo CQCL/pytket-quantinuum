@@ -980,17 +980,7 @@ class QuantinuumBackend(Backend):
 
         pytket_pass = cast(Optional[BasePass], kwargs.get("pytketpass"))
 
-        language: Optional[Language] = cast(Language, kwargs.get("language"))
-
-        if language is None:
-            language = Language.QASM
-            warnings.warn(
-                "The circuit is currently submitted as QASM by default. \
-The default is going to change. If you want to continue to use QASM \
-please add `language=Language.QASM` as an argument to `process_circuits()` \
-or `process_circuit()` to ensure consistent behaviour. If you want to try \
-QIR, please add `language=Language.QIR`."
-            )
+        language: Language = cast(Language, kwargs.get("language", Language.QIR))
 
         handle_list = []
 
