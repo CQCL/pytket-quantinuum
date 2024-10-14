@@ -45,7 +45,7 @@ python -m pip install --upgrade pip wheel build
 # Generate and install the package
 python -m build
 for w in dist/*.whl ; do
-    python -m pip install $w
+    python -m pip install $w[pecos,calendar]
     cp $w ${ARTIFACTSDIR}
 done
 
