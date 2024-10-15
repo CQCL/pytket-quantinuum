@@ -42,9 +42,9 @@
 import calendar
 import datetime
 
-import matplotlib.pyplot as mpl  # type: ignore
+import matplotlib.pyplot as mpl
 import numpy as np
-from matplotlib.figure import Figure  # type: ignore
+from matplotlib.figure import Figure
 
 calendar.setfirstweekday(0)
 

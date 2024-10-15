@@ -78,7 +78,7 @@ from pytket.wasm import WasmFileHandler
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIError
 
 if TYPE_CHECKING:
-    import matplotlib  # type: ignore
+    import matplotlib
 
 try:
 
