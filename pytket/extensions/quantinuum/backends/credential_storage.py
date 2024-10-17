@@ -80,8 +80,8 @@ class MemoryCredentialStorage(CredentialStorage):
 
         :param id_token_timedelt: The time duration for which the ID token is valid.
             Defaults to 55 minutes.
-        :param refresh_token_timedelt: The time duration for which the refresh token is valid.
-            Defaults to 29 days.
+        :param refresh_token_timedelt: The time duration for which the refresh token
+            is valid. Defaults to 29 days.
         """
         super().__init__(id_token_timedelt, refresh_token_timedelt)
         self._user_name: Optional[str] = None
@@ -172,8 +172,8 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
 
         :param id_token_timedelt: The time duration for which the ID token is valid.
             Defaults to 55 minutes.
-        :param refresh_token_timedelt: The time duration for which the refresh token is valid.
-            Defaults to 29 days.
+        :param refresh_token_timedelt: The time duration for which the refresh token
+            is valid. Defaults to 29 days.
         """
         super().__init__(id_token_timedelt, refresh_token_timedelt)
 
