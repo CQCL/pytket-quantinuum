@@ -45,6 +45,7 @@ class CredentialStorage(ABC):
         """save user_name"""
 
     def save_tokens(self, id_token: str, refresh_token: str) -> None:
+        """Save ID token and refresh token"""
         self.save_id_token(id_token)
         self.save_refresh_token(refresh_token)
 
@@ -75,6 +76,13 @@ class MemoryCredentialStorage(CredentialStorage):
         id_token_timedelt: timedelta = timedelta(minutes=55),
         refresh_token_timedelt: timedelta = timedelta(days=29),
     ) -> None:
+        """Construct a MemoryCredentialStorage instance.
+
+        :param id_token_timedelt: The time duration for which the ID token is valid.
+            Defaults to 55 minutes.
+        :param refresh_token_timedelt: The time duration for which the refresh token is valid.
+            Defaults to 29 days.
+        """
         super().__init__(id_token_timedelt, refresh_token_timedelt)
         self._user_name: Optional[str] = None
         self._password: Optional[str] = None
@@ -141,13 +149,32 @@ class MemoryCredentialStorage(CredentialStorage):
 
 
 class QuantinuumConfigCredentialStorage(CredentialStorage):
-    """Store tokens in the default pytket configuration file."""
+    """Store username and tokens in the default pytket configuration file.
+
+    This storage option allows authentication status to persist beyond the current
+    session, and reducing the need to re-enter credentials when constructing new
+    backends.
+
+    Example:
+
+    >>> backend = QuantinuumBackend(
+    >>>     device_name=machine,
+    >>>     api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+    >>> )
+    """
 
     def __init__(
         self,
         id_token_timedelt: timedelta = timedelta(minutes=55),
         refresh_token_timedelt: timedelta = timedelta(days=29),
     ) -> None:
+        """Construct a QuantinuumConfigCredentialStorage instance.
+
+        :param id_token_timedelt: The time duration for which the ID token is valid.
+            Defaults to 55 minutes.
+        :param refresh_token_timedelt: The time duration for which the refresh token is valid.
+            Defaults to 29 days.
+        """
         super().__init__(id_token_timedelt, refresh_token_timedelt)
 
     def save_user_name(self, user_name: str) -> None:
