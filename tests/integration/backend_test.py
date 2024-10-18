@@ -122,19 +122,23 @@ def test_max_classical_register(
 ) -> None:
     backend = authenticated_quum_backend_qa
 
+    info = backend.backend_info
+    assert info is not None
+    n_cl_reg = info.n_cl_reg
+    assert isinstance(n_cl_reg, int)
+
     c = Circuit(4, 4, "test 1")
     c.H(0)
     c.CX(0, 1)
     c.measure_all()
     c = backend.get_compiled_circuit(c)
     assert backend._check_all_circuits([c])
-    for i in range(0, 20):
+    for i in range(n_cl_reg - 1):
         c.add_c_register(f"creg-{i}", 32)
 
     assert backend._check_all_circuits([c])
 
-    for i in range(20, 200):
-        c.add_c_register(f"creg-{i}", 32)
+    c.add_c_register("creg-extra", 32)
 
     with pytest.raises(CircuitNotValidError):
         backend._check_all_circuits([c])
