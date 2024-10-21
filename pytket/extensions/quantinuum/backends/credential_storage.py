@@ -22,54 +22,85 @@ from .config import QuantinuumConfig
 
 
 class CredentialStorage(ABC):
-    """Storage for Quantinuum username and tokens"""
+    """Base class for storing Quantinuum username and authentication tokens.
+
+    ``pytket-quantinuum`` interacts with Quantinuum services by making API requests,
+    such as submitting quantum programs and retrieving results. These requests
+    often require an ID token, which is obtained through the Quantinuum login API.
+    The login process also returns a refresh token, allowing the ID token to be
+    refreshed without requiring a new login.
+
+    ``CredentialStorage`` defines the interface for storing and accessing these
+    credentials, with derived classes providing specific implementations.
+    """
 
     def __init__(
         self,
         id_token_timedelt: timedelta = timedelta(minutes=55),
         refresh_token_timedelt: timedelta = timedelta(days=29),
     ) -> None:
+        """
+        :param id_token_timedelt: The time duration for which the ID token is valid.
+            Defaults to 55 minutes.
+        :param refresh_token_timedelt: The time duration for which the refresh token
+            is valid. Defaults to 29 days.
+        """
         self._id_timedelt = id_token_timedelt
         self._refresh_timedelt = refresh_token_timedelt
 
     @abstractmethod
     def save_refresh_token(self, refresh_token: str) -> None:
-        """save refresh token"""
+        """Save refresh token.
+
+        :param refresh_token: refresh token.
+        """
 
     @abstractmethod
     def save_id_token(self, id_token: str) -> None:
-        """save ID token"""
+        """Save ID token.
+
+        :param id_token: ID token.
+        """
 
     @abstractmethod
     def save_user_name(self, user_name: str) -> None:
-        """save user_name"""
+        """Save username.
+
+        :param user_name: Quantinuum username.
+        """
 
     def save_tokens(self, id_token: str, refresh_token: str) -> None:
-        """Save ID token and refresh token"""
+        """Save ID token and refresh token.
+
+        :param id_token: ID token.
+        :param refresh_token: refresh token.
+        """
         self.save_id_token(id_token)
         self.save_refresh_token(refresh_token)
 
     @abstractmethod
     def delete_credential(self) -> None:
-        """delete credential"""
+        """Delete credential."""
 
     @property
     def id_token(self) -> Optional[str]:
-        """returns a ID token if valid"""
+        """Return the ID token if valid."""
 
     @property
     def refresh_token(self) -> Optional[str]:
-        """returns a refresh token if valid"""
+        """Return the refresh token if valid."""
 
     @property
     def user_name(self) -> Optional[str]:
-        """returns the user name"""
+        """Return the username if exists."""
 
 
 class MemoryCredentialStorage(CredentialStorage):
-    """In memory credential storage. Intended use is only to store id tokens,
-    refresh tokens and user_name. Password storage is only included for debug
-    purposes."""
+    """In-memory credential storage.
+
+    This storage option allows credentials to be temporarily stored in memory during
+    the application's runtime.
+    """
 
     def __init__(
         self,
@@ -85,6 +116,7 @@ class MemoryCredentialStorage(CredentialStorage):
         """
         super().__init__(id_token_timedelt, refresh_token_timedelt)
         self._user_name: Optional[str] = None
+        # Password storage is only included for debug purposes
         self._password: Optional[str] = None
         self._id_token: Optional[str] = None
         self._refresh_token: Optional[str] = None
@@ -152,7 +184,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
     """Store username and tokens in the default pytket configuration file.
 
     This storage option allows authentication status to persist beyond the current
-    session, and reducing the need to re-enter credentials when constructing new
+    session, reducing the need to re-enter credentials when constructing new
     backends.
 
     Example:
