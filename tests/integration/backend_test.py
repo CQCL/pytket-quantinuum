@@ -1048,7 +1048,7 @@ def test_qir_submission_mz_to_reg(
     r = b.get_result(h)
 
     assert len(r.get_shots()) == 10
-    assert len(r.get_bitlist()) == 128
+    assert len(r.get_bitlist()) == 20
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
