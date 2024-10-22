@@ -103,9 +103,9 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
-     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase.AutoSquash>`_
+     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoSquash>`_
    * -
-     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase.AutoSquash>`_
+     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoSquash>`_
      - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
      - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
