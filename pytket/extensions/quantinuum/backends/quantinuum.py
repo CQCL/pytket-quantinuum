@@ -46,6 +46,8 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 )
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from pytket.passes import (
+    AutoRebase,
+    AutoSquash,
     BasePass,
     DecomposeBoxes,
     DecomposeTK2,
@@ -57,8 +59,6 @@ from pytket.passes import (
     SimplifyInitial,
     SynthesiseTK,
     ZZPhaseToRz,
-    AutoRebase,
-    AutoSquash,
     scratch_reg_resize_pass,
 )
 from pytket.predicates import (
