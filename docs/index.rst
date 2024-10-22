@@ -83,35 +83,35 @@ The passes applied by different levels of optimisation are specified in the tabl
    * - optimisation_level = 0
      - optimisation_level = 1 
      - optimisation_level = 2 [1]
-   * - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
-     - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
-     - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
+   * - `DecomposeBoxes <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
+     - `DecomposeBoxes <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
+     - `DecomposeBoxes <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
    * - self.rebase_pass [2]
-     - `SynthesiseTket <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.SynthesiseTket>`_
-     - `FullPeepholeOptimise [3] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FullPeepholeOptimise>`_
-   * - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
-     - `NormaliseTK2 [5]  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
-     - `NormaliseTK2  <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
+     - `SynthesiseTket <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.SynthesiseTket>`_
+     - `FullPeepholeOptimise [3] <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.FullPeepholeOptimise>`_
+   * - `FlattenRelabelRegistersPass <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `NormaliseTK2 [5]  <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
+     - `NormaliseTK2  <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.NormaliseTK2>`_
    * -
-     - `DecomposeTK2 [5] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
-     - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
+     - `DecomposeTK2 [5] <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
+     - `DecomposeTK2 <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
    * -
      - self.rebase_pass [2]
      - self.rebase_pass [2]
    * -
-     - `ZZPhaseToRz <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.ZZPhaseToRz>`_
-     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
+     - `ZZPhaseToRz <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.ZZPhaseToRz>`_
+     - `RemoveRedundancies <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
-     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
-     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `RemoveRedundancies <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
+     - `auto_squash_pass [4] <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
    * -
-     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
-     - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `auto_squash_pass [4] <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `FlattenRelabelRegistersPass <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
-     - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
-     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
+     - `FlattenRelabelRegistersPass <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
+     - `RemoveRedundancies <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
-     - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
+     - `RemoveRedundancies <https://docs.quantinuum.com/tket/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
      -
 
 
@@ -149,9 +149,9 @@ Device Predicates
 
 Circuits must satisfy the following predicates in order to run on the ``QuantinuumBackend``.
 
-* `NoSymbolsPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
-* `GateSetPredicate  <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
-* `MaxNQubitsPredicate <https://tket.quantinuum.com/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. ``H2-1``, ``H2-1E`` and ``H2-1SC`` all support a maximum of 56 qubits.
+* `NoSymbolsPredicate  <https://docs.quantinuum.com/tket/api-docs/predicates.html#pytket.predicates.NoSymbolsPredicate>`_: Parameterised gates must have numerical parameters when the circuit is executed.
+* `GateSetPredicate  <https://docs.quantinuum.com/tket/api-docs/predicates.html#pytket.predicates.GateSetPredicate>`_: To view supported Ops run ``QuantinuumBackend.backend_info.gate_set``.
+* `MaxNQubitsPredicate <https://docs.quantinuum.com/tket/api-docs/predicates.html#pytket.predicates.MaxNQubitsPredicate>`_: ``H1-1``, ``H1-1E`` and ``H1-1SC`` all support a maximum of 20 qubits. ``H2-1``, ``H2-1E`` and ``H2-1SC`` all support a maximum of 56 qubits.
 
 Job Statuses
 ============
