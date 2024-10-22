@@ -103,9 +103,9 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
-     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase.AutoSquash>`_
    * -
-     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase.AutoSquash>`_
      - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
      - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
@@ -121,7 +121,7 @@ The passes applied by different levels of optimisation are specified in the tabl
 
 * [3] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
-* [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX, OpType.Rz})``
+* [4] ``AutoSquash`` has arguments ``AutoSquash({OpType.PhasedX, OpType.Rz})``
 
 * [5] Omitted if the target two-qubit gate is ``OpType.TK2``.
 
