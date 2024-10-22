@@ -57,8 +57,8 @@ from pytket.passes import (
     SimplifyInitial,
     SynthesiseTK,
     ZZPhaseToRz,
-    auto_rebase_pass,
-    auto_squash_pass,
+    AutoRebase,
+    AutoSquash,
     scratch_reg_resize_pass,
 )
 from pytket.predicates import (
@@ -659,7 +659,7 @@ class QuantinuumBackend(Backend):
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
-        return auto_rebase_pass(
+        return AutoRebase(
             (self._gate_set - self.two_qubit_gate_set)
             | {self.compilation_config.target_2qb_gate},
             allow_swaps=self.compilation_config.allow_implicit_swaps,
@@ -677,7 +677,7 @@ class QuantinuumBackend(Backend):
             DecomposeBoxes(),
             scratch_reg_resize_pass(),
         ]
-        squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
+        squash = AutoSquash({OpType.PhasedX, OpType.Rz})
         target_2qb_gate = self.compilation_config.target_2qb_gate
         assert target_2qb_gate is not None
         if target_2qb_gate == OpType.TK2:
