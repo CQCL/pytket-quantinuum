@@ -69,7 +69,7 @@ from pytket.predicates import (
     Predicate,
 )
 from pytket.qasm import circuit_to_qasm_str
-from pytket.qir import QIRFormat, pytket_to_qir
+from pytket.qir import QIRFormat, QIRProfile, pytket_to_qir
 from pytket.unit_id import _TEMP_BIT_NAME
 from pytket.utils import prepare_circuit
 from pytket.utils.outcomearray import OutcomeArray
@@ -1052,7 +1052,10 @@ class QuantinuumBackend(Backend):
 
                 else:
                     assert language == Language.QIR or language == Language.PQIR
-                    profile = language == Language.PQIR
+                    if language == Language.QIR:
+                        profile = QIRProfile.PYTKET
+                    else:
+                        profile = QIRProfile.ADAPTIVE
 
                     quantinuum_circ = b64encode(
                         cast(
