@@ -86,7 +86,7 @@ The passes applied by different levels of optimisation are specified in the tabl
    * - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
-   * - self.rebase_pass [2]
+   * - `AutoRebase [2] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase>`_
      - `SynthesiseTket <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.SynthesiseTket>`_
      - `FullPeepholeOptimise [3] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
@@ -96,8 +96,8 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `DecomposeTK2 [5] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
      - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
    * -
-     - self.rebase_pass [2]
-     - self.rebase_pass [2]
+     - `AutoRebase [2] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase>`_
+     - `AutoRebase [2] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase>`_
    * -
      - `ZZPhaseToRz <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.ZZPhaseToRz>`_
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
@@ -117,7 +117,7 @@ The passes applied by different levels of optimisation are specified in the tabl
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 2.
 
-* [2] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
+* [2] ``AutoRebase`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
 
 * [3] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
