@@ -192,6 +192,8 @@ Following a successful login, the refresh token and the ID token, which are requ
 This means you won't need to re-enter your credentials until these tokens expire. By default, these tokens are only stored in memory and will be removed once the Python session ends or if you manually log out.
 
 For more persistent storage, consider using the ``QuantinuumConfigCredentialStorage``. This storage option saves your username and the authentication tokens to the ``pytket`` configuration file, ensuring they persist beyond the current session.
+To enable this, pass ``QuantinuumConfigCredentialStorage`` as an argument to ``QuantinuumAPI``, which is then provided to ``QuantinuumBackend``.
+
 ::
 
   from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
@@ -202,6 +204,22 @@ For more persistent storage, consider using the ``QuantinuumConfigCredentialStor
       device_name=machine,
       api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
   )
+  backend.login() # username and tokens saved to the configuration file.
+  # A new QuantinuumAPI instance with QuantinuumConfigCredentialStorage
+  # will automatically load the credential from the configuration file.
+  backend2 = QuantinuumBackend(
+      device_name=machine,
+      api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+  )
+  backend2.backend_info # No need to login again
+
+Class methods use in-memory credential storage by default, so you need to explicitly set the ``api_handler``:
+::
+
+  QuantinuumBackend.available_devices(
+    api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage())
+  )
+
 
 Partial Results Retrieval 
 -------------------------

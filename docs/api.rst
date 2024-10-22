@@ -30,5 +30,12 @@ Consult the `notebooks <https://github.com/CQCL/pytket-quantinuum/tree/develop/e
 .. automodule:: pytket.extensions.quantinuum.backends.leakage_gadget
     :members:
 
-.. automodule:: pytket.extensions.quantinuum.backends.credential_storage
-    :members: MemoryCredentialStorage, QuantinuumConfigCredentialStorage
+.. autoclass:: pytket.extensions.quantinuum.backends.credential_storage.CredentialStorage
+    :special-members: __init__
+    :members:
+
+.. autoclass:: pytket.extensions.quantinuum.backends.credential_storage.MemoryCredentialStorage
+    :show-inheritance:
+
+.. autoclass:: pytket.extensions.quantinuum.backends.credential_storage.QuantinuumConfigCredentialStorage
+    :show-inheritance:
