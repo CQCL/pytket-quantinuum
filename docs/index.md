@@ -79,7 +79,10 @@ backend.default_compilation_pass().apply(circ)
 
 Alternatively the default pass can be applied using the `get_compiled_circuit` method.
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 compiled_circ = backend.get_compiled_circuit(circ)
 ```
 
