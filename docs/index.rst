@@ -86,7 +86,7 @@ The passes applied by different levels of optimisation are specified in the tabl
    * - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
      - `DecomposeBoxes <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeBoxes>`_
-   * - self.rebase_pass [2]
+   * - `AutoRebase [2] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase>`_
      - `SynthesiseTket <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.SynthesiseTket>`_
      - `FullPeepholeOptimise [3] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FullPeepholeOptimise>`_
    * - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
@@ -96,16 +96,16 @@ The passes applied by different levels of optimisation are specified in the tabl
      - `DecomposeTK2 [5] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
      - `DecomposeTK2 <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.DecomposeTK2>`_
    * -
-     - self.rebase_pass [2]
-     - self.rebase_pass [2]
+     - `AutoRebase [2] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase>`_
+     - `AutoRebase [2] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoRebase>`_
    * -
      - `ZZPhaseToRz <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.ZZPhaseToRz>`_
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
    * -
      - `RemoveRedundancies <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.RemoveRedundancies>`_
-     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoSquash>`_
    * -
-     - `auto_squash_pass [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.auto_rebase.auto_squash_pass>`_
+     - `AutoSquash [4] <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.AutoSquash>`_
      - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
    * -
      - `FlattenRelabelRegistersPass <https://tket.quantinuum.com/api-docs/passes.html#pytket.passes.FlattenRelabelRegistersPass>`_
@@ -117,11 +117,11 @@ The passes applied by different levels of optimisation are specified in the tabl
 
 * [1] If no value is specified then ``optimisation_level`` defaults to a value of 2.
 
-* [2] ``self.rebase_pass`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
+* [2] ``AutoRebase`` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
 
 * [3] ``FullPeepholeOptimise`` has the argument ``target_2qb_gate=OpType.TK2``.
 
-* [4] ``auto_squash_pass`` has arguments ``auto_squash_pass({OpType.PhasedX, OpType.Rz})``
+* [4] ``AutoSquash`` has arguments ``AutoSquash({OpType.PhasedX, OpType.Rz})``
 
 * [5] Omitted if the target two-qubit gate is ``OpType.TK2``.
 
@@ -252,7 +252,7 @@ Also partial results enable users to quickly validate basic execution for very l
 Leakage Gadget Detection
 ------------------------
 
-When running circuits on the :py:class:QuantinuumBackend, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
+When running circuits on the :py:class:`QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
 Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using :py:meth:`prune_shots_detected_as_leaky`.
 For a more detailed explanation we refer to `Eliminating Leakage Errors in Hyperfine Qubits <https://arxiv.org/abs/1912.13131>`_ by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding `notebook tutorial <https://github.com/CQCL/pytket-quantinuum/blob/develop/examples/Quantinuum_leakage_detection.ipynb>`_.
 
