@@ -1,3 +1,7 @@
+---
+file_format: mystnb
+---
+
 # pytket-quantinuum
 
 `pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
@@ -59,7 +63,10 @@ This default compilation will ensure that the circuit meets all the constraints 
 
 The default pass can be applied in place as follows
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 from pytket import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend
 
@@ -118,9 +125,9 @@ The passes applied by different levels of optimisation are specified in the tabl
 :::
 
 - \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
-- \[2\] [AutoRebase](inv:#*.AutoRebase) is a rebase that converts the circuit to the Quantinuum native gate set (e.g. {Rz, PhasedX, ZZMax, ZZPhase}).
+- \[2\] [AutoRebase](inv:#*.AutoRebase) is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
 - \[3\] [FullPeepholeOptimise](inv:#*.passes.FullPeepholeOptimise) has the argument `target_2qb_gate=OpType.TK2`.
-- \[4\] [AutoSquash](inv:#*.AutoSquash) targets the $\{PhasedX, OpType.Rz\}$ gate set, i.e. `AutoSquash({OpType.PhasedX, OpType.Rz})`
+- \[4\] [AutoSquash](inv:#*.AutoSquash) targets the $\{PhasedX, Rz\}$ gate set, i.e. [AutoSquash({OpType.PhasedX, OpType.Rz}](inv:#*.AutoSquash)`.
 - \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
 
 :::{note}
@@ -169,8 +176,6 @@ The status of the job can be checked with by using the `circuit_status` method. 
 
 # Additional Backend Capabilities
 
-
-
 The backend available through pytket-quantinuum has a `cost` method. This calculates the cost (in HQCs) required to execute the circuit for the specified number of shots.
 
 Every backend also supports mid-circuit measurements and fast classical feedforward.
@@ -194,7 +199,10 @@ This means you won't need to re-enter your credentials until these tokens expire
 For more persistent storage, consider using the `QuantinuumConfigCredentialStorage`. This storage option saves your username and the authentication tokens to the `pytket` configuration file, ensuring they persist beyond the current session.
 To enable this, pass `QuantinuumConfigCredentialStorage` as an argument to `QuantinuumAPI`, which is then provided to `QuantinuumBackend`.
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends.credential_storage import (
     QuantinuumConfigCredentialStorage,
@@ -215,7 +223,10 @@ backend2.backend_info # No need to login again
 
 Class methods use in-memory credential storage by default, so you need to explicitly set the `api_handler`:
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 QuantinuumBackend.available_devices(
   api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage())
 )
@@ -226,7 +237,10 @@ QuantinuumBackend.available_devices(
 The {py:class}`QuantinuumBackend` also supports giving the user partial results from unfinished jobs.
 This can be done as follows.
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 from pytket.extensions.quantinuum import QuantinuumBackend
 
 # Submit circuit to QuantinuumBackend
@@ -269,7 +283,10 @@ longer batches by default**. To use batching first start the batch with
 `start_batch`, which has a similar interface to `process_circuit` but with
 an extra first argument `max_batch_cost`:
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 h1 = backend.start_batch(max_batch_cost=300, circuit=circuit, n_shots=100)
 ```
 
@@ -277,7 +294,10 @@ Add to the batch with subsequent calls of `add_to_batch` which takes as first
 argument the handle of the first job of the batch, and has the optional keyword
 argument `batch_end` to signal the end of a batch (default `False`).
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 h2 = backend.add_to_batch(h1, circuit_2, n_shots=100)
 h3 = backend.add_to_batch(h1, circuit_3, n_shots=100, batch_end=True)
 ```
