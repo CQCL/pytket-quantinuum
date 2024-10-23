@@ -127,7 +127,7 @@ The passes applied by different levels of optimisation are specified in the tabl
 - \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
 - \[2\] [AutoRebase](inv:#*.AutoRebase) is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
 - \[3\] [FullPeepholeOptimise](inv:#*.passes.FullPeepholeOptimise) has the argument `target_2qb_gate=OpType.TK2`.
-- \[4\] [AutoSquash](inv:#*.AutoSquash) targets the $\{PhasedX, Rz\}$ gate set, i.e. [AutoSquash({OpType.PhasedX, OpType.Rz}](inv:#*.AutoSquash)`.
+- \[4\] [AutoSquash](inv:#*.AutoSquash) targets the $\{PhasedX, Rz\}$ gate set, i.e. [AutoSquash({OpType.PhasedX, OpType.Rz}](inv:#*.AutoSquash).
 - \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
 
 :::{note}
