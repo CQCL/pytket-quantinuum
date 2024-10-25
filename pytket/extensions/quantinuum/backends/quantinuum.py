@@ -960,8 +960,8 @@ class QuantinuumBackend(Backend):
         )
 
         if kwargs.get("leakage_detection", False):
-            n_device_nodes: int = cast(int, self.backend_info.n_nodes)
-            n_leakage_detection_qubits: int = kwargs.get(
+            n_device_nodes: int = cast(int, self.backend_info.n_nodes)  # type: ignore
+            n_leakage_detection_qubits: int = kwargs.get(  # type: ignore
                 "n_leakage_detection_qubits", n_device_nodes
             )
             if n_leakage_detection_qubits > n_device_nodes:
@@ -971,7 +971,7 @@ class QuantinuumBackend(Backend):
                 )
             circuits = [
                 self.get_compiled_circuit(
-                    get_detection_circuit(c, n_leakage_detection_qubits),  # type: ignore
+                    get_detection_circuit(c, n_leakage_detection_qubits),
                     optimisation_level=0,
                 )
                 for c in circuits
