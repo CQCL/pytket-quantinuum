@@ -960,10 +960,11 @@ class QuantinuumBackend(Backend):
         )
 
         if kwargs.get("leakage_detection", False):
+            n_device_nodes: int = cast(int, self.backend_info.n_nodes)
             n_leakage_detection_qubits: int = kwargs.get(
-                "n_leakage_detection_qubits", self.backend_info.n_nodes
+                "n_leakage_detection_qubits", n_device_nodes
             )
-            if n_leakage_detection_qubits > self.backend_info.n_nodes:
+            if n_leakage_detection_qubits > n_device_nodes:
                 raise ValueError(
                     "Number of qubits specified for leakage detection is larger than "
                     "the number of qubits on the device."
