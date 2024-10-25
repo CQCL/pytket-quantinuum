@@ -965,7 +965,8 @@ class QuantinuumBackend(Backend):
             )
             if n_leakage_detection_qubits > self.backend_info.n_nodes:
                 raise ValueError(
-                    "Number of qubits specified for leakage detection is larger than the number of qubits on the device."
+                    "Number of qubits specified for leakage detection is larger than "
+                    "the number of qubits on the device."
                 )
             circuits = [
                 self.get_compiled_circuit(
