@@ -81,7 +81,6 @@ if TYPE_CHECKING:
     import matplotlib
 
 try:
-
     from pytket.extensions.quantinuum.backends.calendar_visualisation import (
         QuantinuumCalendar,
     )
@@ -946,6 +945,8 @@ class QuantinuumBackend(Backend):
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
           to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
           BackendResult to get counts with leakage errors removed.
+        * `n_leakage_detection_qubits`: if set, sets an upper bound on the number
+          of additional qubits to be used when adding leakage detection
         * `seed`: for local emulators only, PRNG seed for reproduciblity (int)
         * `multithreading`: for local emulators only, boolean to indicate
           whether to use multithreading for emulation (defaults to False)
@@ -959,9 +960,16 @@ class QuantinuumBackend(Backend):
         )
 
         if kwargs.get("leakage_detection", False):
+            n_leakage_detection_qubits: int = kwargs.get(
+                "n_leakage_detection_qubits", self.backend_info.n_nodes
+            )
+            if n_leakage_detection_qubits > self.backend_info.n_nodes:
+                raise ValueError(
+                    "Number of qubits specified for leakage detection is larger than the number of qubits on the device."
+                )
             circuits = [
                 self.get_compiled_circuit(
-                    get_detection_circuit(c, self.backend_info.n_nodes),  # type: ignore
+                    get_detection_circuit(c, n_leakage_detection_qubits),  # type: ignore
                     optimisation_level=0,
                 )
                 for c in circuits
