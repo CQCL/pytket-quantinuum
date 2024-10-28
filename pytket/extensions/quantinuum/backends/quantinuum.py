@@ -684,10 +684,19 @@ class QuantinuumBackend(Backend):
         elif target_2qb_gate == OpType.ZZPhase:
             decomposition_passes = [
                 NormaliseTK2(),
-                DecomposeTK2(ZZPhase_fidelity=1.0),
+                DecomposeTK2(
+                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    ZZPhase_fidelity=1.0,
+                ),
             ]
         elif target_2qb_gate == OpType.ZZMax:
-            decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
+            decomposition_passes = [
+                NormaliseTK2(),
+                DecomposeTK2(
+                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    ZZMax_fidelity=1.0,
+                ),
+            ]
         else:
             raise ValueError(
                 f"Unrecognized target 2-qubit gate: {target_2qb_gate.name}"
@@ -711,7 +720,12 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
-            passlist.append(FullPeepholeOptimise(target_2qb_gate=OpType.TK2))
+            passlist.append(
+                FullPeepholeOptimise(
+                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    target_2qb_gate=OpType.TK2,
+                )
+            )
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [

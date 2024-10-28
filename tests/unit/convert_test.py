@@ -183,6 +183,31 @@ def test_switch_target_2qb_gate() -> None:
     assert compiled.n_gates_of_type(OpType.TK2) == 0
 
 
+def test_not_allow_implicit_swaps() -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/515
+    b = QuantinuumBackend("", machine_debug=True)
+    c = Circuit(2).SWAP(0, 1)
+    b.set_compilation_config_allow_implicit_swaps(False)
+    for target_gate in [OpType.ZZMax, OpType.ZZPhase, OpType.TK2]:
+        b.set_compilation_config_target_2qb_gate(target_gate)
+        d0 = b.get_compiled_circuit(c, optimisation_level=0)
+        d1 = b.get_compiled_circuit(c, optimisation_level=1)
+        d2 = b.get_compiled_circuit(c, optimisation_level=2)
+        assert d0.implicit_qubit_permutation() == {
+            Qubit(0): Qubit(0),
+            Qubit(1): Qubit(1),
+        }
+        assert d1.implicit_qubit_permutation() == {
+            Qubit(0): Qubit(0),
+            Qubit(1): Qubit(1),
+        }
+        assert d2.implicit_qubit_permutation() == {
+            Qubit(0): Qubit(0),
+            Qubit(1): Qubit(1),
+        }
+
+
 if __name__ == "__main__":
     test_implicit_swap_removal()
     test_switch_target_2qb_gate()
+    test_not_allow_implicit_swaps()
