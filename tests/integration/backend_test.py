@@ -514,6 +514,11 @@ def test_leakage_detection(
 ) -> None:
     b = authenticated_quum_backend_qa
     c = Circuit(2, 2).H(0).CZ(0, 1).Measure(0, 0).Measure(1, 1)
+
+    with pytest.raises(ValueError):
+        b.process_circuit(
+            c, n_shots=10, leakage_detection=True, n_leakage_detection_qubits=1000
+        )
     h = b.process_circuit(c, n_shots=10, leakage_detection=True)
     r = b.get_result(h)
     assert len(r.c_bits) == 4

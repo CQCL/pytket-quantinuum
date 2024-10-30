@@ -46,6 +46,8 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 )
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from pytket.passes import (
+    AutoRebase,
+    AutoSquash,
     BasePass,
     DecomposeBoxes,
     DecomposeTK2,
@@ -57,8 +59,6 @@ from pytket.passes import (
     SimplifyInitial,
     SynthesiseTK,
     ZZPhaseToRz,
-    auto_rebase_pass,
-    auto_squash_pass,
     scratch_reg_resize_pass,
 )
 from pytket.predicates import (
@@ -81,7 +81,6 @@ if TYPE_CHECKING:
     import matplotlib
 
 try:
-
     from pytket.extensions.quantinuum.backends.calendar_visualisation import (
         QuantinuumCalendar,
     )
@@ -257,7 +256,7 @@ class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
     More information about the QuantinuumBackend can be found on this page
-    https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html
+    https://docs.quantinuum.com/tket/extensions/pytket-quantinuum/index.html
     """
 
     _supports_shots = True
@@ -659,7 +658,7 @@ class QuantinuumBackend(Backend):
 
     def rebase_pass(self) -> BasePass:
         assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
-        return auto_rebase_pass(
+        return AutoRebase(
             (self._gate_set - self.two_qubit_gate_set)
             | {self.compilation_config.target_2qb_gate},
             allow_swaps=self.compilation_config.allow_implicit_swaps,
@@ -677,7 +676,7 @@ class QuantinuumBackend(Backend):
             DecomposeBoxes(),
             scratch_reg_resize_pass(),
         ]
-        squash = auto_squash_pass({OpType.PhasedX, OpType.Rz})
+        squash = AutoSquash({OpType.PhasedX, OpType.Rz})
         target_2qb_gate = self.compilation_config.target_2qb_gate
         assert target_2qb_gate is not None
         if target_2qb_gate == OpType.TK2:
@@ -685,17 +684,26 @@ class QuantinuumBackend(Backend):
         elif target_2qb_gate == OpType.ZZPhase:
             decomposition_passes = [
                 NormaliseTK2(),
-                DecomposeTK2(ZZPhase_fidelity=1.0),
+                DecomposeTK2(
+                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    ZZPhase_fidelity=1.0,
+                ),
             ]
         elif target_2qb_gate == OpType.ZZMax:
-            decomposition_passes = [NormaliseTK2(), DecomposeTK2(ZZMax_fidelity=1.0)]
+            decomposition_passes = [
+                NormaliseTK2(),
+                DecomposeTK2(
+                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    ZZMax_fidelity=1.0,
+                ),
+            ]
         else:
             raise ValueError(
                 f"Unrecognized target 2-qubit gate: {target_2qb_gate.name}"
             )
         # If you make changes to the default_compilation_pass,
         # then please update this page accordingly
-        # https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html#default-compilation
+        # https://docs.quantinuum.com/tket/extensions/pytket-quantinuum/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             passlist.append(self.rebase_pass())
@@ -712,7 +720,12 @@ class QuantinuumBackend(Backend):
                 ]
             )
         else:
-            passlist.append(FullPeepholeOptimise(target_2qb_gate=OpType.TK2))
+            passlist.append(
+                FullPeepholeOptimise(
+                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    target_2qb_gate=OpType.TK2,
+                )
+            )
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
@@ -946,6 +959,8 @@ class QuantinuumBackend(Backend):
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
           to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
           BackendResult to get counts with leakage errors removed.
+        * `n_leakage_detection_qubits`: if set, sets an upper bound on the number
+          of additional qubits to be used when adding leakage detection
         * `seed`: for local emulators only, PRNG seed for reproduciblity (int)
         * `multithreading`: for local emulators only, boolean to indicate
           whether to use multithreading for emulation (defaults to False)
@@ -959,9 +974,18 @@ class QuantinuumBackend(Backend):
         )
 
         if kwargs.get("leakage_detection", False):
+            n_device_nodes: int = cast(int, self.backend_info.n_nodes)  # type: ignore
+            n_leakage_detection_qubits: int = kwargs.get(  # type: ignore
+                "n_leakage_detection_qubits", n_device_nodes
+            )
+            if n_leakage_detection_qubits > n_device_nodes:
+                raise ValueError(
+                    "Number of qubits specified for leakage detection is larger than "
+                    "the number of qubits on the device."
+                )
             circuits = [
                 self.get_compiled_circuit(
-                    get_detection_circuit(c, self.backend_info.n_nodes),  # type: ignore
+                    get_detection_circuit(c, n_leakage_detection_qubits),
                     optimisation_level=0,
                 )
                 for c in circuits
