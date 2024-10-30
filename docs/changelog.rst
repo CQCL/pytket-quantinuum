@@ -8,6 +8,7 @@ Unreleased
 
 * Use QIR by default for program submission.
 * Update pytket-qir version requirement to 0.15.
+* Add handling for negative results
 
 0.38.1 (October 2024)
 ---------------------

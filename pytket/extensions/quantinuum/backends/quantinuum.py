@@ -1487,10 +1487,39 @@ def _convert_result(
     results_selection: Optional[list[tuple[str, int]]] = None,
 ) -> BackendResult:
     if results_selection is None:
-        array_dict = {
-            creg: np.array([list(a) for a in reslist]).astype(np.uint8)
-            for creg, reslist in resultdict.items()
-        }
+        for creg in resultdict:
+            if any(["-" in res for res in resultdict[creg]]):
+                resultdict[creg] = [res.replace("-", "0") for res in resultdict[creg]]
+                warnings.warn(
+                    f"found negative value for creg: {creg}. \
+This could indicate a problem with the circuit submitted"
+                )
+        found_int_res = False
+        for x in [f"{s}" for s in range(2, 10)]:
+            for creg in resultdict:
+                if any([x in res for res in resultdict[creg]]):
+                    found_int_res = True
+
+        if found_int_res:
+
+            def conv_int(res: str):
+                long_res = bin(int(res)).replace(
+                    "0b",
+                    "0000000000000000000000000000000000000\
+00000000000000000000000000",  # 0 * 63
+                )
+                return list(long_res[len(long_res) - 64 : len(long_res)])
+
+            array_dict = {
+                creg: np.array([conv_int(a) for a in reslist]).astype(np.uint8)
+                for creg, reslist in resultdict.items()
+            }
+        else:
+            array_dict = {
+                creg: np.array([list(a) for a in reslist]).astype(np.uint8)
+                for creg, reslist in resultdict.items()
+            }
+
         reversed_creg_names = sorted(array_dict.keys(), reverse=True)
         c_bits = [
             Bit(name, ind)
@@ -1518,15 +1547,27 @@ def _convert_result(
         c_bits = [Bit(name, ind) for name, ind in results_selection]
 
         # Construct the shots table
-
+        result_int = False
         try:
             stacked_array = [
                 [int(resultdict[name][i][-1 - ind]) for name, ind in results_selection]
                 for i in range(n_shots)
             ]
+        except ValueError:
+            # this is only a temporary solution and not fully working
+            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
+            warnings.warn(
+                "found unexpected character in the result values. \
+This could indicate a problem with the circuit submitted"
+            )
+            result_int = True
+
         except IndexError:
             # this is only a temporary solution and not fully working
             # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
+            result_int = True
+
+        if result_int:
             stacked_array = [
                 [
                     int(
