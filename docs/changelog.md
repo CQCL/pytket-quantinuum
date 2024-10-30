@@ -7,7 +7,7 @@
 ## Unreleased
 
 - Use QIR by default for program submission.
-- Update pytket-qir version requirement to 0.15.
+- Update pytket-qir version requirement to 0.16.
 - Add new `kwarg` `n_leakage_detection_qubits` to `process_circuits()`
 - Fix `allow_implicit_swaps` configuration not handled correctly in default passes.
 - Add handling for negative results
