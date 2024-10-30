@@ -1510,18 +1510,19 @@ def _convert_result(
     n_bits: Optional[int] = None,
     results_selection: Optional[list[tuple[str, int]]] = None,
 ) -> BackendResult:
-    if results_selection is None:
-        for creg in resultdict:
-            if any(["-" in res for res in resultdict[creg]]):
-                raise ValueError(
-                    f"found negative value for creg: {creg}. \
+
+    for creg, reslist in resultdict.items():
+        if any(["-" in res for res in reslist]):
+            raise ValueError(
+                f"found negative value for creg: {creg}. \
 This could indicate a problem with the circuit submitted"
-                )
+            )
+
+    if results_selection is None:
         found_int_res = False
-        for x in [f"{s}" for s in range(2, 10)]:
-            for creg in resultdict:
-                if any([x in res for res in resultdict[creg]]):
-                    found_int_res = True
+        for creg, reslist in resultdict.items():
+            if any([re.findall("[23456789]", res) for res in reslist]):
+                found_int_res = True
 
         if found_int_res:
             # this is only a temporary solution and not fully working
@@ -1577,12 +1578,6 @@ This could indicate a problem with the circuit submitted"
                 [int(resultdict[name][i][-1 - ind]) for name, ind in results_selection]
                 for i in range(n_shots)
             ]
-        except ValueError:
-            raise ValueError(
-                "found unexpected character in the result values. \
-This could indicate a problem with the circuit submitted"
-            )
-
         except IndexError:
             # this is only a temporary solution and not fully working
             # see issue https://github.com/CQCL/pytket-quantinuum/issues/501

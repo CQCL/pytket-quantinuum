@@ -1153,6 +1153,7 @@ def test_qir_submission_64bitwasm6_qa(
 @pytest.mark.parametrize(
     "language",
     [
+        Language.QASM,
         Language.QIR,
         Language.PQIR,
     ],
@@ -1177,9 +1178,9 @@ def test_qir_submission_64bitwasm_pytket_qa(
     c.Measure(Qubit(0), Bit(0))
     c.Measure(Qubit(1), Bit(1))
     c.Measure(Qubit(2), Bit(2))
-    c0 = c.add_c_register("c0", 64)
+    c0 = c.add_c_register("c0", 63)
     c1 = c.add_c_register("c1", 32)
-    c.add_c_setbits([True] + [False] * 63, list(c0))
+    c.add_c_setbits([True] + [False] * 62, list(c0))
     c.add_wasm_to_reg("add_one", wfh, [c0], [c1])
 
     wfh.check()
@@ -1188,12 +1189,13 @@ def test_qir_submission_64bitwasm_pytket_qa(
 
     r = b.get_result(h)
     assert len(r.get_shots()) == 10
-    assert len(r.get_bitlist()) == 102
+    assert len(r.get_bitlist()) == 101  # 63 + 32 + 6
 
 
 @pytest.mark.parametrize(
     "language",
     [
+        Language.QASM,
         Language.QIR,
         Language.PQIR,
     ],
@@ -1218,9 +1220,9 @@ def test_qir_submission_64bitwasm_pytket_overflow_qa(
     c.Measure(Qubit(0), Bit(0))
     c.Measure(Qubit(1), Bit(1))
     c.Measure(Qubit(2), Bit(2))
-    c0 = c.add_c_register("c0", 64)
+    c0 = c.add_c_register("c0", 63)
     c1 = c.add_c_register("c1", 32)
-    c.add_c_setbits([False] * 30 + [True, True, True, True] + [False] * 30, list(c0))
+    c.add_c_setbits([False] * 29 + [True, True, True, True] + [False] * 30, list(c0))
     c.add_wasm_to_reg("add_one", wfh, [c0], [c1])
 
     wfh.check()
