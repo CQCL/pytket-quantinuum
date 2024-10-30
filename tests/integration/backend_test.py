@@ -1080,6 +1080,126 @@ def test_qir_submission_mz_to_reg_qa(
     assert len(r.get_bitlist()) == 20
 
 
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test_pytket_qir_wasm_5-QIRProfile.ADAPTIVE.ll",
+        "test_pytket_qir_wasm_5-QIRProfile.PYTKET.ll",
+        "test_pytket_qir_wasm_6-QIRProfile.ADAPTIVE.ll",
+        "test_pytket_qir_wasm_6-QIRProfile.PYTKET.ll",
+    ],
+)
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.timeout(120)
+def test_qir_submission_64bitwasm_qa(
+    authenticated_quum_backend_qa: QuantinuumBackend, filename: str
+) -> None:
+    # disable Garbage Collector because of
+    # https://github.com/CQCL/pytket-quantinuum/issues/170
+    gc.disable()
+    b = authenticated_quum_backend_qa
+    with open(f"integration/qir/{filename}") as f:
+        qir = f.read()
+
+    wfh = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
+
+    ctx = create_context()
+    module = parse_assembly(qir, context=ctx)
+    ir = module.as_bitcode()
+    h = b.submit_program(
+        Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10, wasm_file_handler=wfh
+    )
+    r = b.get_result(h)
+    assert len(r.get_shots()) == 10
+    # 192 = 3 * 64 , 102 = 64 + 32 + 6
+    assert len(r.get_bitlist()) in [102, 192]
+
+
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QIR,
+        Language.PQIR,
+    ],
+)
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.timeout(120)
+def test_qir_submission_64bitwasm_pytket_qa(
+    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
+) -> None:
+    b = authenticated_quum_backend_qa
+
+    wfh = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "add1.wasm"),
+        int_size=32,
+        check_file=False,
+    )
+
+    c = Circuit(6, 6)
+    c.Measure(Qubit(0), Bit(0))
+    c.Measure(Qubit(1), Bit(1))
+    c.Measure(Qubit(2), Bit(2))
+    c0 = c.add_c_register("c0", 64)
+    c1 = c.add_c_register("c1", 32)
+    c.add_c_setbits([True] + [False] * 63, list(c0))
+    c.add_wasm_to_reg("add_one", wfh, [c0], [c1])
+
+    wfh.check()
+
+    h = b.process_circuit(c, n_shots=10, language=language, wasm_file_handler=wfh)
+
+    r = b.get_result(h)
+    assert len(r.get_shots()) == 10
+    assert len(r.get_bitlist()) == 102
+
+
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QIR,
+        Language.PQIR,
+    ],
+)
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.timeout(120)
+def test_qir_submission_64bitwasm_pytket_overflow_qa(
+    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
+) -> None:
+    b = authenticated_quum_backend_qa
+
+    wfh = WasmFileHandler(
+        str(Path(__file__).parent.parent / "wasm" / "add1.wasm"),
+        int_size=32,
+        check_file=False,
+    )
+
+    c = Circuit(6, 6)
+    c.Measure(Qubit(0), Bit(0))
+    c.Measure(Qubit(1), Bit(1))
+    c.Measure(Qubit(2), Bit(2))
+    c0 = c.add_c_register("c0", 64)
+    c1 = c.add_c_register("c1", 32)
+    c.add_c_setbits([False] * 30 + [True, True, True, True] + [False] * 30, list(c0))
+    c.add_wasm_to_reg("add_one", wfh, [c0], [c1])
+
+    wfh.check()
+
+    h = b.process_circuit(c, n_shots=10, language=language, wasm_file_handler=wfh)
+
+    r = b.get_result(h)
+    assert len(r.get_shots()) == 10
+    assert len(r.get_bitlist()) == 102
+
+
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True

@@ -10,6 +10,7 @@
 - Update pytket-qir version requirement to 0.15.
 - Add new `kwarg` `n_leakage_detection_qubits` to `process_circuits()`
 - Fix `allow_implicit_swaps` configuration not handled correctly in default passes.
+- Add handling for negative results
 
 ## 0.38.1 (October 2024)
 
