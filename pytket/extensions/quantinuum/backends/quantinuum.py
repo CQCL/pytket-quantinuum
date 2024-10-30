@@ -1513,8 +1513,7 @@ def _convert_result(
     if results_selection is None:
         for creg in resultdict:
             if any(["-" in res for res in resultdict[creg]]):
-                resultdict[creg] = [res.replace("-", "0") for res in resultdict[creg]]
-                warnings.warn(
+                raise ValueError(
                     f"found negative value for creg: {creg}. \
 This could indicate a problem with the circuit submitted"
                 )
@@ -1525,6 +1524,8 @@ This could indicate a problem with the circuit submitted"
                     found_int_res = True
 
         if found_int_res:
+            # this is only a temporary solution and not fully working
+            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
 
             def conv_int(res: str) -> list:
                 long_res = bin(int(res)).replace(
@@ -1571,27 +1572,20 @@ This could indicate a problem with the circuit submitted"
         c_bits = [Bit(name, ind) for name, ind in results_selection]
 
         # Construct the shots table
-        result_int = False
         try:
             stacked_array = [
                 [int(resultdict[name][i][-1 - ind]) for name, ind in results_selection]
                 for i in range(n_shots)
             ]
         except ValueError:
-            # this is only a temporary solution and not fully working
-            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
-            warnings.warn(
+            raise ValueError(
                 "found unexpected character in the result values. \
 This could indicate a problem with the circuit submitted"
             )
-            result_int = True
 
         except IndexError:
             # this is only a temporary solution and not fully working
             # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
-            result_int = True
-
-        if result_int:
             stacked_array = [
                 [
                     int(
