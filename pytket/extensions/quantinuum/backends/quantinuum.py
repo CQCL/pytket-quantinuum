@@ -1510,11 +1510,43 @@ def _convert_result(
     n_bits: Optional[int] = None,
     results_selection: Optional[list[tuple[str, int]]] = None,
 ) -> BackendResult:
+
+    for creg, reslist in resultdict.items():
+        if any(["-" in res for res in reslist]):
+            raise ValueError(
+                f"found negative value for creg: {creg}. \
+This could indicate a problem with the circuit submitted"
+            )
+
     if results_selection is None:
-        array_dict = {
-            creg: np.array([list(a) for a in reslist]).astype(np.uint8)
-            for creg, reslist in resultdict.items()
-        }
+        found_int_res = any(
+            re.findall("[23456789]", res)
+            for reslist in resultdict.values()
+            for res in reslist
+        )
+
+        if found_int_res:
+            # this is only a temporary solution and not fully working
+            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
+
+            def conv_int(res: str) -> list:
+                long_res = bin(int(res)).replace(
+                    "0b",
+                    "0000000000000000000000000000000000000\
+00000000000000000000000000",  # 0 * 63
+                )
+                return list(long_res[len(long_res) - 64 : len(long_res)])
+
+            array_dict = {
+                creg: np.array([conv_int(a) for a in reslist]).astype(np.uint8)
+                for creg, reslist in resultdict.items()
+            }
+        else:
+            array_dict = {
+                creg: np.array([list(a) for a in reslist]).astype(np.uint8)
+                for creg, reslist in resultdict.items()
+            }
+
         reversed_creg_names = sorted(array_dict.keys(), reverse=True)
         c_bits = [
             Bit(name, ind)
@@ -1542,7 +1574,6 @@ def _convert_result(
         c_bits = [Bit(name, ind) for name, ind in results_selection]
 
         # Construct the shots table
-
         try:
             stacked_array = [
                 [int(resultdict[name][i][-1 - ind]) for name, ind in results_selection]
