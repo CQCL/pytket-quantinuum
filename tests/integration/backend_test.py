@@ -1147,6 +1147,7 @@ def test_qir_submission_64bitwasm6_qa(
         Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10, wasm_file_handler=wfh
     )
     with pytest.raises(ValueError):
+        # this circuit gives a negative results which we reject
         b.get_result(h)
 
 
@@ -1229,6 +1230,7 @@ def test_qir_submission_64bitwasm_pytket_overflow_qa(
 
     h = b.process_circuit(c, n_shots=10, language=language, wasm_file_handler=wfh)
     with pytest.raises(ValueError):
+        # this circuit gives a negative results which we reject
         b.get_result(h)
 
 
