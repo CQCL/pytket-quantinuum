@@ -1519,7 +1519,11 @@ This could indicate a problem with the circuit submitted"
             )
 
     if results_selection is None:
-        found_int_res = any(re.findall("[23456789]", res) for reslist in resultdict.values() for res in reslist)
+        found_int_res = any(
+            re.findall("[23456789]", res)
+            for reslist in resultdict.values()
+            for res in reslist
+        )
 
         if found_int_res:
             # this is only a temporary solution and not fully working
