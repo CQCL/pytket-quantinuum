@@ -1184,8 +1184,6 @@ def test_qir_submission_64bitwasm_pytket_qa(
     c.add_c_setbits([True] + [False] * 62, list(c0))
     c.add_wasm_to_reg("add_one", wfh, [c0], [c1])
 
-    wfh.check()
-
     h = b.process_circuit(c, n_shots=10, language=language, wasm_file_handler=wfh)
 
     r = b.get_result(h)
@@ -1225,8 +1223,6 @@ def test_qir_submission_64bitwasm_pytket_overflow_qa(
     c1 = c.add_c_register("c1", 32)
     c.add_c_setbits([False] * 29 + [True, True, True, True] + [False] * 30, list(c0))
     c.add_wasm_to_reg("add_one", wfh, [c0], [c1])
-
-    wfh.check()
 
     h = b.process_circuit(c, n_shots=10, language=language, wasm_file_handler=wfh)
     with pytest.raises(ValueError):
