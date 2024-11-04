@@ -4,6 +4,10 @@
 
 # Changelog
 
+## 0.40.0rc0 (November 2024)
+
+- Update pytket-qir version requirement to 0.17.
+
 ## 0.39.0 (November 2024)
 
 - Use QIR by default for program submission.
