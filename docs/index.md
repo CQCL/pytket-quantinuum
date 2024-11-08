@@ -14,6 +14,8 @@ and Windows. To install, run:
 pip install pytket-quantinuum
 ```
 
+For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the H-series documentation.
+
 :::{note}
 pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how to access H-Series through Nexus, please see the [Nexus documentation](https://docs.quantinuum.com/nexus) and the [qnexus](https://pypi.org/project/qnexus/) Python package.
 :::
@@ -22,9 +24,6 @@ pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how t
 Running circuits remotely on the `QuantinuumBackend` requires a [Quantinuum](https://www.quantinuum.com/) account.
 The user will be prompted for their login credentials when making API calls such as calling the `process_circuits` method or querying `backend_info`.
 :::
-
-**User Interface:**
-<https://um.qapi.quantinuum.com/>
 
 `pytket-quantinuum` provides calendar visualization capabilities. The `calendar` extra-install-argument must be specified to install matplotlib and pandas.
 
