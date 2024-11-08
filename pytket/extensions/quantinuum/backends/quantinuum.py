@@ -113,6 +113,7 @@ _ADDITIONAL_GATES = {
     OpType.SetBits,
     OpType.CopyBits,
     OpType.ClassicalExpBox,
+    OpType.ClExpr,
     OpType.WASM,
 }
 
@@ -365,17 +366,7 @@ class QuantinuumBackend(Backend):
         :param api_handler: Instance of API handler
         :return: Dictionaries of machine name and number of qubits.
         """
-        id_token = api_handler.login()
-        if api_handler.online:
-            res = requests.get(
-                f"{api_handler.url}machine/?config=true",
-                headers={"Authorization": id_token},
-            )
-            api_handler._response_check(res, "get machine list")
-            jr = res.json()
-        else:
-            jr = api_handler._get_machine_list()  # type: ignore
-        return jr  # type: ignore
+        return api_handler.get_machine_list()
 
     @classmethod
     def _dict_to_backendinfo(

@@ -4,11 +4,12 @@
 
 # Changelog
 
-## 0.40.0rc0 (November 2024)
+## 0.40.0rc0 (Unreleased)
 
 - Update pytket-qir version requirement to 0.17.
 - Updated pytket version requirement to 1.34.
 - Updated pytket-pecos version requirement to 0.1.31.
+- Allow circuits containing `OpType.ClExpr` operations.
 
 
 ## 0.39.0 (November 2024)
