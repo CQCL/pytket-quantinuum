@@ -22,7 +22,7 @@ import getpass
 import json
 import time
 from http import HTTPStatus
-from typing import Optional
+from typing import Any, Optional, cast
 
 import nest_asyncio  # type: ignore
 from requests import Session
@@ -513,6 +513,20 @@ class QuantinuumAPI:
         jr: list[dict[str, str]] = res.json()
         return jr
 
+    def get_machine_list(self) -> list[dict[str, Any]]:
+        """Returns a given list of the available machines
+        :return: list of machines
+        """
+        id_token = self.login()
+        res = self.session.get(
+            f"{self.url}machine/?config=true",
+            headers={"Authorization": id_token},
+        )
+        self._response_check(res, "get machine list")
+        jr = res.json()
+
+        return cast(list[dict[str, Any]], jr)
+
 
 OFFLINE_MACHINE_LIST = [
     {
@@ -616,8 +630,8 @@ class QuantinuumAPIOffline:
         self._cred_store = None
         self.submitted: list = []
 
-    def _get_machine_list(self) -> Optional[list]:
-        """returns the given list of the avilable machines
+    def get_machine_list(self) -> list[dict[str, Any]]:
+        """Returns a given list of the available machines
         :return: list of machines
         """
 
