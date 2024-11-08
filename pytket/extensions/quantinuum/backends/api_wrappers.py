@@ -22,7 +22,7 @@ import getpass
 import json
 import time
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import nest_asyncio  # type: ignore
 from requests import Session
@@ -525,7 +525,7 @@ class QuantinuumAPI:
         self._response_check(res, "get machine list")
         jr = res.json()
 
-        return jr
+        return cast(list[dict[str, Any]], jr)
 
 
 OFFLINE_MACHINE_LIST = [
