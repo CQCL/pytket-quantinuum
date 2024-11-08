@@ -4,7 +4,7 @@
 
 # Changelog
 
-## 0.40.0rc0 (Unreleased)
+## 0.40.0 (November 2024)
 
 - Update pytket-qir version requirement to 0.17.
 - Updated pytket version requirement to 1.34.
