@@ -514,7 +514,7 @@ class QuantinuumAPI:
         return jr
 
     def get_machine_list(self) -> list[dict[str, Any]]:
-        """returns the given list of the available machines
+        """Returns a given list of the available machines
         :return: list of machines
         """
         id_token = self.login()
@@ -631,7 +631,7 @@ class QuantinuumAPIOffline:
         self.submitted: list = []
 
     def get_machine_list(self) -> list[dict[str, Any]]:
-        """returns the given list of the available machines
+        """Returns a given list of the available machines
         :return: list of machines
         """
 
