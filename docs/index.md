@@ -340,8 +340,9 @@ use the `QuantinuumAPIOffline` when constructing the backend:
 tags: [skip-execution]
 ---
 from pytket.extensions.quantinuum import QuantinuumBackend, QuantinuumAPIOffline
+
 api_offline = QuantinuumAPIOffline()
-backend = QuantinuumBackend(device_name="H1-1LE", api_handler = api_offline)
+backend = QuantinuumBackend(device_name="H1-1LE", api_handler=api_offline)
 ```
 
 ```{eval-rst}
