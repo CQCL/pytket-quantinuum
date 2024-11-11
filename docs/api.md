@@ -2,7 +2,7 @@
 
 The pytket-quantinuum extension allows submission of pytket circuits to the H-series trapped ion devices (and emulators) via the {py:class}`QuantinuumBackend`.
 
-Consult the [notebooks](https://github.com/CQCL/pytket-quantinuum/tree/develop/examples) for some example usage.
+See the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website for some example usage.
 
 ```{eval-rst}
 .. currentmodule:: pytket.extensions.quantinuum
