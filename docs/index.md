@@ -335,7 +335,10 @@ retrieve the device information. To use it completely offline (with the caveat
 that this relies on hard-coded assumptions about the available devices), you can
 use the `QuantinuumAPIOffline` when constructing the backend:
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 from pytket.extensions.quantinuum import QuantinuumBackend, QuantinuumAPIOffline
 api_offline = QuantinuumAPIOffline()
 backend = QuantinuumBackend(device_name="H1-1LE", api_handler = api_offline)
