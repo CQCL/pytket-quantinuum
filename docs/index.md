@@ -52,8 +52,6 @@ The H-series devices and emulators produce shots-based results and therefore req
 
 By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying `noisy_simulation=False`.
 
-For examples demonstrating the `QuantinuumBackend` see the [example notebooks](https://github.com/CQCL/pytket-quantinuum/tree/main/examples) .
-
 # Default Compilation
 
 Every `Backend` in pytket has its own `default_compilation_pass` method.
