@@ -30,18 +30,6 @@ For example usage of features, see the [pytket-quantinuum section](https://docs.
 
 The [knowledge articles](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/ka_index.html) also detail experiments using pytket-quantinuum.
 
-* [Quantum Chemistry Calculations with Arbitrary Angle 2-Qubit Gates](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_chemistry_chemically_aware_ucc.html)
-
-* [High Energy Physics: Implementing SU(2) Lattice Gauge Theory Trotter Circuits](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_high_energy_physics_experiment.html)
-
-* [Automatic Leakage Error Detection](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_leakage_detection.html)
-
-* [Topological Order from Measurements and Feed-Forward](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_toric_code.html)
-
-* [Variational Experiment with Batching](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_variational_experiment_with_batching.html)
-
-* [Greenberger–Horne–Zeilinger Fidelity Estimation on System Model H2 with 56 qubits](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_n56_ghz_state_fidelity.html)
-
 ## Bugs, support and feature requests
 
 Please file bugs and feature requests on the Github
