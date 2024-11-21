@@ -53,7 +53,9 @@ from pytket.passes import (
     DecomposeTK2,
     FlattenRelabelRegistersPass,
     FullPeepholeOptimise,
+    GreedyPauliSimp,
     NormaliseTK2,
+    RemoveBarriers,
     RemoveRedundancies,
     SequencePass,
     SimplifyInitial,
@@ -655,14 +657,20 @@ class QuantinuumBackend(Backend):
             allow_swaps=self.compilation_config.allow_implicit_swaps,
         )
 
-    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
+    def default_compilation_pass(
+        self, optimisation_level: int = 2, timeout: int = 300
+    ) -> BasePass:
         """
-        :param optimisation_level: Allows values of 0,1 or 2, with higher values
+        :param optimisation_level: Allows values of 0, 1, 2 or 3, with higher values
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
+        :param timeout: Only valid for optimisation level 3, gives a maximimum time
+            for running a single thread of the pass `GreedyPauliSimp`. Increase for
+            optimising larger circuits.
+
         :return: Compilation pass for compiling circuits to Quantinuum devices
         """
-        assert optimisation_level in range(3)
+        assert optimisation_level in range(4)
         passlist = [
             DecomposeBoxes(),
             scratch_reg_resize_pass(),
@@ -710,7 +718,7 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
-        else:
+        elif optimisation_level == 2:
             passlist.append(
                 FullPeepholeOptimise(
                     allow_swaps=self.compilation_config.allow_implicit_swaps,
@@ -726,6 +734,54 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
+        else:
+            passlist.extend(
+                [
+                    RemoveBarriers(),
+                    AutoRebase(
+                        {
+                            OpType.Z,
+                            OpType.X,
+                            OpType.Y,
+                            OpType.S,
+                            OpType.Sdg,
+                            OpType.V,
+                            OpType.Vdg,
+                            OpType.H,
+                            OpType.CX,
+                            OpType.CY,
+                            OpType.CZ,
+                            OpType.SWAP,
+                            OpType.Rz,
+                            OpType.Rx,
+                            OpType.Ry,
+                            OpType.T,
+                            OpType.Tdg,
+                            OpType.ZZMax,
+                            OpType.ZZPhase,
+                            OpType.XXPhase,
+                            OpType.YYPhase,
+                            OpType.PhasedX,
+                        }
+                    ),
+                    GreedyPauliSimp(
+                        allow_zzphase=True,
+                        only_reduce=True,
+                        thread_timeout=timeout,
+                        trials=10,
+                    ),
+                ]
+            )
+            passlist.extend(decomposition_passes)
+            passlist.extend(
+                [
+                    self.rebase_pass(),
+                    RemoveRedundancies(),
+                    squash,
+                    RemoveRedundancies(),
+                ]
+            )
+
         # In TKET, a qubit register with N qubits can have qubits
         # indexed with a a value greater than N, i.e. a single
         # qubit register can exist with index "7" or similar.
@@ -743,6 +799,75 @@ class QuantinuumBackend(Backend):
         # qubit being assigned to the ith qubit of a new "q" register
         passlist.append(FlattenRelabelRegistersPass("q"))
         return SequencePass(passlist)
+
+    def get_compiled_circuit(
+        self, circuit: Circuit, optimisation_level: int = 2, timeout: int = 300
+    ) -> Circuit:
+        """
+        Return a single circuit compiled with :py:meth:`default_compilation_pass`.
+
+        :param optimisation_level: Allows values of 0, 1, 2 or 3, with higher values
+            prompting more computationally heavy optimising compilation that
+            can lead to reduced gate count in circuits.
+        :type optimisation_level: int, optional
+        :param timeout: Only valid for optimisation level 3, gives a maximimum time
+            for running a single thread of the pass `GreedyPauliSimp`. Increase for
+            optimising larger circuits.
+        :type timeout: int, optional
+
+        :return: An optimised quantum circuit
+        :rtype: Circuit
+        """
+        return_circuit = circuit.copy()
+        if optimisation_level == 3 and circuit.n_gates_of_type(OpType.Barrier) > 0:
+            warnings.warn(
+                "Barrier operations in this circuit will be removed when using "
+                "optimisation level 3."
+            )
+        self.default_compilation_pass(optimisation_level, timeout).apply(return_circuit)
+        return return_circuit
+
+    def get_compiled_circuits(
+        self,
+        circuits: Sequence[Circuit],
+        optimisation_level: int = 2,
+        timeout: int = 300,
+    ) -> list[Circuit]:
+        """Compile a sequence of circuits with :py:meth:`default_compilation_pass`
+        and return the list of compiled circuits (does not act in place).
+
+        As well as applying a degree of optimisation (controlled by the
+        `optimisation_level` parameter), this method tries to ensure that the circuits
+        can be run on the backend (i.e. successfully passed to
+        :py:meth:`process_circuits`), for example by rebasing to the supported gate set,
+        or routing to match the connectivity of the device. However, this is not always
+        possible, for example if the circuit contains classical operations that are not
+        supported by the backend. You may use :py:meth:`valid_circuit` to check whether
+        the circuit meets the backend's requirements after compilation. This validity
+        check is included in :py:meth:`process_circuits` by default, before any circuits
+        are submitted to the backend.
+
+        If the validity check fails, you can obtain more information about the failure
+        by iterating through the predicates in the `required_predicates` property of the
+        backend, and running the :py:meth:`verify` method on each in turn with your
+        circuit.
+
+        :param circuits: The circuits to compile.
+        :type circuit: Sequence[Circuit]
+        :param optimisation_level: The level of optimisation to perform during
+            compilation. See :py:meth:`default_compilation_pass` for a description of
+            the different levels (0, 1, 2 or 3). Defaults to 2.
+        :type optimisation_level: int, optional
+        :param timeout: Only valid for optimisation level 3, gives a maximimum time
+            for running a single thread of the pass `GreedyPauliSimp`. Increase for
+            optimising larger circuits.
+        :type timeout: int, optional
+        :return: Compiled circuits.
+        :rtype: List[Circuit]
+        """
+        return [
+            self.get_compiled_circuit(c, optimisation_level, timeout) for c in circuits
+        ]
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
