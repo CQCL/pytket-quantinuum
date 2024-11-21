@@ -86,7 +86,8 @@ compiled_circ = backend.get_compiled_circuit(circ)
 ```
 
 The passes applied by different levels of optimisation are specified in the table below. Note that optimisation level 0, 1 and 2 do not remove barriers from 
-a circuit, while optimisation level 3 will.
+a circuit, while optimisation level 3 will. At optimisation level 3 the default timeout is 5 minutes - consider increasing this for larger circuits if 
+the circuit 2-qubit gate count is not reduced after compilation.
 
 :::{list-table} **Default compilation pass for the QuantinuumBackend**
 :widths: 25 25 25
