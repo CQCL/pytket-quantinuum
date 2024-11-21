@@ -4,6 +4,10 @@
 
 # Changelog
 
+## Unreleased
+
+- Add optimisation level 3 that uses `GreedyPauliSimp`
+
 ## 0.40.0 (November 2024)
 
 - Update pytket-qir version requirement to 0.17.
