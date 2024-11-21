@@ -1534,3 +1534,30 @@ def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
         api_handler=authenticated_quum_handler, device_name="H1-1"
     )
     return backend.view_calendar(month=2, year=2024)
+
+
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+)
+def test_optimisation_level_3_compilation() -> None:
+    b = authenticated_quum_backend_prod
+
+    c = Circuit(6)
+    c.add_barrier([0, 1, 2, 3, 4, 5])
+    for _ in range(6):
+        for i in range(4):
+            for j in range(i + 1, 4):
+                c.CX(i, j)
+                c.Rz(0.23, j)
+                c.S(j)
+            c.H(i)
+
+    compiled_2 = b.get_compiled_circuit(c, 2)
+    compiled_3 = b.get_compiled_circuit(c, 3)
+
+    assert compiled_3.n_2qb_gates() == 36
+    assert compiled_2.n_gates == 97
+    assert compiled_2.depth() == 45
+    assert compiled_3.n_2qb_gates() == 31
+    assert compiled_3.n_gates == 93
+    assert compiled_3.depth() == 49

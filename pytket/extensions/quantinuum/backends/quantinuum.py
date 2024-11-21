@@ -53,7 +53,9 @@ from pytket.passes import (
     DecomposeTK2,
     FlattenRelabelRegistersPass,
     FullPeepholeOptimise,
+    GreedyPauliSimp,
     NormaliseTK2,
+    RemoveBarriers,
     RemoveRedundancies,
     SequencePass,
     SimplifyInitial,
@@ -655,14 +657,16 @@ class QuantinuumBackend(Backend):
             allow_swaps=self.compilation_config.allow_implicit_swaps,
         )
 
-    def default_compilation_pass(self, optimisation_level: int = 2) -> BasePass:
+    def default_compilation_pass(
+        self, optimisation_level: int = 2, timeout: int = 300
+    ) -> BasePass:
         """
         :param optimisation_level: Allows values of 0,1 or 2, with higher values
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
         :return: Compilation pass for compiling circuits to Quantinuum devices
         """
-        assert optimisation_level in range(3)
+        assert optimisation_level in range(4)
         passlist = [
             DecomposeBoxes(),
             scratch_reg_resize_pass(),
@@ -710,7 +714,7 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
-        else:
+        elif optimisation_level == 2:
             passlist.append(
                 FullPeepholeOptimise(
                     allow_swaps=self.compilation_config.allow_implicit_swaps,
@@ -726,6 +730,29 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
+        else:
+            passlist.extend(
+                [
+                    RemoveBarriers(),
+                    AutoRebase({OpType.CX, OpType.Rz, OpType.H}),
+                    GreedyPauliSimp(
+                        allow_zzphase=True,
+                        only_reduce=True,
+                        thread_timeout=timeout,
+                        trials=10,
+                    ),
+                ]
+            )
+            passlist.extend(decomposition_passes)
+            passlist.extend(
+                [
+                    self.rebase_pass(),
+                    RemoveRedundancies(),
+                    squash,
+                    RemoveRedundancies(),
+                ]
+            )
+
         # In TKET, a qubit register with N qubits can have qubits
         # indexed with a a value greater than N, i.e. a single
         # qubit register can exist with index "7" or similar.

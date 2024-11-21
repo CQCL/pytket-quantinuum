@@ -94,36 +94,47 @@ The passes applied by different levels of optimisation are specified in the tabl
 * - optimisation_level = 0
   - optimisation_level = 1
   - optimisation_level = 2 [1]
+  - optimisation_level = 3
 * - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
+  - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
   - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
   - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
 * - [AutoRebase [2]](inv:#*.AutoRebase)
   - [SynthesiseTket](inv:#*.SynthesiseTket)
   - [FullPeepholeOptimise [3]](inv:#*.passes.FullPeepholeOptimise)
+  - [RemoveBarriers](inv:#*.passes.RemoveBarriers)
 * - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
+  - [GreedyPauliSimp](inv:#*.passes.GreedyPauliSimp)
 * -
   - [DecomposeTK2 [5]](inv:#*.passes.DecomposeTK2)
   - [DecomposeTK2 [5]](inv:#*.passes.DecomposeTK2)
+  - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
 * -
   - [AutoRebase [2]](inv:#*.AutoRebase)
   - [AutoRebase [2]](inv:#*.AutoRebase)
+  - [DecomposeTK2 [5]](inv:#*.passes.DecomposeTK2)
 * -
   - [ZZPhaseToRz](inv:#*.passes.ZZPhaseToRz)
   - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
+  - [AutoRebase [2]](inv:#*.AutoRebase)
 * -
   - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
   - [AutoSquash [4]](inv:#*.AutoSquash)
+  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
 * -
   - [AutoSquash [4]](inv:#*.AutoSquash)
   - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
+  - [AutoSquash [4]](inv:#*.AutoSquash)
 * -
   - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
   - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
+  - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
 * -
   - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
   -
+  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
 :::
 
 - \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
