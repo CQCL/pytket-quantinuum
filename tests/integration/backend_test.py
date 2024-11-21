@@ -1539,8 +1539,10 @@ def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
 )
-def test_optimisation_level_3_compilation() -> None:
-    b = authenticated_quum_backend_prod
+def test_optimisation_level_3_compilation(
+    authenticated_quum_backend_qa: QuantinuumBackend,
+) -> None:
+    b = authenticated_quum_backend_qa
 
     c = Circuit(6)
     c.add_barrier([0, 1, 2, 3, 4, 5])
