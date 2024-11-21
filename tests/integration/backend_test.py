@@ -1557,7 +1557,7 @@ def test_optimisation_level_3_compilation(
     compiled_2 = b.get_compiled_circuit(c, 2)
     compiled_3 = b.get_compiled_circuit(c, 3)
 
-    assert compiled_3.n_2qb_gates() == 36
+    assert compiled_2.n_2qb_gates() == 36
     assert compiled_2.n_gates == 97
     assert compiled_2.depth() == 45
     assert compiled_3.n_2qb_gates() == 31
