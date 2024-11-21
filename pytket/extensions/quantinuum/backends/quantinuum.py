@@ -822,7 +822,8 @@ class QuantinuumBackend(Backend):
         return_circuit = circuit.copy()
         if optimisation_level == 3 and circuit.n_gates_of_type(OpType.Barrier) > 0:
             warnings.warn(
-                f"Barrier operations in this circuit will be removed when using optimisation level 3."
+                f"Barrier operations in this circuit will be removed when using "
+                "optimisation level 3."
             )
         self.default_compilation_pass(optimisation_level, timeout).apply(return_circuit)
         return return_circuit
