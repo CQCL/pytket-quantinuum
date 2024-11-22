@@ -88,7 +88,7 @@ a circuit, while optimisation level 3 will. At optimisation level 3 the default 
 the circuit 2-qubit gate count is not reduced after compilation.
 
 :::{list-table} **Default compilation pass for the QuantinuumBackend**
-:widths: 25 25 25
+:widths: 25 25 25 25
 :header-rows: 1
 
 * - optimisation_level = 0
@@ -102,7 +102,7 @@ the circuit 2-qubit gate count is not reduced after compilation.
 * - [AutoRebase [2]](inv:#*.AutoRebase)
   - [SynthesiseTket](inv:#*.SynthesiseTket)
   - [FullPeepholeOptimise [3]](inv:#*.passes.FullPeepholeOptimise)
-  - [RemoveBarriers](inv:#*.passes.RemoveBarriers)
+  - [RemoveBarriers](inv:#*pytket._tket.passes.RemoveBarriers)
 * - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
