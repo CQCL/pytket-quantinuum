@@ -4,9 +4,9 @@
 
 # Changelog
 
-## Unreleased
+## 0.41.0 (November 2024)
 
-- Add optimisation level 3 that uses `GreedyPauliSimp`
+- Add optimisation level 3 that uses `GreedyPauliSimp`.
 
 ## 0.40.0 (November 2024)
 
