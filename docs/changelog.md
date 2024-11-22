@@ -7,7 +7,6 @@
 ## 0.41.0 (November 2024)
 
 - Add optimisation level 3 that uses `GreedyPauliSimp`.
-- Support Python 3.13.
 
 ## 0.40.0 (November 2024)
 
