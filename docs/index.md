@@ -44,15 +44,13 @@ The pytket-quantinuum extension allows the user to access the following quantum 
 - `H1-1`, `H2-1`: Quantum devices, submit specifically to `H1-1` or `H2-1` by using the device name.
 - `H1-1E`, `H2-1E`: Device-specific emulators of `H1-1` and `H2-1`. These emulators run remotely on servers and require credentials.
 - `H1-1SC`, `H2-1SC`: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
-- `H1-1LE`, a version of the `H1-1E` emulator that runs locally. For running simulations locally see the docs on [Local Emulators].
+- `H1-1LE`, a version of the `H1-1E` emulator that runs locally. For running simulations locally, see the docs on [Local Emulators](#local-emulators).
 
 There are also optional initialisation parameters `label` (for naming circuits), `group` (identifier for a collection of jobs) and `simulator` (see below).
 
 The H-series devices and emulators produce shots-based results and therefore require measurements. It is also possible to use a stabilizer simulator by specifying `simulator='stabilizer'`. This option may be preferable for simulating Clifford circuits.
 
 By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying `noisy_simulation=False`.
-
-For examples demonstrating the `QuantinuumBackend` see the [example notebooks](https://github.com/CQCL/pytket-quantinuum/tree/main/examples) .
 
 # Default Compilation
 
@@ -280,7 +278,7 @@ Also partial results enable users to quickly validate basic execution for very l
 
 When running circuits on the {py:class}`QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
 Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:meth}`prune_shots_detected_as_leaky`.
-For a more detailed explanation we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding [notebook tutorial](https://github.com/CQCL/pytket-quantinuum/blob/develop/examples/Quantinuum_leakage_detection.ipynb).
+For a more detailed explanation we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding [notebook tutorial](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_leakage_detection.html).
 
 ## Batching
 
@@ -350,10 +348,14 @@ retrieve the device information. To use it completely offline (with the caveat
 that this relies on hard-coded assumptions about the available devices), you can
 use the `QuantinuumAPIOffline` when constructing the backend:
 
-```
+```{code-cell} ipython3
+---
+tags: [skip-execution]
+---
 from pytket.extensions.quantinuum import QuantinuumBackend, QuantinuumAPIOffline
+
 api_offline = QuantinuumAPIOffline()
-backend = QuantinuumBackend(device_name="H1-1LE", api_handler = api_offline)
+backend = QuantinuumBackend(device_name="H1-1LE", api_handler=api_offline)
 ```
 
 ```{eval-rst}

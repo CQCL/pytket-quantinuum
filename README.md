@@ -24,7 +24,11 @@ pip install pytket-quantinuum
 This will install `pytket` if it isn't already installed, and add new classes
 and methods into the `pytket.extensions` namespace.
 
-The [example notebooks](https://github.com/CQCL/pytket-quantinuum/tree/develop/examples) also demonstrate some of the key features of pytket-quantinuum.
+## Examples
+
+For example usage of features, see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website.
+
+The [knowledge articles](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/ka_index.html) also detail experiments using pytket-quantinuum.
 
 ## Bugs, support and feature requests
 
