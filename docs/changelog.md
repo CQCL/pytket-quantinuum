@@ -8,7 +8,6 @@
 
 - Updated pytket version requirement to 1.34.
 - Updated pytket-pecos version requirement to 0.1.32.
-- Support Python 3.13.
 
 ## 0.41.0 (November 2024)
 
