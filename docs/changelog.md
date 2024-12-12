@@ -6,7 +6,7 @@
 
 ## 0.42.0 (December 2024)
 
-- Updated pytket version requirement to 1.34.
+- Updated pytket version requirement to 1.37.
 - Updated pytket-pecos version requirement to 0.1.32.
 
 ## 0.41.0 (November 2024)
