@@ -45,7 +45,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket >= 1.35.0",
+        "pytket >= 1.37.0",
         "pytket-qir >= 0.17, < 0.18",
         "requests >= 2.32.2",
         "types-requests",
@@ -56,7 +56,7 @@ setup(
         "numpy >= 1.26.4",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.1.31"],
+        "pecos": ["pytket-pecos ~= 0.1.32"],
         "calendar": ["matplotlib >= 3.8.3,< 3.10.0", "pandas ~= 2.2.1"],
     },
     classifiers=[
