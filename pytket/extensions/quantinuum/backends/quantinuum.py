@@ -464,7 +464,7 @@ class QuantinuumBackend(Backend):
         end_date: datetime.datetime,
         localise: bool = True,
     ) -> list[dict[str, Any]]:
-        """Retrieves the Quantinuum H-Series operations calendar
+        """Retrieves the Quantinuum operations calendar
         for the period specified by start_date and end_date.
         The calendar data returned is for the local timezone of the
         end-user.
@@ -477,7 +477,7 @@ class QuantinuumBackend(Backend):
         The dictionary has the following properties.
         * 'start-date': The  start date and start time as a datetime.datetime object.
         * 'end-date': The end date and end time as a datetime.datetime object.
-        * 'machine': A string specifying the H-Series device attached to the event.
+        * 'machine': A string specifying the device attached to the event.
         * 'event-type': The type of event as a string. The value `online` denotes queued
             access to the device, and the value `reservation` denotes priority access
             for a particular organisation.
@@ -495,7 +495,7 @@ class QuantinuumBackend(Backend):
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
-        :return: A list of events from the H-Series operations calendar,
+        :return: A list of events from the operations calendar,
             sorted by the `start-date` of each event. Each event is a python
             dictionary.
         :return_type: List[Dict[str, str]]
@@ -555,7 +555,7 @@ class QuantinuumBackend(Backend):
         fontsize: float = 15,
         titlesize: float = 40,
     ) -> "matplotlib.figure.Figure":
-        """Visualise the H-Series operations calendar for a user-specified
+        """Visualise the operations calendar for a user-specified
         month and year. The operations hours are shown for the machine name
         used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operations
         days are coloured. In addition, a description of the event is also
@@ -569,7 +569,7 @@ class QuantinuumBackend(Backend):
             matplotlib.figure.Figure.
         :param fontsize: The fontsize of the event description within the
             calendar.
-        :return: A matplotlib.figure.Figure visualising the H-Series
+        :return: A matplotlib.figure.Figure visualising the
             calendar for a user-specified calendar month.
         :return_type: matplotlib.figure.Figure
         """
