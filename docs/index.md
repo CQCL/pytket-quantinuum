@@ -102,7 +102,7 @@ the circuit 2-qubit gate count is not reduced after compilation.
 * - [AutoRebase [2]](inv:#*.AutoRebase)
   - [SynthesiseTket](inv:#*.SynthesiseTket)
   - [FullPeepholeOptimise [3]](inv:#*.passes.FullPeepholeOptimise)
-  - [RemoveBarriers](inv:#*pytket.passes.RemoveBarriers)
+  - [RemoveBarriers](inv:#*pytket._tket.passes.RemoveBarriers)
 * - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
