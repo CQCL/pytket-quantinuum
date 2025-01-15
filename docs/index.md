@@ -14,7 +14,7 @@ and Windows. To install, run:
 pip install pytket-quantinuum
 ```
 
-For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the H-series documentation.
+For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the Quantinuum hardware documentation.
 
 :::{note}
 pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how to access H-Series through Nexus, please see the [Nexus documentation](https://docs.quantinuum.com/nexus) and the [qnexus](https://pypi.org/project/qnexus/) Python package.
