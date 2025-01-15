@@ -184,6 +184,10 @@ class BatchingUnsupported(Exception):
     """Batching not supported for this backend."""
 
 
+class LanguageUnsupported(Exception):
+    """Submission language not supported for this backend."""
+
+
 @dataclass
 class DeviceNotAvailable(Exception):
     device_name: str
@@ -976,11 +980,19 @@ class QuantinuumBackend(Backend):
                 "submit_program() not supported with local emulator"
             )
 
+        lang_str = _language2str(language)
+        if self.backend_info is not None:
+            supported_languages = self.backend_info.misc.get("supported_languages")
+            if supported_languages is not None and lang_str not in supported_languages:
+                raise LanguageUnsupported(
+                    f"Language {lang_str} unsupported for submissions to this backend."
+                )
+
         body: dict[str, Any] = {
             "name": name or f"{self._label}",
             "count": n_shots,
             "machine": self._device_name,
-            "language": _language2str(language),
+            "language": lang_str,
             "program": program,
             "priority": "normal",
             "options": {
