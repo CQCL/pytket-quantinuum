@@ -88,7 +88,7 @@ def test_max_classical_register_ii() -> None:
 
     assert backend._check_all_circuits([c])
 
-    for i in range(20, 200):
+    for i in range(20, 5000):
         c.add_c_register(f"creg-{i}", 32)
 
     with pytest.raises(CircuitNotValidError):

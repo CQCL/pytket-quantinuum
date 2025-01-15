@@ -4,6 +4,10 @@
 
 # Changelog
 
+## Unreleased
+
+- Check for language support when submitting programs.
+
 ## 0.42.0 (December 2024)
 
 - Updated pytket version requirement to 1.37.
