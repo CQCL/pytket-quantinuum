@@ -55,7 +55,7 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIError,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, GetResultFailed
+from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES
 from pytket.predicates import CompilationUnit
 from pytket.wasm import WasmFileHandler
 
@@ -597,17 +597,11 @@ def test_simulator(
     assert len(stab_counts) == 2
 
     # test non-clifford circuit fails on stabilizer backend
-    # unfortunately the job is accepted, then fails, so have to check get_result
     non_stab_circ = (
         Circuit(2, name="non_stab_circ").H(0).Rx(0.1, 0).CX(0, 1).measure_all()
     )
-    non_stab_circ = stabilizer_backend.get_compiled_circuit(non_stab_circ)
-    broken_handle = stabilizer_backend.process_circuit(
-        non_stab_circ, n_shots, language=language
-    )
-
-    with pytest.raises(GetResultFailed) as _:
-        _ = stabilizer_backend.get_result(broken_handle)
+    with pytest.raises(CircuitNotValidError):
+        _ = stabilizer_backend.get_compiled_circuit(non_stab_circ)
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
