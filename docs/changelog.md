@@ -7,6 +7,8 @@
 ## Unreleased
 
 - Check for language support when submitting programs.
+- Add CliffordCircuitPredicate for circuit compilation and processing
+  when using the stabilizer simulator.
 
 ## 0.42.0 (December 2024)
 
