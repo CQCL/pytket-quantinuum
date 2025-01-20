@@ -56,6 +56,7 @@ from pytket.passes import (
     GreedyPauliSimp,
     NormaliseTK2,
     RemoveBarriers,
+    RemovePhaseOps,
     RemoveRedundancies,
     SequencePass,
     SimplifyInitial,
@@ -785,6 +786,7 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
+        passlist.append(RemovePhaseOps())
 
         # In TKET, a qubit register with N qubits can have qubits
         # indexed with a a value greater than N, i.e. a single

@@ -34,6 +34,7 @@ from pytket.backends.status import StatusEnum
 from pytket.circuit import (
     Bit,
     Circuit,
+    Conditional,
     Node,
     OpType,
     Qubit,
@@ -1563,3 +1564,28 @@ def test_optimisation_level_3_compilation(
     assert compiled_3.n_2qb_gates() == 31
     assert compiled_3.n_gates == 93
     assert compiled_3.depth() == 49
+
+
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
+)
+def test_no_phase_ops(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
+    b = authenticated_quum_backend_qa
+
+    c = (
+        Circuit(3, 3)
+        .H(0)
+        .Measure(0, 0)
+        .H(1)
+        .CX(1, 2, condition_bits=[0], condition_value=1)
+        .Measure(1, 1)
+        .Measure(2, 2)
+    )
+    c1 = b.get_compiled_circuit(c)
+    for cmd in c1.get_commands():
+        op = cmd.op
+        typ = op.type
+        assert typ != OpType.Phase
+        if typ == OpType.Conditional:
+            assert isinstance(op, Conditional)
+            assert op.op.type != OpType.Phase
