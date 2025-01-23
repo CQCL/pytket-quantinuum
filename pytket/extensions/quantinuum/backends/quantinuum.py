@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Quantinuum
+# Copyright Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ from pytket.passes import (
     GreedyPauliSimp,
     NormaliseTK2,
     RemoveBarriers,
+    RemovePhaseOps,
     RemoveRedundancies,
     SequencePass,
     SimplifyInitial,
@@ -182,6 +183,10 @@ class WasmUnsupported(Exception):
 
 class BatchingUnsupported(Exception):
     """Batching not supported for this backend."""
+
+
+class LanguageUnsupported(Exception):
+    """Submission language not supported for this backend."""
 
 
 @dataclass
@@ -781,6 +786,7 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
+        passlist.append(RemovePhaseOps())
 
         # In TKET, a qubit register with N qubits can have qubits
         # indexed with a a value greater than N, i.e. a single
@@ -976,11 +982,19 @@ class QuantinuumBackend(Backend):
                 "submit_program() not supported with local emulator"
             )
 
+        lang_str = _language2str(language)
+        if self.backend_info is not None:
+            supported_languages = self.backend_info.misc.get("supported_languages")
+            if supported_languages is not None and lang_str not in supported_languages:
+                raise LanguageUnsupported(
+                    f"Language {lang_str} unsupported for submissions to this backend."
+                )
+
         body: dict[str, Any] = {
             "name": name or f"{self._label}",
             "count": n_shots,
             "machine": self._device_name,
-            "language": _language2str(language),
+            "language": lang_str,
             "program": program,
             "priority": "normal",
             "options": {

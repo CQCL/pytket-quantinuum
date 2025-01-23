@@ -4,6 +4,11 @@
 
 # Changelog
 
+## Unreleased
+
+- Check for language support when submitting programs.
+- Remove all `Phase` operations from circuit when compiling for backend.
+
 ## 0.42.0 (December 2024)
 
 - Updated pytket version requirement to 1.37.

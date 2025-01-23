@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Quantinuum
+# Copyright Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -532,8 +532,9 @@ OFFLINE_MACHINE_LIST = [
     {
         "wasm": True,
         "batching": True,
+        "supported_languages": ["OPENQASM 2.0", "QIR 1.0"],
         "benchmarks": {"qv": {"date": "2024-04-04", "value": 1048576.0}},
-        "max_classical_register_width": 32,
+        "max_classical_register_width": 63,
         "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
         "name": "H1-1",
         "syntax_checker": "H1-1SC",
@@ -550,13 +551,16 @@ OFFLINE_MACHINE_LIST = [
                 "p_crosstalk_meas_unc": 1.02e-06,
                 "p_crosstalk_meas": 1.453e-05,
             },
-            "memory_error": {"memory_error_unc": 2.52e-05, "memory_error": 0.000208},
+            "memory_error": {
+                "memory_error_unc": 2.52e-05,
+                "memory_error": 0.000208,
+            },
             "1q_gate_error": {"p1": 2.08e-05, "p1_unc": 2.77e-06},
             "2q_gate_error": {"p2_unc": 2.85e-05, "p2": 0.000882},
         },
         "max_n_shots": 10000,
         "n_qubits": 20,
-        "n_classical_registers": 120,
+        "n_classical_registers": 4000,
         "system_type": "hardware",
         "connectivity": "all-to-all",
         "emulator": "H1-1E",
@@ -564,14 +568,15 @@ OFFLINE_MACHINE_LIST = [
     {
         "wasm": True,
         "batching": True,
-        "benchmarks": {"qv": {"date": "2024-05-31", "value": 262144.0}},
+        "supported_languages": ["OPENQASM 2.0", "QIR 1.0"],
+        "benchmarks": {"qv": {"date": "2024-05-31", "value": 2097152.0}},
         "max_classical_register_width": 63,
         "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
         "name": "H2-1",
         "syntax_checker": "H2-1SC",
         "n_gate_zones": "4",
         "noise_specs": {
-            "date": "2024-05-20",
+            "date": "2024-08-11",
             "spam_error": {
                 "p_meas_1_unc": 0.0002,
                 "p_meas_0": 0.0005,
@@ -588,10 +593,42 @@ OFFLINE_MACHINE_LIST = [
         },
         "max_n_shots": 10000,
         "n_qubits": 56,
-        "n_classical_registers": 50,
+        "n_classical_registers": 4000,
         "system_type": "hardware",
         "connectivity": "all-to-all",
         "emulator": "H2-1E",
+    },
+    {
+        "wasm": True,
+        "batching": True,
+        "supported_languages": ["OPENQASM 2.0", "QIR 1.0"],
+        "max_classical_register_width": 63,
+        "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
+        "name": "H2-2",
+        "syntax_checker": "H2-2SC",
+        "n_gate_zones": "4",
+        "noise_specs": {
+            "date": "2024-05-31",
+            "spam_error": {
+                "p_meas_1_unc": 0.0001,
+                "p_meas_0": 0.0009,
+                "p_meas_1": 0.0018,
+                "p_meas_0_unc": 0.0001,
+            },
+            "crosstalk_error": {
+                "p_crosstalk_meas_unc": 1e-06,
+                "p_crosstalk_meas": 8.8e-06,
+            },
+            "memory_error": {"memory_error_unc": 3e-05, "memory_error": 0.0005},
+            "1q_gate_error": {"p1": 7.3e-05, "p1_unc": 2e-05},
+            "2q_gate_error": {"p2_unc": 9e-05, "p2": 0.00129},
+        },
+        "max_n_shots": 10000,
+        "n_qubits": 56,
+        "n_classical_registers": 4000,
+        "system_type": "hardware",
+        "connectivity": "all-to-all",
+        "emulator": "H2-2E",
     },
 ]
 

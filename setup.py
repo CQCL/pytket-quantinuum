@@ -1,4 +1,4 @@
-# Copyright 2020-2024 Quantinuum
+# Copyright Quantinuum
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket >= 1.37.0",
-        "pytket-qir >= 0.17, < 0.18",
+        "pytket >= 1.39.0",
+        "pytket-qir >= 0.17, < 0.20",
         "requests >= 2.32.2",
         "types-requests",
         "websockets >= 13.1",
@@ -57,7 +57,7 @@ setup(
     ],
     extras_require={
         "pecos": ["pytket-pecos ~= 0.1.32"],
-        "calendar": ["matplotlib >= 3.8.3,< 3.10.0", "pandas ~= 2.2.1"],
+        "calendar": ["matplotlib >= 3.8.3,< 3.11.0", "pandas ~= 2.2.1"],
     },
     classifiers=[
         "Environment :: Console",
