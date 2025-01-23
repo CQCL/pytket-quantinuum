@@ -14,7 +14,7 @@ and Windows. To install, run:
 pip install pytket-quantinuum
 ```
 
-For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the H-series documentation.
+For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the Quantinuum Systems documentation.
 
 :::{note}
 pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how to access H-Series through Nexus, please see the [Nexus documentation](https://docs.quantinuum.com/nexus) and the [qnexus](https://pypi.org/project/qnexus/) Python package.
@@ -102,7 +102,7 @@ the circuit 2-qubit gate count is not reduced after compilation.
 * - [AutoRebase [2]](inv:#*.AutoRebase)
   - [SynthesiseTket](inv:#*.SynthesiseTket)
   - [FullPeepholeOptimise [3]](inv:#*.passes.FullPeepholeOptimise)
-  - [RemoveBarriers](inv:#*pytket.passes.RemoveBarriers)
+  - [RemoveBarriers](inv:#*pytket._tket.passes.RemoveBarriers)
 * - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
   - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
