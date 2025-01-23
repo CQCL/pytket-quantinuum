@@ -281,37 +281,3 @@ jobs:
         user: __token__
         password: ${{ secrets.PYPI_PYTKET_QUANTINUUM_API_TOKEN }}
         verbose: true
-
-  build_docs:
-    name: Build docs
-    if: github.event_name == 'release'
-    needs: publish_to_pypi
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: '0'
-        submodules: true
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Download all wheels
-      uses: actions/download-artifact@v4
-      with:
-        path: wheelhouse
-    - name: Install pip, wheel
-      run: pip install -U pip wheel
-    - name: Install poetry
-      run: pip install poetry
-    - name: Install extension
-      run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do poetry run pip install $w ; done
-    - name: Install docs dependencies
-      run: |
-        cd docs
-        bash ./install.sh
-    - name: Build docs
-      timeout-minutes: 20
-      run: |
-        cd docs
-        poetry run bash ./build-docs.sh 
