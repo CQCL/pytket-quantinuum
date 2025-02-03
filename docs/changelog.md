@@ -4,6 +4,10 @@
 
 # Changelog
 
+## Unreleased
+
+- Remove `noise_specs` from local-emulator backends.
+
 ## 0.43.0 (January 2025)
 
 - Check for language support when submitting programs.
