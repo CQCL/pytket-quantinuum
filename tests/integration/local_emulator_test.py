@@ -479,3 +479,21 @@ def test_result_handling_for_empty_bits(
         n_shots=1,
     )
     assert result.get_counts() == {(0, 0): 1}
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod",
+    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
+    indirect=True,
+)
+def test_no_noise(
+    authenticated_quum_backend_prod: QuantinuumBackend,
+) -> None:
+    # https://github.com/CQCL/pytket-quantinuum/issues/571
+
+    backend = authenticated_quum_backend_prod
+    backend_info = backend.backend_info
+    assert backend_info is not None
+    assert "noise_specs" not in backend_info.misc
