@@ -390,6 +390,7 @@ class QuantinuumBackend(Backend):
             dct1["system_type"] = "local_emulator"
             dct1.pop("emulator", None)
             dct1["batching"] = False
+            dct1.pop("noise_specs", None)
         return BackendInfo(
             name=cls.__name__,
             device_name=name + "LE" if local_emulator else name,
