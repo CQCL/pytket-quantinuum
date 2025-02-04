@@ -4,9 +4,11 @@
 
 # Changelog
 
-## Unreleased
+## 0.44.0 (February 2025)
 
 - Remove `noise_specs` from local-emulator backends.
+- Updated pytket version requirement to 1.39.
+- Updated pytket-qir version requirement to 0.20.
 
 ## 0.43.0 (January 2025)
 
