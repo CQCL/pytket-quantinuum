@@ -530,11 +530,11 @@ def test_leakage_detection(
 
 
 @given(
-    n_shots=st.integers(min_value=1, max_value=10),  # type: ignore
+    n_shots=st.integers(min_value=1, max_value=10),
     n_bits=st.integers(min_value=0, max_value=10),
 )
 @pytest.mark.timeout(120)
-def test_shots_bits_edgecases(n_shots, n_bits) -> None:
+def test_shots_bits_edgecases(n_shots: int, n_bits: int) -> None:
     quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
 
