@@ -117,7 +117,7 @@ def test_tket_pass_submission(language: Language) -> None:
 
 
 @given(
-    n_shots=strategies.integers(min_value=1, max_value=10),  # type: ignore
+    n_shots=strategies.integers(min_value=1, max_value=10),
     n_bits=strategies.integers(min_value=0, max_value=10),
 )
 @pytest.mark.parametrize(
@@ -128,7 +128,7 @@ def test_tket_pass_submission(language: Language) -> None:
         Language.PQIR,
     ],
 )
-def test_shots_bits_edgecases(n_shots, n_bits, language: Language) -> None:
+def test_shots_bits_edgecases(n_shots: int, n_bits: int, language: Language) -> None:
     quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
 

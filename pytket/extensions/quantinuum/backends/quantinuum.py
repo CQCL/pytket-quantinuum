@@ -65,6 +65,7 @@ from pytket.passes import (
     scratch_reg_resize_pass,
 )
 from pytket.predicates import (
+    CliffordCircuitPredicate,
     GateSetPredicate,
     MaxNClRegPredicate,
     MaxNQubitsPredicate,
@@ -621,6 +622,8 @@ class QuantinuumBackend(Backend):
             assert self.backend_info is not None
             preds.append(MaxNQubitsPredicate(self.backend_info.n_nodes))
             preds.append(MaxNClRegPredicate(cast(int, self.backend_info.n_cl_reg)))
+        if self.simulator_type == "stabilizer":
+            preds.append(CliffordCircuitPredicate())
 
         return preds
 

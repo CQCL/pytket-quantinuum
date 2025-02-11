@@ -4,6 +4,11 @@
 
 # Changelog
 
+## Unreleased
+
+- Add CliffordCircuitPredicate for circuit compilation and processing
+  when using the stabilizer simulator.
+
 ## 0.44.0 (February 2025)
 
 - Remove `noise_specs` from local-emulator backends.
