@@ -31,6 +31,7 @@ from pytket.circuit import (
     reg_lt,
     reg_neq,
 )
+from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 from pytket.wasm import WasmFileHandler
 
@@ -169,11 +170,11 @@ def test_classical_0(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d.to_list())
-    c.add_classicalexpbox_register(a - b, d.to_list())
-    c.add_classicalexpbox_register(a * b * d, d.to_list())
-    c.add_classicalexpbox_register(a << 1, a.to_list())
-    c.add_classicalexpbox_register(a >> 1, b.to_list())
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a + b, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a - b, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a * b * d, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a << 1, a.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a >> 1, b.to_list()))
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.X(0, condition=reg_eq(a & b, 1))
@@ -216,11 +217,11 @@ def test_classical_1(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d.to_list())
-    c.add_classicalexpbox_register(a - b, d.to_list())
-    c.add_classicalexpbox_register(a * b * d, d.to_list())
-    c.add_classicalexpbox_register(a << 1, a.to_list())
-    c.add_classicalexpbox_register(a >> 1, b.to_list())
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a + b, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a - b, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a * b * d, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a << 1, a.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a >> 1, b.to_list()))
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.Measure(Qubit(0), d[0])
@@ -245,7 +246,7 @@ def test_classical_2(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     b = circ.add_c_register("b", 2)
     c = circ.add_c_register("c", 1)
     expr = a[0] ^ b[0]
-    circ.add_classicalexpbox_bit(expr, [c[0]])
+    circ.add_clexpr(*wired_clexpr_from_logic_exp(expr, [c[0]]))
     circ.X(0)
     circ.Measure(Qubit(0), a[1])
     backend = authenticated_quum_backend_prod
@@ -270,8 +271,8 @@ def test_classical_3(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     circ.add_c_setreg(3, a)
     circ.add_c_copyreg(a, b)
 
-    circ.add_classicalexpbox_register(a - b, c.to_list())
-    circ.add_classicalexpbox_register(a << 1, a.to_list())
+    circ.add_clexpr(*wired_clexpr_from_logic_exp(a - b, c.to_list()))
+    circ.add_clexpr(*wired_clexpr_from_logic_exp(a << 1, a.to_list()))
 
     circ.X(0)
     circ.Measure(Qubit(0), a[3])
