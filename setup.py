@@ -45,7 +45,7 @@ setup(
     packages=find_namespace_packages(include=["pytket.*"]),
     include_package_data=True,
     install_requires=[
-        "pytket >= 2.0.0",
+        "pytket >= 2.0.1",
         "pytket-qir >= 0.21, < 0.22",
         "requests >= 2.32.2",
         "types-requests",
