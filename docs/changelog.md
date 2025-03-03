@@ -4,10 +4,14 @@
 
 # Changelog
 
-## Unreleased
+## 0.45.0 (March 2025)
 
 - Add CliffordCircuitPredicate for circuit compilation and processing
   when using the stabilizer simulator.
+- Update pytket version requirement to 2.0.1.
+- Update pytket-qir version requirement to 0.21.
+- Update pytket-pecos version requirement to 0.2.0.
+
 
 ## 0.44.0 (February 2025)
 

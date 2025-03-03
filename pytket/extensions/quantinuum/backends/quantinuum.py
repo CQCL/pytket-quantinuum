@@ -116,7 +116,6 @@ _ADDITIONAL_GATES = {
     OpType.ExplicitModifier,
     OpType.SetBits,
     OpType.CopyBits,
-    OpType.ClassicalExpBox,
     OpType.ClExpr,
     OpType.WASM,
 }

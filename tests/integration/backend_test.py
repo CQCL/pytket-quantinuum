@@ -46,6 +46,7 @@ from pytket.circuit import (
     reg_lt,
     reg_neq,
 )
+from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
 from pytket.extensions.quantinuum import (
     Language,
     QuantinuumBackend,
@@ -412,10 +413,10 @@ def test_classical(
     c.add_c_setreg(23, a)
     c.add_c_copyreg(a, b)
 
-    c.add_classicalexpbox_register(a + b, d.to_list())
-    c.add_classicalexpbox_register(a - b, d.to_list())
-    c.add_classicalexpbox_register(a << 1, a.to_list())
-    c.add_classicalexpbox_register(a >> 1, b.to_list())
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a + b, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a - b, d.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a << 1, a.to_list()))
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a >> 1, b.to_list()))
 
     c.X(0, condition=reg_eq(a ^ b, 1))
     c.X(0, condition=(a[0] ^ b[0]))
@@ -430,6 +431,8 @@ def test_classical(
     c.X(0, condition=reg_geq(a, 1))
     c.X(0, condition=reg_leq(a, 1))
     c.Phase(0, condition=a[0])
+
+    c.measure_all()
 
     backend = authenticated_quum_backend_qa
 
@@ -465,7 +468,7 @@ def test_division(
 
     c.add_c_setbits([False, True] + [False] * 6, a)  # type: ignore
     c.add_c_setbits([True, True] + [False] * 8, b)  # type: ignore
-    c.add_classicalexpbox_register(a * b // d, d.to_list())
+    c.add_clexpr(*wired_clexpr_from_logic_exp(a * b // d, d.to_list()))
 
     backend = authenticated_quum_backend_qa
 
@@ -792,6 +795,7 @@ def test_wasm_qa(
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
     c.add_wasm_to_reg("add_one", wasfile, [a], [a])
+    c.measure_all()
 
     b = authenticated_quum_backend_qa
 
@@ -861,6 +865,7 @@ def test_wasm_costs(
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
     c.add_wasm_to_reg("add_one", wasfile, [a], [a])
+    c.measure_all()
 
     b = authenticated_quum_backend_qa
 
