@@ -1088,7 +1088,7 @@ class QuantinuumBackend(Backend):
         * `request_options`: extra options to add to the request body as a
           json-style dictionary
         * `language`: languange for submission, of type :py:class:`Language`, default
-          QASM.
+          QIR.
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
           to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
           BackendResult to get counts with leakage errors removed.
