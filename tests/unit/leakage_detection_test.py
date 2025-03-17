@@ -14,8 +14,7 @@
 
 
 from collections import Counter
-from collections.abc import Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -29,6 +28,9 @@ from pytket.extensions.quantinuum.backends.leakage_gadget import (
     prune_shots_detected_as_leaky,
 )
 from pytket.utils.outcomearray import OutcomeArray
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def test_postselection_circuits_1qb_task_gen() -> None:
@@ -193,7 +195,7 @@ def test_postselection_discard_0() -> None:
     discard_result = prune_shots_detected_as_leaky(
         BackendResult(
             counts=counts,
-            c_bits=cast(Sequence[Bit], [Bit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)]),
+            c_bits=cast("Sequence[Bit]", [Bit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)]),
         )
     ).get_counts()
     assert discard_result[(0,)] == 100
