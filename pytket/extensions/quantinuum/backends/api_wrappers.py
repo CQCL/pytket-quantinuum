@@ -525,7 +525,7 @@ class QuantinuumAPI:
         self._response_check(res, "get machine list")
         jr = res.json()
 
-        return cast(list[dict[str, Any]], jr)
+        return cast("list[dict[str, Any]]", jr)
 
 
 OFFLINE_MACHINE_LIST = [

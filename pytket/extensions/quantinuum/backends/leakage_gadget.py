@@ -181,5 +181,5 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
                 for key, val in discarded_counts.items()
             }
         ),
-        c_bits=cast(Sequence[Bit], regular_bits),
+        c_bits=cast("Sequence[Bit]", regular_bits),
     )

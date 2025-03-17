@@ -193,7 +193,7 @@ def test_postselection_discard_0() -> None:
     discard_result = prune_shots_detected_as_leaky(
         BackendResult(
             counts=counts,
-            c_bits=cast(Sequence[Bit], [Bit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)]),
+            c_bits=cast("Sequence[Bit]", [Bit(0), Bit(LEAKAGE_DETECTION_BIT_NAME_, 0)]),
         )
     ).get_counts()
     assert discard_result[(0,)] == 100
