@@ -317,7 +317,9 @@ class QuantinuumBackend(Backend):
 
         self.api_handler.provider = provider
 
-        self._process_circuits_options = cast("dict[str, Any]", kwargs.get("options", {}))
+        self._process_circuits_options = cast(
+            "dict[str, Any]", kwargs.get("options", {})
+        )
 
         self._local_emulator_handles: dict[
             ResultHandle,
