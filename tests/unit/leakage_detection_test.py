@@ -14,8 +14,7 @@
 
 
 from collections import Counter
-from collections.abc import Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -29,6 +28,9 @@ from pytket.extensions.quantinuum.backends.leakage_gadget import (
     prune_shots_detected_as_leaky,
 )
 from pytket.utils.outcomearray import OutcomeArray
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def test_postselection_circuits_1qb_task_gen() -> None:

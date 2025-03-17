@@ -15,12 +15,14 @@
 
 
 from collections import Counter
-from collections.abc import Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
 from pytket.backends.backendresult import BackendResult
 from pytket.utils.outcomearray import OutcomeArray
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 LEAKAGE_DETECTION_BIT_NAME_ = "leakage_detection_bit"
 LEAKAGE_DETECTION_QUBIT_NAME_ = "leakage_detection_qubit"
