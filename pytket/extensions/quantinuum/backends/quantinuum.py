@@ -1008,7 +1008,6 @@ class QuantinuumBackend(Backend):
                 "noreduce": True,
                 "error-model": noisy_simulation,
                 "tket": dict(),
-                "tket-opt-level": None,
             },
         }
 
