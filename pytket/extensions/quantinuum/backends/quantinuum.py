@@ -952,6 +952,7 @@ class QuantinuumBackend(Backend):
         group: Optional[str] = None,
         wasm_file_handler: Optional[WasmFileHandler] = None,
         pytket_pass: Optional[BasePass] = None,
+        max_cost: Optional[int] = None,
         options: Optional[dict[str, Any]] = None,
         request_options: Optional[dict[str, Any]] = None,
         results_selection: Optional[list[tuple[str, int]]] = None,
@@ -970,6 +971,8 @@ class QuantinuumBackend(Backend):
             module, defaults to None
         :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
+        :param max_cost: Maximum amount of HQC to spend when running the program.
+           Defaults to None (no limit on amount of HQC spent).
         :param options: Items to add to the "options" dictionary of the request body
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
@@ -1022,6 +1025,9 @@ class QuantinuumBackend(Backend):
             if self.backend_info and not self.backend_info.misc.get("wasm", False):
                 raise WasmUnsupported("Backend does not support wasm calls.")
             body["cfl"] = wasm_file_handler.bytecode_base64.decode("utf-8")
+
+        if max_cost is not None:
+            body["max-cost"] = max_cost
 
         body["options"].update(self._process_circuits_options)
         if options is not None:
@@ -1098,7 +1104,8 @@ class QuantinuumBackend(Backend):
         * `seed`: for local emulators only, PRNG seed for reproduciblity (int)
         * `multithreading`: for local emulators only, boolean to indicate
           whether to use multithreading for emulation (defaults to False)
-
+        * `max_cost`: if set, the maximum amount in HQC to be spent on running the job.
+          Ignored for local emulator.
         """
         circuits = list(circuits)
         n_shots_list = Backend._get_n_shots_as_list(
@@ -1139,6 +1146,8 @@ class QuantinuumBackend(Backend):
         pytket_pass = cast("Optional[BasePass]", kwargs.get("pytketpass"))
 
         language: Language = cast("Language", kwargs.get("language", Language.QIR))
+
+        max_cost = cast("Optional[int]", kwargs.get("max_cost"))
 
         handle_list = []
 
@@ -1251,6 +1260,7 @@ class QuantinuumBackend(Backend):
                         group=group,
                         wasm_file_handler=wasm_fh,
                         pytket_pass=pytket_pass,
+                        max_cost=max_cost,
                         options=cast("dict[str, Any]", kwargs.get("options", {})),
                         request_options=cast(
                             "dict[str, Any]", kwargs.get("request_options", {})
