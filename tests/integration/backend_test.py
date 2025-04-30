@@ -826,10 +826,11 @@ def test_wasm(
     authenticated_quum_backend_prod: QuantinuumBackend, language: Language
 ) -> None:
     wasfile = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
-    c = Circuit(1)
+    c = Circuit(1, 1)
     c.name = "test_wasm"
     a = c.add_c_register("a", 8)
     c.add_wasm_to_reg("add_one", wasfile, [a], [a])
+    c.measure_all()
 
     b = authenticated_quum_backend_prod
 
