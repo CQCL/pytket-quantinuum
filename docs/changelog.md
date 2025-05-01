@@ -4,7 +4,7 @@
 
 # Changelog
 
-## Unreleased
+## 0.47.0 (May 2025)
 
 - Add `max_cost` parameter to `process_circuits()` and `submit_program()`.
 
