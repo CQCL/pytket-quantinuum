@@ -2,12 +2,17 @@
 .. currentmodule:: pytket.extensions.quantinuum
 ```
 
+# Changelog
+
+## Unreleased
+
+- Add `max_cost` parameter to `process_circuits()` and `submit_program()`.
+
 ## 0.46.0 (April 2025)
 
 - Update pytket minimum version requirement to 2.2.0.
 - Update pytket-qir minimum version requirement to 0.22.
 
-# Changelog
 
 ## 0.45.0 (March 2025)
 
