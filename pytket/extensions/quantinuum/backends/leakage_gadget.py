@@ -13,7 +13,6 @@
 # limitations under the License.
 """Methods for generating a leakage detection Pytket Circuit."""
 
-
 from collections import Counter
 from typing import TYPE_CHECKING, cast
 
@@ -55,7 +54,7 @@ def get_leakage_gadget_circuit(
     return c
 
 
-def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:
+def get_detection_circuit(circuit: Circuit, n_device_qubits: int) -> Circuit:  # noqa: PLR0912
     """
     For a passed circuit, appends a leakage detection circuit for
     each end of circuit measurement using spare device qubits.

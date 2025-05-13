@@ -16,29 +16,29 @@
 
 # _metadata.py is copied to the folder after installation.
 from ._metadata import (
-    __extension_name__ as __extension_name__,
+    __extension_name__ as __extension_name__,  # noqa: PLC0414
 )
 from ._metadata import (
-    __extension_version__ as __extension_version__,
+    __extension_version__ as __extension_version__,  # noqa: PLC0414
 )
 from .backends import (
-    Language as Language,
+    Language as Language,  # noqa: PLC0414
 )
 from .backends import (
-    QuantinuumAPI as QuantinuumAPI,
+    QuantinuumAPI as QuantinuumAPI,  # noqa: PLC0414
 )
 from .backends import (
-    QuantinuumAPIOffline as QuantinuumAPIOffline,
+    QuantinuumAPIOffline as QuantinuumAPIOffline,  # noqa: PLC0414
 )
 from .backends import (
-    QuantinuumBackend as QuantinuumBackend,
+    QuantinuumBackend as QuantinuumBackend,  # noqa: PLC0414
 )
 from .backends import (
-    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,
+    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,  # noqa: PLC0414
 )
 from .backends import (
-    have_pecos as have_pecos,
+    have_pecos as have_pecos,  # noqa: PLC0414
 )
 from .backends import (
-    prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,
+    prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,  # noqa: PLC0414
 )

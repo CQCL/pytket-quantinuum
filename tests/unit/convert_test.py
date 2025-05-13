@@ -61,7 +61,7 @@ def test_convert_rzz() -> None:
     )
 
 
-def test_implicit_swap_removal() -> None:
+def test_implicit_swap_removal() -> None:  # noqa: PLR0915
     b = QuantinuumBackend("", machine_debug=True)
     c = Circuit(2).ISWAPMax(0, 1)
     b.set_compilation_config_target_2qb_gate(OpType.ZZMax)
@@ -165,16 +165,16 @@ def test_switch_target_2qb_gate() -> None:
         b.set_compilation_config_target_2qb_gate(OpType.ISWAPMax)
 
     # Confirming that if ZZPhase is added to gate set that it functions
-    b._MACHINE_DEBUG = False
-    b._backend_info = BackendInfo(
+    b._MACHINE_DEBUG = False  # noqa: SLF001
+    b._backend_info = BackendInfo(  # noqa: SLF001
         name="test",
         device_name="test",
         version="test",
         architecture=FullyConnected(1),
         gate_set={OpType.ZZPhase, OpType.ZZMax, OpType.PhasedX, OpType.Rz},
     )
-    assert OpType.ZZMax in b._gate_set
-    assert OpType.ZZPhase in b._gate_set
+    assert OpType.ZZMax in b._gate_set  # noqa: SLF001
+    assert OpType.ZZPhase in b._gate_set  # noqa: SLF001
     b.set_compilation_config_allow_implicit_swaps(True)
     b.set_compilation_config_target_2qb_gate(OpType.ZZPhase)
     compiled = b.get_compiled_circuit(c, 0)

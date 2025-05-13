@@ -1,6 +1,8 @@
 exclude = [
     "docs/pytket-docs-theming",
+    "docs/examples/*"
 ]
+
 
 target-version = "py312"
 

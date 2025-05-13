@@ -15,7 +15,7 @@
 """Quantinuum config."""
 
 from dataclasses import dataclass
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar
 
 from pytket.config import PytketExtConfig
 
@@ -26,15 +26,15 @@ class QuantinuumConfig(PytketExtConfig):
 
     ext_dict_key: ClassVar[str] = "quantinuum"
 
-    username: Optional[str]
+    username: str | None
 
-    refresh_token: Optional[str]
+    refresh_token: str | None
 
-    id_token: Optional[str]
+    id_token: str | None
 
-    refresh_token_timeout: Optional[str]
+    refresh_token_timeout: str | None
 
-    id_token_timeout: Optional[str]
+    id_token_timeout: str | None
 
     @classmethod
     def from_extension_dict(
@@ -49,7 +49,7 @@ class QuantinuumConfig(PytketExtConfig):
         )
 
 
-def set_quantinuum_config(username: Optional[str]) -> None:
+def set_quantinuum_config(username: str | None) -> None:
     """Set default value for Quantinuum username.
     Can be overriden in backend construction."""
     hconfig = QuantinuumConfig.from_default_config_file()

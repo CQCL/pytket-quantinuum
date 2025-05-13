@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 import jwt
 import pytest
@@ -28,7 +28,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 
 ALL_QUANTUM_HARDWARE_NAMES = []
 
-if not os.getenv("PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY", 0):
+if not os.getenv("PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY", 0):  # noqa: PLW1508
     ALL_QUANTUM_HARDWARE_NAMES.extend(
         [
             "H1-1",
@@ -64,7 +64,6 @@ def pytest_configure() -> None:
     Note: we need to do this as part of the pytest_configure as these symbols
     are used while parametrizing the tests and not as fixtures."""
 
-    #
     pytest.ALL_DEVICE_NAMES = ALL_DEVICE_NAMES  # type: ignore
     pytest.ALL_SYNTAX_CHECKER_NAMES = ALL_SYNTAX_CHECKER_NAMES  # type: ignore
     pytest.ALL_SIMULATOR_NAMES = ALL_SIMULATOR_NAMES  # type: ignore
@@ -74,10 +73,10 @@ def pytest_configure() -> None:
 
 def pytest_make_parametrize_id(
     config: pytest.Config, val: object, argname: str
-) -> Optional[str]:
+) -> str | None:
     """Custom ids for the parametrized tests."""
     if isinstance(val, QuantinuumBackend):
-        return val._device_name
+        return val._device_name  # noqa: SLF001
     if isinstance(val, dict):
         return val.get("device_name")
     return None
@@ -353,13 +352,13 @@ def fixture_mock_quum_api_handler(
 
     cred_store = MemoryCredentialStorage()
     cred_store.save_user_name(username)
-    cred_store._password = pwd
+    cred_store._password = pwd  # noqa: SLF001
 
     # Construct QuantinuumQAPI and login
     api_handler = QuantinuumAPI()
 
     # Add the credential storage seperately in line with fixture parameters
-    api_handler._cred_store = cred_store
+    api_handler._cred_store = cred_store  # noqa: SLF001
     api_handler.login()
 
     return api_handler
@@ -399,7 +398,7 @@ def fixture_authenticated_quum_backend_prod(
             api_handler=authenticated_quum_handler, **request.param
         )
     # In case machine_debug was specified by mistake in the params
-    backend._MACHINE_DEBUG = False
+    backend._MACHINE_DEBUG = False  # noqa: SLF001
 
     return backend
 
@@ -438,6 +437,6 @@ def fixture_authenticated_quum_backend_qa(
             api_handler=authenticated_quum_handler_qa, **request.param
         )
     # In case machine_debug was specified by mistake in the params
-    backend._MACHINE_DEBUG = False
+    backend._MACHINE_DEBUG = False  # noqa: SLF001
 
     return backend

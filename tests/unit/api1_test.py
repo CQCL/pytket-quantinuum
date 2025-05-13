@@ -241,7 +241,7 @@ def test_custom_login_flow(
     backend_3.api_handler.delete_authentication()
 
 
-def test_mfa_login_flow(
+def test_mfa_login_flow(  # noqa: PLR0913
     requests_mock: Mocker,
     mock_credentials: tuple[str, str],
     mock_token: str,
@@ -296,12 +296,12 @@ def test_mfa_login_flow(
     assert normal_login_route.called_once
     # Check that the mfa login has been invoked
     assert mfa_login_route.called_once
-    assert backend.api_handler._cred_store.id_token is not None
-    assert backend.api_handler._cred_store.refresh_token is not None
+    assert backend.api_handler._cred_store.id_token is not None  # noqa: SLF001
+    assert backend.api_handler._cred_store.refresh_token is not None  # noqa: SLF001
 
 
 @patch("pytket.extensions.quantinuum.backends.api_wrappers.microsoft_login")
-def test_federated_login(
+def test_federated_login(  # noqa: PLR0913
     mock_microsoft_login: MagicMock,
     requests_mock: Mocker,
     mock_credentials: tuple[str, str],
@@ -332,8 +332,8 @@ def test_federated_login(
 
     mock_microsoft_login.assert_called_once()
     assert login_route.called_once
-    assert backend.api_handler._cred_store.id_token is not None
-    assert backend.api_handler._cred_store.refresh_token is not None
+    assert backend.api_handler._cred_store.id_token is not None  # noqa: SLF001
+    assert backend.api_handler._cred_store.refresh_token is not None  # noqa: SLF001
 
 
 def test_federated_login_wrong_provider(
