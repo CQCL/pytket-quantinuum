@@ -1769,6 +1769,6 @@ def _convert_datetime_string(datetime_string: str) -> datetime.datetime:
         hour=hour,
         minute=minute,
         second=second,
-        tzinfo=datetime.UTC,
+        tzinfo=datetime.UTC,  # type: ignore
     )
     return dt  # noqa: RET504
