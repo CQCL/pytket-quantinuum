@@ -1,9 +1,13 @@
 name: Lint python projects
 
 on:
-  pull_request:
+  pull_request: {}
+  workflow_dispatch: {}
+
+  push:
     branches:
-      - main
+      - 'wheel/**'
+      - 'runci/**'
 
 jobs:
   lint:
@@ -18,11 +22,11 @@ jobs:
         python-version: '3.x'
     - name: Update pip
       run: pip install --upgrade pip
-    - name: Install black and pylint
-      run: pip install "black[jupyter]" pylint ruff
-    - name: Check files are formatted with black
-      run: black --check .
-    - name: Run ruff
-      run: ruff check .
-    - name: Run pylint
-      run: pylint */
+    - name: Install formatters and linters
+      run: pip install ruff
+    - name: Run ruff lint
+      run: |
+        ruff check .
+    - name: Check formatting
+      run: |
+        ruff format --check .
