@@ -4,6 +4,11 @@
 
 # Changelog
 
+## 0.48.0 (unreleased)
+
+- Update pytket minimum version requirement to 2.4.1.
+- Update pytket-qir minimum version requirement to 0.23.
+
 ## 0.47.0 (May 2025)
 
 - Add `max_cost` parameter to `process_circuits()` and `submit_program()`.

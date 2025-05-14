@@ -37,7 +37,9 @@ from pytket.passes import (
 def test_quantinuum_offline(language: Language) -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+        device_name="H1-1",
+        machine_debug=False,
+        api_handler=qapioffline,  # type: ignore
     )
     c = Circuit(4, 4, "test 1")
     c.H(0)
@@ -74,7 +76,9 @@ def test_quantinuum_offline(language: Language) -> None:
 def test_max_classical_register_ii() -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1", machine_debug=False, api_handler=qapioffline  # type: ignore
+        device_name="H1-1",
+        machine_debug=False,
+        api_handler=qapioffline,  # type: ignore
     )
 
     c = Circuit(4, 4, "test 1")
@@ -82,17 +86,17 @@ def test_max_classical_register_ii() -> None:
     c.CX(0, 1)
     c.measure_all()
     c = backend.get_compiled_circuit(c)
-    assert backend._check_all_circuits([c])
-    for i in range(0, 20):
+    assert backend._check_all_circuits([c])  # noqa: SLF001
+    for i in range(20):
         c.add_c_register(f"creg-{i}", 32)
 
-    assert backend._check_all_circuits([c])
+    assert backend._check_all_circuits([c])  # noqa: SLF001
 
     for i in range(20, 5000):
         c.add_c_register(f"creg-{i}", 32)
 
     with pytest.raises(CircuitNotValidError):
-        backend._check_all_circuits([c])
+        backend._check_all_circuits([c])  # noqa: SLF001
 
 
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
@@ -170,4 +174,4 @@ def test_custom_api_handler(device_name: str) -> None:
     backend_2 = QuantinuumBackend(device_name, api_handler=handler_2)
 
     assert backend_1.api_handler is not backend_2.api_handler
-    assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store
+    assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store  # noqa: SLF001

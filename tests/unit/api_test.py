@@ -34,17 +34,17 @@ def test_quum_login(
 
     _, pwd = mock_credentials
 
-    assert isinstance(mock_quum_api_handler._cred_store, MemoryCredentialStorage)
+    assert isinstance(mock_quum_api_handler._cred_store, MemoryCredentialStorage)  # noqa: SLF001
     # Check credentials are retrievable
-    assert mock_quum_api_handler._cred_store._password == pwd
-    assert mock_quum_api_handler._cred_store.refresh_token == mock_token
-    assert mock_quum_api_handler._cred_store.id_token == mock_token
+    assert mock_quum_api_handler._cred_store._password == pwd  # noqa: SLF001
+    assert mock_quum_api_handler._cred_store.refresh_token == mock_token  # noqa: SLF001
+    assert mock_quum_api_handler._cred_store.id_token == mock_token  # noqa: SLF001
 
     # Delete authentication and verify
     mock_quum_api_handler.delete_authentication()
-    assert mock_quum_api_handler._cred_store.id_token is None
-    assert mock_quum_api_handler._cred_store._password is None  # type: ignore
-    assert mock_quum_api_handler._cred_store.refresh_token is None
+    assert mock_quum_api_handler._cred_store.id_token is None  # noqa: SLF001
+    assert mock_quum_api_handler._cred_store._password is None  # type: ignore  # noqa: SLF001
+    assert mock_quum_api_handler._cred_store.refresh_token is None  # noqa: SLF001
 
 
 def test_machine_status(
@@ -100,24 +100,24 @@ def test_full_login(
     # emulate no pytket config stored email address
     api_handler.full_login()
 
-    assert isinstance(api_handler._cred_store, MemoryCredentialStorage)
-    assert api_handler._cred_store.id_token == mock_token
-    assert api_handler._cred_store.refresh_token == "refresh" + mock_token
-    assert api_handler._cred_store._id_token_timeout is not None
-    assert api_handler._cred_store._refresh_token_timeout is not None
+    assert isinstance(api_handler._cred_store, MemoryCredentialStorage)  # noqa: SLF001
+    assert api_handler._cred_store.id_token == mock_token  # noqa: SLF001
+    assert api_handler._cred_store.refresh_token == "refresh" + mock_token  # noqa: SLF001
+    assert api_handler._cred_store._id_token_timeout is not None  # noqa: SLF001
+    assert api_handler._cred_store._refresh_token_timeout is not None  # noqa: SLF001
 
-    assert api_handler._cred_store._password is None
-    assert api_handler._cred_store._user_name is None
+    assert api_handler._cred_store._password is None  # noqa: SLF001
+    assert api_handler._cred_store._user_name is None  # noqa: SLF001
 
     api_handler.delete_authentication()
 
     assert all(
         val is None
         for val in (
-            api_handler._cred_store.id_token,
-            api_handler._cred_store.refresh_token,
-            api_handler._cred_store._id_token_timeout,
-            api_handler._cred_store._refresh_token_timeout,
+            api_handler._cred_store.id_token,  # noqa: SLF001
+            api_handler._cred_store.refresh_token,  # noqa: SLF001
+            api_handler._cred_store._id_token_timeout,  # noqa: SLF001
+            api_handler._cred_store._refresh_token_timeout,  # noqa: SLF001
         )
     )
 

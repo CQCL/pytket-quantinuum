@@ -71,11 +71,9 @@ class QuantinuumCalendar:
             i.e. 2 for February.
         :param title_prefix: A prefix to add to the title
         """
-        self._title: str = (
-            f"{title_prefix} Operations Calendar\n\
-            {self.months[month-1]} {year}\
+        self._title: str = f"{title_prefix} Operations Calendar\n\
+            {self.months[month - 1]} {year}\
             ({datetime.datetime.now().astimezone().strftime('%Z')})"
-        )
         self._cal: np.ndarray = np.asarray(calendar.monthcalendar(year, month))
         self._events: np.ndarray = np.full(
             self._cal.shape, fill_value=None, dtype=object
@@ -102,7 +100,7 @@ class QuantinuumCalendar:
                 self._events[week, week_day] = f"{event_str1}\n\n{event_str}"
             self._colors[week, week_day] = "mistyrose"
         except RuntimeError:
-            raise RuntimeError("Day outside of specified month")
+            raise RuntimeError("Day outside of specified month")  # noqa: B904
 
     def add_events(self, events_list: list[dict[str, object]]) -> None:
         """Add list of events. Each event is a dictionary and

@@ -282,7 +282,7 @@ def test_classical_3(authenticated_quum_backend_prod: QuantinuumBackend) -> None
     cc = backend.get_compiled_circuit(circ)
     counts = backend.run_circuit(cc, n_shots=10).get_counts()
     assert len(counts.keys()) == 1
-    result = list(counts.keys())[0]
+    result = list(counts.keys())[0]  # noqa: RUF015
     assert result == (0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0)
 
 

@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import cache, cached_property
 from http import HTTPStatus
-from typing import TYPE_CHECKING, Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Union, cast
 from uuid import uuid1
 
 import numpy as np
@@ -143,7 +143,7 @@ def _get_gateset(gates: list[str]) -> set[OpType]:
     gs = _ADDITIONAL_GATES.copy()
     for gate in gates:
         if gate not in _GATE_MAP:
-            warnings.warn(f"Gate {gate} not recognized.")
+            warnings.warn(f"Gate {gate} not recognized.")  # noqa: B028
         else:
             gs.add(_GATE_MAP[gate])
     return gs
@@ -206,8 +206,7 @@ def _language2str(language: Language) -> str:
     """returns matching string for Language enum"""
     if language == Language.QASM:
         return "OPENQASM 2.0"
-    else:
-        return "QIR 1.0"
+    return "QIR 1.0"
 
 
 # DEFAULT_CREDENTIALS_STORAGE for use with the DEFAULT_API_HANDLER.
@@ -220,7 +219,7 @@ DEFAULT_CREDENTIALS_STORAGE = MemoryCredentialStorage()
 # without requiring them to acquire new tokens.
 DEFAULT_API_HANDLER = QuantinuumAPI(DEFAULT_CREDENTIALS_STORAGE)
 
-QuumKwargTypes = Union[KwargTypes, WasmFileHandler, dict[str, Any], OpType, bool]
+QuumKwargTypes = Union[KwargTypes, WasmFileHandler, dict[str, Any], OpType, bool]  # noqa: UP007
 
 
 @dataclass
@@ -235,7 +234,7 @@ class QuantinuumBackendCompilationConfig:
     """
 
     allow_implicit_swaps: bool = True
-    target_2qb_gate: Optional[OpType] = None
+    target_2qb_gate: OpType | None = None
 
 
 @cache
@@ -253,9 +252,9 @@ class _LocalEmulatorConfiguration:
     """Options stored internally when running circuits on the local emulator."""
 
     circuit: Circuit
-    wasm_fh: Optional[WasmFileHandler]
+    wasm_fh: WasmFileHandler | None
     n_shots: int
-    seed: Optional[int]
+    seed: int | None
     multithreading: bool
     noisy_simulation: bool
 
@@ -272,16 +271,16 @@ class QuantinuumBackend(Backend):
     _supports_contextual_optimisation = True
     _persistent_handles = True
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         device_name: str,
-        label: Optional[str] = "job",
+        label: str | None = "job",
         simulator: str = "state-vector",
-        group: Optional[str] = None,
-        provider: Optional[str] = None,
+        group: str | None = None,
+        provider: str | None = None,
         machine_debug: bool = False,
         api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
-        compilation_config: Optional[QuantinuumBackendCompilationConfig] = None,
+        compilation_config: QuantinuumBackendCompilationConfig | None = None,
         **kwargs: QuumKwargTypes,
     ):
         """Construct a new Quantinuum backend.
@@ -308,7 +307,7 @@ class QuantinuumBackend(Backend):
         self._label = label
         self._group = group
 
-        self._backend_info: Optional[BackendInfo] = None
+        self._backend_info: BackendInfo | None = None
         self._MACHINE_DEBUG = machine_debug
 
         self.simulator_type = simulator
@@ -324,7 +323,7 @@ class QuantinuumBackend(Backend):
         self._local_emulator_handles: dict[
             ResultHandle,
             _LocalEmulatorConfiguration,
-        ] = dict()
+        ] = dict()  # noqa: C408
 
         if compilation_config is None:
             self._compilation_config = QuantinuumBackendCompilationConfig()
@@ -384,7 +383,7 @@ class QuantinuumBackend(Backend):
         dct1 = copy(dct)
         name: str = dct1.pop("name")
         n_qubits: int = dct1.pop("n_qubits")
-        n_cl_reg: Optional[int] = None
+        n_cl_reg: int | None = None
         if "n_classical_registers" in dct:
             n_cl_reg = dct1.pop("n_classical_registers")
         gate_set: list[str] = dct1.pop("gateset", [])
@@ -433,7 +432,7 @@ class QuantinuumBackend(Backend):
         try:
             info = next(entry for entry in infos if entry.device_name == machine)
         except StopIteration:
-            raise DeviceNotAvailable(machine)
+            raise DeviceNotAvailable(machine)  # noqa: B904
         info.misc["options"] = self._process_circuits_options
         return info
 
@@ -456,14 +455,14 @@ class QuantinuumBackend(Backend):
         try:
             info = next(entry for entry in infos if entry.device_name == device_name)
         except StopIteration:
-            raise DeviceNotAvailable(device_name)
+            raise DeviceNotAvailable(device_name)  # noqa: B904
         if info.get_misc("system_type") == "local_emulator":
             return "online"
         res = requests.get(
             f"{api_handler.url}machine/{device_name}",
             headers={"Authorization": api_handler.login()},
         )
-        api_handler._response_check(res, "get machine status")
+        api_handler._response_check(res, "get machine status")  # noqa: SLF001
         return str(res.json()["state"])
 
     def get_calendar(
@@ -589,18 +588,18 @@ class QuantinuumBackend(Backend):
         qntm_calendar = QuantinuumCalendar(
             year=year, month=month, title_prefix=self._device_name
         )
-        end_day = max(qntm_calendar._cal[-1])
-        dt_start = datetime.datetime(year=year, month=month, day=1)
-        dt_end = datetime.datetime(year=year, month=month, day=end_day)
+        end_day = max(qntm_calendar._cal[-1])  # noqa: SLF001
+        dt_start = datetime.datetime(year=year, month=month, day=1)  # noqa: DTZ001
+        dt_end = datetime.datetime(year=year, month=month, day=end_day)  # noqa: DTZ001
         data = self.get_calendar(dt_start, dt_end, localise=True)
         qntm_calendar.add_events(data)
         calendar_figure = qntm_calendar.build_calendar(
             figsize=figsize, fontsize=fontsize, titlesize=titlesize
         )
-        return calendar_figure
+        return calendar_figure  # noqa: RET504
 
     @property
-    def backend_info(self) -> Optional[BackendInfo]:
+    def backend_info(self) -> BackendInfo | None:
         if self._backend_info is None and not self._MACHINE_DEBUG:
             self._backend_info = self._retrieve_backendinfo(self._device_name)
         return self._backend_info
@@ -636,7 +635,7 @@ class QuantinuumBackend(Backend):
         if default_2q_gate in self.two_qubit_gate_set:
             pass
         elif len(self.two_qubit_gate_set) > 0:
-            default_2q_gate = list(self.two_qubit_gate_set)[0]
+            default_2q_gate = list(self.two_qubit_gate_set)[0]  # noqa: RUF015
         else:
             raise ValueError("The device is not supporting any two qubit gates")
 
@@ -648,7 +647,7 @@ class QuantinuumBackend(Backend):
 
         Submitted circuits must contain only one of these.
         """
-        return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])
+        return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])  # noqa: C405
 
     @property
     def is_local_emulator(self) -> bool:
@@ -728,7 +727,7 @@ class QuantinuumBackend(Backend):
                     RemoveRedundancies(),
                 ]
             )
-        elif optimisation_level == 2:
+        elif optimisation_level == 2:  # noqa: PLR2004
             passlist.append(
                 FullPeepholeOptimise(
                     allow_swaps=self.compilation_config.allow_implicit_swaps,
@@ -830,8 +829,8 @@ class QuantinuumBackend(Backend):
         :rtype: Circuit
         """
         return_circuit = circuit.copy()
-        if optimisation_level == 3 and circuit.n_gates_of_type(OpType.Barrier) > 0:
-            warnings.warn(
+        if optimisation_level == 3 and circuit.n_gates_of_type(OpType.Barrier) > 0:  # noqa: PLR2004
+            warnings.warn(  # noqa: B028
                 "Barrier operations in this circuit will be removed when using "
                 "optimisation level 3."
             )
@@ -882,17 +881,16 @@ class QuantinuumBackend(Backend):
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
-        return tuple((str, str, int, str))
+        return tuple((str, str, int, str))  # noqa: C409
 
     @staticmethod
     def _update_result_handle(handle: ResultHandle) -> ResultHandle:
         """Update a legacy handle to be compatible with current format."""
-        if len(handle) == 2:
+        if len(handle) == 2:  # noqa: PLR2004
             return ResultHandle(handle[0], handle[1], -1, "")
-        elif len(handle) == 3:
+        if len(handle) == 3:  # noqa: PLR2004
             return ResultHandle(handle[0], handle[1], handle[2], "")
-        else:
-            return handle
+        return handle
 
     @staticmethod
     def get_jobid(handle: ResultHandle) -> str:
@@ -914,7 +912,7 @@ class QuantinuumBackend(Backend):
         return json.loads(cast("str", handle[1]))
 
     @staticmethod
-    def get_results_width(handle: ResultHandle) -> Optional[int]:
+    def get_results_width(handle: ResultHandle) -> int | None:
         """Return the truncation width of the results, if any.
 
         :param handle: result handle
@@ -923,9 +921,8 @@ class QuantinuumBackend(Backend):
         n = cast("int", handle[2])
         if n == -1:
             return None
-        else:
-            assert n >= 0
-            return n
+        assert n >= 0
+        return n
 
     @staticmethod
     def get_results_selection(handle: ResultHandle) -> Any:
@@ -942,20 +939,20 @@ class QuantinuumBackend(Backend):
         assert all(isinstance(name, str) and isinstance(idx, int) for name, idx in bits)
         return bits
 
-    def submit_program(
+    def submit_program(  # noqa: PLR0912, PLR0913
         self,
         language: Language,
         program: str,
         n_shots: int,
-        name: Optional[str] = None,
+        name: str | None = None,
         noisy_simulation: bool = True,
-        group: Optional[str] = None,
-        wasm_file_handler: Optional[WasmFileHandler] = None,
-        pytket_pass: Optional[BasePass] = None,
-        max_cost: Optional[int] = None,
-        options: Optional[dict[str, Any]] = None,
-        request_options: Optional[dict[str, Any]] = None,
-        results_selection: Optional[list[tuple[str, int]]] = None,
+        group: str | None = None,
+        wasm_file_handler: WasmFileHandler | None = None,
+        pytket_pass: BasePass | None = None,
+        max_cost: int | None = None,
+        options: dict[str, Any] | None = None,
+        request_options: dict[str, Any] | None = None,
+        results_selection: list[tuple[str, int]] | None = None,
     ) -> ResultHandle:
         """Submit a program directly to the backend.
 
@@ -1010,7 +1007,7 @@ class QuantinuumBackend(Backend):
                 "no-opt": True,
                 "noreduce": True,
                 "error-model": noisy_simulation,
-                "tket": dict(),
+                "tket": dict(),  # noqa: C408
             },
         }
 
@@ -1037,12 +1034,12 @@ class QuantinuumBackend(Backend):
         body.update(request_options or {})
 
         try:
-            res = self.api_handler._submit_job(body)
+            res = self.api_handler._submit_job(body)  # noqa: SLF001
             if self.api_handler.online:
                 jobdict = res.json()
                 if res.status_code != HTTPStatus.OK:
                     raise QuantinuumAPIError(
-                        f'HTTP error submitting job, {jobdict["error"]}'
+                        f"HTTP error submitting job, {jobdict['error']}"
                     )
             else:
                 return ResultHandle(
@@ -1052,7 +1049,7 @@ class QuantinuumBackend(Backend):
                     "" if results_selection is None else json.dumps(results_selection),
                 )
         except ConnectionError:
-            raise ConnectionError(
+            raise ConnectionError(  # noqa: B904
                 f"{self._label} Connection Error: Error during submit..."
             )
 
@@ -1064,10 +1061,10 @@ class QuantinuumBackend(Backend):
             json.dumps(results_selection),
         )
 
-    def process_circuits(
+    def process_circuits(  # noqa: PLR0912, PLR0915
         self,
         circuits: Sequence[Circuit],
-        n_shots: Union[None, int, Sequence[Optional[int]]] = None,
+        n_shots: None | int | Sequence[int | None] = None,
         valid_check: bool = True,
         **kwargs: QuumKwargTypes,
     ) -> list[ResultHandle]:
@@ -1108,7 +1105,7 @@ class QuantinuumBackend(Backend):
           Ignored for local emulator.
         """
         circuits = list(circuits)
-        n_shots_list = Backend._get_n_shots_as_list(
+        n_shots_list = Backend._get_n_shots_as_list(  # noqa: SLF001
             n_shots,
             len(circuits),
             optional=False,
@@ -1139,15 +1136,15 @@ class QuantinuumBackend(Backend):
         simplify_initial = kwargs.get("simplify_initial", False)
         noisy_simulation = cast("bool", kwargs.get("noisy_simulation", True))
 
-        group = cast("Optional[str]", kwargs.get("group", self._group))
+        group = cast("str | None", kwargs.get("group", self._group))
 
-        wasm_fh = cast("Optional[WasmFileHandler]", kwargs.get("wasm_file_handler"))
+        wasm_fh = cast("WasmFileHandler | None", kwargs.get("wasm_file_handler"))
 
-        pytket_pass = cast("Optional[BasePass]", kwargs.get("pytketpass"))
+        pytket_pass = cast("BasePass | None", kwargs.get("pytketpass"))
 
         language: Language = cast("Language", kwargs.get("language", Language.QIR))
 
-        max_cost = cast("Optional[int]", kwargs.get("max_cost"))
+        max_cost = cast("int | None", kwargs.get("max_cost"))
 
         handle_list = []
 
@@ -1156,7 +1153,7 @@ class QuantinuumBackend(Backend):
         if seed is not None and not isinstance(seed, int):
             raise ValueError("seed must be an integer or None")
         multithreading = bool(kwargs.get("multithreading"))
-        for circ, n_shots in zip(circuits, n_shots_list):
+        for circ, n_shots in zip(circuits, n_shots_list, strict=False):  # noqa: PLR1704
             if max_shots is not None and n_shots > max_shots:
                 raise MaxShotsExceeded(
                     f"Number of shots {n_shots} exceeds maximum {max_shots}"
@@ -1175,7 +1172,7 @@ class QuantinuumBackend(Backend):
                 results_selection = []
                 for name, count in Counter(bit.reg_name for bit in c0.bits).items():
                     for i in range(count):
-                        results_selection.append((name, i))
+                        results_selection.append((name, i))  # noqa: PERF401
                 handle = ResultHandle(
                     jobid,
                     json.dumps(ppcirc_rep),
@@ -1218,7 +1215,7 @@ class QuantinuumBackend(Backend):
                             results_selection.append((name, i))
 
                 else:
-                    assert language == Language.QIR or language == Language.PQIR
+                    assert language == Language.QIR or language == Language.PQIR  # noqa: PLR1714
                     if language == Language.QIR:
                         profile = QIRProfile.PYTKET
                     else:
@@ -1274,19 +1271,19 @@ class QuantinuumBackend(Backend):
                         json.dumps(results_selection),
                     )
                     handle_list.append(handle)
-                    self._cache[handle] = dict()
+                    self._cache[handle] = dict()  # noqa: C408
 
         return handle_list
 
     def _check_batchable(self) -> None:
         if self.backend_info and not self.backend_info.misc.get("batching", False):
-            raise BatchingUnsupported()
+            raise BatchingUnsupported
 
     def start_batch(
         self,
         max_batch_cost: int,
         circuit: Circuit,
-        n_shots: Union[None, int] = None,
+        n_shots: None | int = None,
         valid_check: bool = True,
         **kwargs: QuumKwargTypes,
     ) -> ResultHandle:
@@ -1317,7 +1314,7 @@ class QuantinuumBackend(Backend):
         self,
         batch_start_job: ResultHandle,
         circuit: Circuit,
-        n_shots: Union[None, int] = None,
+        n_shots: None | int = None,
         batch_end: bool = False,
         valid_check: bool = True,
         **kwargs: QuumKwargTypes,
@@ -1348,9 +1345,9 @@ class QuantinuumBackend(Backend):
     def _retrieve_job(
         self,
         jobid: str,
-        timeout: Optional[int] = None,
-        wait: Optional[int] = None,
-        use_websocket: Optional[bool] = True,
+        timeout: int | None = None,
+        wait: int | None = None,
+        use_websocket: bool | None = True,
     ) -> dict:
         if not self.api_handler:
             raise RuntimeError("API handler not set")
@@ -1418,7 +1415,7 @@ class QuantinuumBackend(Backend):
 
     def get_partial_result(
         self, handle: ResultHandle
-    ) -> tuple[Optional[BackendResult], CircuitStatus]:
+    ) -> tuple[BackendResult | None, CircuitStatus]:
         """
         Retrieve partial results for a given job, regardless of its current state.
 
@@ -1471,7 +1468,7 @@ class QuantinuumBackend(Backend):
                 )
             if self.is_local_emulator:
                 if not have_pecos():
-                    raise RuntimeError(
+                    raise RuntimeError(  # noqa: B904
                         "Local emulator not available: \
 try installing with the `pecos` option."
                     )
@@ -1507,7 +1504,7 @@ try installing with the `pecos` option."
                 wait = kwargs.get("wait")
                 if wait is not None:
                     wait = int(wait)
-                use_websocket = cast("Optional[bool]", kwargs.get("use_websocket"))
+                use_websocket = cast("bool | None", kwargs.get("use_websocket"))
 
                 job_retrieve = self._retrieve_job(jobid, timeout, wait, use_websocket)
                 circ_status = _parse_status(job_retrieve)
@@ -1515,14 +1512,14 @@ try installing with the `pecos` option."
                     StatusEnum.COMPLETED,
                     StatusEnum.CANCELLED,
                 ):
-                    raise GetResultFailed(
+                    raise GetResultFailed(  # noqa: B904
                         f"Cannot retrieve result; job status is {circ_status}, \
 jobid is {jobid}"
                     )
                 try:
                     res = job_retrieve["results"]
                 except KeyError:
-                    raise GetResultFailed(
+                    raise GetResultFailed(  # noqa: B904
                         f"Results missing in device return data, jobid is {jobid}"
                     )
 
@@ -1530,10 +1527,10 @@ jobid is {jobid}"
             self._update_cache_result(handle, backres)
             return backres
 
-    def cost_estimate(self, circuit: Circuit, n_shots: int) -> Optional[float]:
+    def cost_estimate(self, circuit: Circuit, n_shots: int) -> float | None:
         """Deprecated, use ``cost``."""
 
-        warnings.warn(
+        warnings.warn(  # noqa: B028
             "cost_estimate is deprecated, use cost instead", DeprecationWarning
         )
 
@@ -1543,10 +1540,10 @@ jobid is {jobid}"
         self,
         circuit: Circuit,
         n_shots: int,
-        syntax_checker: Optional[str] = None,
-        use_websocket: Optional[bool] = None,
+        syntax_checker: str | None = None,
+        use_websocket: bool | None = None,
         **kwargs: QuumKwargTypes,
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         Return the cost in HQC to process this `circuit` with `n_shots`
         repeats on this backend.
@@ -1572,7 +1569,7 @@ jobid is {jobid}"
         """
         if not self.valid_circuit(circuit):
             raise ValueError(
-                "Circuit does not satisfy predicates of backend."
+                "Circuit does not satisfy predicates of backend."  # noqa: ISC003
                 + " Try running `backend.get_compiled_circuit` first"
             )
 
@@ -1600,7 +1597,7 @@ jobid is {jobid}"
             if syntax_checker is not None:
                 syntax_checker_name = syntax_checker
             else:
-                raise NoSyntaxChecker(
+                raise NoSyntaxChecker(  # noqa: B904
                     "Could not find syntax checker for this backend, "
                     "try setting one explicitly with the ``syntax_checker`` "
                     "parameter (it will normally have a name ending in 'SC')."
@@ -1649,13 +1646,12 @@ _xcirc.add_phase(0.5)
 
 def _convert_result(
     resultdict: dict[str, list[str]],
-    ppcirc: Optional[Circuit] = None,
-    n_bits: Optional[int] = None,
-    results_selection: Optional[list[tuple[str, int]]] = None,
+    ppcirc: Circuit | None = None,
+    n_bits: int | None = None,
+    results_selection: list[tuple[str, int]] | None = None,
 ) -> BackendResult:
-
     for creg, reslist in resultdict.items():
-        if any(["-" in res for res in reslist]):
+        if any(["-" in res for res in reslist]):  # noqa: C419
             raise ValueError(
                 f"found negative value for creg: {creg}. \
 This could indicate a problem with the circuit submitted"
@@ -1773,6 +1769,6 @@ def _convert_datetime_string(datetime_string: str) -> datetime.datetime:
         hour=hour,
         minute=minute,
         second=second,
-        tzinfo=datetime.timezone.utc,
+        tzinfo=datetime.UTC,  # type: ignore
     )
-    return dt
+    return dt  # noqa: RET504

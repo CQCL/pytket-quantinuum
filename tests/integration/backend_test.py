@@ -19,8 +19,9 @@ import os
 import time
 from base64 import b64encode
 from collections import Counter
+from collections.abc import Callable  # pylint: disable=unused-import
 from pathlib import Path
-from typing import Any, Callable, cast  # pylint: disable=unused-import
+from typing import Any, cast
 
 import hypothesis.strategies as st
 import numpy as np
@@ -134,16 +135,16 @@ def test_max_classical_register(
     c.CX(0, 1)
     c.measure_all()
     c = backend.get_compiled_circuit(c)
-    assert backend._check_all_circuits([c])
+    assert backend._check_all_circuits([c])  # noqa: SLF001
     for i in range(n_cl_reg - 1):
         c.add_c_register(f"creg-{i}", 32)
 
-    assert backend._check_all_circuits([c])
+    assert backend._check_all_circuits([c])  # noqa: SLF001
 
     c.add_c_register("creg-extra", 32)
 
     with pytest.raises(CircuitNotValidError):
-        backend._check_all_circuits([c])
+        backend._check_all_circuits([c])  # noqa: SLF001
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -273,8 +274,8 @@ def test_cancel(
 @st.composite
 def circuits(
     draw: Callable[[SearchStrategy[Any]], Any],
-    n_qubits: SearchStrategy[int] = st.integers(min_value=2, max_value=6),
-    depth: SearchStrategy[int] = st.integers(min_value=1, max_value=100),
+    n_qubits: SearchStrategy[int] = st.integers(min_value=2, max_value=6),  # noqa: B008
+    depth: SearchStrategy[int] = st.integers(min_value=1, max_value=100),  # noqa: B008
 ) -> Circuit:
     total_qubits = draw(n_qubits)
     circuit = Circuit(total_qubits, total_qubits)
@@ -284,7 +285,7 @@ def circuits(
         if gate == OpType.ZZMax:
             target = draw(
                 st.integers(min_value=0, max_value=total_qubits - 1).filter(
-                    lambda x: x != control
+                    lambda x: x != control  # noqa: B023
                 )
             )
             circuit.add_gate(gate, [control, target])
@@ -333,7 +334,7 @@ def test_cost_estimate(
     b = authenticated_quum_backend_prod
     c = b.get_compiled_circuit(c)
     estimate = None
-    if b._device_name.endswith("SC"):
+    if b._device_name.endswith("SC"):  # noqa: SLF001
         estimate = b.cost(c, n_shots)
         assert estimate == 0.0
     else:
@@ -986,7 +987,7 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
     ir = module.as_bitcode()
     h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
-    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
+    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
     assert len(r.get_shots()) == 10
 
 
@@ -1009,7 +1010,7 @@ def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> 
     ir = module.as_bitcode()
     h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
-    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
+    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
     assert len(r.get_shots()) == 10
 
 
@@ -1032,7 +1033,7 @@ def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) ->
     ir = module.as_bitcode()
     h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
     r = b.get_result(h)
-    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])
+    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
     assert len(r.get_shots()) == 10
 
 
@@ -1508,8 +1509,8 @@ def test_get_calendar(
     backend = QuantinuumBackend(
         api_handler=authenticated_quum_handler, device_name=machine
     )
-    start_date = datetime.datetime(2024, 1, 8)
-    end_date = datetime.datetime(2024, 2, 16)
+    start_date = datetime.datetime(2024, 1, 8)  # noqa: DTZ001
+    end_date = datetime.datetime(2024, 2, 16)  # noqa: DTZ001
     calendar_data = backend.get_calendar(start_date, end_date)
     assert all(isinstance(a, dict) for a in calendar_data)
     assert all(
@@ -1526,8 +1527,8 @@ def test_get_calendar_raises_error(
     authenticated_quum_backend_qa: QuantinuumBackend,
 ) -> None:
     backend = authenticated_quum_backend_qa
-    start_date = datetime.datetime(2024, 2, 8)
-    end_date = datetime.datetime(2024, 2, 16)
+    start_date = datetime.datetime(2024, 2, 8)  # noqa: DTZ001
+    end_date = datetime.datetime(2024, 2, 16)  # noqa: DTZ001
     with pytest.raises(RuntimeError):
         backend.get_calendar(start_date, end_date)
 

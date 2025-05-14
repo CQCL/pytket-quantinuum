@@ -13,8 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta  # type: ignore
 
 import jwt
 
@@ -82,16 +81,16 @@ class CredentialStorage(ABC):
     def delete_credential(self) -> None:
         """Delete credential."""
 
-    @property
-    def id_token(self) -> Optional[str]:
+    @property  # noqa: B027
+    def id_token(self) -> str | None:
         """Return the ID token if valid."""
 
-    @property
-    def refresh_token(self) -> Optional[str]:
+    @property  # noqa: B027
+    def refresh_token(self) -> str | None:
         """Return the refresh token if valid."""
 
-    @property
-    def user_name(self) -> Optional[str]:
+    @property  # noqa: B027
+    def user_name(self) -> str | None:
         """Return the username if exists."""
 
 
@@ -115,29 +114,27 @@ class MemoryCredentialStorage(CredentialStorage):
             is valid. Defaults to 29 days.
         """
         super().__init__(id_token_timedelt, refresh_token_timedelt)
-        self._user_name: Optional[str] = None
+        self._user_name: str | None = None
         # Password storage is only included for debug purposes
-        self._password: Optional[str] = None
-        self._id_token: Optional[str] = None
-        self._refresh_token: Optional[str] = None
-        self._id_token_timeout: Optional[datetime] = None
-        self._refresh_token_timeout: Optional[datetime] = None
+        self._password: str | None = None
+        self._id_token: str | None = None
+        self._refresh_token: str | None = None
+        self._id_token_timeout: datetime | None = None
+        self._refresh_token_timeout: datetime | None = None
 
     def save_user_name(self, user_name: str) -> None:
         self._user_name = user_name
 
     def save_refresh_token(self, refresh_token: str) -> None:
         self._refresh_token = refresh_token
-        self._refresh_token_timeout = (
-            datetime.now(timezone.utc) + self._refresh_timedelt
-        )
+        self._refresh_token_timeout = datetime.now(UTC) + self._refresh_timedelt
 
     def save_id_token(self, id_token: str) -> None:
         self._id_token = id_token
-        self._id_token_timeout = datetime.now(timezone.utc) + self._id_timedelt
+        self._id_token_timeout = datetime.now(UTC) + self._id_timedelt
 
     @property
-    def id_token(self) -> Optional[str]:
+    def id_token(self) -> str | None:
         if self._id_token is not None:
             timeout = (
                 jwt.decode(
@@ -149,22 +146,22 @@ class MemoryCredentialStorage(CredentialStorage):
             )
             if self._id_token_timeout is not None:
                 timeout = min(timeout, self._id_token_timeout.timestamp())
-            if datetime.now(timezone.utc).timestamp() > timeout:
+            if datetime.now(UTC).timestamp() > timeout:
                 self._id_token = None
         return self._id_token
 
     @property
-    def refresh_token(self) -> Optional[str]:
+    def refresh_token(self) -> str | None:
         if (
             self._refresh_token is not None
             and self._refresh_token_timeout is not None
-            and datetime.now(timezone.utc) > self._refresh_token_timeout
+            and datetime.now(UTC) > self._refresh_token_timeout
         ):
             self._refresh_token = None
         return self._refresh_token
 
     @property
-    def user_name(self) -> Optional[str]:
+    def user_name(self) -> str | None:
         return self._user_name
 
     def delete_credential(self) -> None:
@@ -217,7 +214,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
     def save_refresh_token(self, refresh_token: str) -> None:
         hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.refresh_token = refresh_token
-        refresh_token_timeout = datetime.now(timezone.utc) + self._refresh_timedelt
+        refresh_token_timeout = datetime.now(UTC) + self._refresh_timedelt
         hconfig.refresh_token_timeout = refresh_token_timeout.strftime(
             "%Y-%m-%d %H:%M:%S.%z"
         )
@@ -226,12 +223,12 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
     def save_id_token(self, id_token: str) -> None:
         hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.id_token = id_token
-        id_token_timeout = datetime.now(timezone.utc) + self._id_timedelt
+        id_token_timeout = datetime.now(UTC) + self._id_timedelt
         hconfig.id_token_timeout = id_token_timeout.strftime("%Y-%m-%d %H:%M:%S.%z")
         hconfig.update_default_config_file()
 
     @property
-    def id_token(self) -> Optional[str]:
+    def id_token(self) -> str | None:
         hconfig = QuantinuumConfig.from_default_config_file()
         id_token = hconfig.id_token
         if id_token is not None:
@@ -248,24 +245,24 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
                     hconfig.id_token_timeout, "%Y-%m-%d %H:%M:%S.%z"
                 )
                 timeout = min(timeout, id_token_timeout.timestamp())
-            if datetime.now(timezone.utc).timestamp() > timeout:
+            if datetime.now(UTC).timestamp() > timeout:
                 return None
         return id_token
 
     @property
-    def refresh_token(self) -> Optional[str]:
+    def refresh_token(self) -> str | None:
         hconfig = QuantinuumConfig.from_default_config_file()
         refresh_token = hconfig.refresh_token
         if refresh_token is not None and hconfig.refresh_token_timeout is not None:
             refresh_token_timeout = datetime.strptime(
                 hconfig.refresh_token_timeout, "%Y-%m-%d %H:%M:%S.%z"
             )
-            if datetime.now(timezone.utc) > refresh_token_timeout:
+            if datetime.now(UTC) > refresh_token_timeout:
                 return None
         return refresh_token
 
     @property
-    def user_name(self) -> Optional[str]:
+    def user_name(self) -> str | None:
         hconfig = QuantinuumConfig.from_default_config_file()
         return hconfig.username
 
