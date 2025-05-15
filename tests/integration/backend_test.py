@@ -1599,7 +1599,6 @@ def test_no_phase_ops(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
             assert op.op.type != OpType.Phase
 
 
-
 def test_default_pass_serialization() -> None:
     h11e_backend = QuantinuumBackend("H1-1E", machine_debug=True)
 
@@ -1608,8 +1607,8 @@ def test_default_pass_serialization() -> None:
         original_pass_dict = default_pass.to_dict()
         MAX_C_REG_WIDTH = 32
         reconstructed_pass = BasePass.from_dict(
-         original_pass_dict,
-         {"resize scratch bits": _gen_scratch_transformation(MAX_C_REG_WIDTH)},
-     )
+            original_pass_dict,
+            {"resize scratch bits": _gen_scratch_transformation(MAX_C_REG_WIDTH)},
+        )
         assert isinstance(reconstructed_pass, SequencePass)
         assert original_pass_dict == reconstructed_pass.to_dict()
