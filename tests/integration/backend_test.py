@@ -58,7 +58,7 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIError,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES
+from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, MAX_C_REG_WIDTH
 from pytket.passes import BasePass, SequencePass
 from pytket.passes.resizeregpass import _gen_scratch_transformation
 from pytket.predicates import CompilationUnit
@@ -1605,7 +1605,6 @@ def test_default_pass_serialization() -> None:
     for opt_level in range(4):
         default_pass = h11e_backend.default_compilation_pass(opt_level)
         original_pass_dict = default_pass.to_dict()
-        MAX_C_REG_WIDTH = 32
         reconstructed_pass = BasePass.from_dict(
             original_pass_dict,
             {"resize scratch bits": _gen_scratch_transformation(MAX_C_REG_WIDTH)},
