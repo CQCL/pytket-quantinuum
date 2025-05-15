@@ -59,7 +59,7 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
 )
 from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES
-from pytket.passes import SequencePass, BasePass
+from pytket.passes import BasePass, SequencePass
 from pytket.passes.resizeregpass import _gen_scratch_transformation
 from pytket.predicates import CompilationUnit
 from pytket.wasm import WasmFileHandler
@@ -1601,7 +1601,7 @@ def test_no_phase_ops(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
 
 
 def test_default_pass_serialization() -> None:
-    h11e_backend = QuantinuumBackend("H1-1E", machine_debug=True) 
+    h11e_backend = QuantinuumBackend("H1-1E", machine_debug=True)
 
     for opt_level in range(4):
         default_pass = h11e_backend.default_compilation_pass(opt_level)
