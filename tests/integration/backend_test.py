@@ -58,7 +58,9 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPI,
     QuantinuumAPIError,
 )
-from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES
+from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, MAX_C_REG_WIDTH
+from pytket.passes import BasePass, SequencePass
+from pytket.passes.resizeregpass import _gen_scratch_transformation
 from pytket.predicates import CompilationUnit
 from pytket.wasm import WasmFileHandler
 
@@ -1595,3 +1597,17 @@ def test_no_phase_ops(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
         if typ == OpType.Conditional:
             assert isinstance(op, Conditional)
             assert op.op.type != OpType.Phase
+
+
+def test_default_pass_serialization() -> None:
+    h11e_backend = QuantinuumBackend("H1-1E", machine_debug=True)
+
+    for opt_level in range(4):
+        default_pass = h11e_backend.default_compilation_pass(opt_level)
+        original_pass_dict = default_pass.to_dict()
+        reconstructed_pass = BasePass.from_dict(
+            original_pass_dict,
+            {"resize scratch bits": _gen_scratch_transformation(MAX_C_REG_WIDTH)},
+        )
+        assert isinstance(reconstructed_pass, SequencePass)
+        assert original_pass_dict == reconstructed_pass.to_dict()
