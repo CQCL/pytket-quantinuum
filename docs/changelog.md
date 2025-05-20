@@ -8,6 +8,7 @@
 
 - Update pytket minimum version requirement to 2.4.1.
 - Update pytket-qir minimum version requirement to 0.23.
+- Add `start-date` to fields returned as part of circuit status.
 
 ## 0.47.0 (May 2025)
 
