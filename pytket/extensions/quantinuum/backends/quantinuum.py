@@ -1749,6 +1749,7 @@ def _parse_status(response: dict) -> CircuitStatus:
         for k in (
             "name",
             "submit-date",
+            "start-date",
             "result-date",
             "queue-position",
             "cost",
