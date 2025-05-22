@@ -435,7 +435,7 @@ class QuantinuumAPI:
                             raise RuntimeError("Unable to decode response.")
                         if "status" in jr and jr["status"] in self.JOB_DONE:
                             return jr
-                    except (TimeoutError, exceptions.ConnectionClosed):
+                    except (TimeoutError, exceptions.ConnectionClosed):  # noqa: PERF203
                         try:
                             # Try to keep the connection alive...
                             pong = await websocket.ping()
