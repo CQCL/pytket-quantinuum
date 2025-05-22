@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from datetime import UTC, datetime, timedelta  # type: ignore
+from datetime import datetime, timedelta, timezone
 
 import jwt
 
@@ -127,11 +127,13 @@ class MemoryCredentialStorage(CredentialStorage):
 
     def save_refresh_token(self, refresh_token: str) -> None:
         self._refresh_token = refresh_token
-        self._refresh_token_timeout = datetime.now(UTC) + self._refresh_timedelt
+        self._refresh_token_timeout = (
+            datetime.now(timezone.utc) + self._refresh_timedelt
+        )
 
     def save_id_token(self, id_token: str) -> None:
         self._id_token = id_token
-        self._id_token_timeout = datetime.now(UTC) + self._id_timedelt
+        self._id_token_timeout = datetime.now(timezone.utc) + self._id_timedelt
 
     @property
     def id_token(self) -> str | None:
@@ -146,7 +148,7 @@ class MemoryCredentialStorage(CredentialStorage):
             )
             if self._id_token_timeout is not None:
                 timeout = min(timeout, self._id_token_timeout.timestamp())
-            if datetime.now(UTC).timestamp() > timeout:
+            if datetime.now(timezone.utc).timestamp() > timeout:
                 self._id_token = None
         return self._id_token
 
@@ -155,7 +157,7 @@ class MemoryCredentialStorage(CredentialStorage):
         if (
             self._refresh_token is not None
             and self._refresh_token_timeout is not None
-            and datetime.now(UTC) > self._refresh_token_timeout
+            and datetime.now(timezone.utc) > self._refresh_token_timeout
         ):
             self._refresh_token = None
         return self._refresh_token
@@ -214,7 +216,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
     def save_refresh_token(self, refresh_token: str) -> None:
         hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.refresh_token = refresh_token
-        refresh_token_timeout = datetime.now(UTC) + self._refresh_timedelt
+        refresh_token_timeout = datetime.now(timezone.utc) + self._refresh_timedelt
         hconfig.refresh_token_timeout = refresh_token_timeout.strftime(
             "%Y-%m-%d %H:%M:%S.%z"
         )
@@ -223,7 +225,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
     def save_id_token(self, id_token: str) -> None:
         hconfig = QuantinuumConfig.from_default_config_file()
         hconfig.id_token = id_token
-        id_token_timeout = datetime.now(UTC) + self._id_timedelt
+        id_token_timeout = datetime.now(timezone.utc) + self._id_timedelt
         hconfig.id_token_timeout = id_token_timeout.strftime("%Y-%m-%d %H:%M:%S.%z")
         hconfig.update_default_config_file()
 
@@ -245,7 +247,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
                     hconfig.id_token_timeout, "%Y-%m-%d %H:%M:%S.%z"
                 )
                 timeout = min(timeout, id_token_timeout.timestamp())
-            if datetime.now(UTC).timestamp() > timeout:
+            if datetime.now(timezone.utc).timestamp() > timeout:
                 return None
         return id_token
 
@@ -257,7 +259,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
             refresh_token_timeout = datetime.strptime(
                 hconfig.refresh_token_timeout, "%Y-%m-%d %H:%M:%S.%z"
             )
-            if datetime.now(UTC) > refresh_token_timeout:
+            if datetime.now(timezone.utc) > refresh_token_timeout:
                 return None
         return refresh_token
 
