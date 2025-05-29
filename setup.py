@@ -46,7 +46,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pytket >= 2.4.1",
-        "pytket-qir >= 0.23.0",
+        "pytket-qir >= 0.24.1",
         "requests >= 2.32.2",
         "types-requests",
         "websockets >= 13.1",
