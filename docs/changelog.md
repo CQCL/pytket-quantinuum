@@ -4,6 +4,10 @@
 
 # Changelog
 
+## Unreleased
+
+- Update pytket-qir minimum version requirement to 0.24.1.
+
 ## 0.48.0 (May 2025)
 
 - Update pytket minimum version requirement to 2.4.1.
