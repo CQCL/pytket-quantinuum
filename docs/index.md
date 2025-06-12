@@ -41,7 +41,7 @@ In case of questions about the hardware you can get in contact with the team sen
 
 The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the `QuantinuumBackend` class. The available devices are:
 
-- `H1-1`, `H2-1`, `H2-2`: Quantum devices, submit specifically to `H1-1` or `H2-1` by using the device name.
+- `H1-1`, `H2-1`, `H2-2`: Quantum devices, submit to a specific device by using the device name.
 - `H1-1E`, `H2-1E`, `H2-2E`: Device-specific emulators of `H1-1` and `H2-1`. These emulators run remotely on servers and require credentials.
 - `H1-1SC`, `H2-1SC`, `H2-2SC` : Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
 - `H1-1LE`, a version of the `H1-1E` emulator that runs locally. For running simulations locally, see the docs on [Local Emulators](#local-emulators).
