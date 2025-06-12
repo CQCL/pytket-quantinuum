@@ -26,9 +26,9 @@ and methods into the `pytket.extensions` namespace.
 
 ## Examples
 
-For example usage of features, see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website.
+For example usage of features, see the [pytket-quantinuum section](https://docs.quantinuum.com/systems/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website.
 
-The [knowledge articles](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/ka_index.html) also detail experiments using pytket-quantinuum.
+The [knowledge articles](https://docs.quantinuum.com/systems/trainings/knowledge_articles/ka_index.html) also detail experiments using pytket-quantinuum.
 
 ## Bugs, support and feature requests
 
