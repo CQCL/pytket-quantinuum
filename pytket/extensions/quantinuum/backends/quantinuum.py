@@ -988,6 +988,14 @@ class QuantinuumBackend(Backend):
                 "submit_program() not supported with local emulator"
             )
 
+        warnings.warn(
+            "Submission of programs to remote devices from pytket-quantinuum is "
+            "deprecated, and will not be possible after October 2025. Please use "
+            "qnexus ( https://docs.quantinuum.com/nexus/index.html ) instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         lang_str = _language2str(language)
         if self.backend_info is not None:
             supported_languages = self.backend_info.misc.get("supported_languages")
@@ -1533,8 +1541,10 @@ jobid is {jobid}"
     def cost_estimate(self, circuit: Circuit, n_shots: int) -> float | None:
         """Deprecated, use ``cost``."""
 
-        warnings.warn(  # noqa: B028
-            "cost_estimate is deprecated, use cost instead", DeprecationWarning
+        warnings.warn(
+            "cost_estimate is deprecated, use cost instead",
+            DeprecationWarning,
+            stacklevel=2,
         )
 
         return self.cost(circuit, n_shots)
