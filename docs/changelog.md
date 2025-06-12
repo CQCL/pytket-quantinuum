@@ -7,6 +7,7 @@
 ## Unreleased
 
 - Update pytket-qir minimum version requirement to 0.24.1.
+- Emit deprecation warning from submit_program().
 
 ## 0.48.0 (May 2025)
 
