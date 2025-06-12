@@ -412,7 +412,7 @@ class QuantinuumBackend(Backend):
         **kwargs: Any,
     ) -> list[BackendInfo]:
         """
-        See :py:meth:`pytket.backends.Backend.available_devices`.
+        See :py:meth:`pytket.backends.backend.Backend.available_devices`.
 
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :return: A list of BackendInfo objects for each available Backend.
@@ -483,6 +483,7 @@ class QuantinuumBackend(Backend):
         to instantiate a pandas.DataFrame.
 
         The dictionary has the following properties.
+
         * 'start-date': The  start date and start time as a datetime.datetime object.
         * 'end-date': The end date and end time as a datetime.datetime object.
         * 'machine': A string specifying the device attached to the event.
@@ -506,7 +507,6 @@ class QuantinuumBackend(Backend):
         :return: A list of events from the operations calendar,
             sorted by the `start-date` of each event. Each event is a python
             dictionary.
-        :return_type: List[Dict[str, str]]
         :raises: RuntimeError if an emulator or syntax-checker is specified
         :raises: ValueError if the argument `start_date` or `end_date` are not
             datetime.datetime objects.
@@ -579,7 +579,6 @@ class QuantinuumBackend(Backend):
             calendar.
         :return: A matplotlib.figure.Figure visualising the
             calendar for a user-specified calendar month.
-        :return_type: matplotlib.figure.Figure
         """
         if not MATPLOTLIB_IMPORT:
             raise ImportError(
@@ -820,14 +819,11 @@ class QuantinuumBackend(Backend):
         :param optimisation_level: Allows values of 0, 1, 2 or 3, with higher values
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
-        :type optimisation_level: int, optional
         :param timeout: Only valid for optimisation level 3, gives a maximimum time
             for running a single thread of the pass `GreedyPauliSimp`. Increase for
             optimising larger circuits.
-        :type timeout: int, optional
 
         :return: An optimised quantum circuit
-        :rtype: Circuit
         """
         return_circuit = circuit.copy()
         if optimisation_level == 3 and circuit.n_gates_of_type(OpType.Barrier) > 0:  # noqa: PLR2004
@@ -853,28 +849,24 @@ class QuantinuumBackend(Backend):
         :py:meth:`process_circuits`), for example by rebasing to the supported gate set,
         or routing to match the connectivity of the device. However, this is not always
         possible, for example if the circuit contains classical operations that are not
-        supported by the backend. You may use :py:meth:`valid_circuit` to check whether
+        supported by the backend. You may use :py:meth:`~pytket.backends.backend.Backend.valid_circuit` to check whether
         the circuit meets the backend's requirements after compilation. This validity
         check is included in :py:meth:`process_circuits` by default, before any circuits
         are submitted to the backend.
 
         If the validity check fails, you can obtain more information about the failure
         by iterating through the predicates in the `required_predicates` property of the
-        backend, and running the :py:meth:`verify` method on each in turn with your
+        backend, and running the :py:meth:`~pytket.predicates.Predicate.verify` method on each in turn with your
         circuit.
 
         :param circuits: The circuits to compile.
-        :type circuit: Sequence[Circuit]
         :param optimisation_level: The level of optimisation to perform during
             compilation. See :py:meth:`default_compilation_pass` for a description of
             the different levels (0, 1, 2 or 3). Defaults to 2.
-        :type optimisation_level: int, optional
         :param timeout: Only valid for optimisation level 3, gives a maximimum time
             for running a single thread of the pass `GreedyPauliSimp`. Increase for
             optimising larger circuits.
-        :type timeout: int, optional
         :return: Compiled circuits.
-        :rtype: List[Circuit]
         """
         return [
             self.get_compiled_circuit(c, optimisation_level, timeout) for c in circuits
@@ -975,7 +967,7 @@ class QuantinuumBackend(Backend):
         :param request_options: Extra options to add to the request body as a
           json-style dictionary, defaults to None
         :param results_selection: Ordered list of register names and indices used to
-            construct final :py:class:`BackendResult`. If None, all all results are used
+            construct final :py:class:`~pytket.backends.backendresult.BackendResult`. If None, all all results are used
             in lexicographic order.
         :raises WasmUnsupported: WASM submitted to backend that does not support it.
         :raises QuantinuumAPIError: API error.
@@ -1070,7 +1062,7 @@ class QuantinuumBackend(Backend):
         **kwargs: QuumKwargTypes,
     ) -> list[ResultHandle]:
         """
-        See :py:meth:`pytket.backends.Backend.process_circuits`.
+        See :py:meth:`pytket.backends.backend.Backend.process_circuits`.
 
         Supported kwargs
         ^^^^^^^^^^^^^^^^
@@ -1292,7 +1284,7 @@ class QuantinuumBackend(Backend):
     ) -> ResultHandle:
         """Start a batch of jobs on the backend, behaves like `process_circuit`
            but with additional parameter `max_batch_cost` as the first argument.
-           See :py:meth:`pytket.backends.Backend.process_circuits` for
+           See :py:meth:`pytket.backends.backend.Backend.process_circuits` for
            documentation on remaining parameters.
 
 
@@ -1329,7 +1321,7 @@ class QuantinuumBackend(Backend):
         2. The optional argument `batch_end` should be set to "True" for the
         final circuit of the batch. By default it is False.\n
 
-        See :py:meth:`pytket.backends.Backend.process_circuits` for
+        See :py:meth:`pytket.backends.backend.Backend.process_circuits` for
         documentation on remaining parameters.
 
         :param batch_start_job: Handle of first circuit submitted to batch.
@@ -1354,7 +1346,7 @@ class QuantinuumBackend(Backend):
     ) -> dict:
         if not self.api_handler:
             raise RuntimeError("API handler not set")
-        with self.api_handler.override_timeouts(timeout=timeout, retry_timeout=wait):
+        with self.api_handler._override_timeouts(timeout=timeout, retry_timeout=wait):
             # set and unset optional timeout parameters
             job_dict = self.api_handler.retrieve_job(jobid, use_websocket)
 
@@ -1449,7 +1441,7 @@ class QuantinuumBackend(Backend):
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
         """
-        See :py:meth:`pytket.backends.Backend.get_result`.
+        See :py:meth:`pytket.backends.backend.Backend.get_result`.
         Supported kwargs: `timeout`, `wait`, `use_websocket`.
         """
         handle = self._update_result_handle(handle)

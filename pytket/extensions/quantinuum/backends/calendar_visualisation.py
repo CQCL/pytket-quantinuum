@@ -137,7 +137,6 @@ class QuantinuumCalendar:
         :param fontsize:
         :param titlesize:
         :returns: A matplotlib visualisation of a calendar with events
-        :return_type matplotlib.figure.Figure:
         """
         "Create the calendar figure"
         f, axes = mpl.subplots(

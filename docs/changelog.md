@@ -408,10 +408,10 @@ Old changelog for "pytket-honeywell":
 
 ### 0.14.0 (August 2021)
 
-- Support new Honeywell simulator options in {py:class}`HoneywellBackend`:
+- Support new Honeywell simulator options in `HoneywellBackend`:
   "simulator" for simulator type, and "noisy_simulation" to toggle simulations
   with and without error models.
-- Device name no longer optional on {py:class}`HoneywellBackend` construction.
+- Device name no longer optional on `HoneywellBackend` construction.
 
 ### 0.13.0 (July 2021)
 

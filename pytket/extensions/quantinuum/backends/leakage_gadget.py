@@ -155,9 +155,7 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
     in a state 1 sets the counts to 0.
 
     :param result: Shots returned from device.
-    :type result: BackendResult
     :return: Shots with leakage cases removed.
-    :rtype: BackendResult
     """
     regular_bits: list[Bit] = [
         b for b in result.c_bits if b.reg_name != LEAKAGE_DETECTION_BIT_NAME_

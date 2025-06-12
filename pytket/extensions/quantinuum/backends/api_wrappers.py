@@ -148,7 +148,7 @@ class QuantinuumAPI:
         self.retry_timeout = 5
         self.timeout: int | None = None  # don't timeout by default
 
-    def override_timeouts(
+    def _override_timeouts(
         self, timeout: int | None = None, retry_timeout: int | None = None
     ) -> _OverrideManager:
         return _OverrideManager(self, timeout=timeout, retry_timeout=retry_timeout)

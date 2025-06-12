@@ -174,9 +174,9 @@ default. This may be overridden using the method
 
 Circuits must satisfy the following predicates in order to run on the `QuantinuumBackend`.
 
-- [NoSymbolsPredicate](inv:#*.predicates.NoSymbolsPredicate): Parameterised gates must have numerical parameters when the circuit is executed.
-- [GateSetPredicate](inv:#*.predicates.GateSetPredicate): To view supported Ops run `QuantinuumBackend.backend_info.gate_set`.
-- [MaxNQubitsPredicate](inv:#*.predicates.MaxNQubitsPredicate): `H1-1`, `H1-1E` and `H1-1SC` all support a maximum of 20 qubits. `H2-1`, `H2-1E` and `H2-1SC` all support a maximum of 56 qubits.
+- [NoSymbolsPredicate](inv:#pytket.predicates.NoSymbolsPredicate): Parameterised gates must have numerical parameters when the circuit is executed.
+- [GateSetPredicate](inv:#pytket.predicates.GateSetPredicate): To view supported Ops run `QuantinuumBackend.backend_info.gate_set`.
+- [MaxNQubitsPredicate](inv:#pytket.predicates.MaxNQubitsPredicate): `H1-1`, `H1-1E` and `H1-1SC` all support a maximum of 20 qubits. `H2-1`, `H2-1E` and `H2-1SC` all support a maximum of 56 qubits.
 
 # Job Statuses
 
@@ -251,7 +251,7 @@ QuantinuumBackend.available_devices(
 
 ## Partial Results Retrieval
 
-The {py:class}`QuantinuumBackend` also supports giving the user partial results from unfinished jobs.
+The {py:class}`~.QuantinuumBackend` also supports giving the user partial results from unfinished jobs.
 This can be done as follows.
 
 ```{code-cell} ipython3
@@ -280,8 +280,8 @@ Also partial results enable users to quickly validate basic execution for very l
 
 ## Leakage Gadget Detection
 
-When running circuits on the {py:class}`QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
-Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:meth}`prune_shots_detected_as_leaky`.
+When running circuits on the {py:class}`~.QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
+Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:meth}`~pytket.extensions.quantinuum.backends.leakage_gadget.prune_shots_detected_as_leaky`.
 For a more detailed explanation we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding [notebook tutorial](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_leakage_detection.html).
 
 ## Batching
