@@ -1483,7 +1483,7 @@ class QuantinuumBackend(Backend):
                         "Local emulator not available: \
 try installing with the `pecos` option."
                     )
-                from pytket_pecos import Emulator
+                from pytket_pecos import Emulator  # noqa: PLC0415
 
                 configuration = self._local_emulator_handles[handle]
                 # workaround for https://github.com/CQCL/pytket-quantinuum/issues/473
