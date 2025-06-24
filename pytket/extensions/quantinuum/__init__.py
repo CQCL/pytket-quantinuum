@@ -22,6 +22,12 @@ from ._metadata import (
     __extension_version__ as __extension_version__,  # noqa: PLC0414
 )
 from .backends import (
+    H1 as H1,  # noqa: PLC0414
+)
+from .backends import (
+    H2 as H2,  # noqa: PLC0414
+)
+from .backends import (
     Language as Language,  # noqa: PLC0414
 )
 from .backends import (
@@ -35,6 +41,9 @@ from .backends import (
 )
 from .backends import (
     QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,  # noqa: PLC0414
+)
+from .backends import (
+    QuantinuumBackendData as QuantinuumBackendData,  # noqa: PLC0414
 )
 from .backends import (
     have_pecos as have_pecos,  # noqa: PLC0414

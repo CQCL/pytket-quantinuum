@@ -20,6 +20,12 @@ from .api_wrappers import (
 from .api_wrappers import (
     QuantinuumAPIOffline as QuantinuumAPIOffline,  # noqa: PLC0414
 )
+from .data import (
+    H1 as H1,  # noqa: PLC0414
+)
+from .data import (
+    H2 as H2,  # noqa: PLC0414
+)
 from .leakage_gadget import (
     prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,  # noqa: PLC0414
 )
@@ -31,6 +37,9 @@ from .quantinuum import (
 )
 from .quantinuum import (
     QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,  # noqa: PLC0414
+)
+from .quantinuum import (
+    QuantinuumBackendData as QuantinuumBackendData,  # noqa: PLC0414
 )
 from .quantinuum import (
     have_pecos as have_pecos,  # noqa: PLC0414

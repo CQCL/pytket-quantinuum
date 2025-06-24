@@ -21,6 +21,13 @@ See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/training
 ```
 
 ```{eval-rst}
+.. autoclass:: QuantinuumBackendData
+    :members:
+.. autodata:: H1
+.. autodata:: H2
+```
+
+```{eval-rst}
 .. autoclass:: QuantinuumBackendCompilationConfig
     :members:
 ```
