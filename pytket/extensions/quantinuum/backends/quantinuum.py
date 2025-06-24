@@ -428,12 +428,12 @@ class QuantinuumBackend(Backend):
                 devices.append(cls._dict_to_backendinfo(d, local_emulator=True))
         return devices
 
-    def _retrieve_backendinfo(self, machine: str) -> BackendInfo:
+    def _retrieve_backendinfo(self) -> BackendInfo:
         infos = self.available_devices(api_handler=self.api_handler)
         try:
-            info = next(entry for entry in infos if entry.device_name == machine)
+            info = next(entry for entry in infos if entry.device_name == self._device_name)
         except StopIteration:
-            raise DeviceNotAvailable(machine)  # noqa: B904
+            raise DeviceNotAvailable(self._device_name)  # noqa: B904
         info.misc["options"] = self._process_circuits_options
         return info
 
@@ -602,7 +602,7 @@ class QuantinuumBackend(Backend):
     @property
     def backend_info(self) -> BackendInfo | None:
         if self._backend_info is None and not self._MACHINE_DEBUG:
-            self._backend_info = self._retrieve_backendinfo(self._device_name)
+            self._backend_info = self._retrieve_backendinfo()
         return self._backend_info
 
     @cached_property
