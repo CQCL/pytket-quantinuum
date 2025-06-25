@@ -1820,15 +1820,7 @@ def _parse_status(response: dict) -> CircuitStatus:
             "error",
             "last-shot",
             "qubits",
-            "batch-id",
-            "count",
-            "group",
-            "machine",
-            "org",
             "priority",
-            "status",
-            "user",
-            "id",
         )
     }
     message = json.dumps(msgdict)
