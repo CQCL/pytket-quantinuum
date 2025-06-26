@@ -14,33 +14,13 @@
 
 """Backends for processing pytket circuits with Quantinuum devices"""
 
-from .api_wrappers import (
-    QuantinuumAPI as QuantinuumAPI,  # noqa: PLC0414
-)
-from .api_wrappers import (
-    QuantinuumAPIOffline as QuantinuumAPIOffline,  # noqa: PLC0414
-)
-from .data import (
-    H1 as H1,  # noqa: PLC0414
-)
-from .data import (
-    H2 as H2,  # noqa: PLC0414
-)
-from .leakage_gadget import (
-    prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,  # noqa: PLC0414
-)
+from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline
+from .data import H1, H2
+from .leakage_gadget import prune_shots_detected_as_leaky
 from .quantinuum import (
-    Language as Language,  # noqa: PLC0414
-)
-from .quantinuum import (
-    QuantinuumBackend as QuantinuumBackend,  # noqa: PLC0414
-)
-from .quantinuum import (
-    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,  # noqa: PLC0414
-)
-from .quantinuum import (
-    QuantinuumBackendData as QuantinuumBackendData,  # noqa: PLC0414
-)
-from .quantinuum import (
-    have_pecos as have_pecos,  # noqa: PLC0414
+    Language,
+    QuantinuumBackend,
+    QuantinuumBackendCompilationConfig,
+    QuantinuumBackendData,
+    have_pecos,
 )
