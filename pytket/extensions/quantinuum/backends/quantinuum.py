@@ -1818,6 +1818,7 @@ def _parse_status(response: dict) -> CircuitStatus:
             "queue-position",
             "cost",
             "error",
+            "cost-confidence",
             "last-shot",
             "qubits",
             "priority",
