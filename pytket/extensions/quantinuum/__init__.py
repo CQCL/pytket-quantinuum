@@ -15,30 +15,16 @@
 """Backends for processing pytket circuits with Quantinuum devices"""
 
 # _metadata.py is copied to the folder after installation.
-from ._metadata import (
-    __extension_name__ as __extension_name__,  # noqa: PLC0414
-)
-from ._metadata import (
-    __extension_version__ as __extension_version__,  # noqa: PLC0414
-)
+from ._metadata import __extension_name__, __extension_version__
 from .backends import (
-    Language as Language,  # noqa: PLC0414
-)
-from .backends import (
-    QuantinuumAPI as QuantinuumAPI,  # noqa: PLC0414
-)
-from .backends import (
-    QuantinuumAPIOffline as QuantinuumAPIOffline,  # noqa: PLC0414
-)
-from .backends import (
-    QuantinuumBackend as QuantinuumBackend,  # noqa: PLC0414
-)
-from .backends import (
-    QuantinuumBackendCompilationConfig as QuantinuumBackendCompilationConfig,  # noqa: PLC0414
-)
-from .backends import (
-    have_pecos as have_pecos,  # noqa: PLC0414
-)
-from .backends import (
-    prune_shots_detected_as_leaky as prune_shots_detected_as_leaky,  # noqa: PLC0414
+    H1,
+    H2,
+    Language,
+    QuantinuumAPI,
+    QuantinuumAPIOffline,
+    QuantinuumBackend,
+    QuantinuumBackendCompilationConfig,
+    QuantinuumBackendData,
+    have_pecos,
+    prune_shots_detected_as_leaky,
 )

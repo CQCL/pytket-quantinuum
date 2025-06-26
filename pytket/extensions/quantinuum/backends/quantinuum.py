@@ -81,6 +81,7 @@ from pytket.utils.outcomearray import OutcomeArray
 from pytket.wasm import WasmFileHandler
 
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIError
+from .data import QuantinuumBackendData
 
 if TYPE_CHECKING:
     import matplotlib
@@ -260,6 +261,12 @@ class _LocalEmulatorConfiguration:
     noisy_simulation: bool
 
 
+class BackendOfflineError(Exception):
+    """Raised when backend constructed with the `data` parameter is asked to make an
+    online API call.
+    """
+
+
 class QuantinuumBackend(Backend):
     """
     Interface to a Quantinuum device.
@@ -282,6 +289,7 @@ class QuantinuumBackend(Backend):
         machine_debug: bool = False,
         api_handler: QuantinuumAPI = DEFAULT_API_HANDLER,
         compilation_config: QuantinuumBackendCompilationConfig | None = None,
+        data: QuantinuumBackendData | None = None,
         **kwargs: QuumKwargTypes,
     ):
         """Construct a new Quantinuum backend.
@@ -296,6 +304,9 @@ class QuantinuumBackend(Backend):
             only support 'microsoft', which enables the microsoft Device Flow.
         :param api_handler: Instance of API handler, defaults to DEFAULT_API_HANDLER
         :param compilation_config: Optional compilation configuration
+        :param data: Data characterizing the backend. If this is not provided, the data
+            are retrieved online using the `device_name` provided. If it is provided,
+            then no online queries are made and no online submission is possible.
 
         Supported kwargs:
 
@@ -330,6 +341,8 @@ class QuantinuumBackend(Backend):
             self._compilation_config = QuantinuumBackendCompilationConfig()
         else:
             self._compilation_config = compilation_config
+
+        self._data = data
 
     @property
     def compilation_config(self) -> QuantinuumBackendCompilationConfig:
@@ -428,13 +441,29 @@ class QuantinuumBackend(Backend):
                 devices.append(cls._dict_to_backendinfo(d, local_emulator=True))
         return devices
 
-    def _retrieve_backendinfo(self, machine: str) -> BackendInfo:
-        infos = self.available_devices(api_handler=self.api_handler)
-        try:
-            info = next(entry for entry in infos if entry.device_name == machine)
-        except StopIteration:
-            raise DeviceNotAvailable(machine)  # noqa: B904
-        info.misc["options"] = self._process_circuits_options
+    def _retrieve_backendinfo(self) -> BackendInfo:
+        if self._data is None:
+            infos = self.available_devices(api_handler=self.api_handler)
+            try:
+                info = next(
+                    entry for entry in infos if entry.device_name == self._device_name
+                )
+            except StopIteration:
+                raise DeviceNotAvailable(self._device_name)  # noqa: B904
+            info.misc["options"] = self._process_circuits_options
+        else:
+            info = BackendInfo(
+                name=self.__class__.__name__,
+                device_name=self._device_name,
+                version=__extension_version__,
+                architecture=FullyConnected(self._data.n_qubits, "q"),
+                gate_set=set(self._data.gate_set),
+                n_cl_reg=self._data.n_cl_reg,
+                supports_fast_feedforward=True,
+                supports_midcircuit_measurement=True,
+                supports_reset=True,
+                misc={},
+            )
         return info
 
     @classmethod
@@ -512,6 +541,9 @@ class QuantinuumBackend(Backend):
             datetime.datetime objects.
         """
 
+        if self._data is not None:
+            raise BackendOfflineError("get_calendar() not available for this backend")
+
         if not isinstance(start_date, datetime.datetime) or not isinstance(
             end_date, datetime.datetime
         ):
@@ -581,6 +613,10 @@ class QuantinuumBackend(Backend):
             calendar for a user-specified calendar month.
         :return_type: matplotlib.figure.Figure
         """
+
+        if self._data is not None:
+            raise BackendOfflineError("view_calendar() not available for this backend")
+
         if not MATPLOTLIB_IMPORT:
             raise ImportError(
                 "Matplotlib is not installed. Please run \
@@ -602,7 +638,7 @@ class QuantinuumBackend(Backend):
     @property
     def backend_info(self) -> BackendInfo | None:
         if self._backend_info is None and not self._MACHINE_DEBUG:
-            self._backend_info = self._retrieve_backendinfo(self._device_name)
+            self._backend_info = self._retrieve_backendinfo()
         return self._backend_info
 
     @cached_property
@@ -655,6 +691,8 @@ class QuantinuumBackend(Backend):
         """True if the backend is a local emulator, otherwise False"""
         if self._MACHINE_DEBUG:
             return False
+        if self._data is not None:
+            return self._data.local_emulator
         info = self.backend_info
         assert info is not None
         return bool(info.get_misc("system_type") == "local_emulator")
@@ -983,6 +1021,9 @@ class QuantinuumBackend(Backend):
         :return: ResultHandle for submitted job.
         """
 
+        if self._data is not None:
+            raise BackendOfflineError("submit_program() not available for this backend")
+
         if self.is_local_emulator:
             raise NotImplementedError(
                 "submit_program() not supported with local emulator"
@@ -1113,6 +1154,12 @@ class QuantinuumBackend(Backend):
         * `max_cost`: if set, the maximum amount in HQC to be spent on running the job.
           Ignored for local emulator.
         """
+
+        if self._data is not None and not self.is_local_emulator:
+            raise BackendOfflineError(
+                "process_circuits() not available for this backend"
+            )
+
         circuits = list(circuits)
         n_shots_list = Backend._get_n_shots_as_list(  # noqa: SLF001
             n_shots,
@@ -1580,6 +1627,10 @@ jobid is {jobid}"
         :raises ValueError: Circuit is not valid, needs to be compiled.
         :return: Cost in HQC to execute the shots.
         """
+
+        if self._data is not None:
+            raise BackendOfflineError("cost() not available for this backend")
+
         if not self.valid_circuit(circuit):
             raise ValueError(
                 "Circuit does not satisfy predicates of backend."  # noqa: ISC003
