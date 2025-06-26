@@ -4,13 +4,14 @@
 
 # Changelog
 
-## Unreleased
+## 0.50.0 (June 2025)
 
 - Update pytket-qir minimum version requirement to 0.24.1.
 - Emit deprecation warning from submit_program().
 - Add optional `data` argument to `QuantinuumBackend` constructor to allow
   offline usage (as compilation engine or local emulator) when device data are
   known.
+- Update pytket minimum version requirement to 2.6.0.
 
 ## 0.48.0 (May 2025)
 
