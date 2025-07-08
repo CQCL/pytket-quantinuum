@@ -4,6 +4,10 @@
 
 # Changelog
 
+## Unreleased
+
+- Add optional argument `request_raw_results` to `QuantinuumAPI.retrieve_job_status`.
+
 ## 0.51.0 (July 2025)
 
 - Update list of accepted op types for validity check.
