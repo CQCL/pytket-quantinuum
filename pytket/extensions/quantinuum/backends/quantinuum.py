@@ -120,6 +120,11 @@ _ADDITIONAL_GATES = {
     OpType.CopyBits,
     OpType.ClExpr,
     OpType.WASM,
+    OpType.RNGSeed,
+    OpType.RNGBound,
+    OpType.RNGIndex,
+    OpType.RNGNum,
+    OpType.JobShotNum,
 }
 
 _GATE_MAP = {

@@ -4,6 +4,11 @@
 
 # Changelog
 
+## 0.51.0 (July 2025)
+
+- Update list of accepted op types for validity check.
+- Update pytket minimum version requirement to 2.7.0.
+
 ## 0.50.0 (June 2025)
 
 - Update pytket-qir minimum version requirement to 0.24.1.
