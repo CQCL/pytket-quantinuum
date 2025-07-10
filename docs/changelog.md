@@ -4,7 +4,7 @@
 
 # Changelog
 
-## Unreleased
+## 0.52.0 (July 2025)
 
 - Add optional argument `request_raw_results` to `QuantinuumAPI.retrieve_job_status`.
 
