@@ -18,20 +18,23 @@ See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/training
         :special-members: __init__
         :members:
 
-    .. autoclass:: QuantinuumBackendData
-        :members:
-    .. autodata:: H1
-    .. autodata:: H2
-
     .. autoclass:: QuantinuumBackendCompilationConfig
         :members:
 
+    .. autoexception:: BackendOfflineError
     .. autoexception:: BatchingUnsupported
     .. autoexception:: DeviceNotAvailable
     .. autoexception:: GetResultFailed
     .. autoexception:: LanguageUnsupported
     .. autoexception:: MaxShotsExceeded
     .. autoexception:: NoSyntaxChecker
+
+.. automodule:: pytket.extensions.quantinuum.backends.data
+
+    .. autoclass:: QuantinuumBackendData
+        :members:
+    .. autodata:: H1
+    .. autodata:: H2
 
 .. automodule:: pytket.extensions.quantinuum.backends.api_wrappers
 

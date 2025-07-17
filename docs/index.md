@@ -280,8 +280,8 @@ Also partial results enable users to quickly validate basic execution for very l
 
 ## Leakage Gadget Detection
 
-When running circuits on the {py:class}`QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
-Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:meth}`prune_shots_detected_as_leaky`.
+When running circuits on the {py:class}`~.QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
+Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:func}`~.prune_shots_detected_as_leaky`.
 For a more detailed explanation we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding [notebook tutorial](https://docs.quantinuum.com/systems/trainings/knowledge_articles/Quantinuum_leakage_detection.html).
 
 ## Batching
