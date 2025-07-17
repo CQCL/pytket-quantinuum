@@ -1404,7 +1404,7 @@ class QuantinuumBackend(Backend):
     ) -> dict:
         if not self.api_handler:
             raise RuntimeError("API handler not set")
-        with self.api_handler._override_timeouts(timeout=timeout, retry_timeout=wait):
+        with self.api_handler._override_timeouts(timeout=timeout, retry_timeout=wait):  # noqa: SLF001
             # set and unset optional timeout parameters
             job_dict = self.api_handler.retrieve_job(jobid, use_websocket)
 
