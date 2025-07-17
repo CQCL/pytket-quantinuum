@@ -323,7 +323,10 @@ class QuantinuumAPI:
             )
 
     def retrieve_job_status(
-        self, job_id: str, use_websocket: bool | None = None
+        self,
+        job_id: str,
+        use_websocket: bool | None = None,
+        request_raw_results: bool | None = None,
     ) -> dict | None:
         """
         Retrieves job status from device.
@@ -337,9 +340,14 @@ class QuantinuumAPI:
         job_url = f"{self.url}job/{job_id}"
         # Using the login wrapper we will automatically try to refresh token
         id_token = self.login()
+        params = {}
         if use_websocket or (use_websocket is None and self.use_websocket):
-            job_url += "?websocket=true"
-        res = self.session.get(job_url, headers={"Authorization": id_token})
+            params.update({"websocket": "true"})
+        if request_raw_results:
+            params.update({"results_format": "raw"})
+        res = self.session.get(
+            job_url, headers={"Authorization": id_token}, params=params
+        )
 
         jr: dict | None = None
         # Check for invalid responses, and raise an exception if so

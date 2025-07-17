@@ -1545,6 +1545,7 @@ def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
     return backend.view_calendar(month=2, year=2024)
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
@@ -1574,6 +1575,7 @@ def test_optimisation_level_3_compilation(
     assert compiled_3.depth() == 49
 
 
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )

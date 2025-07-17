@@ -2,7 +2,7 @@
 
 The pytket-quantinuum extension allows submission of pytket circuits to Quantinuum systems (and emulators) via the {py:class}`~pytket.extensions.quantinuum.QuantinuumBackend`.
 
-See the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website for some example usage.
+See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website for some example usage.
 
 ```{eval-rst}
 .. automodule:: pytket.extensions.quantinuum
@@ -18,9 +18,14 @@ See the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainin
         :special-members: __init__
         :members:
 
+    .. autoclass:: QuantinuumBackendData
+        :members:
+    .. autodata:: H1
+    .. autodata:: H2
+
     .. autoclass:: QuantinuumBackendCompilationConfig
         :members:
-    
+
     .. autoexception:: BatchingUnsupported
     .. autoexception:: DeviceNotAvailable
     .. autoexception:: GetResultFailed

@@ -14,10 +14,10 @@ and Windows. To install, run:
 pip install pytket-quantinuum
 ```
 
-For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/h-series/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the Quantinuum Systems documentation.
+For example usage see the [pytket-quantinuum section](https://docs.quantinuum.com/systems/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the Quantinuum Systems documentation.
 
 :::{note}
-pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how to access H-Series through Nexus, please see the [Nexus documentation](https://docs.quantinuum.com/nexus) and the [qnexus](https://pypi.org/project/qnexus/) Python package.
+pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how to access systems through Nexus, please see the [Nexus documentation](https://docs.quantinuum.com/nexus) and the [qnexus](https://pypi.org/project/qnexus/) Python package.
 :::
 
 :::{note}
@@ -41,14 +41,14 @@ In case of questions about the hardware you can get in contact with the team sen
 
 The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
 
-- `H1-1`, `H2-1`: Quantum devices, submit specifically to `H1-1` or `H2-1` by using the device name.
-- `H1-1E`, `H2-1E`: Device-specific emulators of `H1-1` and `H2-1`. These emulators run remotely on servers and require credentials.
-- `H1-1SC`, `H2-1SC`: Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the H-Series Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
+- `H1-1`, `H2-1`, `H2-2`: Quantum devices, submit to a specific device by using the device name.
+- `H1-1E`, `H2-1E`, `H2-2E`: Device-specific emulators. These emulators run remotely on servers and require credentials.
+- `H1-1SC`, `H2-1SC`, `H2-2SC` : Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the Hardware Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
 - `H1-1LE`, a version of the `H1-1E` emulator that runs locally. For running simulations locally, see the docs on [Local Emulators](#local-emulators).
 
 There are also optional initialisation parameters `label` (for naming circuits), `group` (identifier for a collection of jobs) and `simulator` (see below).
 
-The H-series devices and emulators produce shots-based results and therefore require measurements. It is also possible to use a stabilizer simulator by specifying `simulator='stabilizer'`. This option may be preferable for simulating Clifford circuits.
+The devices and emulators produce shots-based results and therefore require measurements. It is also possible to use a stabilizer simulator by specifying `simulator='stabilizer'`. This option may be preferable for simulating Clifford circuits.
 
 By default the emulators use noise models based on the real devices. It is possible to perform a noiseless simulation by specifying `noisy_simulation=False`.
 
@@ -280,9 +280,9 @@ Also partial results enable users to quickly validate basic execution for very l
 
 ## Leakage Gadget Detection
 
-When running circuits on the {py:class}`~.QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
-Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:meth}`~pytket.extensions.quantinuum.backends.leakage_gadget.prune_shots_detected_as_leaky`.
-For a more detailed explanation we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding [notebook tutorial](https://docs.quantinuum.com/h-series/trainings/knowledge_articles/Quantinuum_leakage_detection.html).
+When running circuits on the {py:class}`QuantinuumBackend`, one source of error is "leakage", where with some small probability a qubit will experience leakage into electronic states outside the qubit subspace. When this occurs, none of the remaining gates in the circuit will have any effect and so this leads to erroneous results.
+Such leakage errors can be detected at the circuit level by running a special circuit gadget between a data qubit and an ancilla qubit. We can then discard shots where a leakage error is detected using {py:meth}`prune_shots_detected_as_leaky`.
+For a more detailed explanation we refer to [Eliminating Leakage Errors in Hyperfine Qubits](https://arxiv.org/abs/1912.13131) by D. Hayes, D. Stack, B. Bjork, A. C. Potter, C. H. Baldwin and R. P. Stutz and the corresponding [notebook tutorial](https://docs.quantinuum.com/systems/trainings/knowledge_articles/Quantinuum_leakage_detection.html).
 
 ## Batching
 
