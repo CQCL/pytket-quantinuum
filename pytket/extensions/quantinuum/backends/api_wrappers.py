@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Functions used to submit jobs with Quantinuum API.
-"""
-
 import asyncio
 import contextlib
 import getpass
@@ -97,7 +93,7 @@ class QuantinuumAPI:
         """Initialize Quantinuum API client.
 
         :param token_store: JWT Token store, defaults to None
-            A new MemoryCredentialStorage will be initialised
+            A new :py:class:`~.MemoryCredentialStorage` will be initialised
             if None is provided.
         :param api_url: _description_, defaults to DEFAULT_API_URL
         :param api_version: API version, defaults to 1
@@ -105,7 +101,7 @@ class QuantinuumAPI:
         :param support_mfa: Whether to wait for the user to input the auth code,
             defaults to True
         :param session: Session for HTTP requests, defaults to None
-            A new requests.Session will be initialised if None
+            A new ``requests.Session`` will be initialised if None
             is provided
         """
         self.online = True
@@ -148,7 +144,7 @@ class QuantinuumAPI:
         self.retry_timeout = 5
         self.timeout: int | None = None  # don't timeout by default
 
-    def override_timeouts(
+    def _override_timeouts(
         self, timeout: int | None = None, retry_timeout: int | None = None
     ) -> _OverrideManager:
         return _OverrideManager(self, timeout=timeout, retry_timeout=retry_timeout)
@@ -645,7 +641,7 @@ class QuantinuumAPIOffline:
     def __init__(self, machine_list: list | None = None):
         """Initialize offline API client.
 
-        Tries to allow all the operations of the QuantinuumAPI without
+        Tries to allow all the operations of the :py:class:`QuantinuumAPI` without
         any interaction with the remote device.
 
         All jobs that are submitted to this offline API are stored

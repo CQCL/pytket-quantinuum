@@ -29,7 +29,7 @@ class CredentialStorage(ABC):
     The login process also returns a refresh token, allowing the ID token to be
     refreshed without requiring a new login.
 
-    ``CredentialStorage`` defines the interface for storing and accessing these
+    :py:class:`CredentialStorage` defines the interface for storing and accessing these
     credentials, with derived classes providing specific implementations.
     """
 
@@ -106,7 +106,7 @@ class MemoryCredentialStorage(CredentialStorage):
         id_token_timedelt: timedelta = timedelta(minutes=55),
         refresh_token_timedelt: timedelta = timedelta(days=29),
     ) -> None:
-        """Construct a MemoryCredentialStorage instance.
+        """Construct a :py:class:`MemoryCredentialStorage` instance.
 
         :param id_token_timedelt: The time duration for which the ID token is valid.
             Defaults to 55 minutes.
@@ -199,7 +199,7 @@ class QuantinuumConfigCredentialStorage(CredentialStorage):
         id_token_timedelt: timedelta = timedelta(minutes=55),
         refresh_token_timedelt: timedelta = timedelta(days=29),
     ) -> None:
-        """Construct a QuantinuumConfigCredentialStorage instance.
+        """Construct a :py:class:`QuantinuumConfigCredentialStorage` instance.
 
         :param id_token_timedelt: The time duration for which the ID token is valid.
             Defaults to 55 minutes.
