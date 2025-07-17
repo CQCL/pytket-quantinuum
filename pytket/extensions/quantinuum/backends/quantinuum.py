@@ -105,6 +105,8 @@ _STATUS_MAP = {
     "failed": StatusEnum.ERROR,
     "canceling": StatusEnum.CANCELLED,
     "canceled": StatusEnum.CANCELLED,
+    "depleted": StatusEnum.ERROR,
+    "terminated": StatusEnum.ERROR,
 }
 
 _ADDITIONAL_GATES = {
