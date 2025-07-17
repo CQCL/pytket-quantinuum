@@ -37,7 +37,6 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Submodule providing calendar visualisation functionality"""
 
 import calendar
 import datetime
@@ -64,7 +63,7 @@ class QuantinuumCalendar:
         return [calendar.day_name[i] for i in range(7)]
 
     def __init__(self, year: int, month: int, title_prefix: str):
-        """Construct a `QuantinuumCalendar` object.
+        """Construct a :py:class:`QuantinuumCalendar` object.
 
         :param year: An integer representing the year, i.e. 2024.
         :param month: An integer representing the month in the year,
@@ -105,13 +104,14 @@ class QuantinuumCalendar:
     def add_events(self, events_list: list[dict[str, object]]) -> None:
         """Add list of events. Each event is a dictionary and
         must have the following keys:
-        * 'start-date', a datetime.datetime object
-        * 'end-date', a datetime.datetime object
-        * 'event-type', a string specifying if the device is `online`
-            or has a `reservation`.
+
+        * 'start-date', a ``datetime.datetime`` object
+        * 'end-date', a ``datetime.datetime`` object
+        * 'event-type', a string specifying if the device is ``online``
+          or has a ``reservation``.
         * 'organization', a string specifying the organisation with
-            reservation access. Otherwise, if the event-type is `online`,
-            the organization is listed as `fairshare`.
+          reservation access. Otherwise, if the event-type is ``online``,
+          the organization is listed as ``fairshare``.
         """
         for event in events_list:
             event_start: datetime.datetime = event["start-date"]  # type: ignore
@@ -131,7 +131,7 @@ class QuantinuumCalendar:
         fontsize: float = 15,
         titlesize: float = 40,
     ) -> Figure:
-        """Display calendar on a matplotlib.figure.Figure object.
+        """Display calendar on a ``matplotlib.figure.Figure`` object.
 
         :param figsize:
         :param fontsize:

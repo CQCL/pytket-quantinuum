@@ -21,8 +21,8 @@ pytket-quantinuum is not compatible with Quantinuum Nexus. For guidance on how t
 :::
 
 :::{note}
-Running circuits remotely on the `QuantinuumBackend` requires a [Quantinuum](https://www.quantinuum.com/) account.
-The user will be prompted for their login credentials when making API calls such as calling the `process_circuits` method or querying `backend_info`.
+Running circuits remotely on the {py:class}`~.QuantinuumBackend` requires a [Quantinuum](https://www.quantinuum.com/) account.
+The user will be prompted for their login credentials when making API calls such as calling the {py:meth}`~.QuantinuumBackend.process_circuits` method or querying {py:attr}`~.QuantinuumBackend.backend_info`.
 :::
 
 `pytket-quantinuum` provides calendar visualization capabilities. The `calendar` extra-install-argument must be specified to install matplotlib and pandas.
@@ -32,14 +32,14 @@ pip install pytket-quantinuum[calendar]
 ```
 
 :::{note}
-`view_calendar` requires the extra-install-argument above. The method `get_calendar` can be used with the base installation of pytket-quantinuum.
+{py:meth}`~.QuantinuumBackend.view_calendar` requires the extra-install-argument above. The method {py:meth}`~.QuantinuumBackend.get_calendar` can be used with the base installation of pytket-quantinuum.
 :::
 
 In case of questions about the hardware you can get in contact with the team sending an email to <mailto:QCsupport@quantinuum.com>.
 
 # Available Backends
 
-The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the `QuantinuumBackend` class. The available devices are:
+The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
 
 - `H1-1`, `H2-1`: Quantum devices, submit specifically to `H1-1` or `H2-1` by using the device name.
 - `H1-1E`, `H2-1E`: Device-specific emulators of `H1-1` and `H2-1`. These emulators run remotely on servers and require credentials.
@@ -54,9 +54,9 @@ By default the emulators use noise models based on the real devices. It is possi
 
 # Default Compilation
 
-Every `Backend` in pytket has its own `default_compilation_pass` method.
+Every {py:class}`~pytket.backends.backend.Backend` in pytket has its own {py:meth}`~pytket.backends.backend.Backend.default_compilation_pass` method.
 This method applies a sequence of optimisations to a circuit depending on the value of an `optimisation_level` parameter.
-This default compilation will ensure that the circuit meets all the constraints required to run on the `Backend`.
+This default compilation will ensure that the circuit meets all the constraints required to run on the {py:class}`~pytket.backends.backend.Backend`.
 
 The default pass can be applied in place as follows
 
@@ -74,7 +74,7 @@ backend = QuantinuumBackend('H1-1E')
 backend.default_compilation_pass().apply(circ)
 ```
 
-Alternatively the default pass can be applied using the `get_compiled_circuit` method.
+Alternatively the default pass can be applied using the {py:meth}`~pytket.backends.backend.Backend.get_compiled_circuit` method.
 
 ```{code-cell} ipython3
 ---
@@ -95,56 +95,56 @@ the circuit 2-qubit gate count is not reduced after compilation.
   - optimisation_level = 1
   - optimisation_level = 2 [1]
   - optimisation_level = 3
-* - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
-  - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
-  - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
-  - [DecomposeBoxes](inv:#*.passes.DecomposeBoxes)
-* - [scratch_reg_resize_pass](inv:#*.passes.resizeregpass.scratch_reg_resize_pass)
-  - [scratch_reg_resize_pass](inv:#*.passes.resizeregpass.scratch_reg_resize_pass)
-  - [scratch_reg_resize_pass](inv:#*.passes.resizeregpass.scratch_reg_resize_pass)
-  - [scratch_reg_resize_pass](inv:#*.passes.resizeregpass.scratch_reg_resize_pass)
-* - [AutoRebase [2]](inv:#*.AutoRebase)
-  - [SynthesiseTket](inv:#*.SynthesiseTket)
-  - [FullPeepholeOptimise [3]](inv:#*.passes.FullPeepholeOptimise)
-  - [RemoveBarriers](inv:#*pytket.passes.RemoveBarriers)
-* - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
-  - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
-  - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
-  - [GreedyPauliSimp](inv:#*.passes.GreedyPauliSimp)
+* - {py:meth}`~pytket.passes.DecomposeBoxes`
+  - {py:meth}`~pytket.passes.DecomposeBoxes`
+  - {py:meth}`~pytket.passes.DecomposeBoxes`
+  - {py:meth}`~pytket.passes.DecomposeBoxes`
+* - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
+  - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
+  - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
+  - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
+* - {py:meth}`~pytket.passes.AutoRebase` [2]
+  - {py:meth}`~pytket.passes.SynthesiseTket`
+  - {py:meth}`~pytket.passes.FullPeepholeOptimise` [3]
+  - {py:meth}`~pytket.passes.RemoveBarriers`
+* - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
+  - {py:meth}`~pytket.passes.NormaliseTK2` [5]
+  - {py:meth}`~pytket.passes.NormaliseTK2` [5]
+  - {py:meth}`~pytket.passes.GreedyPauliSimp`
 * -
-  - [DecomposeTK2 [5]](inv:#*.passes.DecomposeTK2)
-  - [DecomposeTK2 [5]](inv:#*.passes.DecomposeTK2)
-  - [NormaliseTK2 [5]](inv:#*.passes.NormaliseTK2)
+  - {py:meth}`~pytket.passes.DecomposeTK2` [5]
+  - {py:meth}`~pytket.passes.DecomposeTK2` [5]
+  - {py:meth}`~pytket.passes.NormaliseTK2` [5]
 * -
-  - [AutoRebase [2]](inv:#*.AutoRebase)
-  - [AutoRebase [2]](inv:#*.AutoRebase)
-  - [DecomposeTK2 [5]](inv:#*.passes.DecomposeTK2)
+  - {py:meth}`~pytket.passes.AutoRebase` [2]
+  - {py:meth}`~pytket.passes.AutoRebase` [2]
+  - {py:meth}`~pytket.passes.DecomposeTK2` [5]
 * -
-  - [ZZPhaseToRz](inv:#*.passes.ZZPhaseToRz)
-  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
-  - [AutoRebase [2]](inv:#*.AutoRebase)
+  - {py:meth}`~pytket.passes.ZZPhaseToRz`
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
+  - {py:meth}`~pytket.passes.AutoRebase` [2]
 * -
-  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
-  - [AutoSquash [4]](inv:#*.AutoSquash)
-  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
+  - {py:meth}`~pytket.passes.AutoSquash` [4]
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
 * -
-  - [AutoSquash [4]](inv:#*.AutoSquash)
-  - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
-  - [AutoSquash [4]](inv:#*.AutoSquash)
+  - {py:meth}`~pytket.passes.AutoSquash` [4]
+  - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
+  - {py:meth}`~pytket.passes.AutoSquash` [4]
 * -
-  - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
-  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
-  - [FlattenRelabelRegistersPass](inv:#*.FlattenRelabelRegistersPass)
+  - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
+  - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
 * -
-  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
   -
-  - [RemoveRedundancies](inv:#*.passes.RemoveRedundancies)
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
 :::
 
 - \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
-- \[2\] [AutoRebase](inv:#*.AutoRebase) is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
-- \[3\] [FullPeepholeOptimise](inv:#*.passes.FullPeepholeOptimise) has the argument `target_2qb_gate=OpType.TK2`.
-- \[4\] [AutoSquash](inv:#*.AutoSquash) targets the $\{PhasedX, Rz\}$ gate set, i.e. [AutoSquash({OpType.PhasedX, OpType.Rz}](inv:#*.AutoSquash).
+- \[2\] {py:meth}`~pytket.passes.AutoRebase` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
+- \[3\] {py:meth}`~pytket.passes.FullPeepholeOptimise` has the argument `target_2qb_gate=OpType.TK2`.
+- \[4\] {py:meth}`~pytket.passes.AutoSquash` targets the $\{PhasedX, Rz\}$ gate set, i.e. `AutoSquash({OpType.PhasedX, OpType.Rz})`.
 - \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
 
 :::{note}
@@ -152,7 +152,7 @@ If `optimisation_level = 0` the device constraints are solved but no additional 
 :::
 
 :::{note}
-The pass [ZZPhaseToRz](inv:#*.passes.ZZPhaseToRz) is left out of `optimisation_level=2` as the passes applied by [FullPeepholeOptimise](inv:#*.passes.FullPeepholeOptimise) will already cover these optimisations.
+The pass {py:meth}`~pytket.passes.ZZPhaseToRz` is left out of `optimisation_level=2` as the passes applied by {py:meth}`~pytket.passes.FullPeepholeOptimise` will already cover these optimisations.
 :::
 
 # Target Two-Qubit Gate
@@ -160,27 +160,27 @@ The pass [ZZPhaseToRz](inv:#*.passes.ZZPhaseToRz) is left out of `optimisation_l
 Backends may offer several alternatives as the native two-qubit gate: the
 current possibilities are `ZZMax`, `ZZPhase` and `TK2`. The set of
 supported gates may be queried using the
-`QuantinuumBackend.two_qubit_gate_set` property. Each device also has a
+{py:attr}`~.QuantinuumBackend.two_qubit_gate_set` property. Each device also has a
 default two-qubit gate, which may be queried using the
-`QuantinuumBackend.default_two_qubit_gate` property. Currently, the default
+{py:attr}`~.QuantinuumBackend.default_two_qubit_gate` property. Currently, the default
 two-qubit gate for all devices is `ZZPhase`.
 
 The default compilation pass and rebase pass will target the default gate by
 default. This may be overridden using the method
-`QuantinuumBackend.set_compilation_config_target_2qb_gate()` or by passing a
-`QuantinuumBackendCompilationConfig` when constructing the backend.
+{py:meth}`~.QuantinuumBackend.set_compilation_config_target_2qb_gate` or by passing a
+{py:class}`~.QuantinuumBackendCompilationConfig` when constructing the backend.
 
 # Device Predicates
 
-Circuits must satisfy the following predicates in order to run on the `QuantinuumBackend`.
+Circuits must satisfy the following predicates in order to run on the {py:class}`~.QuantinuumBackend`.
 
-- [NoSymbolsPredicate](inv:#pytket.predicates.NoSymbolsPredicate): Parameterised gates must have numerical parameters when the circuit is executed.
-- [GateSetPredicate](inv:#pytket.predicates.GateSetPredicate): To view supported Ops run `QuantinuumBackend.backend_info.gate_set`.
-- [MaxNQubitsPredicate](inv:#pytket.predicates.MaxNQubitsPredicate): `H1-1`, `H1-1E` and `H1-1SC` all support a maximum of 20 qubits. `H2-1`, `H2-1E` and `H2-1SC` all support a maximum of 56 qubits.
+- {py:class}`~pytket.predicates.NoSymbolsPredicate`: Parameterised gates must have numerical parameters when the circuit is executed.
+- {py:class}`~pytket.predicates.GateSetPredicate`: To view supported Ops run `QuantinuumBackend.backend_info.gate_set`.
+- {py:class}`~pytket.predicates.MaxNQubitsPredicate`: `H1-1`, `H1-1E` and `H1-1SC` all support a maximum of 20 qubits. `H2-1`, `H2-1E` and `H2-1SC` all support a maximum of 56 qubits.
 
 # Job Statuses
 
-When using the `QuantinuumBackend` to run circuits there are several possible circuit statuses.
+When using the {py:class}`~.QuantinuumBackend` to run circuits there are several possible circuit statuses.
 
 - queued - The job has been queued but has not yet been run.
 - running - The circuit is currently being run on the device/emulator.
@@ -189,7 +189,7 @@ When using the `QuantinuumBackend` to run circuits there are several possible ci
 - cancelling - The job is in the process of being cancelled.
 - cancelled - The job has been cancelled.
 
-The status of the job can be checked with by using the `circuit_status` method. To cancel a job simply use the `cancel` method and supply the job handle as a parameter.
+The status of the job can be checked with by using the {py:meth}`~.QuantinuumBackend.circuit_status` method. To cancel a job simply use the {py:meth}`~.QuantinuumBackend.cancel` method and supply the job handle as a parameter.
 
 # Additional Backend Capabilities
 
@@ -197,24 +197,24 @@ The backend available through pytket-quantinuum has a `cost` method. This calcul
 
 Every backend also supports mid-circuit measurements and fast classical feedforward.
 
-The `process_circuits` method for the QuantinuumBackend accepts the following additional keyword arguments.
+The {py:meth}`~.QuantinuumBackend.process_circuits` method for the QuantinuumBackend accepts the following additional keyword arguments.
 
 - `postprocess` : boolean flag to allow classical postprocessing.
 - `noisy_simulation` : boolean flag to specify whether the simulator should
   perform noisy simulation with an error model (default value is `True`).
 - `group` : string identifier of a collection of jobs, can be used for usage tracking.
 
-For the Quantinuum `Backend`, `process_circuits` returns a `ResultHandle` object containing a `job_id` and a postprocessing ( `ppcirc`) circuit if there is one.
+For {py:class}`~.QuantinuumBackend`, {py:meth}`~.QuantinuumBackend.process_circuits` returns a {py:class}`~pytket.backends.resulthandle.ResultHandle` object containing a `job_id` and a postprocessing ( `ppcirc`) circuit if there is one.
 
-The `logout()` method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.
+The {py:meth}`~.QuantinuumBackend.logout` method clears stored JSON web tokens and the user will have to sign in again to access the Quantinuum API.
 
 ## Persistent Authentication Token Storage
 
 Following a successful login, the refresh token and the ID token, which are required for making further requests, will be saved.
 This means you won't need to re-enter your credentials until these tokens expire. By default, these tokens are only stored in memory and will be removed once the Python session ends or if you manually log out.
 
-For more persistent storage, consider using the `QuantinuumConfigCredentialStorage`. This storage option saves your username and the authentication tokens to the `pytket` configuration file, ensuring they persist beyond the current session.
-To enable this, pass `QuantinuumConfigCredentialStorage` as an argument to `QuantinuumAPI`, which is then provided to `QuantinuumBackend`.
+For more persistent storage, consider using the {py:class}`~.QuantinuumConfigCredentialStorage`. This storage option saves your username and the authentication tokens to the `pytket` configuration file, ensuring they persist beyond the current session.
+To enable this, pass {py:class}`~.QuantinuumConfigCredentialStorage` as an argument to {py:class}`~.QuantinuumAPI`, which is then provided to {py:class}`~.QuantinuumBackend`.
 
 ```{code-cell} ipython3
 ---
@@ -295,9 +295,9 @@ until the end of the batch is reached or there are no new jobs added to the batc
 for ~1 min (at which point the batch expires and any subsequent jobs will be
 added to the standard queue).
 
-The standard `process_circuits` method **no
+The standard {py:meth}`~.QuantinuumBackend.process_circuits` method **no
 longer batches by default**. To use batching first start the batch with
-`start_batch`, which has a similar interface to `process_circuit` but with
+{py:meth}`~.QuantinuumBackend.start_batch`, which has a similar interface to {py:meth}`~pytket.backends.backend.Backend.process_circuit` but with
 an extra first argument `max_batch_cost`:
 
 ```{code-cell} ipython3
@@ -307,7 +307,7 @@ tags: [skip-execution]
 h1 = backend.start_batch(max_batch_cost=300, circuit=circuit, n_shots=100)
 ```
 
-Add to the batch with subsequent calls of `add_to_batch` which takes as first
+Add to the batch with subsequent calls of {py:meth}`~.QuantinuumBackend.add_to_batch` which takes as first
 argument the handle of the first job of the batch, and has the optional keyword
 argument `batch_end` to signal the end of a batch (default `False`).
 
@@ -344,13 +344,13 @@ small circuits would typically be faster).
 Currently this emulation is noiseless, so if noisy emulation is required it is
 still necessary to use the remote emulators (such as "H1-1E").
 
-A few of the `QuantinuumBackend` methods (`submit_program()`, `cancel()`,
-and `get_partial_result()`) are not available for local-emulator backends.
+A few of the {py:class}`~.QuantinuumBackend` methods ({py:meth}`~.QuantinuumBackend.submit_program`, {py:meth}`~.QuantinuumBackend.cancel`,
+and {py:meth}`~.QuantinuumBackend.get_partial_result`) are not available for local-emulator backends.
 
 Normally using the local emulator requires one initial online API query to
 retrieve the device information. To use it completely offline (with the caveat
 that this relies on hard-coded assumptions about the available devices), you can
-use the `QuantinuumAPIOffline` when constructing the backend:
+use the {py:class}`~.QuantinuumAPIOffline` when constructing the backend:
 
 ```{code-cell} ipython3
 ---

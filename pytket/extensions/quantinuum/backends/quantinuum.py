@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Pytket Backend for Quantinuum devices."""
 
 import datetime
 import json
@@ -480,15 +479,15 @@ class QuantinuumBackend(Backend):
         The output is a sorted list of dictionaries. Each dictionary is an
         event on the operations calendar for the period specified by the
         end-user. The output from this function can be readily used
-        to instantiate a pandas.DataFrame.
+        to instantiate a ``pandas.DataFrame``.
 
         The dictionary has the following properties.
 
-        * 'start-date': The  start date and start time as a datetime.datetime object.
-        * 'end-date': The end date and end time as a datetime.datetime object.
+        * 'start-date': The  start date and start time as a ``datetime.datetime`` object.
+        * 'end-date': The end date and end time as a ``datetime.datetime`` object.
         * 'machine': A string specifying the device attached to the event.
-        * 'event-type': The type of event as a string. The value `online` denotes queued
-            access to the device, and the value `reservation` denotes priority access
+        * 'event-type': The type of event as a string. The value 'online' denotes queued
+            access to the device, and the value 'reservation' denotes priority access
             for a particular organisation.
         * 'organization': If the 'event-type' is assigned the value 'reservation', the
             organization with reservation access is specified. Only users within an
@@ -497,19 +496,19 @@ class QuantinuumBackend(Backend):
             organizations are able to submit jobs to the Fairshare queue during this
             period.
 
-        :param start_date: The start date as datetime.date object
+        :param start_date: The start date as ``datetime.date`` object
             for the period to return the operations calendar.
-        :param end_date: The end date as datetime.date object
+        :param end_date: The end date as ``datetime.date`` object
             for the period to return the operations calendar.
         :param localise: Apply localization to the datetime based
             on the end-users time zone. Default is True. Disable by
             setting False.
         :return: A list of events from the operations calendar,
-            sorted by the `start-date` of each event. Each event is a python
+            sorted by the ``start-date`` of each event. Each event is a python
             dictionary.
         :raises: RuntimeError if an emulator or syntax-checker is specified
-        :raises: ValueError if the argument `start_date` or `end_date` are not
-            datetime.datetime objects.
+        :raises: ValueError if the argument ``start_date`` or ``end_date`` are not
+            ``datetime.datetime`` objects.
         """
 
         if not isinstance(start_date, datetime.datetime) or not isinstance(
@@ -565,19 +564,19 @@ class QuantinuumBackend(Backend):
     ) -> "matplotlib.figure.Figure":
         """Visualise the operations calendar for a user-specified
         month and year. The operations hours are shown for the machine name
-        used to construct the QuantinuumBackend object, i.e. 'H1-1'. Operations
+        used to construct the :py:class:`QuantinuumBackend` object, i.e. 'H1-1'. Operations
         days are coloured. In addition, a description of the event is also
-        displayed (`start-time`, `duration` and `event-type`, see the
-        `get_calendar` method for more information).
+        displayed (``start-time``, ``duration`` and ``event-type``, see the
+        :py:meth:`get_calendar` method for more information).
 
         :param month: An integer specifying the calendar month to visualise.
             1 is January and 12 is December.
         :param year: An integer specifying the calendar year to visualise.
         :param figsize: A tuple specifying width and height of the output
-            matplotlib.figure.Figure.
+            ``matplotlib.figure.Figure``.
         :param fontsize: The fontsize of the event description within the
             calendar.
-        :return: A matplotlib.figure.Figure visualising the
+        :return: A ``matplotlib.figure.Figure`` visualising the
             calendar for a user-specified calendar month.
         """
         if not MATPLOTLIB_IMPORT:
@@ -674,7 +673,7 @@ class QuantinuumBackend(Backend):
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
         :param timeout: Only valid for optimisation level 3, gives a maximimum time
-            for running a single thread of the pass `GreedyPauliSimp`. Increase for
+            for running a single thread of the pass :py:meth:`~pytket.passes.GreedyPauliSimp`. Increase for
             optimising larger circuits.
 
         :return: Compilation pass for compiling circuits to Quantinuum devices
@@ -820,7 +819,7 @@ class QuantinuumBackend(Backend):
             prompting more computationally heavy optimising compilation that
             can lead to reduced gate count in circuits.
         :param timeout: Only valid for optimisation level 3, gives a maximimum time
-            for running a single thread of the pass `GreedyPauliSimp`. Increase for
+            for running a single thread of the pass :py:meth:`~pytket.passes.GreedyPauliSimp`. Increase for
             optimising larger circuits.
 
         :return: An optimised quantum circuit
@@ -844,7 +843,7 @@ class QuantinuumBackend(Backend):
         and return the list of compiled circuits (does not act in place).
 
         As well as applying a degree of optimisation (controlled by the
-        `optimisation_level` parameter), this method tries to ensure that the circuits
+        ``optimisation_level`` parameter), this method tries to ensure that the circuits
         can be run on the backend (i.e. successfully passed to
         :py:meth:`process_circuits`), for example by rebasing to the supported gate set,
         or routing to match the connectivity of the device. However, this is not always
@@ -855,7 +854,7 @@ class QuantinuumBackend(Backend):
         are submitted to the backend.
 
         If the validity check fails, you can obtain more information about the failure
-        by iterating through the predicates in the `required_predicates` property of the
+        by iterating through the predicates in the :py:attr:`required_predicates` property of the
         backend, and running the :py:meth:`~pytket.predicates.Predicate.verify` method on each in turn with your
         circuit.
 
@@ -864,7 +863,7 @@ class QuantinuumBackend(Backend):
             compilation. See :py:meth:`default_compilation_pass` for a description of
             the different levels (0, 1, 2 or 3). Defaults to 2.
         :param timeout: Only valid for optimisation level 3, gives a maximimum time
-            for running a single thread of the pass `GreedyPauliSimp`. Increase for
+            for running a single thread of the pass :py:meth:`~pytket.passes.GreedyPauliSimp`. Increase for
             optimising larger circuits.
         :return: Compiled circuits.
         """
@@ -956,10 +955,10 @@ class QuantinuumBackend(Backend):
         :param noisy_simulation: Boolean flag to specify whether the simulator should
           perform noisy simulation with an error model defaults to True
         :param group: String identifier of a collection of jobs, can be used for usage
-          tracking. Overrides the instance variable `group`, defaults to None
-        :param wasm_file_handler: ``WasmFileHandler`` object for linked WASM
+          tracking. Overrides the instance variable ``group``, defaults to None
+        :param wasm_file_handler: :py:class:`~pytket.wasm.wasm.WasmFileHandler` object for linked WASM
             module, defaults to None
-        :param pytket_pass: ``pytket.passes.BasePass`` intended to be applied
+        :param pytket_pass: :py:class:`~pytket.passes.BasePass` intended to be applied
            by the backend (beta feature, may be ignored), defaults to None
         :param max_cost: Maximum amount of HQC to spend when running the program.
            Defaults to None (no limit on amount of HQC spent).
@@ -1064,20 +1063,19 @@ class QuantinuumBackend(Backend):
         """
         See :py:meth:`pytket.backends.backend.Backend.process_circuits`.
 
-        Supported kwargs
-        ^^^^^^^^^^^^^^^^
+        Supported kwargs:
 
         * `postprocess`: apply end-of-circuit simplifications and classical
           postprocessing to improve fidelity of results (bool, default False)
-        * `simplify_initial`: apply the pytket ``SimplifyInitial`` pass to improve
+        * `simplify_initial`: apply the pytket :py:meth:`~pytket.passes.SimplifyInitial` pass to improve
           fidelity of results assuming all qubits initialized to zero (bool, default
           False)
         * `noisy_simulation`: boolean flag to specify whether the simulator should
           perform noisy simulation with an error model (default value is `True`).
         * `group`: string identifier of a collection of jobs, can be used for usage
-          tracking. Overrides the instance variable `group`.
-        * `wasm_file_handler`: a ``WasmFileHandler`` object for linked WASM module.
-        * `pytketpass`: a ``pytket.passes.BasePass`` intended to be applied
+          tracking. Overrides the instance variable ``group``.
+        * `wasm_file_handler`: a :py:class:`~pytket.wasm.wasm.WasmFileHandler` object for linked WASM module.
+        * `pytketpass`: a :py:class:`pytket.passes.BasePass` intended to be applied
            by the backend (beta feature, may be ignored).
         * `options`: items to add to the "options" dictionary of the request body, as a
           json-style dictionary (in addition to any that were set in the backend
@@ -1087,8 +1085,8 @@ class QuantinuumBackend(Backend):
         * `language`: languange for submission, of type :py:class:`Language`, default
           QIR.
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
-          to detect leakage errors. Run `prune_shots_detected_as_leaky` on returned
-          BackendResult to get counts with leakage errors removed.
+          to detect leakage errors. Run :py:func:`~.prune_shots_detected_as_leaky` on returned
+          :py:class:`~pytket.backends.backendresult.BackendResult` to get counts with leakage errors removed.
         * `n_leakage_detection_qubits`: if set, sets an upper bound on the number
           of additional qubits to be used when adding leakage detection
         * `seed`: for local emulators only, PRNG seed for reproduciblity (int)
@@ -1282,8 +1280,8 @@ class QuantinuumBackend(Backend):
         valid_check: bool = True,
         **kwargs: QuumKwargTypes,
     ) -> ResultHandle:
-        """Start a batch of jobs on the backend, behaves like `process_circuit`
-           but with additional parameter `max_batch_cost` as the first argument.
+        """Start a batch of jobs on the backend, behaves like :py:meth:`~pytket.backends.backend.Backend.process_circuit`
+           but with additional parameter ``max_batch_cost`` as the first argument.
            See :py:meth:`pytket.backends.backend.Backend.process_circuits` for
            documentation on remaining parameters.
 
@@ -1314,11 +1312,11 @@ class QuantinuumBackend(Backend):
         valid_check: bool = True,
         **kwargs: QuumKwargTypes,
     ) -> ResultHandle:
-        """Add to a batch of jobs on the backend, behaves like `process_circuit`
+        """Add to a batch of jobs on the backend, behaves like :py:meth:`~pytket.backends.backend.Backend.process_circuit`
         except in two ways:\n
         1. The first argument must be the result handle of the first job of
         batch.\n
-        2. The optional argument `batch_end` should be set to "True" for the
+        2. The optional argument ``batch_end`` should be set to "True" for the
         final circuit of the batch. By default it is False.\n
 
         See :py:meth:`pytket.backends.backend.Backend.process_circuits` for
@@ -1442,7 +1440,7 @@ class QuantinuumBackend(Backend):
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
         """
         See :py:meth:`pytket.backends.backend.Backend.get_result`.
-        Supported kwargs: `timeout`, `wait`, `use_websocket`.
+        Supported kwargs: ``timeout``, ``wait``, ``use_websocket``.
         """
         handle = self._update_result_handle(handle)
         try:
@@ -1523,7 +1521,7 @@ jobid is {jobid}"
             return backres
 
     def cost_estimate(self, circuit: Circuit, n_shots: int) -> float | None:
-        """Deprecated, use ``cost``."""
+        """Deprecated, use :py:meth:`cost`."""
 
         warnings.warn(  # noqa: B028
             "cost_estimate is deprecated, use cost instead", DeprecationWarning
@@ -1540,7 +1538,7 @@ jobid is {jobid}"
         **kwargs: QuumKwargTypes,
     ) -> float | None:
         """
-        Return the cost in HQC to process this `circuit` with `n_shots`
+        Return the cost in HQC to process ``circuit`` with ``n_shots``
         repeats on this backend.
 
         The cost is obtained by sending the circuit to a "syntax-checker"
@@ -1630,7 +1628,7 @@ jobid is {jobid}"
         self.api_handler.full_login()
 
     def logout(self) -> None:
-        """Clear stored JWT tokens from login. Will need to `login` again to
+        """Clear stored JWT tokens from login. Will need to :py:meth:`login` again to
         make API calls."""
         self.api_handler.delete_authentication()
 
