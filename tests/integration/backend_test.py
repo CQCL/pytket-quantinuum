@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import datetime
-import gc
 import json
 import os
 import time
@@ -77,6 +76,13 @@ REASON_PROD = "PYTKET_RUN_REMOTE_TESTS_PROD not set \
 
 REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 (requires configuration of Quantinuum username)"
+
+
+def prog_from_qir_text(qir: str) -> str:
+    ctx = create_context()
+    module = parse_assembly(qir, context=ctx)
+    ir = module.as_bitcode()
+    return b64encode(ir).decode("utf-8")
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
@@ -180,7 +186,6 @@ def test_bell(
 def test_multireg(
     authenticated_quum_backend_qa: QuantinuumBackend, language: Language
 ) -> None:
-    gc.disable()
     b = authenticated_quum_backend_qa
     c = Circuit()
     q1 = Qubit("q1", 0)
@@ -976,18 +981,12 @@ def test_tk2(
 )
 @pytest.mark.timeout(120)
 def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_qa
 
     with open("integration/qir/qat-link_2.ll") as f:
         qir = f.read()
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
     assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
     assert len(r.get_shots()) == 10
@@ -999,18 +998,12 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
 )
 @pytest.mark.timeout(120)
 def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_prod
 
     with open("integration/qir/qat-link.ll") as f:
         qir = f.read()
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
     assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
     assert len(r.get_shots()) == 10
@@ -1022,18 +1015,12 @@ def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> 
 )
 @pytest.mark.timeout(120)
 def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_qa
 
     with open("integration/qir/qat-link.ll") as f:
         qir = f.read()
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
     assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
     assert len(r.get_shots()) == 10
@@ -1047,17 +1034,11 @@ def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) ->
 def test_qir_submission_mz_to_reg(
     authenticated_quum_backend_prod: QuantinuumBackend,
 ) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_prod
     with open("integration/qir/test_pytket_qir_6.ll") as f:
         qir = f.read()
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
 
     r = b.get_result(h)
 
@@ -1073,17 +1054,11 @@ def test_qir_submission_mz_to_reg(
 def test_qir_submission_mz_to_reg_qa(
     authenticated_quum_backend_qa: QuantinuumBackend,
 ) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_qa
     with open("integration/qir/test_pytket_qir_6.ll") as f:
         qir = f.read()
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
-    h = b.submit_program(Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10)
+    h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
     assert len(r.get_shots()) == 10
     assert len(r.get_bitlist()) == 20
@@ -1104,20 +1079,14 @@ def test_qir_submission_mz_to_reg_qa(
 def test_qir_submission_64bitwasm5_qa(
     authenticated_quum_backend_qa: QuantinuumBackend, filename: str
 ) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_qa
     with open(f"integration/qir/{filename}") as f:
         qir = f.read()
 
     wfh = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
     h = b.submit_program(
-        Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10, wasm_file_handler=wfh
+        Language.QIR, prog_from_qir_text(qir), n_shots=10, wasm_file_handler=wfh
     )
     r = b.get_result(h)
     assert len(r.get_shots()) == 10
@@ -1140,20 +1109,14 @@ def test_qir_submission_64bitwasm5_qa(
 def test_qir_submission_64bitwasm6_qa(
     authenticated_quum_backend_qa: QuantinuumBackend, filename: str
 ) -> None:
-    # disable Garbage Collector because of
-    # https://github.com/CQCL/pytket-quantinuum/issues/170
-    gc.disable()
     b = authenticated_quum_backend_qa
     with open(f"integration/qir/{filename}") as f:
         qir = f.read()
 
     wfh = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
 
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
     h = b.submit_program(
-        Language.QIR, b64encode(ir).decode("utf-8"), n_shots=10, wasm_file_handler=wfh
+        Language.QIR, prog_from_qir_text(qir), n_shots=10, wasm_file_handler=wfh
     )
     with pytest.raises(ValueError):
         # this circuit gives a negative results which we reject
