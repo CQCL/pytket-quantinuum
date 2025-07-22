@@ -995,7 +995,7 @@ class QuantinuumBackend(Backend):
         group: str | None = None,
         wasm_file_handler: WasmFileHandler | None = None,
         pytket_pass: BasePass | None = None,
-        max_cost: int | None = None,
+        max_cost: float | None = None,
         options: dict[str, Any] | None = None,
         request_options: dict[str, Any] | None = None,
         results_selection: list[tuple[str, int]] | None = None,
@@ -1207,7 +1207,7 @@ class QuantinuumBackend(Backend):
 
         language: Language = cast("Language", kwargs.get("language", Language.QIR))
 
-        max_cost = cast("int | None", kwargs.get("max_cost"))
+        max_cost = cast("float | None", kwargs.get("max_cost"))
 
         handle_list = []
 
