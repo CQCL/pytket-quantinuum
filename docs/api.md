@@ -1,69 +1,88 @@
 # API documentation
 
-The pytket-quantinuum extension allows submission of pytket circuits to Quantinuum systems (and emulators) via the {py:class}`QuantinuumBackend`.
+The pytket-quantinuum extension allows submission of pytket circuits to Quantinuum systems (and emulators) via the {py:class}`~pytket.extensions.quantinuum.QuantinuumBackend`.
 
 See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website for some example usage.
 
 ```{eval-rst}
-.. currentmodule:: pytket.extensions.quantinuum
-```
+.. automodule:: pytket.extensions.quantinuum
+.. automodule:: pytket.extensions.quantinuum._metadata
+.. automodule:: pytket.extensions.quantinuum.backends
+.. automodule:: pytket.extensions.quantinuum.backends.quantinuum
 
-```{eval-rst}
-.. autoenum:: Language
-    :members:
-```
+    .. autoenum:: Language
+        :members:
 
-```{eval-rst}
-.. autoclass:: QuantinuumBackend
-    :show-inheritance:
-    :special-members: __init__
-    :members:
-```
+    .. autoclass:: QuantinuumBackend
+        :show-inheritance:
+        :special-members: __init__
+        :members:
 
-```{eval-rst}
-.. autoclass:: QuantinuumBackendData
-    :members:
-.. autodata:: H1
-.. autodata:: H2
-```
+    .. autoclass:: QuantinuumBackendCompilationConfig
+        :members:
 
-```{eval-rst}
-.. autoclass:: QuantinuumBackendCompilationConfig
-    :members:
-```
+    .. autoexception:: BackendOfflineError
+    .. autoexception:: BatchingUnsupported
+    .. autoexception:: DeviceNotAvailable
+    .. autoexception:: GetResultFailed
+    .. autoexception:: LanguageUnsupported
+    .. autoexception:: MaxShotsExceeded
+    .. autoexception:: NoSyntaxChecker
 
-```{eval-rst}
-.. autoclass:: QuantinuumAPI
-    :members:
-```
+.. automodule:: pytket.extensions.quantinuum.backends.data
 
-```{eval-rst}
-.. autoclass:: QuantinuumAPIOffline
-    :members:
-```
+    .. autoclass:: QuantinuumBackendData
+        :members:
+    .. autodata:: H1
+    .. autodata:: H2
 
-```{eval-rst}
+.. automodule:: pytket.extensions.quantinuum.backends.api_wrappers
+
+    .. autoclass:: QuantinuumAPI
+
+        .. automethod:: cancel
+        .. automethod:: delete_authentication
+        .. automethod:: full_login
+        .. automethod:: get_calendar
+        .. automethod:: get_machine_list
+        .. automethod:: login
+        .. automethod:: retrieve_job
+        .. automethod:: retrieve_job_status
+        .. automethod:: status
+
+    .. autoclass:: QuantinuumAPIOffline
+        :members:
+
 .. automodule:: pytket.extensions.quantinuum.backends.config
     :members:
-```
 
-```{eval-rst}
 .. automodule:: pytket.extensions.quantinuum.backends.leakage_gadget
     :members:
-```
 
-```{eval-rst}
-.. autoclass:: pytket.extensions.quantinuum.backends.credential_storage.CredentialStorage
-    :special-members: __init__
-    :members:
-```
+.. automodule:: pytket.extensions.quantinuum.backends.credential_storage
 
-```{eval-rst}
-.. autoclass:: pytket.extensions.quantinuum.backends.credential_storage.MemoryCredentialStorage
-    :show-inheritance:
-```
+    .. autoclass:: CredentialStorage
+        :special-members: __init__
+        :members:
 
-```{eval-rst}
-.. autoclass:: pytket.extensions.quantinuum.backends.credential_storage.QuantinuumConfigCredentialStorage
-    :show-inheritance:
+    .. autoclass:: MemoryCredentialStorage
+        :show-inheritance:
+        :members:
+
+    .. autoclass:: QuantinuumConfigCredentialStorage
+        :show-inheritance:
+        :members:
+
+.. autoexception:: pytket.extensions.quantinuum.backends.quantinuum.WasmUnsupported
+
+.. autoexception:: pytket.extensions.quantinuum.backends.api_wrappers.QuantinuumAPIError
+
+.. automodule:: pytket.extensions.quantinuum.backends.federated_login
+
+    .. autofunction:: microsoft_login
+
+.. automodule:: pytket.extensions.quantinuum.backends.calendar_visualisation
+
+    .. autoclass:: QuantinuumCalendar
+        :members:
 ```

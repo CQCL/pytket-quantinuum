@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Backends for processing pytket circuits with Quantinuum devices"""
-
 # _metadata.py is copied to the folder after installation.
 from ._metadata import __extension_name__, __extension_version__
 from .backends import (
