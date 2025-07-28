@@ -4,6 +4,11 @@
 
 # Changelog
 
+## Unreleased
+
+- Update pytket version requirement to 2.9.1.
+- Update pytket-pecos version requirement to 0.2.1.
+
 ## 0.52.0 (July 2025)
 
 - Add optional argument `request_raw_results` to `QuantinuumAPI.retrieve_job_status`.
