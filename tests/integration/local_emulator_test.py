@@ -389,7 +389,7 @@ def test_wasm_collatz(authenticated_quum_backend_prod: QuantinuumBackend) -> Non
 
     def to_int(C: np.ndarray) -> int:
         assert len(C) == 8
-        return sum(pow(2, i) * C[i] for i in range(8))
+        return int(sum(pow(2, i) * C[i] for i in range(8)))
 
     def collatz(n: int) -> int:
         if n == 0:
