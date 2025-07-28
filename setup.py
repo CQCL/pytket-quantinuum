@@ -56,7 +56,7 @@ setup(
         "numpy >= 1.26.4",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.2.0"],
+        "pecos": ["pytket-pecos ~= 0.2.0", "quantum-pecos == 0.6.0.dev8"],
         "calendar": ["matplotlib >= 3.8.3,< 3.11.0", "pandas >= 2.2.1,< 2.4.0"],
     },
     classifiers=[
