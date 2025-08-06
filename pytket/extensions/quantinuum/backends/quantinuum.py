@@ -1249,13 +1249,10 @@ class QuantinuumBackend(Backend):
                     quantinuum_circ = circuit_to_qasm_str(
                         c0,
                         header="hqslib1",
-                        maxwidth=(
-                            self.backend_info.misc.get(
-                                "max_classical_register_width", 32
-                            )
-                            if self.backend_info
-                            else 32
-                        ),
+                        # Override the reported value of max_classical_register_width
+                        # (which in August 2025 is 63 for all devices), to enable RNG
+                        # seeding which requires a 64-bit register.
+                        maxwidth=64,
                     )
 
                     used_scratch_regs = _used_scratch_registers(quantinuum_circ)
