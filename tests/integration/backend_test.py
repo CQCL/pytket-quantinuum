@@ -1619,3 +1619,25 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     assert num0_val <= 5
     assert num1_val <= 1
     assert num2_val <= 9
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
+)
+def test_shotnum(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
+    circ = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
+    shotnum = circ.add_c_register("shotnum", 32)
+    circ.get_job_shot_num(shotnum)
+
+    b = authenticated_quum_backend_qa
+    n_shots = 10
+    h = b.process_circuit(circ, n_shots=n_shots, language=Language.QASM)
+    r = b.get_result(h)
+    counts = r.get_counts()
+    assert len(counts) == n_shots  # all results should be different
+    shotnum_startbit = circ.bits.index(Bit("shotnum", 0))
+    shotnums = {
+        sum(res[shotnum_startbit + i] * pow(2, i) for i in range(32)) for res in counts
+    }
+    assert shotnums == set(range(1, n_shots + 1))
