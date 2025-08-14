@@ -177,6 +177,62 @@ def test_bell(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
+@pytest.mark.timeout(120)
+def test_rng(
+    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
+) -> None:
+    b = authenticated_quum_backend_qa
+    c = Circuit(2, "test-rng")
+    c.H(0)
+    c.CX(0, 1)
+    numcreg = c.add_c_register("n", 32)
+    index_creg = c.add_c_register("i", 32)
+    seed_creg = c.add_c_register("s", 32)
+    c.add_c_setbits([True, True], [index_creg[3], index_creg[11]])
+    c.add_c_setbits([True, True], [seed_creg[5], seed_creg[11]])
+    c.set_rng_seed(seed_creg)
+    c.set_rng_index(index_creg)
+    c.get_rng_num(numcreg)
+    c.measure_all()
+    c = b.get_compiled_circuit(c)
+    n_shots = 10
+    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()
+    assert all(q[0] == q[1] for q in shots)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+)
+@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
+@pytest.mark.timeout(120)
+def test_rng_e(
+    authenticated_quum_backend_qa: QuantinuumBackend, language: Language
+) -> None:
+    b = authenticated_quum_backend_qa
+    c = Circuit(2, "test-rng")
+    c.H(0)
+    c.CX(0, 1)
+    numcreg = c.add_c_register("n", 32)
+    index_creg = c.add_c_register("i", 32)
+    seed_creg = c.add_c_register("s", 32)
+    c.add_c_setbits([True, True], [index_creg[3], index_creg[11]])
+    c.add_c_setbits([True, True], [seed_creg[5], seed_creg[11]])
+    c.set_rng_seed(seed_creg)
+    c.set_rng_index(index_creg)
+    c.get_rng_num(numcreg)
+    c.measure_all()
+    c = b.get_compiled_circuit(c)
+    n_shots = 10
+    shots = b.run_circuit(c, n_shots=n_shots, language=language).get_shots()
+    assert all(q[0] == q[1] for q in shots)
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.parametrize(
     "authenticated_quum_backend_qa",
     [{"device_name": "H1-1SC", "label": "test 3"}],
     indirect=True,

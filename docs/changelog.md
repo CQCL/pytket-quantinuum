@@ -4,10 +4,11 @@
 
 # Changelog
 
-## Unreleased
+## 0.53.0rc0 (August 2025)
 
 - Update pytket version requirement to 2.9.1.
 - Update pytket-pecos version requirement to 0.2.1.
+- Update pytket-qir minimum version requirement to 0.25.0rc0.
 
 ## 0.52.0 (July 2025)
 
