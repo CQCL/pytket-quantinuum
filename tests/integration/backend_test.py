@@ -1592,7 +1592,8 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     num0 = circ.add_c_register("num0", 32)
     num1 = circ.add_c_register("num1", 32)
     num2 = circ.add_c_register("num2", 32)
-    circ.add_c_setbits([True, True, True], [seed[1], seed[3], seed[5]])  # seed = 41
+    seed_copy = circ.add_c_register("seed_copy", 64)
+    circ.add_c_setbits([True, True, True], [seed[1], seed[3], seed[5]])  # seed = 42
     circ.set_rng_seed(seed)
     circ.set_rng_index(index)  # index = 0
     circ.add_c_setbits([True, True], [bound[0], bound[2]])  # bound = 5
@@ -1605,6 +1606,7 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     # num0[3] should be 0, so the PhasedX should never be applied:
     circ.PhasedX(0.5, 0.5, 0, condition_bits=[num0[3]], condition_value=1)
     circ.Measure(Qubit(0), Bit(0))
+    circ.add_c_copyreg(seed, seed_copy)
 
     b = authenticated_quum_backend_qa
     n_shots = 10
@@ -1625,9 +1627,12 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
         num0_val = sum(bits[num0_startbit + i] * pow(2, i) for i in range(32))
         num1_val = sum(bits[num1_startbit + i] * pow(2, i) for i in range(32))
         num2_val = sum(bits[num2_startbit + i] * pow(2, i) for i in range(32))
+        seed_copy_startbit = circ.bits.index(Bit("seed_copy", 0))
+        seed_copy_val = sum(bits[seed_copy_startbit + i] * pow(2, i) for i in range(64))
         assert num0_val <= 5
         assert num1_val <= 1
         assert num2_val <= 9
+        assert seed_copy_val == 42
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
