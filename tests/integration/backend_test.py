@@ -1580,7 +1580,9 @@ def test_default_pass_serialization() -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
+    "authenticated_quum_backend_qa",
+    [{"device_name": "H2-1E"}, {"device_name": "H2-1SC"}],
+    indirect=True,
 )
 def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     circ = Circuit(1, 1)
@@ -1605,25 +1607,34 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     circ.Measure(Qubit(0), Bit(0))
 
     b = authenticated_quum_backend_qa
-    h = b.process_circuit(circ, n_shots=10, language=Language.QASM)
-    r = b.get_result(h)
-    counts = r.get_counts()
-    assert len(counts) == 1  # circuit is deterministic
-    bits = next(iter(counts.keys()))
-    num0_startbit = circ.bits.index(Bit("num0", 0))
-    num1_startbit = circ.bits.index(Bit("num1", 0))
-    num2_startbit = circ.bits.index(Bit("num2", 0))
-    num0_val = sum(bits[num0_startbit + i] * pow(2, i) for i in range(32))
-    num1_val = sum(bits[num1_startbit + i] * pow(2, i) for i in range(32))
-    num2_val = sum(bits[num2_startbit + i] * pow(2, i) for i in range(32))
-    assert num0_val <= 5
-    assert num1_val <= 1
-    assert num2_val <= 9
+    n_shots = 10
+
+    if b._device_name.endswith("SC"):  # noqa: SLF001
+        estimate = b.cost(circ, n_shots)
+        if estimate is not None:  # API is flaky, sometimes returns None
+            assert isinstance(estimate, float)
+    else:
+        h = b.process_circuit(circ, n_shots=n_shots, language=Language.QASM)
+        r = b.get_result(h)
+        counts = r.get_counts()
+        assert len(counts) == 1  # circuit is deterministic
+        bits = next(iter(counts.keys()))
+        num0_startbit = circ.bits.index(Bit("num0", 0))
+        num1_startbit = circ.bits.index(Bit("num1", 0))
+        num2_startbit = circ.bits.index(Bit("num2", 0))
+        num0_val = sum(bits[num0_startbit + i] * pow(2, i) for i in range(32))
+        num1_val = sum(bits[num1_startbit + i] * pow(2, i) for i in range(32))
+        num2_val = sum(bits[num2_startbit + i] * pow(2, i) for i in range(32))
+        assert num0_val <= 5
+        assert num1_val <= 1
+        assert num2_val <= 9
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
+    "authenticated_quum_backend_qa",
+    [{"device_name": "H2-1E"}, {"device_name": "H2-1SC"}],
+    indirect=True,
 )
 def test_shotnum(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     circ = Circuit(1).PhasedX(0.5, 0.5, 0).measure_all()
@@ -1632,12 +1643,19 @@ def test_shotnum(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
 
     b = authenticated_quum_backend_qa
     n_shots = 10
-    h = b.process_circuit(circ, n_shots=n_shots, language=Language.QASM)
-    r = b.get_result(h)
-    counts = r.get_counts()
-    assert len(counts) == n_shots  # all results should be different
-    shotnum_startbit = circ.bits.index(Bit("shotnum", 0))
-    shotnums = {
-        sum(res[shotnum_startbit + i] * pow(2, i) for i in range(32)) for res in counts
-    }
-    assert shotnums == set(range(1, n_shots + 1))
+
+    if b._device_name.endswith("SC"):  # noqa: SLF001
+        estimate = b.cost(circ, n_shots)
+        if estimate is not None:  # API is flaky, sometimes returns None
+            assert isinstance(estimate, float)
+    else:
+        h = b.process_circuit(circ, n_shots=n_shots, language=Language.QASM)
+        r = b.get_result(h)
+        counts = r.get_counts()
+        assert len(counts) == n_shots  # all results should be different
+        shotnum_startbit = circ.bits.index(Bit("shotnum", 0))
+        shotnums = {
+            sum(res[shotnum_startbit + i] * pow(2, i) for i in range(32))
+            for res in counts
+        }
+        assert shotnums == set(range(1, n_shots + 1))
