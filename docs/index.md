@@ -333,7 +333,7 @@ If `pytket-quantinuum` is installed with the `pecos` option:
 pip install pytket-quantinuum[pecos]
 ```
 
-For uv virtual enviroments it is possible that this is not working, because dev releases are not picked up automatically. This can be solved by installing the latest `pytket-pecos` version via:
+For `uv` virtual enviroments it is possible that this does not work, because prereleases are not picked up automatically. This can be solved by installing the latest `pytket-pecos` version via:
 
 ```
 uv pip install pytket-pecos --prerelease=allow
