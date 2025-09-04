@@ -4,10 +4,11 @@
 
 # Changelog
 
-## Unreleased
+## 0.53.0 (August 2025)
 
 - Update pytket version requirement to 2.9.1.
 - Update pytket-pecos version requirement to 0.2.1.
+- Allow 64-bit classical registers.
 
 ## 0.52.0 (July 2025)
 

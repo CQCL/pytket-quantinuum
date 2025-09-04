@@ -333,6 +333,12 @@ If `pytket-quantinuum` is installed with the `pecos` option:
 pip install pytket-quantinuum[pecos]
 ```
 
+For `uv` virtual enviroments it is possible that this does not work, because prereleases are not picked up automatically. This can be solved by installing the latest `pytket-pecos` version via:
+
+```
+uv pip install pytket-pecos --prerelease=allow
+```
+
 then it is possible to run circuits on an emulator running on the local machine
 instead of using the remote emulator.
 
