@@ -1,6 +1,6 @@
 # API documentation
 
-The pytket-quantinuum extension allows submission of pytket circuits to Quantinuum systems (and emulators) via the `pytket.extensions.quantinuum.QuantinuumBackend`.
+The pytket-quantinuum extension allows submission of pytket circuits to Quantinuum systems (and emulators) via the {py:class}`~.QuantinuumBackend`.
 
 See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website for some example usage.
 
