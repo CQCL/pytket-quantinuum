@@ -23,11 +23,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
-from requests_mock.mocker import Mocker
-
 from pytket.architecture import FullyConnected
 from pytket.backends import ResultHandle, StatusEnum
 from pytket.circuit import Circuit
+from requests_mock.mocker import Mocker
+
 from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.extensions.quantinuum.backends import (
     Language,

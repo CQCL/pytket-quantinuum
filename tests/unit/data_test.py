@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import pytest
-
 from pytket.circuit import Circuit
+
 from pytket.extensions.quantinuum import (
     H1,
     H2,
