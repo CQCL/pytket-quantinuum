@@ -13,13 +13,13 @@
 # limitations under the License.
 
 import pytest
-
 from pytket.architecture import FullyConnected
 from pytket.backends.backendinfo import BackendInfo
 from pytket.circuit import Circuit, OpType, Qubit
+from pytket.qasm import circuit_to_qasm_str
+
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPIError
-from pytket.qasm import circuit_to_qasm_str
 
 
 def test_convert() -> None:
