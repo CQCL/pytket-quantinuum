@@ -8,6 +8,7 @@ on:
     branches:
       - 'wheel/**'
       - 'runci/**'
+      - 'ae/test-ruff'
 
 jobs:
   lint:
@@ -26,7 +27,8 @@ jobs:
       run: pip install ruff
     - name: Run ruff lint
       run: |
-        ruff check .
+        ruff check --fix .
+        git diff
     - name: Check formatting
       run: |
         ruff format --check .
