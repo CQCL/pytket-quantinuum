@@ -17,9 +17,10 @@ from collections import Counter
 from typing import TYPE_CHECKING, cast
 
 import pytest
+from pytket.backends.backendresult import BackendResult
+from pytket.utils.outcomearray import OutcomeArray
 
 from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
-from pytket.backends.backendresult import BackendResult
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     LEAKAGE_DETECTION_BIT_NAME_,
     LEAKAGE_DETECTION_QUBIT_NAME_,
@@ -27,7 +28,6 @@ from pytket.extensions.quantinuum.backends.leakage_gadget import (
     get_leakage_gadget_circuit,
     prune_shots_detected_as_leaky,
 )
-from pytket.utils.outcomearray import OutcomeArray
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
