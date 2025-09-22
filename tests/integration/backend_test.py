@@ -28,7 +28,6 @@ import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies._internal import SearchStrategy
 from llvmlite.binding import create_context, parse_assembly  # type: ignore
-
 from pytket.backends import CircuitNotValidError
 from pytket.backends.status import StatusEnum
 from pytket.circuit import (
@@ -47,6 +46,11 @@ from pytket.circuit import (
     reg_neq,
 )
 from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
+from pytket.passes import BasePass, SequencePass
+from pytket.passes.resizeregpass import _gen_scratch_transformation
+from pytket.predicates import CompilationUnit
+from pytket.wasm import WasmFileHandler
+
 from pytket.extensions.quantinuum import (
     Language,
     QuantinuumBackend,
@@ -58,10 +62,6 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
 )
 from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, MAX_C_REG_WIDTH
-from pytket.passes import BasePass, SequencePass
-from pytket.passes.resizeregpass import _gen_scratch_transformation
-from pytket.predicates import CompilationUnit
-from pytket.wasm import WasmFileHandler
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 skip_remote_tests_prod: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS_PROD") is None

@@ -30,7 +30,6 @@ from uuid import uuid1
 
 import numpy as np
 import requests
-
 from pytket.architecture import FullyConnected
 from pytket.backends import Backend, CircuitStatus, ResultHandle, StatusEnum
 from pytket.backends.backend import KwargTypes
@@ -40,10 +39,6 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.circuit import Bit, Circuit, OpType
 from pytket.extensions.quantinuum._metadata import __extension_version__
-from pytket.extensions.quantinuum.backends.credential_storage import (
-    MemoryCredentialStorage,
-)
-from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from pytket.passes import (
     AutoRebase,
     AutoSquash,
@@ -78,6 +73,11 @@ from pytket.unit_id import _TEMP_BIT_NAME
 from pytket.utils import prepare_circuit
 from pytket.utils.outcomearray import OutcomeArray
 from pytket.wasm import WasmFileHandler
+
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    MemoryCredentialStorage,
+)
+from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIError
 from .data import QuantinuumBackendData
