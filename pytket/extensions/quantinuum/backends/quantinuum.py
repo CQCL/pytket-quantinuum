@@ -1364,7 +1364,9 @@ class QuantinuumBackend(Backend):
         """
         self._check_batchable()
 
-        kwargs["request_options"] = {"batch-exec": max_batch_cost}
+        if "request_options" not in kwargs:
+            kwargs["request_options"] = {}
+        kwargs["request_options"]["batch-exec"] = max_batch_cost
         [h1] = self.process_circuits([circuit], n_shots, valid_check, **kwargs)
 
         # make sure the starting job is received, such that subsequent addtions
@@ -1401,10 +1403,11 @@ class QuantinuumBackend(Backend):
         """
         self._check_batchable()
 
-        req_opt: dict[str, Any] = {"batch-exec": self.get_jobid(batch_start_job)}
+        if "request_options" not in kwargs:
+            kwargs["request_options"] = {}
+        kwargs["request_options"]["batch-exec"] = self.get_jobid(batch_start_job)
         if batch_end:
-            req_opt["batch-end"] = True
-        kwargs["request_options"] = req_opt
+            kwargs["request_options"]["batch-end"] = True
         return self.process_circuits([circuit], n_shots, valid_check, **kwargs)[0]
 
     def _retrieve_job(
