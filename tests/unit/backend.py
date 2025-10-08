@@ -1,7 +1,7 @@
 import pytest
+from pytket.predicates import CliffordCircuitPredicate
 
 from pytket.extensions.quantinuum import QuantinuumAPIOffline, QuantinuumBackend
-from pytket.predicates import CliffordCircuitPredicate
 
 
 @pytest.mark.parametrize(

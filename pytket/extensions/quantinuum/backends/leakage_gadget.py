@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Methods for generating a leakage detection Pytket Circuit."""
 
 from collections import Counter
 from typing import TYPE_CHECKING, cast
 
-from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
 from pytket.backends.backendresult import BackendResult
 from pytket.utils.outcomearray import OutcomeArray
+
+from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -155,9 +155,7 @@ def prune_shots_detected_as_leaky(result: BackendResult) -> BackendResult:
     in a state 1 sets the counts to 0.
 
     :param result: Shots returned from device.
-    :type result: BackendResult
     :return: Shots with leakage cases removed.
-    :rtype: BackendResult
     """
     regular_bits: list[Bit] = [
         b for b in result.c_bits if b.reg_name != LEAKAGE_DETECTION_BIT_NAME_
