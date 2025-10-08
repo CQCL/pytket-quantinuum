@@ -4,6 +4,10 @@
 
 # Changelog
 
+## 0.54.0 (October 2025)
+
+- Fix request_options for batch submissions
+
 ## 0.53.0 (August 2025)
 
 - Update pytket version requirement to 2.9.1.
