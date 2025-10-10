@@ -24,10 +24,10 @@ from typing import Any, cast
 
 import hypothesis.strategies as st
 import numpy as np
+import pyqir
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies._internal import SearchStrategy
-from llvmlite.binding import create_context, parse_assembly  # type: ignore
 from pytket.backends import CircuitNotValidError
 from pytket.backends.status import StatusEnum
 from pytket.circuit import (
@@ -79,10 +79,8 @@ REASON_MPL = "PYTKET_RUN_MPL_TESTS not set \
 
 
 def prog_from_qir_text(qir: str) -> str:
-    ctx = create_context()
-    module = parse_assembly(qir, context=ctx)
-    ir = module.as_bitcode()
-    return b64encode(ir).decode("utf-8")
+    bitcode = pyqir.Module.from_ir(pyqir.Context(), qir).bitcode
+    return b64encode(bitcode).decode("utf-8")
 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
