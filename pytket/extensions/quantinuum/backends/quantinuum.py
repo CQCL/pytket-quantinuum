@@ -854,6 +854,14 @@ class QuantinuumBackend(Backend):
         passlist.append(FlattenRelabelRegistersPass("q"))
         return SequencePass(passlist)
 
+    @staticmethod
+    def pass_from_info(
+        backend_info: BackendInfo, optimisation_level: int = 2, timeout: int = 300
+    ) -> BasePass:
+        backend = QuantinuumBackend("dummy")
+        backend._backend_info = backend_info
+        return backend.default_compilation_pass(optimisation_level, timeout)
+
     def get_compiled_circuit(
         self, circuit: Circuit, optimisation_level: int = 2, timeout: int = 300
     ) -> Circuit:
