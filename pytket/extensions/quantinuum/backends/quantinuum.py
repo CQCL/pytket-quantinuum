@@ -201,6 +201,8 @@ class LanguageUnsupported(Exception):
 class DeviceNotAvailable(Exception):
     device_name: str
 
+class DeviceRequired(Exception):
+    pass
 
 class Language(Enum):
     """Language used for submission of circuits."""
@@ -858,7 +860,10 @@ class QuantinuumBackend(Backend):
     def pass_from_info(
         backend_info: BackendInfo, optimisation_level: int = 2, timeout: int = 300
     ) -> BasePass:
-        backend = QuantinuumBackend("dummy")
+        if backend_info.device_name is None:
+            raise DeviceRequired("The provided BackendInfo has no device_name.")
+        
+        backend = QuantinuumBackend(backend_info.device_name)
         backend._backend_info = backend_info
         return backend.default_compilation_pass(optimisation_level, timeout)
 
