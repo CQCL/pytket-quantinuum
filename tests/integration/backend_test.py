@@ -1633,6 +1633,54 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
         assert seed_copy_val == 42
 
 
+@pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
+@pytest.mark.parametrize(
+    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+)
+@pytest.mark.parametrize(
+    "language",
+    [
+        Language.QASM,
+        Language.QIR,
+        Language.PQIR,
+    ],
+)
+@pytest.mark.timeout(120)
+def test_rng_prod(
+    authenticated_quum_backend_prod: QuantinuumBackend, language: Language
+) -> None:
+    circ = Circuit(1, 1)
+    seed = circ.add_c_register("seed", 64)
+    bound = circ.add_c_register("bound", 32)
+    index = circ.add_c_register("index", 32)
+    num0 = circ.add_c_register("num0", 32)
+    num1 = circ.add_c_register("num1", 32)
+    num2 = circ.add_c_register("num2", 32)
+    seed_copy = circ.add_c_register("seed_copy", 64)
+    circ.add_c_setbits([True, True, True], [seed[1], seed[3], seed[5]])  # seed = 42
+    circ.set_rng_seed(seed)
+    circ.set_rng_index(index)  # index = 0
+    circ.add_c_setbits([True, True], [bound[0], bound[2]])  # bound = 5
+    circ.set_rng_bound(bound)
+    circ.get_rng_num(num0)
+    circ.add_c_setbits([False], [bound[2]])  # bound = 1
+    circ.get_rng_num(num1)
+    circ.add_c_setbits([True], [bound[3]])  # bound = 9
+    circ.get_rng_num(num2)
+    # num0[3] should be 0, so the PhasedX should never be applied:
+    circ.PhasedX(0.5, 0.5, 0, condition_bits=[num0[3]], condition_value=1)
+    circ.Measure(Qubit(0), Bit(0))
+    circ.add_c_copyreg(seed, seed_copy)
+
+    b = authenticated_quum_backend_prod
+    n_shots = 10
+
+    if b._device_name.endswith("SC"):  # noqa: SLF001
+        estimate = b.cost(circ, n_shots)
+        if estimate is not None:  # API is flaky, sometimes returns None
+            assert isinstance(estimate, float)
+
+
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa",
