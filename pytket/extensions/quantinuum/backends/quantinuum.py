@@ -703,11 +703,21 @@ class QuantinuumBackend(Backend):
         return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
-        assert self.compilation_config.target_2qb_gate in self.two_qubit_gate_set
+        return QuantinuumBackend.rebase_pass_offline(
+            self.compilation_config, self._gate_set, self.two_qubit_gate_set
+        )
+
+    @staticmethod
+    def rebase_pass_offline(
+        compilation_config: QuantinuumBackendCompilationConfig,
+        gate_set: set[OpType],
+        two_qubit_gate_set: set[OpType],
+    ):
+        assert compilation_config.target_2qb_gate in two_qubit_gate_set
+        assert compilation_config.target_2qb_gate is not None
         return AutoRebase(
-            (self._gate_set - self.two_qubit_gate_set)
-            | {self.compilation_config.target_2qb_gate},
-            allow_swaps=self.compilation_config.allow_implicit_swaps,
+            (gate_set - two_qubit_gate_set) | {compilation_config.target_2qb_gate},
+            allow_swaps=compilation_config.allow_implicit_swaps,
         )
 
     def default_compilation_pass(
@@ -723,13 +733,29 @@ class QuantinuumBackend(Backend):
 
         :return: Compilation pass for compiling circuits to Quantinuum devices
         """
+        return QuantinuumBackend.default_compilation_pass_offline(
+            self.compilation_config,
+            self._gate_set,
+            self.two_qubit_gate_set,
+            optimisation_level,
+            timeout,
+        )
+
+    @staticmethod
+    def default_compilation_pass_offline(
+        compilation_config: QuantinuumBackendCompilationConfig,
+        gate_set: set[OpType],
+        two_qubit_gate_set: set[OpType],
+        optimisation_level: int = 2,
+        timeout: int = 300,
+    ) -> BasePass:
         assert optimisation_level in range(4)
         passlist = [
             DecomposeBoxes(),
             scratch_reg_resize_pass(),
         ]
         squash = AutoSquash({OpType.PhasedX, OpType.Rz})
-        target_2qb_gate = self.compilation_config.target_2qb_gate
+        target_2qb_gate = compilation_config.target_2qb_gate
         assert target_2qb_gate is not None
         if target_2qb_gate == OpType.TK2:
             decomposition_passes = []
@@ -737,7 +763,7 @@ class QuantinuumBackend(Backend):
             decomposition_passes = [
                 NormaliseTK2(),
                 DecomposeTK2(
-                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    allow_swaps=compilation_config.allow_implicit_swaps,
                     ZZPhase_fidelity=1.0,
                 ),
             ]
@@ -745,7 +771,7 @@ class QuantinuumBackend(Backend):
             decomposition_passes = [
                 NormaliseTK2(),
                 DecomposeTK2(
-                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    allow_swaps=compilation_config.allow_implicit_swaps,
                     ZZMax_fidelity=1.0,
                 ),
             ]
@@ -758,13 +784,19 @@ class QuantinuumBackend(Backend):
         # https://docs.quantinuum.com/tket/extensions/pytket-quantinuum/index.html#default-compilation
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
-            passlist.append(self.rebase_pass())
+            passlist.append(
+                QuantinuumBackend.rebase_pass_offline(
+                    compilation_config, gate_set, two_qubit_gate_set
+                )
+            )
         elif optimisation_level == 1:
             passlist.append(SynthesiseTK())
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    self.rebase_pass(),
+                    QuantinuumBackend.rebase_pass_offline(
+                        compilation_config, gate_set, two_qubit_gate_set
+                    ),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -774,14 +806,16 @@ class QuantinuumBackend(Backend):
         elif optimisation_level == 2:  # noqa: PLR2004
             passlist.append(
                 FullPeepholeOptimise(
-                    allow_swaps=self.compilation_config.allow_implicit_swaps,
+                    allow_swaps=compilation_config.allow_implicit_swaps,
                     target_2qb_gate=OpType.TK2,
                 )
             )
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    self.rebase_pass(),
+                    QuantinuumBackend.rebase_pass_offline(
+                        compilation_config, gate_set, two_qubit_gate_set
+                    ),
                     RemoveRedundancies(),
                     squash,
                     RemoveRedundancies(),
@@ -828,7 +862,9 @@ class QuantinuumBackend(Backend):
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    self.rebase_pass(),
+                    QuantinuumBackend.rebase_pass_offline(
+                        compilation_config, gate_set, two_qubit_gate_set
+                    ),
                     RemoveRedundancies(),
                     squash,
                     RemoveRedundancies(),
