@@ -824,7 +824,9 @@ class QuantinuumBackend(Backend):
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set),
+                    QuantinuumBackend._rebase_pass_offline(
+                        compilation_config, gate_set
+                    ),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -841,7 +843,9 @@ class QuantinuumBackend(Backend):
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set),
+                    QuantinuumBackend._rebase_pass_offline(
+                        compilation_config, gate_set
+                    ),
                     RemoveRedundancies(),
                     squash,
                     RemoveRedundancies(),
@@ -888,7 +892,9 @@ class QuantinuumBackend(Backend):
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set),
+                    QuantinuumBackend._rebase_pass_offline(
+                        compilation_config, gate_set
+                    ),
                     RemoveRedundancies(),
                     squash,
                     RemoveRedundancies(),
