@@ -4,6 +4,10 @@
 
 # Changelog
 
+## UNRELEASED
+
+- Add static method `pass_from_info` to `QuantinuumBackend` so that we can compile directly from a `BackendInfo`.
+
 ## 0.54.0 (October 2025)
 
 - Fix request_options for batch submissions
@@ -49,7 +53,6 @@
 - Update pytket minimum version requirement to 2.2.0.
 - Update pytket-qir minimum version requirement to 0.22.
 
-
 ## 0.45.0 (March 2025)
 
 - Add {py:class}`~pytket.predicates.CliffordCircuitPredicate` for circuit compilation and processing
@@ -57,7 +60,6 @@
 - Update pytket version requirement to 2.0.1.
 - Update pytket-qir version requirement to 0.21.
 - Update pytket-pecos version requirement to 0.2.0.
-
 
 ## 0.44.0 (February 2025)
 
@@ -86,7 +88,6 @@
 - Updated pytket version requirement to 1.34.
 - Updated pytket-pecos version requirement to 0.1.31.
 - Allow circuits containing `OpType.ClExpr` operations.
-
 
 ## 0.39.0 (November 2024)
 
@@ -157,10 +158,7 @@
 - Update pytket_pecos version requirement to 0.1.19.
 - Add methods to enable visibility of Quantinuum H-Series
 
-operations calendar with and without matplotlib.
-\* Support TK2 as native gate.
-\* Update pytket version requirement to 1.26.
-\* Update pytket-qir version requirement to 0.9.
+operations calendar with and without matplotlib. \* Support TK2 as native gate. \* Update pytket version requirement to 1.26. \* Update pytket-qir version requirement to 0.9.
 
 ## 0.30.0 (February 2024)
 
@@ -252,7 +250,7 @@ operations calendar with and without matplotlib.
   {py:attr}`~.QuantinuumBackend.rebase_pass`, which
   can use implicit wire swaps (represented in the circuit qubit permutation)
   to help implement some gates when chosen. Defaults to `False`.
-- Add  `implicit_swaps` option to
+- Add `implicit_swaps` option to
   {py:attr}`~.QuantinuumBackend.default_compilation_pass`, which
   is used in the rebase step. Defaults to `True`.
 
