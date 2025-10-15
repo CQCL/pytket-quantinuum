@@ -872,7 +872,7 @@ class QuantinuumBackend(Backend):
         backend = QuantinuumBackend(
             device_name=backend_info.device_name,
             compilation_config=compilation_config,
-            data=data
+            data=data,
         )
         backend._backend_info = backend_info
         return backend.default_compilation_pass(optimisation_level, timeout)
