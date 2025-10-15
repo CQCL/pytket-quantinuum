@@ -18,6 +18,12 @@ See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/training
         :special-members: __init__
         :members:
 
+        .. automethod:: default_compilation_pass_offline
+        .. automethod:: rebase_pass_offline
+        .. automethod:: two_qubit_gate_set_offline
+        .. automethod:: pass_from_info
+
+
     .. autoclass:: QuantinuumBackendCompilationConfig
         :members:
 
