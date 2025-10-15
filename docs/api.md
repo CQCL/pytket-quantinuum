@@ -18,6 +18,9 @@ See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/training
         :special-members: __init__
         :members:
 
+        .. automethod:: pass_from_info
+
+
     .. autoclass:: QuantinuumBackendCompilationConfig
         :members:
 
