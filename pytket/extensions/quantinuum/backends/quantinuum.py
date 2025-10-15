@@ -672,16 +672,16 @@ class QuantinuumBackend(Backend):
     @cached_property
     def default_two_qubit_gate(self) -> OpType:
         """Returns the default two-qubit gate for the device."""
-        return QuantinuumBackend.default_two_qubit_gate_offline(
+        return QuantinuumBackend._default_two_qubit_gate_offline(
             self._device_name, self._gate_set
         )
 
     @staticmethod
-    def default_two_qubit_gate_offline(
+    def _default_two_qubit_gate_offline(
         device_name: str, gate_set: set[OpType]
     ) -> OpType:
         default_2q_gate = _default_2q_gate(device_name)
-        two_qubit_gate_set = QuantinuumBackend.two_qubit_gate_set_offline(gate_set)
+        two_qubit_gate_set = QuantinuumBackend._two_qubit_gate_set_offline(gate_set)
 
         if default_2q_gate in two_qubit_gate_set:
             pass
@@ -698,10 +698,10 @@ class QuantinuumBackend(Backend):
 
         Submitted circuits must contain only one of these.
         """
-        return QuantinuumBackend.two_qubit_gate_set_offline(self._gate_set)
+        return QuantinuumBackend._two_qubit_gate_set_offline(self._gate_set)
 
     @staticmethod
-    def two_qubit_gate_set_offline(gate_set: set[OpType]) -> set[OpType]:
+    def _two_qubit_gate_set_offline(gate_set: set[OpType]) -> set[OpType]:
         return gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])  # noqa: C405
 
     @property
@@ -716,15 +716,15 @@ class QuantinuumBackend(Backend):
         return bool(info.get_misc("system_type") == "local_emulator")
 
     def rebase_pass(self) -> BasePass:
-        return QuantinuumBackend.rebase_pass_offline(
+        return QuantinuumBackend._rebase_pass_offline(
             self.compilation_config, self._gate_set
         )
 
     @staticmethod
-    def rebase_pass_offline(
+    def _rebase_pass_offline(
         compilation_config: QuantinuumBackendCompilationConfig, gate_set: set[OpType]
     ) -> BasePass:
-        two_qubit_gate_set = QuantinuumBackend.two_qubit_gate_set_offline(gate_set)
+        two_qubit_gate_set = QuantinuumBackend._two_qubit_gate_set_offline(gate_set)
         assert compilation_config.target_2qb_gate in two_qubit_gate_set
         assert compilation_config.target_2qb_gate is not None
         return AutoRebase(
@@ -745,7 +745,7 @@ class QuantinuumBackend(Backend):
 
         :return: Compilation pass for compiling circuits to Quantinuum devices
         """
-        return QuantinuumBackend.default_compilation_pass_offline(
+        return QuantinuumBackend._default_compilation_pass_offline(
             self.compilation_config, self._gate_set, optimisation_level, timeout
         )
 
@@ -759,12 +759,12 @@ class QuantinuumBackend(Backend):
         compilation_config = compilation_config or QuantinuumBackendCompilationConfig()
         if compilation_config.target_2qb_gate is None:
             compilation_config.target_2qb_gate = (
-                QuantinuumBackend.default_two_qubit_gate_offline(
+                QuantinuumBackend._default_two_qubit_gate_offline(
                     info.device_name, info.gate_set
                 )
             )
 
-        return QuantinuumBackend.default_compilation_pass_offline(
+        return QuantinuumBackend._default_compilation_pass_offline(
             compilation_config,
             info.gate_set,
             optimisation_level,
@@ -772,7 +772,7 @@ class QuantinuumBackend(Backend):
         )
 
     @staticmethod
-    def default_compilation_pass_offline(
+    def _default_compilation_pass_offline(
         compilation_config: QuantinuumBackendCompilationConfig,
         gate_set: set[OpType],
         optimisation_level: int = 2,
@@ -814,14 +814,14 @@ class QuantinuumBackend(Backend):
         # Edit this docs source file -> pytket-quantinuum/docs/intro.txt
         if optimisation_level == 0:
             passlist.append(
-                QuantinuumBackend.rebase_pass_offline(compilation_config, gate_set)
+                QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set)
             )
         elif optimisation_level == 1:
             passlist.append(SynthesiseTK())
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    QuantinuumBackend.rebase_pass_offline(compilation_config, gate_set),
+                    QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set),
                     ZZPhaseToRz(),
                     RemoveRedundancies(),
                     squash,
@@ -838,7 +838,7 @@ class QuantinuumBackend(Backend):
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    QuantinuumBackend.rebase_pass_offline(compilation_config, gate_set),
+                    QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set),
                     RemoveRedundancies(),
                     squash,
                     RemoveRedundancies(),
@@ -885,7 +885,7 @@ class QuantinuumBackend(Backend):
             passlist.extend(decomposition_passes)
             passlist.extend(
                 [
-                    QuantinuumBackend.rebase_pass_offline(compilation_config, gate_set),
+                    QuantinuumBackend._rebase_pass_offline(compilation_config, gate_set),
                     RemoveRedundancies(),
                     squash,
                     RemoveRedundancies(),
