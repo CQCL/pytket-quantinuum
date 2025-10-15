@@ -672,12 +672,21 @@ class QuantinuumBackend(Backend):
     @cached_property
     def default_two_qubit_gate(self) -> OpType:
         """Returns the default two-qubit gate for the device."""
-        default_2q_gate = _default_2q_gate(self._device_name)
+        return QuantinuumBackend.default_two_qubit_gate_offline(
+            self._device_name, self._gate_set
+        )
 
-        if default_2q_gate in self.two_qubit_gate_set:
+    @staticmethod
+    def default_two_qubit_gate_offline(
+        device_name: str, gate_set: set[OpType]
+    ) -> OpType:
+        default_2q_gate = _default_2q_gate(device_name)
+        two_qubit_gate_set = QuantinuumBackend.two_qubit_gate_set_offline(gate_set)
+
+        if default_2q_gate in two_qubit_gate_set:
             pass
-        elif len(self.two_qubit_gate_set) > 0:
-            default_2q_gate = list(self.two_qubit_gate_set)[0]  # noqa: RUF015
+        elif len(two_qubit_gate_set) > 0:
+            default_2q_gate = list(two_qubit_gate_set)[0]  # noqa: RUF015
         else:
             raise ValueError("The device is not supporting any two qubit gates")
 
@@ -747,8 +756,16 @@ class QuantinuumBackend(Backend):
         optimisation_level: int = 2,
         timeout: int = 300,
     ) -> BasePass:
+        compilation_config = compilation_config or QuantinuumBackendCompilationConfig()
+        if compilation_config.target_2qb_gate is None:
+            compilation_config.target_2qb_gate = (
+                QuantinuumBackend.default_two_qubit_gate_offline(
+                    info.device_name, info.gate_set
+                )
+            )
+
         return QuantinuumBackend.default_compilation_pass_offline(
-            compilation_config or QuantinuumBackendCompilationConfig(),
+            compilation_config,
             info.gate_set,
             optimisation_level,
             timeout,

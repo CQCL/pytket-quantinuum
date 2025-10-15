@@ -16,3 +16,4 @@ docs/pyproject.toml
 docs/poetry.lock
 .jupyter_cache/
 jupyter_execute/
+.env
