@@ -7,6 +7,8 @@
 ## 0.54.0 (October 2025)
 
 - Fix request_options for batch submissions
+- Update pytket version requirement to 2.9.3.
+- Update pytket-qir version requirement to 0.25.
 
 ## 0.53.0 (August 2025)
 
