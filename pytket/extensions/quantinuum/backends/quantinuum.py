@@ -858,12 +858,20 @@ class QuantinuumBackend(Backend):
 
     @staticmethod
     def pass_from_info(
-        backend_info: BackendInfo, optimisation_level: int = 2, timeout: int = 300
+        backend_info: BackendInfo,
+        compilation_config: QuantinuumBackendCompilationConfig | None = None,
+        data: QuantinuumBackendData | None = None,
+        optimisation_level: int = 2,
+        timeout: int = 300,
     ) -> BasePass:
         if backend_info.device_name is None:
             raise DeviceRequired("The provided BackendInfo has no device_name.")
-        
-        backend = QuantinuumBackend(backend_info.device_name)
+
+        backend = QuantinuumBackend(
+            device_name=backend_info.device_name,
+            compilation_config=compilation_config,
+            data=data,
+        )
         backend._backend_info = backend_info
         return backend.default_compilation_pass(optimisation_level, timeout)
 
