@@ -38,6 +38,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.circuit import Bit, Circuit, OpType
+from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.passes import (
     AutoRebase,
     AutoSquash,
@@ -73,7 +74,6 @@ from pytket.utils import prepare_circuit
 from pytket.utils.outcomearray import OutcomeArray
 from pytket.wasm import WasmFileHandler
 
-from pytket.extensions.quantinuum._metadata import __extension_version__
 from pytket.extensions.quantinuum.backends.credential_storage import (
     MemoryCredentialStorage,
 )
