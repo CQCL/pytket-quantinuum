@@ -714,7 +714,7 @@ class QuantinuumBackend(Backend):
     @staticmethod
     def rebase_pass_offline(
         compilation_config: QuantinuumBackendCompilationConfig, gate_set: set[OpType]
-    ):
+    ) -> BasePass:
         two_qubit_gate_set = QuantinuumBackend.two_qubit_gate_set_offline(gate_set)
         assert compilation_config.target_2qb_gate in two_qubit_gate_set
         assert compilation_config.target_2qb_gate is not None
@@ -746,7 +746,7 @@ class QuantinuumBackend(Backend):
         compilation_config: QuantinuumBackendCompilationConfig | None = None,
         optimisation_level: int = 2,
         timeout: int = 300,
-    ):
+    ) -> BasePass:
         return QuantinuumBackend.default_compilation_pass_offline(
             compilation_config or QuantinuumBackendCompilationConfig(),
             info.gate_set,
