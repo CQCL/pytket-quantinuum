@@ -756,6 +756,10 @@ class QuantinuumBackend(Backend):
         optimisation_level: int = 2,
         timeout: int = 300,
     ) -> BasePass:
+        if info.device_name is None:
+            raise ValueError("The BackendInfo should have a device_name.")
+        
+
         compilation_config = compilation_config or QuantinuumBackendCompilationConfig()
         if compilation_config.target_2qb_gate is None:
             compilation_config.target_2qb_gate = (

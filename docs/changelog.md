@@ -6,7 +6,7 @@
 
 ## UNRELEASED
 
-- Factor `default_compilation_pass`, `rebase_pass`, `default_two_qubit_gate_set` and `two_qubit_gate_set` into static methods `default_compilation_pass_offline`, `rebase_pass_offline`, `default_two_qubit_gate_set_offline` and `two_qubit_gate_set_offline` respectively. Create additional static method `pass_from_info` that can build a `BasePass` from a `BackendInfo` without requiring the network/authentication.
+- Factor `default_compilation_pass`, `rebase_pass`, `default_two_qubit_gate_set` and `two_qubit_gate_set` into static methods `_default_compilation_pass_offline`, `_rebase_pass_offline`, `_default_two_qubit_gate_set_offline` and `_two_qubit_gate_set_offline` respectively. Create additional static method `pass_from_info` that can build a `BasePass` from a `BackendInfo` without requiring the network/authentication.
 
 ## 0.54.0 (October 2025)
 
