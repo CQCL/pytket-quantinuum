@@ -1710,3 +1710,20 @@ def test_shotnum(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
             for res in counts
         }
         assert shotnums == set(range(1, n_shots + 1))
+
+
+@pytest.mark.skipif(skip_remote_tests, reason=REASON)
+@pytest.mark.timeout(120)
+def test_pass_from_info(
+    authenticated_quum_handler: QuantinuumAPI,
+) -> None:
+    infos = QuantinuumBackend.available_devices(api_handler=authenticated_quum_handler)
+    for info in infos[:5]:
+        actual_pass = QuantinuumBackend.pass_from_info(info)
+
+        be = QuantinuumBackend(
+            device_name=info.device_name or "", api_handler=authenticated_quum_handler
+        )
+        expected_pass = be.default_compilation_pass()
+
+        assert actual_pass.to_dict() == expected_pass.to_dict()
