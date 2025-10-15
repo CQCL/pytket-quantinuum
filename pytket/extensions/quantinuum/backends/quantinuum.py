@@ -201,8 +201,10 @@ class LanguageUnsupported(Exception):
 class DeviceNotAvailable(Exception):
     device_name: str
 
-class DeviceRequired(Exception):
-    pass
+
+class DeviceNameRequired(Exception):
+    """The operation requires a device name but none was present."""
+
 
 class Language(Enum):
     """Language used for submission of circuits."""
@@ -861,7 +863,7 @@ class QuantinuumBackend(Backend):
         backend_info: BackendInfo, optimisation_level: int = 2, timeout: int = 300
     ) -> BasePass:
         if backend_info.device_name is None:
-            raise DeviceRequired("The provided BackendInfo has no device_name.")
+            raise DeviceNameRequired("The provided BackendInfo has no device_name.")
         
         backend = QuantinuumBackend(backend_info.device_name)
         backend._backend_info = backend_info
