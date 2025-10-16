@@ -41,16 +41,6 @@ class QuantinuumBackendData:
     local_emulator: bool = False
 
 
-"""Data characterizing H1 devices and emulators"""
-H1 = QuantinuumBackendData(
-    n_qubits=20,
-    n_cl_reg=4000,
-    gate_set=frozenset(
-        {OpType.PhasedX, OpType.Rz, OpType.TK2, OpType.ZZMax, OpType.ZZPhase}
-    ),
-)
-
-
 """Data characterizing H2 devices and emulators"""
 H2 = QuantinuumBackendData(
     n_qubits=56,

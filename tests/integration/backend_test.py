@@ -123,7 +123,7 @@ def test_quantinuum(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_max_classical_register(
@@ -155,7 +155,7 @@ def test_max_classical_register(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
@@ -176,7 +176,7 @@ def test_bell(
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
     "authenticated_quum_backend_qa",
-    [{"device_name": "H1-1SC", "label": "test 3"}],
+    [{"device_name": "H2-1SC", "label": "test 3"}],
     indirect=True,
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
@@ -376,7 +376,7 @@ def test_cost_estimate_wrong_syntax_checker(
 
 @pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_prod", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_cost_estimate_bad_syntax_checker(
@@ -544,7 +544,7 @@ def test_leakage_detection(
 )
 @pytest.mark.timeout(120)
 def test_shots_bits_edgecases(n_shots: int, n_bits: int) -> None:
-    quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
+    quantinuum_backend = QuantinuumBackend("H2-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
 
     # TODO TKET-813 add more shot based backends and move to integration tests
@@ -568,7 +568,7 @@ def test_shots_bits_edgecases(n_shots: int, n_bits: int) -> None:
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(200)
@@ -581,7 +581,7 @@ def test_simulator(
     n_shots = 1000
     state_backend = authenticated_quum_backend_qa
     stabilizer_backend = QuantinuumBackend(
-        "H1-1E", simulator="stabilizer", api_handler=authenticated_quum_handler
+        "H2-1E", simulator="stabilizer", api_handler=authenticated_quum_handler
     )
 
     circ = state_backend.get_compiled_circuit(circ)
@@ -639,7 +639,7 @@ def test_retrieve_available_devices(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_batching(
@@ -686,7 +686,7 @@ def test_submission_with_group(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
@@ -782,7 +782,7 @@ def test_device_state(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",
@@ -817,7 +817,7 @@ def test_wasm_qa(
 
 @pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",
@@ -852,7 +852,7 @@ def test_wasm(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",
@@ -880,7 +880,7 @@ def test_wasm_costs(
     costs = b.cost(
         c,
         n_shots=10,
-        syntax_checker="H1-1SC",
+        syntax_checker="H2-1SC",
         wasm_file_handler=wasfile,
         language=language,
     )
@@ -975,7 +975,7 @@ def test_tk2(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
@@ -992,7 +992,7 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
 
 @pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
@@ -1009,7 +1009,7 @@ def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> 
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
@@ -1026,7 +1026,7 @@ def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) ->
 
 @pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission_mz_to_reg(
@@ -1046,7 +1046,7 @@ def test_qir_submission_mz_to_reg(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission_mz_to_reg_qa(
@@ -1071,7 +1071,7 @@ def test_qir_submission_mz_to_reg_qa(
 )
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission_64bitwasm5_qa(
@@ -1101,7 +1101,7 @@ def test_qir_submission_64bitwasm5_qa(
 )
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission_64bitwasm6_qa(
@@ -1131,7 +1131,7 @@ def test_qir_submission_64bitwasm6_qa(
 )
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission_64bitwasm_pytket_qa(
@@ -1171,7 +1171,7 @@ def test_qir_submission_64bitwasm_pytket_qa(
 )
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_submission_64bitwasm_pytket_overflow_qa(
@@ -1202,7 +1202,7 @@ def test_qir_submission_64bitwasm_pytket_overflow_qa(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_qir_conversion(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
@@ -1227,7 +1227,7 @@ def test_old_handle(
     c.CX(0, 1)
     c.measure_all()
     b0 = QuantinuumBackend(
-        "H1-1SC",
+        "H2-1SC",
         api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
             api_url="https://qapi.quantinuum.com/",
             _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
@@ -1238,7 +1238,7 @@ def test_old_handle(
     h0 = b0.process_circuit(c, n_shots=10)
     r0 = b0.get_result(h0)
     b1 = QuantinuumBackend(
-        "H1-1SC",
+        "H2-1SC",
         api_handler=QuantinuumAPI(  # type: ignore # pylint: disable=unexpected-keyword-arg
             api_url="https://qapi.quantinuum.com/",
             _QuantinuumAPI__user_name=os.getenv("PYTKET_REMOTE_QUANTINUUM_USERNAME"),
@@ -1260,7 +1260,7 @@ def test_old_handle(
 )
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.timeout(120)
 def test_scratch_removal(
@@ -1299,7 +1299,7 @@ def test_scratch_removal(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",
@@ -1357,7 +1357,7 @@ def test_wasm_collatz(
 
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",
@@ -1419,7 +1419,7 @@ def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
     # https://github.com/CQCL/pytket-quantinuum/issues/250
     config = QuantinuumBackendCompilationConfig(allow_implicit_swaps=False)
     b = QuantinuumBackend(
-        "H1-1E", api_handler=authenticated_quum_handler, compilation_config=config
+        "H2-1E", api_handler=authenticated_quum_handler, compilation_config=config
     )
     c = Circuit(2).H(0).CX(0, 1).measure_all()
     c1 = b.get_compiled_circuit(c)
@@ -1428,7 +1428,7 @@ def test_default_2q_gate(authenticated_quum_handler: QuantinuumAPI) -> None:
 
 # https://github.com/CQCL/pytket-quantinuum/issues/265
 def test_Rz_removal_before_measurements() -> None:
-    backend = QuantinuumBackend("H1-1E", machine_debug=True)
+    backend = QuantinuumBackend("H2-1E", machine_debug=True)
     # Circuit will contain an Rz gate if RemoveRedundancies
     #  isn't applied after SquashRzPhasedX
     circuit = Circuit(2).H(0).Rz(0.75, 0).CX(0, 1).measure_all()
@@ -1444,7 +1444,7 @@ def test_Rz_removal_before_measurements() -> None:
 # https://github.com/CQCL/pytket-quantinuum/issues/263
 @pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_qa", [{"device_name": "H1-1E"}], indirect=True
+    "authenticated_quum_backend_qa", [{"device_name": "H2-1E"}], indirect=True
 )
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 @pytest.mark.timeout(120)
@@ -1501,7 +1501,7 @@ def test_get_calendar_raises_error(
 @pytest.mark.mpl_image_compare(tolerance=20)
 def test_view_calendar(authenticated_quum_handler: QuantinuumAPI) -> Any:
     backend = QuantinuumBackend(
-        api_handler=authenticated_quum_handler, device_name="H1-1"
+        api_handler=authenticated_quum_handler, device_name="H2-1"
     )
     return backend.view_calendar(month=2, year=2024)
 
@@ -1563,7 +1563,7 @@ def test_no_phase_ops(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
 
 
 def test_default_pass_serialization() -> None:
-    h11e_backend = QuantinuumBackend("H1-1E", machine_debug=True)
+    h11e_backend = QuantinuumBackend("H2-1E", machine_debug=True)
 
     for opt_level in range(4):
         default_pass = h11e_backend.default_compilation_pass(opt_level)
@@ -1635,7 +1635,7 @@ def test_rng(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
 
 @pytest.mark.skipif(skip_remote_tests_prod, reason=REASON)
 @pytest.mark.parametrize(
-    "authenticated_quum_backend_prod", [{"device_name": "H1-1SC"}], indirect=True
+    "authenticated_quum_backend_prod", [{"device_name": "H2-1SC"}], indirect=True
 )
 @pytest.mark.parametrize(
     "language",

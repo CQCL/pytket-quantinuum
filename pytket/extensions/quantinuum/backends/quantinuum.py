@@ -300,7 +300,7 @@ class QuantinuumBackend(Backend):
     ):
         """Construct a new Quantinuum backend.
 
-        :param device_name: Name of device, e.g. "H1-1"
+        :param device_name: Name of device, e.g. "H2-1"
         :param label: Job labels used if Circuits have no name, defaults to "job"
         :param simulator: Only applies to simulator devices, options are
             "state-vector" or "stabilizer", defaults to "state-vector"
@@ -389,7 +389,7 @@ class QuantinuumBackend(Backend):
         """List devices available from Quantinuum.
 
         >>> QuantinuumBackend._available_devices()
-        e.g. [{'name': 'H1', 'n_qubits': 6}]
+        e.g. [{'name': 'H2-1', 'n_qubits': 56}]
 
         :param api_handler: Instance of API handler
         :return: Dictionaries of machine name and number of qubits.
@@ -480,7 +480,7 @@ class QuantinuumBackend(Backend):
     ) -> str:
         """Check the status of a device.
 
-        >>> QuantinuumBackend.device_state('H1') # e.g. "online"
+        >>> QuantinuumBackend.device_state('H2-1') # e.g. "online"
 
 
         :param device_name: Name of the device.
@@ -603,7 +603,7 @@ class QuantinuumBackend(Backend):
     ) -> "matplotlib.figure.Figure":
         """Visualise the operations calendar for a user-specified
         month and year. The operations hours are shown for the machine name
-        used to construct the :py:class:`QuantinuumBackend` object, i.e. 'H1-1'. Operations
+        used to construct the :py:class:`QuantinuumBackend` object, e.g. 'H2-1'. Operations
         days are coloured. In addition, a description of the event is also
         displayed (``start-time``, ``duration`` and ``event-type``, see the
         :py:meth:`get_calendar` method for more information).
@@ -1637,7 +1637,7 @@ jobid is {jobid}"
             backend.
         :param n_shots: Number of shots.
         :param syntax_checker: Optional. Name of the syntax checker to use to get cost.
-            For example for the "H1-1" device that would be "H1-1SC".
+            For example for the "H2-1" device that would be "H2-1SC".
             For most devices this is automatically inferred, default=None.
         :param use_websocket: Optional. Boolean flag to use a websocket connection.
         :raises ValueError: Circuit is not valid, needs to be compiled.

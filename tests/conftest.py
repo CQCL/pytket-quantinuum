@@ -31,23 +31,19 @@ ALL_QUANTUM_HARDWARE_NAMES = []
 if not os.getenv("PYTKET_REMOTE_QUANTINUUM_EMULATORS_ONLY", 0):  # noqa: PLW1508
     ALL_QUANTUM_HARDWARE_NAMES.extend(
         [
-            "H1-1",
             "H2-1",
         ]
     )
 
 ALL_SIMULATOR_NAMES = [
-    "H1-1E",
     "H2-1E",
 ]
 
 ALL_SYNTAX_CHECKER_NAMES = [
-    "H1-1SC",
     "H2-1SC",
 ]
 
 ALL_LOCAL_SIMULATOR_NAMES = [
-    "H1-1LE",
     "H2-1LE",
 ]
 
@@ -151,58 +147,6 @@ def sample_machine_infos() -> list[dict[str, Any]]:
     return [
         {
             "wasm": True,
-            "max_n_shots": 10000,
-            "n_qubits": 20,
-            "n_classical_registers": 120,
-            "system_type": "syntax checker",
-            "max_classical_register_width": 32,
-            "gateset": ["RZZ", "Rxxyyzz", "Rz", "TK2", "U1q", "ZZ"],
-            "name": "H1-1SC",
-        },
-        {
-            "wasm": True,
-            "batching": True,
-            "n_gate_zones": "5",
-            "noise_specs": {
-                "crosstalk_probability": {
-                    "p_crosstalk_meas": 1.45e-05,
-                    "p_crosstalk_init": 5.02e-06,
-                },
-                "1q_fault_probability": {"p1": 2.1e-05},
-                "bit_flip_measurement_probability": {
-                    "p_meas_0": 0.001,
-                    "p_meas_1": 0.004,
-                },
-                "dephasing_rates": {
-                    "linear_dephasing_rate": 0.0,
-                    "quadratic_dephasing_rate": 0.122,
-                },
-                "2q_fault_probability": {"p2": 0.00088},
-                "ratio_spontaneous_emission": {
-                    "p1_emission_ratio": 0.54,
-                    "p2_emission_ratio": 0.43,
-                },
-                "fit_parameters": {
-                    "przz_c": 1.651,
-                    "przz_d": 0.175,
-                    "przz_a": 1.651,
-                    "przz_b": 0.175,
-                    "przz_power": 1.0,
-                },
-                "coherent_to_incoherent_factor": 2.5,
-                "init_fault_probability": {"p_init": 3.62e-05},
-            },
-            "max_n_shots": 10000,
-            "n_qubits": 20,
-            "n_classical_registers": 120,
-            "system_type": "emulator",
-            "max_classical_register_width": 32,
-            "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
-            "name": "H1-1E",
-            "connectivity": "all-to-all",
-        },
-        {
-            "wasm": True,
             "batching": True,
             "n_gate_zones": "4",
             "noise_specs": {
@@ -242,41 +186,6 @@ def sample_machine_infos() -> list[dict[str, Any]]:
             "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
             "name": "H2-1E",
             "connectivity": "all-to-all",
-        },
-        {
-            "wasm": True,
-            "batching": True,
-            "benchmarks": {"qv": {"date": "2024-04-04", "value": 1048576.0}},
-            "max_classical_register_width": 32,
-            "gateset": ["RZZ", "Rxxyyzz", "Rz", "U1q", "ZZ"],
-            "name": "H1-1",
-            "syntax_checker": "H1-1SC",
-            "n_gate_zones": "5",
-            "noise_specs": {
-                "date": "2024-02-04",
-                "spam_error": {
-                    "p_meas_1_unc": 0.000199,
-                    "p_meas_0": 0.00095,
-                    "p_meas_1": 0.00397,
-                    "p_meas_0_unc": 9.74e-05,
-                },
-                "crosstalk_error": {
-                    "p_crosstalk_meas_unc": 1.02e-06,
-                    "p_crosstalk_meas": 1.453e-05,
-                },
-                "memory_error": {
-                    "memory_error_unc": 2.52e-05,
-                    "memory_error": 0.000208,
-                },
-                "1q_gate_error": {"p1": 2.08e-05, "p1_unc": 2.77e-06},
-                "2q_gate_error": {"p2_unc": 2.85e-05, "p2": 0.000882},
-            },
-            "max_n_shots": 10000,
-            "n_qubits": 20,
-            "n_classical_registers": 120,
-            "system_type": "hardware",
-            "connectivity": "all-to-all",
-            "emulator": "H1-1E",
         },
         {
             "wasm": True,
@@ -388,11 +297,11 @@ def fixture_authenticated_quum_backend_prod(
     #       is true, by marking it with @parametrize, using the
     #       "authenticated_quum_backend_prod" as parameter and `indirect=True`
 
-    # By default, the backend is created with device_name="H1-1SC" only,
+    # By default, the backend is created with device_name="H2-1SC" only,
     # but other params can be specified when parametrizing the
     # authenticated_quum_backend_prod
     if (not hasattr(request, "param")) or request.param is None:
-        backend = QuantinuumBackend("H1-1SC", api_handler=authenticated_quum_handler)
+        backend = QuantinuumBackend("H2-1SC", api_handler=authenticated_quum_handler)
     else:
         backend = QuantinuumBackend(
             api_handler=authenticated_quum_handler, **request.param
@@ -427,11 +336,11 @@ def fixture_authenticated_quum_backend_qa(
     #       is true, by marking it with @parametrize, using the
     #       "authenticated_quum_backend_qa" as parameter and `indirect=True`
 
-    # By default, the backend is created with device_name="H1-1SC" only,
+    # By default, the backend is created with device_name="H2-1SC" only,
     # but other params can be specified when parametrizing the
     # authenticated_quum_backend_qa
     if (not hasattr(request, "param")) or request.param is None:
-        backend = QuantinuumBackend("H1-1SC", api_handler=authenticated_quum_handler_qa)
+        backend = QuantinuumBackend("H2-1SC", api_handler=authenticated_quum_handler_qa)
     else:
         backend = QuantinuumBackend(
             api_handler=authenticated_quum_handler_qa, **request.param

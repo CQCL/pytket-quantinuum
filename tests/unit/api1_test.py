@@ -384,7 +384,7 @@ def test_resumed_batching(
     )
 
     backend = QuantinuumBackend(
-        device_name="H1-1E",
+        device_name="H2-1E",
         api_handler=mock_quum_api_handler,
     )
 
@@ -507,7 +507,7 @@ def test_submit_qasm_api(
     )
 
     backend = QuantinuumBackend(
-        device_name="H1-1SC",
+        device_name="H2-1SC",
         api_handler=mock_quum_api_handler,
     )
 

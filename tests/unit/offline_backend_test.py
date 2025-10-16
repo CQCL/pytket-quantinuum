@@ -37,7 +37,7 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
 def test_quantinuum_offline(language: Language) -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1",
+        device_name="H2-1",
         machine_debug=False,
         api_handler=qapioffline,  # type: ignore
     )
@@ -57,7 +57,7 @@ def test_quantinuum_offline(language: Language) -> None:
     expected_result = {
         "name": "test 1",
         "count": 4,
-        "machine": "H1-1",
+        "machine": "H2-1",
         "language": "OPENQASM 2.0" if language == Language.QASM else "QIR 1.0",
         "program": "...",  # not checked
         "priority": "normal",
@@ -76,7 +76,7 @@ def test_quantinuum_offline(language: Language) -> None:
 def test_max_classical_register_ii() -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        device_name="H1-1",
+        device_name="H2-1",
         machine_debug=False,
         api_handler=qapioffline,  # type: ignore
     )
@@ -101,7 +101,7 @@ def test_max_classical_register_ii() -> None:
 
 @pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
 def test_tket_pass_submission(language: Language) -> None:
-    backend = QuantinuumBackend(device_name="H1-1SC", machine_debug=True)
+    backend = QuantinuumBackend(device_name="H2-1SC", machine_debug=True)
 
     sequence_pass = SequencePass(
         [
@@ -133,7 +133,7 @@ def test_tket_pass_submission(language: Language) -> None:
     ],
 )
 def test_shots_bits_edgecases(n_shots: int, n_bits: int, language: Language) -> None:
-    quantinuum_backend = QuantinuumBackend("H1-1SC", machine_debug=True)
+    quantinuum_backend = QuantinuumBackend("H2-1SC", machine_debug=True)
     c = Circuit(n_bits, n_bits)
 
     # TODO TKET-813 add more shot based backends and move to integration tests

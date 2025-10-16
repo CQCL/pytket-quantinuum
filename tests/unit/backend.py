@@ -19,7 +19,7 @@ def test_clifford_circuits_for_stabilizer(
     and the statevector simulator does not."""
     qapi_offline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
-        "H1-1E",
+        "H2-1E",
         api_handler=qapi_offline,  # type: ignore
         simulator=simulator_type,
     )

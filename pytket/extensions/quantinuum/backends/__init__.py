@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIOffline
-from .data import H1, H2
+from .data import H2
 from .leakage_gadget import prune_shots_detected_as_leaky
 from .quantinuum import (
     Language,
