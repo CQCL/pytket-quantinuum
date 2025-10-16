@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 - Add static method `pass_from_info` to `QuantinuumBackend` so that we can compile directly from a `BackendInfo`.
+- Remove references to H1 except in offline API; update offline machine data.
 
 ## 0.54.0 (October 2025)
 
