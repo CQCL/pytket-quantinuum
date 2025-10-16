@@ -41,10 +41,10 @@ In case of questions about the hardware you can get in contact with the team sen
 
 The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
 
-- `H1-1`, `H2-1`, `H2-2`: Quantum devices, submit to a specific device by using the device name.
-- `H1-1E`, `H2-1E`, `H2-2E`: Device-specific emulators. These emulators run remotely on servers and require credentials.
-- `H1-1SC`, `H2-1SC`, `H2-2SC` : Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the Hardware Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
-- `H1-1LE`, a version of the `H1-1E` emulator that runs locally. For running simulations locally, see the docs on [Local Emulators](#local-emulators).
+- `H2-1`, `H2-2`: Quantum devices, submit to a specific device by using the device name.
+- `H2-1E`, `H2-2E`: Device-specific emulators. These emulators run remotely on servers and require credentials.
+- `H2-1SC`, `H2-2SC` : Device-specific syntax checkers. These check compilation of a quantum circuit against device-specific instructions, and return status "completed" if the syntax is correct (along with the Hardware Quantum Credits (HQCs)), or status "failed" if the syntax is incorrect (along with the error).
+- `H2-1LE`, a version of the `H2-1E` emulator that runs locally. For running simulations locally, see the docs on [Local Emulators](#local-emulators).
 
 There are also optional initialisation parameters `label` (for naming circuits), `group` (identifier for a collection of jobs) and `simulator` (see below).
 
@@ -68,7 +68,7 @@ from pytket import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend
 
 circ = Circuit(2).H(0).CX(0, 1).CZ(0, 1)
-backend = QuantinuumBackend('H1-1E')
+backend = QuantinuumBackend('H2-1E')
 
 # Compile the circuit in place. The optimisation level is set to 2 by default.
 backend.default_compilation_pass().apply(circ)
@@ -176,7 +176,7 @@ Circuits must satisfy the following predicates in order to run on the {py:class}
 
 - {py:class}`~pytket.predicates.NoSymbolsPredicate`: Parameterised gates must have numerical parameters when the circuit is executed.
 - {py:class}`~pytket.predicates.GateSetPredicate`: To view supported Ops run `QuantinuumBackend.backend_info.gate_set`.
-- {py:class}`~pytket.predicates.MaxNQubitsPredicate`: `H1-1`, `H1-1E` and `H1-1SC` all support a maximum of 20 qubits. `H2-1`, `H2-1E` and `H2-1SC` all support a maximum of 56 qubits.
+- {py:class}`~pytket.predicates.MaxNQubitsPredicate`: `H2-1`, `H2-1E` and `H2-1SC` all support a maximum of 56 qubits.
 
 # Job Statuses
 
@@ -261,7 +261,7 @@ tags: [skip-execution]
 from pytket.extensions.quantinuum import QuantinuumBackend
 
 # Submit circuit to QuantinuumBackend
-backend = QuantinuumBackend('H1-1')
+backend = QuantinuumBackend('H2-1')
 compiled_circ = backend.get_compiled_circuit(circ) # circ defined elsewhere
 handle = backend.process_circuit(compiled_circ, n_shots=3000)
 
@@ -342,13 +342,13 @@ uv pip install pytket-pecos --prerelease=allow
 then it is possible to run circuits on an emulator running on the local machine
 instead of using the remote emulator.
 
-For example, the "H1-1" device would have a counterpart device called "H1-1LE".
-Running circuits on this device would be similar to using the "H1-1" device or
-the remote emulator ("H1-1E"), but would not incur any cost in HQCs (and for
+For example, the "H2-1" device would have a counterpart device called "H2-1LE".
+Running circuits on this device would be similar to using the "H2-1" device or
+the remote emulator ("H2-1E"), but would not incur any cost in HQCs (and for
 small circuits would typically be faster).
 
 Currently this emulation is noiseless, so if noisy emulation is required it is
-still necessary to use the remote emulators (such as "H1-1E").
+still necessary to use the remote emulators (such as "H2-1E").
 
 A few of the {py:class}`~.QuantinuumBackend` methods ({py:meth}`~.QuantinuumBackend.submit_program`, {py:meth}`~.QuantinuumBackend.cancel`,
 and {py:meth}`~.QuantinuumBackend.get_partial_result`) are not available for local-emulator backends.
@@ -365,7 +365,7 @@ tags: [skip-execution]
 from pytket.extensions.quantinuum import QuantinuumBackend, QuantinuumAPIOffline
 
 api_offline = QuantinuumAPIOffline()
-backend = QuantinuumBackend(device_name="H1-1LE", api_handler=api_offline)
+backend = QuantinuumBackend(device_name="H2-1LE", api_handler=api_offline)
 ```
 
 ```{eval-rst}

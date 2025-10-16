@@ -36,7 +36,6 @@ See the [pytket-quantinuum section](https://docs.quantinuum.com/systems/training
 
     .. autoclass:: QuantinuumBackendData
         :members:
-    .. autodata:: H1
     .. autodata:: H2
 
 .. automodule:: pytket.extensions.quantinuum.backends.api_wrappers

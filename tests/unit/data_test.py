@@ -16,7 +16,6 @@ import pytest
 from pytket.circuit import Circuit
 
 from pytket.extensions.quantinuum import (
-    H1,
     H2,
     QuantinuumBackend,
     QuantinuumBackendData,
@@ -25,7 +24,7 @@ from pytket.extensions.quantinuum import (
 
 
 def test_backend_data() -> None:
-    for data in [H1, H2]:
+    for data in [H2]:
         b = QuantinuumBackend("test", data=data)
         c = Circuit(2).H(0).CX(0, 1).measure_all()
         p = b.default_compilation_pass(optimisation_level=2)

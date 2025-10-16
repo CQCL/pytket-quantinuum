@@ -15,7 +15,6 @@
 # _metadata.py is copied to the folder after installation.
 from ._metadata import __extension_name__, __extension_version__
 from .backends import (
-    H1,
     H2,
     Language,
     QuantinuumAPI,
