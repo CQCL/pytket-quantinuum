@@ -133,7 +133,7 @@ jobs:
       shell: bash
       run: |
         ./.github/workflows/build-test nomypy
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
       with:
         name: artefact-${{ matrix.os }}
