@@ -1,5 +1,5 @@
 pytest
-pytest-timeout
+pytest-timeout ~= 2.4.0
 hypothesis
 requests_mock
-pytest-rerunfailures
+pytest-mpl
