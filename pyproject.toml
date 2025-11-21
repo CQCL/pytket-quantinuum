@@ -1,5 +1,5 @@
 [project]
-name = "pytket-TODOEXTNAME"
+name = "pytket-quantinuum"
 dynamic = ["version"]
 requires-python = ">=3.10,<4.0"
 
@@ -26,14 +26,24 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "pytket >= 2.7.0",
-    "TODOPYTKETEXT",
+    "pytket >= 2.9.3",
+    "pytket-qir >= 0.25.0",
+    "requests >= 2.32.2",
+    "types-requests",
+    "websockets >= 13.1",
+    "nest_asyncio >= 1.2",
+    "pyjwt ~= 2.4",
+    "msal ~= 1.18",
+    "numpy >= 1.26.4",
+    "pytket-pecos ~= 0.2.1", # todo 
+    "matplotlib >= 3.8.3,< 3.11.0" # todo 
+    "pandas >= 2.2.1,< 2.4.0", # todo
 ]
 
 [project.urls]
-documentation = "https://tket.quantinuum.com/extensions/pytket-TODOEXTNAME/index.html"
-source = "https://github.com/CQCL/pytket-TODOEXTNAME"
-tracker = "https://github.com/CQCL/pytket-TODOEXTNAME/issues"
+documentation = "https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html"
+source = "https://github.com/CQCL/pytket-quantinuum"
+tracker = "https://github.com/CQCL/pytket-quantinuum/issues"
 
 [tool.setuptools.packages]
 find = {}
