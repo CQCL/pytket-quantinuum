@@ -52,8 +52,8 @@ version = {attr = "_metadata.__extension_version__"}
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[dependency-groups]
-dev = [
+[tool.uv]
+dev-dependencies = [
     "pytest >=8.3.2,<9",
     "pytest-timeout ~=2.4.0",
     "ruff >=0.6.2,<0.7",
