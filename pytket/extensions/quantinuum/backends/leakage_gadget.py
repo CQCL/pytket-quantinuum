@@ -15,7 +15,7 @@
 from collections import Counter
 from typing import TYPE_CHECKING, cast
 
-from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
+from pytket import Bit, Circuit, OpType, Qubit
 from pytket.backends.backendresult import BackendResult
 from pytket.utils.outcomearray import OutcomeArray
 
