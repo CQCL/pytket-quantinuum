@@ -30,7 +30,7 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         pyver: ["3.12"]
-    uses: CQCL/pytket-workflows/.github/workflows/static-checks-wf.yml@v0.0.7
+    uses: CQCL/pytket-workflows/.github/workflows/static-checks-wf.yml@v0.0.8
     with:
       os: ${{ matrix.os }}
       pyver: ${{ matrix.pyver }}
@@ -41,7 +41,7 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         pyver: ["3.10", "3.13"]
-    uses: CQCL/pytket-workflows/.github/workflows/unit-test-wf.yml@v0.0.7
+    uses: CQCL/pytket-workflows/.github/workflows/unit-test-wf.yml@v0.0.8
     with:
       os: ${{ matrix.os }}
       pyver: ${{ matrix.pyver }}
@@ -52,11 +52,12 @@ jobs:
       matrix:
         os: ["ubuntu-latest"]
         pyver: ["3.11"]
-    uses: CQCL/pytket-workflows/.github/workflows/unit-test-remote-wf.yml@v0.0.7
+    uses: CQCL/pytket-workflows/.github/workflows/unit-test-remote-wf.yml@v0.0.8
     with:
       os: ${{ matrix.os }}
       pyver: ${{ matrix.pyver }}
-      PYTKET_REMOTE_QUANTINUUM_USERNAME: "$PYTKET_REMOTE_QUANTINUUM_USERNAME"
-      PYTKET_REMOTE_QUANTINUUM_PASSWORD: "$PYTKET_REMOTE_QUANTINUUM_PASSWORD"
-      PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: "$PYTKET_REMOTE_QUANTINUUM_USERNAME_QA"
-      PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: "$PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA"
+    secrets:
+      PYTKET_REMOTE_QUANTINUUM_USERNAME: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME }}
+      PYTKET_REMOTE_QUANTINUUM_PASSWORD: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD }}
+      PYTKET_REMOTE_QUANTINUUM_USERNAME_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_USERNAME_QA }}
+      PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA: ${{ secrets.PYTKET_REMOTE_QUANTINUUM_PASSWORD_QA }}
