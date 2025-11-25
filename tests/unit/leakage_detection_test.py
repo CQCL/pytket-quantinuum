@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from pytket import Bit, Circuit, OpType, Qubit  # type: ignore
+from pytket import Bit, Circuit, OpType, Qubit
 from pytket.backends.backendresult import BackendResult
 from pytket.extensions.quantinuum.backends.leakage_gadget import (
     LEAKAGE_DETECTION_BIT_NAME_,
