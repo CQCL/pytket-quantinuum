@@ -1,5 +1,0 @@
-pytest
-pytest-timeout ~= 2.4.0
-hypothesis
-requests_mock
-pytest-mpl

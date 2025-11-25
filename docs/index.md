@@ -39,7 +39,7 @@ In case of questions about the hardware you can get in contact with the team sen
 
 # Available Backends
 
-The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised  by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
+The pytket-quantinuum extension allows the user to access the following quantum devices, emulators and syntax checkers. These backends can be initialised by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
 
 - `H2-1`, `H2-2`: Quantum devices, submit to a specific device by using the device name.
 - `H2-1E`, `H2-2E`: Device-specific emulators. These emulators run remotely on servers and require credentials.
@@ -83,69 +83,68 @@ tags: [skip-execution]
 compiled_circ = backend.get_compiled_circuit(circ)
 ```
 
-The passes applied by different levels of optimisation are specified in the table below. Note that optimisation level 0, 1 and 2 do not remove barriers from 
-a circuit, while optimisation level 3 will. At optimisation level 3 the default timeout is 5 minutes - consider increasing this for larger circuits if 
+The passes applied by different levels of optimisation are specified in the table below. Note that optimisation level 0, 1 and 2 do not remove barriers from
+a circuit, while optimisation level 3 will. At optimisation level 3 the default timeout is 5 minutes - consider increasing this for larger circuits if
 the circuit 2-qubit gate count is not reduced after compilation.
 
 :::{list-table} **Default compilation pass for the QuantinuumBackend**
 :widths: 25 25 25 25
 :header-rows: 1
 
-* - optimisation_level = 0
+- - optimisation_level = 0
   - optimisation_level = 1
   - optimisation_level = 2 [1]
   - optimisation_level = 3
-* - {py:meth}`~pytket.passes.DecomposeBoxes`
+- - {py:meth}`~pytket.passes.DecomposeBoxes`
   - {py:meth}`~pytket.passes.DecomposeBoxes`
   - {py:meth}`~pytket.passes.DecomposeBoxes`
   - {py:meth}`~pytket.passes.DecomposeBoxes`
-* - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
+- - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
   - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
   - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
   - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
-* - {py:meth}`~pytket.passes.AutoRebase` [2]
+- - {py:meth}`~pytket.passes.AutoRebase` [2]
   - {py:meth}`~pytket.passes.SynthesiseTket`
   - {py:meth}`~pytket.passes.FullPeepholeOptimise` [3]
   - {py:meth}`~pytket.passes.RemoveBarriers`
-* - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
+- - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.NormaliseTK2` [5]
   - {py:meth}`~pytket.passes.NormaliseTK2` [5]
   - {py:meth}`~pytket.passes.GreedyPauliSimp`
-* -
+- -
   - {py:meth}`~pytket.passes.DecomposeTK2` [5]
   - {py:meth}`~pytket.passes.DecomposeTK2` [5]
   - {py:meth}`~pytket.passes.NormaliseTK2` [5]
-* -
+- -
   - {py:meth}`~pytket.passes.AutoRebase` [2]
   - {py:meth}`~pytket.passes.AutoRebase` [2]
   - {py:meth}`~pytket.passes.DecomposeTK2` [5]
-* -
+- -
   - {py:meth}`~pytket.passes.ZZPhaseToRz`
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.AutoRebase` [2]
-* -
+- -
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.AutoSquash` [4]
   - {py:meth}`~pytket.passes.RemoveRedundancies`
-* -
+- -
   - {py:meth}`~pytket.passes.AutoSquash` [4]
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.AutoSquash` [4]
-* -
+- -
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
-* -
-  - {py:meth}`~pytket.passes.RemoveRedundancies`
-  -
-  - {py:meth}`~pytket.passes.RemoveRedundancies`
-:::
+- - - {py:meth}`~pytket.passes.RemoveRedundancies`
+    -
+    - {py:meth}`~pytket.passes.RemoveRedundancies`
+      :::
 
-- \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
-- \[2\] {py:meth}`~pytket.passes.AutoRebase` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
-- \[3\] {py:meth}`~pytket.passes.FullPeepholeOptimise` has the argument `target_2qb_gate=OpType.TK2`.
-- \[4\] {py:meth}`~pytket.passes.AutoSquash` targets the $\{PhasedX, Rz\}$ gate set, i.e. `AutoSquash({OpType.PhasedX, OpType.Rz})`.
-- \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
+* \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
+* \[2\] {py:meth}`~pytket.passes.AutoRebase` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
+* \[3\] {py:meth}`~pytket.passes.FullPeepholeOptimise` has the argument `target_2qb_gate=OpType.TK2`.
+* \[4\] {py:meth}`~pytket.passes.AutoSquash` targets the $\{PhasedX, Rz\}$ gate set, i.e. `AutoSquash({OpType.PhasedX, OpType.Rz})`.
+* \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
 
 :::{note}
 If `optimisation_level = 0` the device constraints are solved but no additional optimisation is applied. Setting `optimisation_level = 1` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
@@ -185,7 +184,7 @@ When using the {py:class}`~.QuantinuumBackend` to run circuits there are several
 - queued - The job has been queued but has not yet been run.
 - running - The circuit is currently being run on the device/emulator.
 - completed - The job has finished.
-- failed -  The job has failed.
+- failed - The job has failed.
 - cancelling - The job is in the process of being cancelled.
 - cancelled - The job has been cancelled.
 
@@ -323,7 +322,7 @@ The batch feature on Quantinuum systems gives users the ability to create "ad-ho
 
 Once a batch is submitted, jobs can continue to be added to the batch, ending either when the user signifies the end of a batch or after 1 minute of inactivity. Batches cannot exceed the maximum limit of 500 H-System Quantum Credits (HQCs) total.
 
-If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs *will not be cancelled*. Instead, they will continue to run as regular jobs in the queue instead of as a batch.
+If the total HQCs for jobs in a batch hit this limit or a smaller limit set by the user, those jobs _will not be cancelled_. Instead, they will continue to run as regular jobs in the queue instead of as a batch.
 
 # Local Emulators
 

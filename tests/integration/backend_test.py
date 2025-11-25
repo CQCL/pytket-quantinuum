@@ -28,6 +28,7 @@ import pyqir
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies._internal import SearchStrategy
+
 from pytket.backends import CircuitNotValidError
 from pytket.backends.status import StatusEnum
 from pytket.circuit import (
@@ -46,11 +47,6 @@ from pytket.circuit import (
     reg_neq,
 )
 from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
-from pytket.passes import BasePass, SequencePass
-from pytket.passes.resizeregpass import _gen_scratch_transformation
-from pytket.predicates import CompilationUnit
-from pytket.wasm import WasmFileHandler
-
 from pytket.extensions.quantinuum import (
     Language,
     QuantinuumBackend,
@@ -62,6 +58,10 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
     QuantinuumAPIError,
 )
 from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, MAX_C_REG_WIDTH
+from pytket.passes import BasePass, SequencePass
+from pytket.passes.resizeregpass import _gen_scratch_transformation
+from pytket.predicates import CompilationUnit
+from pytket.wasm import WasmFileHandler
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 skip_remote_tests_prod: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS_PROD") is None
@@ -986,7 +986,7 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
-    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
+    assert set(r.get_bitlist()) == {Bit("0_t0", 0), Bit("0_t1", 0)}
     assert len(r.get_shots()) == 10
 
 
@@ -1003,7 +1003,7 @@ def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> 
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
-    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
+    assert set(r.get_bitlist()) == {Bit("0_t0", 0), Bit("0_t1", 0)}
     assert len(r.get_shots()) == 10
 
 
@@ -1020,7 +1020,7 @@ def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) ->
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
     r = b.get_result(h)
-    assert set(r.get_bitlist()) == set([Bit("0_t0", 0), Bit("0_t1", 0)])  # noqa: C405
+    assert set(r.get_bitlist()) == {Bit("0_t0", 0), Bit("0_t1", 0)}
     assert len(r.get_shots()) == 10
 
 
