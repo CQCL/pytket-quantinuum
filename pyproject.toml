@@ -61,4 +61,7 @@ dev-dependencies = [
     "hypothesis >=6.111.1,<7",
     "pre-commit >=3.8.0,<4",
     "pyupgrade >=2.29,<4.0",
+    "hypothesis",
+    "requests_mock",
+    "pytest-mpl",
 ]
