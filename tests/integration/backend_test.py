@@ -1081,9 +1081,7 @@ def test_qir_submission_64bitwasm5_qa(
     with open(f"tests/integration/qir/{filename}") as f:
         qir = f.read()
 
-    wfh = WasmFileHandler(
-        str(Path(__file__).parent.parent / "wasm" / "add1.wasm")
-    )
+    wfh = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
 
     h = b.submit_program(
         Language.QIR, prog_from_qir_text(qir), n_shots=10, wasm_file_handler=wfh
@@ -1113,9 +1111,7 @@ def test_qir_submission_64bitwasm6_qa(
     with open(f"tests/integration/qir/{filename}") as f:
         qir = f.read()
 
-    wfh = WasmFileHandler(
-        str(Path(__file__).parent.parent / "wasm" / "add1.wasm")
-    )
+    wfh = WasmFileHandler(str(Path(__file__).parent.parent / "wasm" / "add1.wasm"))
 
     h = b.submit_program(
         Language.QIR, prog_from_qir_text(qir), n_shots=10, wasm_file_handler=wfh
