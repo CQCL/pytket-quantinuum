@@ -1078,11 +1078,11 @@ def test_qir_submission_64bitwasm5_qa(
     authenticated_quum_backend_qa: QuantinuumBackend, filename: str
 ) -> None:
     b = authenticated_quum_backend_qa
-    with open(f"integration/qir/{filename}") as f:
+    with open(f"tests/integration/qir/{filename}") as f:
         qir = f.read()
 
     wfh = WasmFileHandler(
-        str(Path(__file__).parent.parent.parent / "wasm" / "add1.wasm")
+        str(Path(__file__).parent.parent / "wasm" / "add1.wasm")
     )
 
     h = b.submit_program(
@@ -1110,11 +1110,11 @@ def test_qir_submission_64bitwasm6_qa(
     authenticated_quum_backend_qa: QuantinuumBackend, filename: str
 ) -> None:
     b = authenticated_quum_backend_qa
-    with open(f"integration/qir/{filename}") as f:
+    with open(f"tests/integration/qir/{filename}") as f:
         qir = f.read()
 
     wfh = WasmFileHandler(
-        str(Path(__file__).parent.parent.parent / "wasm" / "add1.wasm")
+        str(Path(__file__).parent.parent / "wasm" / "add1.wasm")
     )
 
     h = b.submit_program(
