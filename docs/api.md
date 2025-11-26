@@ -2,7 +2,6 @@
 
 The pytket-quantinuum extension allows submission of pytket circuits to Quantinuum systems (and emulators) via the {py:class}`~.QuantinuumBackend`.
 
-
 ```{eval-rst}
 .. automodule:: pytket.extensions.quantinuum
 .. automodule:: pytket.extensions.quantinuum._metadata
