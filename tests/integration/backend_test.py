@@ -981,7 +981,7 @@ def test_tk2(
 def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     b = authenticated_quum_backend_qa
 
-    with open("integration/qir/qat-link_2.ll") as f:
+    with open("tests/integration/qir/qat-link_2.ll") as f:
         qir = f.read()
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
@@ -998,7 +998,7 @@ def test_qir_submission(authenticated_quum_backend_qa: QuantinuumBackend) -> Non
 def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
     b = authenticated_quum_backend_prod
 
-    with open("integration/qir/qat-link.ll") as f:
+    with open("tests/integration/qir/qat-link.ll") as f:
         qir = f.read()
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
@@ -1015,7 +1015,7 @@ def test_qir_entrypoints(authenticated_quum_backend_prod: QuantinuumBackend) -> 
 def test_qir_entrypoints_qa(authenticated_quum_backend_qa: QuantinuumBackend) -> None:
     b = authenticated_quum_backend_qa
 
-    with open("integration/qir/qat-link.ll") as f:
+    with open("tests/integration/qir/qat-link.ll") as f:
         qir = f.read()
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
@@ -1033,7 +1033,7 @@ def test_qir_submission_mz_to_reg(
     authenticated_quum_backend_prod: QuantinuumBackend,
 ) -> None:
     b = authenticated_quum_backend_prod
-    with open("integration/qir/test_pytket_qir_6.ll") as f:
+    with open("tests/integration/qir/test_pytket_qir_6.ll") as f:
         qir = f.read()
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
@@ -1053,7 +1053,7 @@ def test_qir_submission_mz_to_reg_qa(
     authenticated_quum_backend_qa: QuantinuumBackend,
 ) -> None:
     b = authenticated_quum_backend_qa
-    with open("integration/qir/test_pytket_qir_6.ll") as f:
+    with open("tests/integration/qir/test_pytket_qir_6.ll") as f:
         qir = f.read()
 
     h = b.submit_program(Language.QIR, prog_from_qir_text(qir), n_shots=10)
