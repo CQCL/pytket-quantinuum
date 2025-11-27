@@ -15,8 +15,8 @@
 import os
 
 import pytest
-from pytket.circuit import Circuit
 
+from pytket.circuit import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None

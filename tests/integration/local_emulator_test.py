@@ -18,6 +18,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from pytket.circuit import (
     Bit,
     Circuit,
@@ -31,9 +32,8 @@ from pytket.circuit import (
     reg_neq,
 )
 from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
-from pytket.wasm import WasmFileHandler
-
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
+from pytket.wasm import WasmFileHandler
 
 skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 

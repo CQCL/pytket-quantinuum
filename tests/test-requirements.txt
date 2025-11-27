@@ -1,5 +1,0 @@
-pytest
-pytest-timeout
-hypothesis
-requests_mock
-pytest-rerunfailures
