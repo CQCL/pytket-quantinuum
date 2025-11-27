@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import json
 import re
 import warnings
@@ -24,12 +23,10 @@ from copy import copy
 from dataclasses import dataclass
 from enum import Enum
 from functools import cache, cached_property
-from http import HTTPStatus
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import Any, Union, cast
 from uuid import uuid1
 
 import numpy as np
-import requests
 from pytket.architecture import FullyConnected
 from pytket.backends import Backend, CircuitStatus, ResultHandle, StatusEnum
 from pytket.backends.backend import KwargTypes
@@ -74,26 +71,10 @@ from pytket.utils import prepare_circuit
 from pytket.utils.outcomearray import OutcomeArray
 from pytket.wasm import WasmFileHandler
 
-from pytket.extensions.quantinuum.backends.credential_storage import (
-    MemoryCredentialStorage,
-)
 from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIError
 from .data import QuantinuumBackendData
-
-if TYPE_CHECKING:
-    import matplotlib
-
-try:
-    from pytket.extensions.quantinuum.backends.calendar_visualisation import (
-        QuantinuumCalendar,
-    )
-
-    MATPLOTLIB_IMPORT = True
-except ImportError:
-    MATPLOTLIB_IMPORT = False
-
 
 _DEBUG_HANDLE_PREFIX = "_MACHINE_DEBUG_"
 MAX_C_REG_WIDTH = 32
@@ -217,15 +198,9 @@ def _language2str(language: Language) -> str:
     return "QIR 1.0"
 
 
-# DEFAULT_CREDENTIALS_STORAGE for use with the DEFAULT_API_HANDLER.
-DEFAULT_CREDENTIALS_STORAGE = MemoryCredentialStorage()
-
 # DEFAULT_API_HANDLER provides a global re-usable API handler
 # that will persist after this module is imported.
-#
-# This allows users to create multiple QuantinuumBackend instances
-# without requiring them to acquire new tokens.
-DEFAULT_API_HANDLER = QuantinuumAPI(DEFAULT_CREDENTIALS_STORAGE)
+DEFAULT_API_HANDLER = QuantinuumAPI()
 
 QuumKwargTypes = Union[KwargTypes, WasmFileHandler, dict[str, Any], OpType, bool]  # noqa: UP007
 
@@ -331,8 +306,6 @@ class QuantinuumBackend(Backend):
         self.simulator_type = simulator
 
         self.api_handler = api_handler
-
-        self.api_handler.provider = provider
 
         self._process_circuits_options = cast(
             "dict[str, Any]", kwargs.get("options", {})
@@ -494,151 +467,7 @@ class QuantinuumBackend(Backend):
             raise DeviceNotAvailable(device_name)  # noqa: B904
         if info.get_misc("system_type") == "local_emulator":
             return "online"
-        res = requests.get(
-            f"{api_handler.url}machine/{device_name}",
-            headers={"Authorization": api_handler.login()},
-        )
-        api_handler._response_check(res, "get machine status")  # noqa: SLF001
-        return str(res.json()["state"])
-
-    def get_calendar(
-        self,
-        start_date: datetime.datetime,
-        end_date: datetime.datetime,
-        localise: bool = True,
-    ) -> list[dict[str, Any]]:
-        """Retrieves the Quantinuum operations calendar
-        for the period specified by start_date and end_date.
-        The calendar data returned is for the local timezone of the
-        end-user.
-
-        The output is a sorted list of dictionaries. Each dictionary is an
-        event on the operations calendar for the period specified by the
-        end-user. The output from this function can be readily used
-        to instantiate a ``pandas.DataFrame``.
-
-        The dictionary has the following properties.
-
-        * 'start-date': The  start date and start time as a ``datetime.datetime`` object.
-        * 'end-date': The end date and end time as a ``datetime.datetime`` object.
-        * 'machine': A string specifying the device attached to the event.
-        * 'event-type': The type of event as a string. The value 'online' denotes queued
-            access to the device, and the value 'reservation' denotes priority access
-            for a particular organisation.
-        * 'organization': If the 'event-type' is assigned the value 'reservation', the
-            organization with reservation access is specified. Only users within an
-            organization have visibility on organization reservations. Otherwise,
-            organization is listed as 'Fair-Share Queue', which means all users from all
-            organizations are able to submit jobs to the Fairshare queue during this
-            period.
-
-        :param start_date: The start date as ``datetime.date`` object
-            for the period to return the operations calendar.
-        :param end_date: The end date as ``datetime.date`` object
-            for the period to return the operations calendar.
-        :param localise: Apply localization to the datetime based
-            on the end-users time zone. Default is True. Disable by
-            setting False.
-        :return: A list of events from the operations calendar,
-            sorted by the ``start-date`` of each event. Each event is a python
-            dictionary.
-        :raises: RuntimeError if an emulator or syntax-checker is specified
-        :raises: ValueError if the argument ``start_date`` or ``end_date`` are not
-            ``datetime.datetime`` objects.
-        """
-
-        if self._data is not None:
-            raise BackendOfflineError("get_calendar() not available for this backend")
-
-        if not isinstance(start_date, datetime.datetime) or not isinstance(
-            end_date, datetime.datetime
-        ):
-            raise ValueError(
-                "start_date and end_date must be datetime.datetime objects."
-            )
-
-        if self._device_name.endswith("E") | self._device_name.endswith("SC"):
-            raise RuntimeError(
-                f"Error requesting data for {self._device_name}. Emulators (E) \
-                and Syntax Checkers (SC) are online 24/7. Calendar \
-                information not available."
-            )
-
-        l4_calendar_data = self.api_handler.get_calendar(
-            start_date.date().isoformat(), end_date.date().isoformat()
-        )
-        calendar_data = []
-
-        for l4_event in l4_calendar_data:
-            device_name = l4_event["machine"]
-            if device_name != self._device_name:
-                continue
-            dt_start = _convert_datetime_string(
-                l4_event["start-date"]
-            )  # datetime in UTC tz
-            dt_end = _convert_datetime_string(
-                l4_event["end-date"]
-            )  # datetime in UTC tz
-            if localise:  # Apply timezone localisation on UTC datetime
-                dt_start = dt_start.astimezone()
-                dt_end = dt_end.astimezone()
-            event = {
-                "start-date": dt_start,
-                "end-date": dt_end,
-                "machine": device_name,
-                "event-type": l4_event["event-type"],
-                "organization": l4_event.get("organization", "Fair-Share Queue"),
-            }
-            calendar_data.append(event)
-        calendar_data.sort(key=lambda item: item["start-date"])  # type: ignore
-        return calendar_data
-
-    def view_calendar(
-        self,
-        month: int,
-        year: int,
-        figsize: tuple[float, float] = (40, 20),
-        fontsize: float = 15,
-        titlesize: float = 40,
-    ) -> "matplotlib.figure.Figure":
-        """Visualise the operations calendar for a user-specified
-        month and year. The operations hours are shown for the machine name
-        used to construct the :py:class:`QuantinuumBackend` object, e.g. 'H2-1'. Operations
-        days are coloured. In addition, a description of the event is also
-        displayed (``start-time``, ``duration`` and ``event-type``, see the
-        :py:meth:`get_calendar` method for more information).
-
-        :param month: An integer specifying the calendar month to visualise.
-            1 is January and 12 is December.
-        :param year: An integer specifying the calendar year to visualise.
-        :param figsize: A tuple specifying width and height of the output
-            ``matplotlib.figure.Figure``.
-        :param fontsize: The fontsize of the event description within the
-            calendar.
-        :return: A ``matplotlib.figure.Figure`` visualising the
-            calendar for a user-specified calendar month.
-        """
-
-        if self._data is not None:
-            raise BackendOfflineError("view_calendar() not available for this backend")
-
-        if not MATPLOTLIB_IMPORT:
-            raise ImportError(
-                "Matplotlib is not installed. Please run \
-                'pip install pytket-quantinuum[calendar]'"
-            )
-        qntm_calendar = QuantinuumCalendar(
-            year=year, month=month, title_prefix=self._device_name
-        )
-        end_day = max(qntm_calendar._cal[-1])  # noqa: SLF001
-        dt_start = datetime.datetime(year=year, month=month, day=1)  # noqa: DTZ001
-        dt_end = datetime.datetime(year=year, month=month, day=end_day)  # noqa: DTZ001
-        data = self.get_calendar(dt_start, dt_end, localise=True)
-        qntm_calendar.add_events(data)
-        calendar_figure = qntm_calendar.build_calendar(
-            figsize=figsize, fontsize=fontsize, titlesize=titlesize
-        )
-        return calendar_figure  # noqa: RET504
+        raise NotImplementedError("Cannot retrieve device state.")
 
     @property
     def backend_info(self) -> BackendInfo | None:
@@ -995,139 +824,6 @@ class QuantinuumBackend(Backend):
         assert all(isinstance(name, str) and isinstance(idx, int) for name, idx in bits)
         return bits
 
-    def submit_program(  # noqa: PLR0912, PLR0913
-        self,
-        language: Language,
-        program: str,
-        n_shots: int,
-        name: str | None = None,
-        noisy_simulation: bool = True,
-        group: str | None = None,
-        wasm_file_handler: WasmFileHandler | None = None,
-        pytket_pass: BasePass | None = None,
-        max_cost: float | None = None,
-        options: dict[str, Any] | None = None,
-        request_options: dict[str, Any] | None = None,
-        results_selection: list[tuple[str, int]] | None = None,
-    ) -> ResultHandle:
-        """Submit a program directly to the backend.
-
-        :param program: program (encoded as string)
-        :param language: language
-        :param n_shots: Number of shots
-        :param name: Job name, defaults to None
-        :param noisy_simulation: Boolean flag to specify whether the simulator should
-          perform noisy simulation with an error model defaults to True
-        :param group: String identifier of a collection of jobs, can be used for usage
-          tracking. Overrides the instance variable ``group``, defaults to None
-        :param wasm_file_handler: :py:class:`~pytket.wasm.wasm.WasmFileHandler` object for linked WASM
-            module, defaults to None
-        :param pytket_pass: :py:class:`~pytket.passes.BasePass` intended to be applied
-           by the backend (beta feature, may be ignored), defaults to None
-        :param max_cost: Maximum amount of HQC to spend when running the program.
-           Defaults to None (no limit on amount of HQC spent).
-        :param options: Items to add to the "options" dictionary of the request body
-        :param request_options: Extra options to add to the request body as a
-          json-style dictionary, defaults to None
-        :param results_selection: Ordered list of register names and indices used to
-            construct final :py:class:`~pytket.backends.backendresult.BackendResult`. If None, all all results are used
-            in lexicographic order.
-        :raises WasmUnsupported: WASM submitted to backend that does not support it.
-        :raises QuantinuumAPIError: API error.
-        :raises ConnectionError: Connection to remote API failed
-        :return: ResultHandle for submitted job.
-        """
-
-        if self._data is not None:
-            raise BackendOfflineError("submit_program() not available for this backend")
-
-        if self.is_local_emulator:
-            raise NotImplementedError(
-                "submit_program() not supported with local emulator"
-            )
-
-        warnings.warn(
-            "Submission of programs to remote devices from pytket-quantinuum is "
-            "deprecated, and will not be possible after October 2025. Please use "
-            "qnexus ( https://docs.quantinuum.com/nexus/index.html ) instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        lang_str = _language2str(language)
-        if self.backend_info is not None:
-            supported_languages = self.backend_info.misc.get("supported_languages")
-            if supported_languages is not None and lang_str not in supported_languages:
-                raise LanguageUnsupported(
-                    f"Language {lang_str} unsupported for submissions to this backend."
-                )
-
-        body: dict[str, Any] = {
-            "name": name or f"{self._label}",
-            "count": n_shots,
-            "machine": self._device_name,
-            "language": lang_str,
-            "program": program,
-            "priority": "normal",
-            "options": {
-                "simulator": self.simulator_type,
-                "no-opt": True,
-                "noreduce": True,
-                "error-model": noisy_simulation,
-                "tket": dict(),  # noqa: C408
-            },
-        }
-
-        if pytket_pass is not None:
-            body["options"]["tket"]["compilation-pass"] = pytket_pass.to_dict()
-
-        group = group or self._group
-        if group is not None:
-            body["group"] = group
-
-        if wasm_file_handler is not None:
-            if self.backend_info and not self.backend_info.misc.get("wasm", False):
-                raise WasmUnsupported("Backend does not support wasm calls.")
-            body["cfl"] = wasm_file_handler.bytecode_base64.decode("utf-8")
-
-        if max_cost is not None:
-            body["max-cost"] = max_cost
-
-        body["options"].update(self._process_circuits_options)
-        if options is not None:
-            body["options"].update(options)
-
-        # apply any overrides or extra options
-        body.update(request_options or {})
-
-        try:
-            res = self.api_handler._submit_job(body)  # noqa: SLF001
-            if self.api_handler.online:
-                jobdict = res.json()
-                if res.status_code != HTTPStatus.OK:
-                    raise QuantinuumAPIError(
-                        f"HTTP error submitting job, {jobdict['error']}"
-                    )
-            else:
-                return ResultHandle(
-                    "",
-                    "null",
-                    -1 if results_selection is None else len(results_selection),
-                    "" if results_selection is None else json.dumps(results_selection),
-                )
-        except ConnectionError:
-            raise ConnectionError(  # noqa: B904
-                f"{self._label} Connection Error: Error during submit..."
-            )
-
-        # extract job ID from response
-        return ResultHandle(
-            cast("str", jobdict["job"]),
-            "null",
-            -1 if results_selection is None else len(results_selection),
-            json.dumps(results_selection),
-        )
-
     def process_circuits(  # noqa: PLR0912, PLR0915
         self,
         circuits: Sequence[Circuit],
@@ -1160,7 +856,7 @@ class QuantinuumBackend(Backend):
         * `language`: languange for submission, of type :py:class:`Language`, default
           QIR.
         * `leakage_detection`: if true, adds additional Qubit and Bit to Circuit
-          to detect leakage errors. Run :py:func:`~.prune_shots_detected_as_leaky` on returned
+          to detect leakage errors. Run `prune_shots_detected_as_leaky()` on returned
           :py:class:`~pytket.backends.backendresult.BackendResult` to get counts with leakage errors removed.
         * `n_leakage_detection_qubits`: if set, sets an upper bound on the number
           of additional qubits to be used when adding leakage detection
@@ -1208,15 +904,9 @@ class QuantinuumBackend(Backend):
         simplify_initial = kwargs.get("simplify_initial", False)
         noisy_simulation = cast("bool", kwargs.get("noisy_simulation", True))
 
-        group = cast("str | None", kwargs.get("group", self._group))
-
         wasm_fh = cast("WasmFileHandler | None", kwargs.get("wasm_file_handler"))
 
-        pytket_pass = cast("BasePass | None", kwargs.get("pytketpass"))
-
         language: Language = cast("Language", kwargs.get("language", Language.QIR))
-
-        max_cost = cast("float | None", kwargs.get("max_cost"))
 
         handle_list = []
 
@@ -1319,126 +1009,13 @@ class QuantinuumBackend(Backend):
                         )
                     )
                 else:
-                    handle = self.submit_program(
-                        language,
-                        quantinuum_circ,
-                        n_shots,
-                        name=circ.name or None,
-                        noisy_simulation=noisy_simulation,
-                        group=group,
-                        wasm_file_handler=wasm_fh,
-                        pytket_pass=pytket_pass,
-                        max_cost=max_cost,
-                        options=cast("dict[str, Any]", kwargs.get("options", {})),
-                        request_options=cast(
-                            "dict[str, Any]", kwargs.get("request_options", {})
-                        ),
-                    )
-
-                    handle = ResultHandle(
-                        self.get_jobid(handle),
-                        json.dumps(ppcirc_rep),
-                        len(results_selection),
-                        json.dumps(results_selection),
-                    )
-                    handle_list.append(handle)
-                    self._cache[handle] = dict()  # noqa: C408
+                    raise NotImplementedError("Cannot obtain result handles.")
 
         return handle_list
 
     def _check_batchable(self) -> None:
         if self.backend_info and not self.backend_info.misc.get("batching", False):
             raise BatchingUnsupported
-
-    def start_batch(
-        self,
-        max_batch_cost: int,
-        circuit: Circuit,
-        n_shots: None | int = None,
-        valid_check: bool = True,
-        **kwargs: QuumKwargTypes,
-    ) -> ResultHandle:
-        """Start a batch of jobs on the backend, behaves like :py:meth:`~pytket.backends.backend.Backend.process_circuit`
-           but with additional parameter ``max_batch_cost`` as the first argument.
-           See :py:meth:`pytket.backends.backend.Backend.process_circuits` for
-           documentation on remaining parameters.
-
-
-        :param max_batch_cost: Maximum cost to be used for the batch, if a job
-            exceeds the batch max it will be rejected.
-        :return: Handle for submitted circuit.
-        """
-        self._check_batchable()
-
-        if "request_options" not in kwargs:
-            kwargs["request_options"] = {}
-        kwargs["request_options"]["batch-exec"] = max_batch_cost  # type: ignore
-        [h1] = self.process_circuits([circuit], n_shots, valid_check, **kwargs)
-
-        # make sure the starting job is received, such that subsequent addtions
-        # to batch will be recognised as being added to an existing batch
-        self.api_handler.retrieve_job_status(
-            self.get_jobid(h1),
-            use_websocket=cast("bool", kwargs.get("use_websocket", True)),
-        )
-        return h1
-
-    def add_to_batch(
-        self,
-        batch_start_job: ResultHandle,
-        circuit: Circuit,
-        n_shots: None | int = None,
-        batch_end: bool = False,
-        valid_check: bool = True,
-        **kwargs: QuumKwargTypes,
-    ) -> ResultHandle:
-        """Add to a batch of jobs on the backend, behaves like :py:meth:`~pytket.backends.backend.Backend.process_circuit`
-        except in two ways:\n
-        1. The first argument must be the result handle of the first job of
-        batch.\n
-        2. The optional argument ``batch_end`` should be set to "True" for the
-        final circuit of the batch. By default it is False.\n
-
-        See :py:meth:`pytket.backends.backend.Backend.process_circuits` for
-        documentation on remaining parameters.
-
-        :param batch_start_job: Handle of first circuit submitted to batch.
-        :param batch_end: Boolean flag to signal the final circuit of batch,
-            defaults to False
-        :return: Handle for submitted circuit.
-        """
-        self._check_batchable()
-
-        if "request_options" not in kwargs:
-            kwargs["request_options"] = {}
-        kwargs["request_options"]["batch-exec"] = self.get_jobid(batch_start_job)  # type: ignore
-        if batch_end:
-            kwargs["request_options"]["batch-end"] = True  # type: ignore
-        return self.process_circuits([circuit], n_shots, valid_check, **kwargs)[0]
-
-    def _retrieve_job(
-        self,
-        jobid: str,
-        timeout: int | None = None,
-        wait: int | None = None,
-        use_websocket: bool | None = True,
-    ) -> dict:
-        if not self.api_handler:
-            raise RuntimeError("API handler not set")
-        with self.api_handler._override_timeouts(timeout=timeout, retry_timeout=wait):  # noqa: SLF001
-            # set and unset optional timeout parameters
-            job_dict = self.api_handler.retrieve_job(jobid, use_websocket)
-
-        if job_dict is None:
-            raise RuntimeError(f"Unable to retrieve job {jobid}")
-        return job_dict
-
-    def cancel(self, handle: ResultHandle) -> None:
-        if self.is_local_emulator:
-            raise NotImplementedError("cancel() not supported with local emulator")
-        if self.api_handler is not None:
-            jobid = self.get_jobid(handle)
-            self.api_handler.cancel(jobid)
 
     def _update_cache_result(self, handle: ResultHandle, res: BackendResult) -> None:
         rescache = {"result": res}
@@ -1451,72 +1028,7 @@ class QuantinuumBackend(Backend):
     def circuit_status(
         self, handle: ResultHandle, **kwargs: KwargTypes
     ) -> CircuitStatus:
-        handle = self._update_result_handle(handle)
-        self._check_handle_type(handle)
-        jobid = self.get_jobid(handle)
-        if (
-            self._MACHINE_DEBUG
-            or jobid.startswith(_DEBUG_HANDLE_PREFIX)
-            or self.is_local_emulator
-        ):
-            return CircuitStatus(StatusEnum.COMPLETED)
-
-        use_websocket = cast("bool", kwargs.get("use_websocket", True))
-        # TODO check queue position and add to message
-        try:
-            response = self.api_handler.retrieve_job_status(
-                jobid, use_websocket=use_websocket
-            )
-        except QuantinuumAPIError:
-            self.api_handler.login()
-            response = self.api_handler.retrieve_job_status(
-                jobid, use_websocket=use_websocket
-            )
-
-        if response is None:
-            raise RuntimeError(f"Unable to retrieve circuit status for handle {handle}")
-        circ_status = _parse_status(response)
-        if circ_status.status is StatusEnum.COMPLETED and "results" in response:
-            ppcirc_rep = self.get_ppcirc_rep(handle)
-            n_bits = self.get_results_width(handle)
-            results_selection = self.get_results_selection(handle)
-            ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
-            self._update_cache_result(
-                handle,
-                _convert_result(response["results"], ppcirc, n_bits, results_selection),
-            )
-        return circ_status
-
-    def get_partial_result(
-        self, handle: ResultHandle
-    ) -> tuple[BackendResult | None, CircuitStatus]:
-        """
-        Retrieve partial results for a given job, regardless of its current state.
-
-        :param handle: handle to results
-
-        :return: A tuple containing the results and circuit status.
-            If no results are available, the first element is None.
-        """
-        if self.is_local_emulator:
-            raise NotImplementedError(
-                "get_partial_result() not supported with local emulator"
-            )
-        handle = self._update_result_handle(handle)
-        job_id = self.get_jobid(handle)
-        jr = self.api_handler.retrieve_job_status(job_id)
-        if not jr:
-            raise QuantinuumAPIError(f"Unable to retrive job {job_id}")
-        res = jr.get("results")
-        circ_status = _parse_status(jr)
-        if res is None:
-            return None, circ_status
-        ppcirc_rep = self.get_ppcirc_rep(handle)
-        ppcirc = Circuit.from_dict(ppcirc_rep) if ppcirc_rep is not None else None
-        n_bits = self.get_results_width(handle)
-        results_selection = self.get_results_selection(handle)
-        backres = _convert_result(res, ppcirc, n_bits, results_selection)
-        return backres, circ_status
+        raise NotImplementedError("Cannot retrieve circuit status.")
 
     def get_result(self, handle: ResultHandle, **kwargs: KwargTypes) -> BackendResult:
         """
@@ -1571,153 +1083,11 @@ try installing with the `pecos` option."
                 )
                 backres = BackendResult(c_bits=circ.bits, shots=res, ppcirc=ppcirc)
             else:
-                # TODO exception handling when jobid not found on backend
-                timeout = kwargs.get("timeout")
-                if timeout is not None:
-                    timeout = int(timeout)
-                wait = kwargs.get("wait")
-                if wait is not None:
-                    wait = int(wait)
-                use_websocket = cast("bool | None", kwargs.get("use_websocket"))
-
-                job_retrieve = self._retrieve_job(jobid, timeout, wait, use_websocket)
-                circ_status = _parse_status(job_retrieve)
-                if circ_status.status not in (
-                    StatusEnum.COMPLETED,
-                    StatusEnum.CANCELLED,
-                ):
-                    raise GetResultFailed(  # noqa: B904
-                        f"Cannot retrieve result; job status is {circ_status}, \
-jobid is {jobid}"
-                    )
-                try:
-                    res = job_retrieve["results"]
-                except KeyError:
-                    raise GetResultFailed(  # noqa: B904
-                        f"Results missing in device return data, jobid is {jobid}"
-                    )
-
-                backres = _convert_result(res, ppcirc, n_bits, results_selection)
+                raise NotImplementedError(
+                    "Cannot get result from remote backend."
+                ) from None
             self._update_cache_result(handle, backres)
             return backres
-
-    def cost_estimate(self, circuit: Circuit, n_shots: int) -> float | None:
-        """Deprecated, use :py:meth:`cost`."""
-
-        warnings.warn(
-            "cost_estimate is deprecated, use cost instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        return self.cost(circuit, n_shots)
-
-    def cost(
-        self,
-        circuit: Circuit,
-        n_shots: int,
-        syntax_checker: str | None = None,
-        use_websocket: bool | None = None,
-        **kwargs: QuumKwargTypes,
-    ) -> float | None:
-        """
-        Return the cost in HQC to process ``circuit`` with ``n_shots``
-        repeats on this backend.
-
-        The cost is obtained by sending the circuit to a "syntax-checker"
-        backend, which incurs no cost itself but reports what the cost would be
-        for the actual backend (``self``).
-
-        If ``self`` is a syntax checker then the cost will be zero.
-
-        See :py:meth:`QuantinuumBackend.process_circuits` for the
-        supported kwargs.
-
-        :param circuit: Circuit to calculate runtime estimate for. Must be valid for
-            backend.
-        :param n_shots: Number of shots.
-        :param syntax_checker: Optional. Name of the syntax checker to use to get cost.
-            For example for the "H2-1" device that would be "H2-1SC".
-            For most devices this is automatically inferred, default=None.
-        :param use_websocket: Optional. Boolean flag to use a websocket connection.
-        :raises ValueError: Circuit is not valid, needs to be compiled.
-        :return: Cost in HQC to execute the shots.
-        """
-
-        if self._data is not None:
-            raise BackendOfflineError("cost() not available for this backend")
-
-        if not self.valid_circuit(circuit):
-            raise ValueError(
-                "Circuit does not satisfy predicates of backend."  # noqa: ISC003
-                + " Try running `backend.get_compiled_circuit` first"
-            )
-
-        if self._MACHINE_DEBUG:
-            return 0.0
-
-        assert self.backend_info is not None
-
-        if (
-            self.backend_info.get_misc("system_type") == "syntax checker"
-        ) or self.is_local_emulator:
-            return 0.0
-
-        try:
-            syntax_checker_name = self.backend_info.misc["syntax_checker"]
-            if syntax_checker is not None and syntax_checker != syntax_checker_name:
-                raise ValueError(
-                    f"Device {self._device_name}'s syntax checker is "
-                    f"{syntax_checker_name} but a different syntax checker "
-                    f"({syntax_checker}) was specified. You should omit the "
-                    "`syntax_checker` argument to ensure the correct one is "
-                    "used."
-                )
-        except KeyError:
-            if syntax_checker is not None:
-                syntax_checker_name = syntax_checker
-            else:
-                raise NoSyntaxChecker(  # noqa: B904
-                    "Could not find syntax checker for this backend, "
-                    "try setting one explicitly with the ``syntax_checker`` "
-                    "parameter (it will normally have a name ending in 'SC')."
-                )
-        backend = QuantinuumBackend(syntax_checker_name, api_handler=self.api_handler)
-        assert backend.backend_info is not None
-        if backend.backend_info.get_misc("system_type") != "syntax checker":
-            raise ValueError(f"Device {backend._device_name} is not a syntax checker.")
-
-        try:
-            handle = backend.process_circuit(
-                circuit=circuit, n_shots=n_shots, valid_check=True, **kwargs
-            )
-        except DeviceNotAvailable as e:
-            raise ValueError(
-                f"Cannot find syntax checker for device {self._device_name}. "
-                "Try setting the `syntax_checker` key word argument"
-                " to the appropriate syntax checker for"
-                " your device explicitly."
-            ) from e
-        _ = backend.get_result(handle, use_websocket=use_websocket)
-
-        cost = json.loads(
-            backend.circuit_status(handle, use_websocket=use_websocket).message
-        )["cost"]
-        return None if cost is None else float(cost)
-
-    def login(self) -> None:
-        """Log in to Quantinuum API. Requests username and password from stdin
-        (e.g. shell input or dialogue box in Jupytet notebooks.). Passwords are
-        not stored.
-        After log in you should not need to provide credentials again while that
-        session (script/notebook) is alive.
-        """
-        self.api_handler.full_login()
-
-    def logout(self) -> None:
-        """Clear stored JWT tokens from login. Will need to :py:meth:`login` again to
-        make API calls."""
-        self.api_handler.delete_authentication()
 
 
 _xcirc = Circuit(1).add_gate(OpType.PhasedX, [1, 0], [0])
@@ -1842,18 +1212,3 @@ def _parse_status(response: dict) -> CircuitStatus:
     }
     message = json.dumps(msgdict)
     return CircuitStatus(_STATUS_MAP[h_status], message)
-
-
-def _convert_datetime_string(datetime_string: str) -> datetime.datetime:
-    year, month, day = list(map(int, datetime_string[:10].split("-")))
-    hour, minute, second = list(map(int, datetime_string[11:].split(":")))
-    dt = datetime.datetime(
-        year=year,
-        month=month,
-        day=day,
-        hour=hour,
-        minute=minute,
-        second=second,
-        tzinfo=datetime.UTC,  # type: ignore
-    )
-    return dt  # noqa: RET504
