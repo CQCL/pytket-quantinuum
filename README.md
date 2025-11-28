@@ -6,8 +6,10 @@
 [Pytket](https://docs.quantinuum.com/tket/api-docs/index.html) is a python module for interfacing
 with tket, a quantum computing toolkit and optimising compiler developed by Quantinuum.
 
-`pytket-quantinuum` is an extension to `pytket` that allows `pytket` circuits to
-be executed on Quantinuum's quantum devices.
+`pytket-quantinuum` was an extension to `pytket` that allows `pytket` circuits to
+be executed on Quantinuum's quantum devices. As of version 0.56.0 it is now
+limited to compilation and local emulation. Please use the `qnexus` package for
+submission of jobs to devices.
 
 Some useful links:
 - [API Documentation](https://docs.quantinuum.com/tket/extensions/pytket-quantinuum/)
@@ -24,22 +26,12 @@ pip install pytket-quantinuum
 This will install `pytket` if it isn't already installed, and add new classes
 and methods into the `pytket.extensions` namespace.
 
-## Examples
-
-For example usage of features, see the [pytket-quantinuum section](https://docs.quantinuum.com/systems/trainings/getting_started/pytket_quantinuum/pytket_quantinuum.html) of the documentation website.
-
-The [knowledge articles](https://docs.quantinuum.com/systems/trainings/knowledge_articles/ka_index.html) also detail experiments using pytket-quantinuum.
-
 ## Bugs, support and feature requests
 
 Please file bugs and feature requests on the Github
 [issue tracker](https://github.com/CQCL/pytket-quantinuum/issues).
 
 There is also a Slack channel for discussion and support. Click [here](https://tketusers.slack.com/join/shared_invite/zt-18qmsamj9-UqQFVdkRzxnXCcKtcarLRA#/shared-invite/email) to join.
-
-## Hardware Support
-
-In case of questions about the hardware you can contact QCsupport@quantinuum.com.
 
 ## Development
 
@@ -48,7 +40,6 @@ To install this extension in editable mode, simply change to this directory, and
 ```shell
 pip install -e .
 ```
-
 ## Contributing
 
 Pull requests are welcome. To make a PR, first fork the repo, make your proposed

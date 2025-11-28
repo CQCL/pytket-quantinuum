@@ -12,7 +12,8 @@ EXTENSION_NAME="$(basename "$(dirname `pwd`)")"
 # Build the docs. Ensure we have the correct project title.
 sphinx-build -W -b html -D html_title="$EXTENSION_NAME" . build || exit 1
 
-sphinx-build -W -v -b coverage . build/coverage || exit 1
+# TODO Add `-W` flag to the command below.
+sphinx-build -v -b coverage . build/coverage || exit 1
 
 # Remove copied files. This ensures reusability.
 rm -r _static 

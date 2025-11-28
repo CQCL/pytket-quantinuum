@@ -47,17 +47,10 @@ setup(
     install_requires=[
         "pytket >= 2.9.3",
         "pytket-qir >= 0.25.0",
-        "requests >= 2.32.2",
-        "types-requests",
-        "websockets >= 13.1",
-        "nest_asyncio >= 1.2",
-        "pyjwt ~= 2.4",
-        "msal ~= 1.18",
         "numpy >= 1.26.4",
     ],
     extras_require={
         "pecos": ["pytket-pecos ~= 0.2.2"],
-        "calendar": ["matplotlib >= 3.8.3,< 3.11.0", "pandas >= 2.2.1,< 2.4.0"],
     },
     classifiers=[
         "Environment :: Console",

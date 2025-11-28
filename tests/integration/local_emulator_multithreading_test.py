@@ -12,29 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 
 import pytest
 from pytket.circuit import Circuit
 
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
-skip_remote_tests: bool = os.getenv("PYTKET_RUN_REMOTE_TESTS") is None
 
-REASON = (
-    "PYTKET_RUN_REMOTE_TESTS not set (requires configuration of Quantinuum username)"
-)
-
-
-@pytest.mark.skipif(skip_remote_tests, reason=REASON)
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
-@pytest.mark.parametrize(
-    "authenticated_quum_backend_prod",
-    [{"device_name": name} for name in pytest.ALL_LOCAL_SIMULATOR_NAMES],  # type: ignore
-    indirect=True,
-)
-def test_multithreading(authenticated_quum_backend_prod: QuantinuumBackend) -> None:
-    b = authenticated_quum_backend_prod
+def test_multithreading() -> None:
+    b = QuantinuumBackend("H2-1LE")
     c0 = Circuit(2).H(0).CX(0, 1).measure_all()
     c = b.get_compiled_circuit(c0)
     h = b.process_circuit(c, n_shots=10, multithreading=True)
