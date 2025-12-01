@@ -4,7 +4,7 @@
 
 # Changelog
 
-## 0.56.0 (November 2025)
+## 0.56.0 (December 2025)
 
 - Remove all methods providing remote access to Quantinuum devices. (Please use
   `qnexus` instead.)
