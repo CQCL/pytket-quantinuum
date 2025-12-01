@@ -41,7 +41,7 @@ jobs:
       run: |
         ./.github/workflows/build-test mypy
     - uses: actions/upload-artifact@v4
-      if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
+      if: (github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')) && (matrix.pyver == '3.10' )
       with:
         name: artefact-${{ matrix.os }}
         path: wheelhouse/
