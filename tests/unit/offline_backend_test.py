@@ -33,46 +33,6 @@ from pytket.extensions.quantinuum.backends.api_wrappers import (
 )
 
 
-@pytest.mark.parametrize("language", [Language.QASM, Language.QIR, Language.PQIR])
-def test_quantinuum_offline(language: Language) -> None:
-    qapioffline = QuantinuumAPIOffline()
-    backend = QuantinuumBackend(
-        device_name="H2-1",
-        machine_debug=False,
-        api_handler=qapioffline,  # type: ignore
-    )
-    c = Circuit(4, 4, "test 1")
-    c.H(0)
-    c.CX(0, 1)
-    c.Rz(0.3, 2)
-    c.CSWAP(0, 1, 2)
-    c.CRz(0.4, 2, 3)
-    c.CY(1, 3)
-    c.ZZPhase(0.1, 2, 0)
-    c.Tdg(3)
-    c.measure_all()
-    c = backend.get_compiled_circuit(c)
-    n_shots = 4
-    _ = backend.process_circuits([c], n_shots, language=language)[0]
-    expected_result = {
-        "name": "test 1",
-        "count": 4,
-        "machine": "H2-1",
-        "language": "OPENQASM 2.0" if language == Language.QASM else "QIR 1.0",
-        "program": "...",  # not checked
-        "priority": "normal",
-        "options": {"simulator": "state-vector", "error-model": True, "tket": {}},
-    }
-    result = qapioffline.get_jobs()
-    assert result is not None
-    assert result[0]["name"] == expected_result["name"]
-    assert result[0]["count"] == expected_result["count"]
-    assert result[0]["machine"] == expected_result["machine"]
-    assert result[0]["language"] == expected_result["language"]
-    assert result[0]["priority"] == expected_result["priority"]
-    # assert result[0]["options"] == expected_result["options"]
-
-
 def test_max_classical_register_ii() -> None:
     qapioffline = QuantinuumAPIOffline()
     backend = QuantinuumBackend(
@@ -155,23 +115,20 @@ def test_shots_bits_edgecases(n_shots: int, n_bits: int, language: Language) -> 
     assert res.get_counts() == correct_counts
 
 
-@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
-def test_defaultapi_handler(device_name: str) -> None:
+def test_defaultapi_handler() -> None:
     """Test that the default API handler is used on backend construction."""
-    backend_1 = QuantinuumBackend(device_name)
-    backend_2 = QuantinuumBackend(device_name)
+    backend_1 = QuantinuumBackend("H2-1")
+    backend_2 = QuantinuumBackend("H2-1")
 
     assert backend_1.api_handler is backend_2.api_handler
 
 
-@pytest.mark.parametrize("device_name", pytest.ALL_DEVICE_NAMES)  # type: ignore
-def test_custom_api_handler(device_name: str) -> None:
+def test_custom_api_handler() -> None:
     """Test that custom API handlers are used when used on backend construction."""
     handler_1 = QuantinuumAPI()
     handler_2 = QuantinuumAPI()
 
-    backend_1 = QuantinuumBackend(device_name, api_handler=handler_1)
-    backend_2 = QuantinuumBackend(device_name, api_handler=handler_2)
+    backend_1 = QuantinuumBackend("H2-1", api_handler=handler_1)
+    backend_2 = QuantinuumBackend("H2-1", api_handler=handler_2)
 
     assert backend_1.api_handler is not backend_2.api_handler
-    assert backend_1.api_handler._cred_store is not backend_2.api_handler._cred_store  # noqa: SLF001

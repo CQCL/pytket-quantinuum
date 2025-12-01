@@ -4,6 +4,11 @@
 
 # Changelog
 
+## 0.56.0 (November 2025)
+
+- Remove all methods providing remote access to Quantinuum devices. (Please use
+  `qnexus` instead.)
+
 ## 0.55.1 (November 2025)
 
 - Add static method `pass_from_info` to `QuantinuumBackend` so that we can compile directly from a `BackendInfo`.
@@ -48,7 +53,7 @@
 
 ## 0.47.0 (May 2025)
 
-- Add `max_cost` parameter to {py:meth}`~.QuantinuumBackend.process_circuits` and {py:meth}`~.QuantinuumBackend.submit_program`.
+- Add `max_cost` parameter to {py:meth}`~.QuantinuumBackend.process_circuits` and `submit_program()`.
 
 ## 0.46.0 (April 2025)
 
@@ -150,7 +155,7 @@
 ## 0.32.0 (March 2024)
 
 - Remove `no_opt` and `allow_2q_gate_rebase` options to
-  {py:meth}`~.QuantinuumBackend.process_circuits` and {py:meth}`~.QuantinuumBackend.submit_program`, and assume that the submitted
+  {py:meth}`~.QuantinuumBackend.process_circuits` and `submit_program()`, and assume that the submitted
   circuit is exactly what is desired to be run.
 - Update pytket_pecos version requirement to 0.1.22.
 
@@ -187,7 +192,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
 ## 0.27.0 (January 2024)
 
 - Updated pytket version requirement to 1.23.
-- {py:meth}`~.QuantinuumBackend.cost` now raises an error if the `syntax_checker`
+- `QuantinuumBackend.cost()` now raises an error if the `syntax_checker`
   argument doesn't correspond to the device's reported syntax checker or if it
   specifies a device that isn't a syntax checker; and the method returns 0 if
   called on syntax-checker backends.
@@ -197,7 +202,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
 ## 0.26.0 (November 2023)
 
 - Updated pytket version requirement to 1.22.
-- Add {py:class}`~.QuantinuumConfigCredentialStorage` for caching API tokens in local pytket
+- Add `QuantinuumConfigCredentialStorage` for caching API tokens in local pytket
   configuration file.
 - Add an additonal {py:meth}`~pytket.passes.RemoveRedundancies` pass to the default passes for levels 1 and 2 to remove Rz gates before measurement.
 
@@ -236,7 +241,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
   {py:meth}`~.QuantinuumBackend.set_compilation_config_allow_implicit_swaps` and
   {py:meth}`~.QuantinuumBackend.set_compilation_config_target_2qb_gate`.
 - Add optional argument `allow_2q_gate_rebase` argument to
-  {py:meth}`~pytket.backends.backend.Backend.process_circuit`, {py:meth}`~.QuantinuumBackend.process_circuits` and {py:meth}`~.QuantinuumBackend.submit_program` to
+  {py:meth}`~pytket.backends.backend.Backend.process_circuit`, {py:meth}`~.QuantinuumBackend.process_circuits` and `submit_program()` to
   allow the backend to rebase to rebase the circuit to a different two-qubit
   gate judged to have better fidelity before being run. The default is to not
   allow this.
@@ -274,7 +279,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
 - Add {py:class}`~.Language` enum to control language used for circuit submission, with
   values `Language.QASM` and `Language.QIR`.
 - Renamed `QuantinuumBackend.submit_qasm()` to
-  {py:meth}`~.QuantinuumBackend.submit_program`, with a `language` argument.
+  `submit_program()`, with a `language` argument.
 - Add a `language` kwarg to {py:meth}`~.QuantinuumBackend.process_circuits`,
   defaulting to `Language.QASM`. (Support for `Language.QIR` is
   experimental and its use is not recommended; a warning will be emitted. You
@@ -289,7 +294,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
 - Updated pytket version requirement to 1.15.
 - cost function now takes the same kwargs as process_circuits
 - add check for the number of classical registers to the backend
-- add {py:meth}`~.QuantinuumBackend.get_partial_result` method to {py:class}`~.QuantinuumBackend`.
+- add `get_partial_result()` method to {py:class}`~.QuantinuumBackend`.
 - add `Rxxyyzz` gate support.
 
 ## 0.15.0 (April 2023)
@@ -376,7 +381,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
 
 ## 0.3.0 (May 2022)
 
-- `QuantinuumBackend.cost_estimate` deprecated, new {py:meth}`~.QuantinuumBackend.cost`
+- `QuantinuumBackend.cost_estimate` deprecated, new `QuantinuumBackend.cost()`
   method now uses the syntax checker devices to directly return the cost.
 - Updated pytket version requirement to 1.2.
 
@@ -396,7 +401,7 @@ operations calendar with and without matplotlib. \* Support TK2 as native gate. 
 
 - Module renamed from `pytket.extensions.honeywell` to
   `pytket.extensions.quantinumm`, with corresponding name changes throughout.
-- Simplify authentication: use {py:meth}`~.QuantinuumBackend.login` to log in once per session.
+- Simplify authentication: use `QuantinuumBackend.login()` to log in once per session.
 - Updated pytket version requirement to 1.0.
 
 Old changelog for "pytket-honeywell":

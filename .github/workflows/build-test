@@ -3,12 +3,10 @@ set -evu
 
 # Usage:
 #
-# build-test [mypy|nomypy] {integration}
+# build-test [mypy|nomypy]
 #
 # Arguments:
 # - mypy: include mypy check ("mypy" or "nomypy")
-# - integration (optional): run integration tests too
-#                           (unit tests are always run)
 #
 # Environment variables used:
 # - GITHUB_WORKSPACE: workspace directory
@@ -19,12 +17,6 @@ set -evu
 MODULE=pytket-quantinuum
 
 MYPY=$1
-
-INTEGRATION=''
-if [[ $# -gt 1 ]]
-then
-    INTEGRATION=$2
-fi
 
 PLAT=`python -c 'import platform; print(platform.system())'`
 
@@ -45,7 +37,7 @@ python -m pip install --upgrade pip wheel build
 # Generate and install the package
 python -m build
 for w in dist/*.whl ; do
-    python -m pip install $w[pecos,calendar]
+    python -m pip install $w[pecos]
     cp $w ${ARTIFACTSDIR}
 done
 
@@ -64,13 +56,7 @@ python -m pip install --upgrade --pre pytket~=2.0
 
 # install the latest compatible pytket-qir version
 
-pytest --doctest-modules unit/
-
-# integration tests are run if specified
-if  [[ ! -z "${INTEGRATION}" ]]
-then
-    pytest --doctest-modules integration/
-fi
+pytest --doctest-modules
 
 cd ..
 
