@@ -27,7 +27,7 @@ jobs:
         pyver: ['3.10', '3.12']
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: '0'
         submodules: recursive
