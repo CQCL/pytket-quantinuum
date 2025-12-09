@@ -176,6 +176,6 @@ Currently this emulation is noiseless.
 .. toctree::
    :caption: Useful links
 
-   Issue tracker <https://github.com/CQCL/pytket-quantinuum/issues>
+   Issue tracker <https://github.com/Quantinuum/pytket-quantinuum/issues>
    PyPi <https://pypi.org/project/pytket-quantinuum/>
 ```

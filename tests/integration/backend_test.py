@@ -460,7 +460,7 @@ def test_wasm_state() -> None:
 
 
 def test_default_2q_gate() -> None:
-    # https://github.com/CQCL/pytket-quantinuum/issues/250
+    # https://github.com/Quantinuum/pytket-quantinuum/issues/250
     config = QuantinuumBackendCompilationConfig(allow_implicit_swaps=False)
     b = QuantinuumBackend("H2-1", compilation_config=config)
     c = Circuit(2).H(0).CX(0, 1).measure_all()
@@ -468,7 +468,7 @@ def test_default_2q_gate() -> None:
     assert any(cmd.op.type == b.default_two_qubit_gate for cmd in c1)
 
 
-# https://github.com/CQCL/pytket-quantinuum/issues/265
+# https://github.com/Quantinuum/pytket-quantinuum/issues/265
 def test_Rz_removal_before_measurements() -> None:
     backend = QuantinuumBackend("H2-1", machine_debug=True)
     # Circuit will contain an Rz gate if RemoveRedundancies
@@ -483,7 +483,7 @@ def test_Rz_removal_before_measurements() -> None:
         assert compiled_circuit.n_gates_of_type(OpType.Rz) == 0
 
 
-# https://github.com/CQCL/pytket-quantinuum/issues/263
+# https://github.com/Quantinuum/pytket-quantinuum/issues/263
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 def test_noiseless_emulation() -> None:
     backend = QuantinuumBackend("H2-1LE")

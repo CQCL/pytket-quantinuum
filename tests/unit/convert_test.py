@@ -184,7 +184,7 @@ def test_switch_target_2qb_gate() -> None:
 
 
 def test_not_allow_implicit_swaps() -> None:
-    # https://github.com/CQCL/pytket-quantinuum/issues/515
+    # https://github.com/Quantinuum/pytket-quantinuum/issues/515
     b = QuantinuumBackend("", machine_debug=True)
     circuits = [Circuit(2).SWAP(0, 1), Circuit(2).CX(0, 1).CX(1, 0).CX(0, 1)]
     b.set_compilation_config_allow_implicit_swaps(False)
