@@ -1,0 +1,20 @@
+name: Run doc build and create artifact
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - "runci/**"
+  schedule:
+    # 04:00 every Tuesday morning
+    - cron: "0 4 * * 2"
+
+jobs:
+  check-docs:
+    name: Build docs and create artefact
+    uses: Quantinuum/pytket-workflows/.github/workflows/docs-wf.yml@v0.0.10
+    with:
+      extname: "pytket-TODOEXTNAME"

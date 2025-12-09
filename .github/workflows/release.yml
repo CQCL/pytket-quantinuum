@@ -1,0 +1,20 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - "wheel/**"
+      - "runci/**"
+  release:
+    types:
+      - created
+
+jobs:
+  build-and-publish:
+    name: Build, test, and store artifact, and upload to pypi
+    uses: Quantinuum/pytket-workflows/.github/workflows/release-wf.yml@v0.0.10
+    with:
+      pyver: "3.10"
+      publish: ${{ github.event_name == 'release' }}
+    secrets:
+      PYPI_API_TOKEN: ${{ secrets.PYPI_PYTKET_TODOCAPEXTNAME_API_TOKEN }}
