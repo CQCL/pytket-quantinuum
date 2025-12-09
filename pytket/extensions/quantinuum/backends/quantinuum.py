@@ -144,7 +144,7 @@ def _is_scratch(bit: Bit) -> bool:
 
 
 def _used_scratch_registers(qasm: str) -> set[str]:
-    # See https://github.com/CQCL/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
+    # See https://github.com/Quantinuum/tket/blob/e846e8a7bdcc4fa29967d211b7fbf452ec970dfb/
     # pytket/pytket/qasm/qasm.py#L966
     def_matcher = re.compile(rf"creg ({_TEMP_BIT_NAME}\_*\d*)\[\d+\]")
     regs = set()
@@ -1061,7 +1061,7 @@ try installing with the `pecos` option."
                 from pytket_pecos import Emulator  # noqa: PLC0415
 
                 configuration = self._local_emulator_handles[handle]
-                # workaround for https://github.com/CQCL/pytket-quantinuum/issues/473
+                # workaround for https://github.com/Quantinuum/pytket-quantinuum/issues/473
                 # add redundant SetBits so unused bits won't be omitted during
                 # pytket to phir conversion
                 circ = configuration.circuit.copy()
@@ -1116,7 +1116,7 @@ This could indicate a problem with the circuit submitted"
 
         if found_int_res:
             # this is only a temporary solution and not fully working
-            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
+            # see issue https://github.com/Quantinuum/pytket-quantinuum/issues/501
 
             def conv_int(res: str) -> list:
                 long_res = bin(int(res)).replace(
@@ -1170,7 +1170,7 @@ This could indicate a problem with the circuit submitted"
             ]
         except IndexError:
             # this is only a temporary solution and not fully working
-            # see issue https://github.com/CQCL/pytket-quantinuum/issues/501
+            # see issue https://github.com/Quantinuum/pytket-quantinuum/issues/501
             stacked_array = [
                 [
                     int(
