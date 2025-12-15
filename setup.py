@@ -50,7 +50,7 @@ setup(
         "numpy >= 1.26.4",
     ],
     extras_require={
-        "pecos": ["pytket-pecos ~= 0.2.2", "quantum-pecos == 0.7.0.dev4"],
+        "pecos": ["pytket-pecos ~= 0.3.0", "quantum-pecos == 0.8.0.dev0"],
     },
     classifiers=[
         "Environment :: Console",
