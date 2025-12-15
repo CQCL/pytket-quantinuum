@@ -67,7 +67,7 @@ jobs:
     - name: Download all wheels
       # downloading all three files into the wheelhouse
       # all files are identical, so there will only be one file
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v7
       with:
         path: wheelhouse
         pattern: artefact-*
