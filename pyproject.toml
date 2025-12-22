@@ -1,9 +1,9 @@
 [project]
-name = "pytket-TODOEXTNAME"
+name = "pytket-quantinuum"
 dynamic = ["version"]
 requires-python = ">=3.10,<4.0"
 
-description = "Extension for pytket, TODOPYTKETEXT"
+description = "Extension for pytket, providing access to Quantinuum backends"
 license = { file = "LICENSE" }
 readme = "README.md"
 authors = [
@@ -35,9 +35,9 @@ TODOOPTDEP = ["pytket >= 2.7.0"]
 
 
 [project.urls]
-documentation = "https://tket.quantinuum.com/extensions/pytket-TODOEXTNAME/index.html"
-source = "https://github.com/Quantinuum/pytket-TODOEXTNAME"
-tracker = "https://github.com/Quantinuum/pytket-TODOEXTNAME/issues"
+documentation = "https://tket.quantinuum.com/extensions/pytket-quantinuum/index.html"
+source = "https://github.com/Quantinuum/pytket-quantinuum"
+tracker = "https://github.com/Quantinuum/pytket-quantinuum/issues"
 
 [tool.setuptools.packages]
 find = {}

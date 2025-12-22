@@ -17,4 +17,4 @@ jobs:
     name: Build docs and create artefact
     uses: Quantinuum/pytket-workflows/.github/workflows/docs-wf.yml@v0.0.10
     with:
-      extname: "pytket-TODOEXTNAME"
+      extname: "pytket-quantinuum"
