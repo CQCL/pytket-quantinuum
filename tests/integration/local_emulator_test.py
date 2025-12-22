@@ -17,6 +17,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from pytket.circuit import (
     Bit,
     Circuit,
@@ -30,9 +31,8 @@ from pytket.circuit import (
     reg_neq,
 )
 from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
-from pytket.wasm import WasmFileHandler
-
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
+from pytket.wasm import WasmFileHandler
 
 
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
@@ -224,7 +224,7 @@ def test_classical_3() -> None:
 
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 def test_classical_4() -> None:
-    # https://github.com/CQCL/pytket-quantinuum/issues/395
+    # https://github.com/Quantinuum/pytket-quantinuum/issues/395
     circ = Circuit(1)
     ctrl = circ.add_c_register(name="control", size=1)
     meas = circ.add_c_register(name="measure", size=1)
@@ -247,7 +247,7 @@ def test_classical_4() -> None:
 
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 def test_classical_5() -> None:
-    # https://github.com/CQCL/pytket-phir/issues/159
+    # https://github.com/Quantinuum/pytket-phir/issues/159
     circ = Circuit()
     targ_reg = circ.add_c_register("targ_reg", 1)
     ctrl_reg = circ.add_c_register("ctrl_reg", 1)
@@ -357,7 +357,7 @@ def test_cbits() -> None:
 
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 def test_result_handling_for_empty_bits() -> None:
-    # https://github.com/CQCL/pytket-quantinuum/issues/473
+    # https://github.com/Quantinuum/pytket-quantinuum/issues/473
 
     circuit = Circuit(1, 2)
     circuit.X(0, condition=circuit.bits[1])
@@ -374,7 +374,7 @@ def test_result_handling_for_empty_bits() -> None:
 
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")
 def test_no_noise() -> None:
-    # https://github.com/CQCL/pytket-quantinuum/issues/571
+    # https://github.com/Quantinuum/pytket-quantinuum/issues/571
 
     backend = QuantinuumBackend("H2-1LE")
     backend_info = backend.backend_info

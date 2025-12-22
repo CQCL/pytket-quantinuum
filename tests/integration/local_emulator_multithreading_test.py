@@ -14,8 +14,8 @@
 
 
 import pytest
-from pytket.circuit import Circuit
 
+from pytket.circuit import Circuit
 from pytket.extensions.quantinuum import QuantinuumBackend, have_pecos
 
 

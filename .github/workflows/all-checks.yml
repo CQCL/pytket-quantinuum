@@ -1,0 +1,41 @@
+name: Static and unit tests
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - "wheel/**"
+      - "runci/**"
+  release:
+    types:
+      - created
+      - edited
+  schedule:
+    # 04:00 every Tuesday morning
+    - cron: "0 4 * * 2"
+
+jobs:
+  static-checks:
+    name: Static tests
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        pyver: ["3.12"]
+    uses: Quantinuum/pytket-workflows/.github/workflows/static-checks-wf.yml@v0.0.10
+    with:
+      os: ${{ matrix.os }}
+      pyver: ${{ matrix.pyver }}
+
+  unit-tests:
+    name: Unit tests
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        pyver: ["3.10", "3.13"]
+    uses: Quantinuum/pytket-workflows/.github/workflows/unit-test-wf.yml@v0.0.10
+    with:
+      os: ${{ matrix.os }}
+      pyver: ${{ matrix.pyver }}
