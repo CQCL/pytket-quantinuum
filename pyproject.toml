@@ -26,12 +26,13 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 dependencies = [
-    "pytket >= 2.7.0",
-    "TODOPYTKETEXT",
+    "pytket >= 2.11.0",
+    "pytket-qir >= 0.25.0",
+    "numpy >= 1.26.4",
 ]
 
 [project.optional-dependencies]
-TODOOPTDEP = ["pytket >= 2.7.0"]
+pecos = ["pytket-pecos ~= 0.2.2", "quantum-pecos == 0.7.0.dev4"]
 
 
 [project.urls]
