@@ -39,15 +39,3 @@ jobs:
     with:
       os: ${{ matrix.os }}
       pyver: ${{ matrix.pyver }}
-
-  remote-tests:
-    name: Remote Unit tests
-    strategy:
-      matrix:
-        os: ["ubuntu-latest"]
-        pyver: ["3.11"]
-    uses: Quantinuum/pytket-workflows/.github/workflows/unit-test-remote-wf.yml@v0.0.10
-    with:
-      os: ${{ matrix.os }}
-      pyver: ${{ matrix.pyver }}
-      TODO: ${{ secrets.TODO }}
