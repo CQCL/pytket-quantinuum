@@ -44,7 +44,7 @@ tracker = "https://github.com/Quantinuum/pytket-quantinuum/issues"
 find = {}
 
 [tool.setuptools.dynamic]
-version = {attr = "_metadata.__extension_version__"}
+version = {attr = "pytket.extensions.quantinuum._metadata.__extension_version__"}
 
 [build-system]
 requires = ["setuptools"]
