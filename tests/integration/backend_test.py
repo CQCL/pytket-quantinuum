@@ -24,6 +24,7 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies._internal import SearchStrategy
+
 from pytket.circuit import (
     Bit,
     Circuit,
@@ -40,11 +41,6 @@ from pytket.circuit import (
     reg_neq,
 )
 from pytket.circuit.clexpr import wired_clexpr_from_logic_exp
-from pytket.passes import BasePass, SequencePass
-from pytket.passes.resizeregpass import _gen_scratch_transformation
-from pytket.predicates import CompilationUnit
-from pytket.wasm import WasmFileHandler
-
 from pytket.extensions.quantinuum import (
     QuantinuumBackend,
     QuantinuumBackendCompilationConfig,
@@ -52,6 +48,10 @@ from pytket.extensions.quantinuum import (
     prune_shots_detected_as_leaky,
 )
 from pytket.extensions.quantinuum.backends.quantinuum import _ALL_GATES, MAX_C_REG_WIDTH
+from pytket.passes import BasePass, SequencePass
+from pytket.passes.resizeregpass import _gen_scratch_transformation
+from pytket.predicates import CompilationUnit
+from pytket.wasm import WasmFileHandler
 
 
 @pytest.mark.skipif(not have_pecos(), reason="pecos not installed")

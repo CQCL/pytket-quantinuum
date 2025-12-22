@@ -27,6 +27,7 @@ from typing import Any, Union, cast
 from uuid import uuid1
 
 import numpy as np
+
 from pytket.architecture import FullyConnected
 from pytket.backends import Backend, CircuitStatus, ResultHandle, StatusEnum
 from pytket.backends.backend import KwargTypes
@@ -36,6 +37,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.circuit import Bit, Circuit, OpType
 from pytket.extensions.quantinuum._metadata import __extension_version__
+from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 from pytket.passes import (
     AutoRebase,
     AutoSquash,
@@ -70,8 +72,6 @@ from pytket.unit_id import _TEMP_BIT_NAME
 from pytket.utils import prepare_circuit
 from pytket.utils.outcomearray import OutcomeArray
 from pytket.wasm import WasmFileHandler
-
-from pytket.extensions.quantinuum.backends.leakage_gadget import get_detection_circuit
 
 from .api_wrappers import QuantinuumAPI, QuantinuumAPIError
 from .data import QuantinuumBackendData
@@ -518,7 +518,7 @@ class QuantinuumBackend(Backend):
 
         Submitted circuits must contain only one of these.
         """
-        return self._gate_set & set([OpType.ZZPhase, OpType.ZZMax, OpType.TK2])  # noqa: C405
+        return self._gate_set & {OpType.ZZPhase, OpType.ZZMax, OpType.TK2}
 
     @property
     def is_local_emulator(self) -> bool:
@@ -1058,7 +1058,7 @@ class QuantinuumBackend(Backend):
                         "Local emulator not available: \
 try installing with the `pecos` option."
                     )
-                from pytket_pecos import Emulator  # noqa: PLC0415
+                from pytket_pecos import Emulator
 
                 configuration = self._local_emulator_handles[handle]
                 # workaround for https://github.com/Quantinuum/pytket-quantinuum/issues/473
