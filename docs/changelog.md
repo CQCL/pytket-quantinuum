@@ -4,10 +4,18 @@
 
 # Changelog
 
+## 0.56.2 (December 2025)
+
+- fix to quantum-pecos to 0.7.0.dev4
+
 ## 0.56.1 (December 2025)
 
 - Remove all methods providing remote access to Quantinuum devices. (Please use
   `qnexus` instead.)
+
+## 0.55.2 (December 2025)
+
+- fix to quantum-pecos to 0.7.0.dev4
 
 ## 0.55.1 (November 2025)
 
