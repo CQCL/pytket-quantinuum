@@ -18,7 +18,7 @@ pip install pytket-quantinuum
 
 # Available Backends
 
-The pytket-quantinuum extension allows the user to access the following quantum emulators. These backends can be initialised  by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
+The pytket-quantinuum extension allows the user to access the following quantum emulators. These backends can be initialised by passing the device name as a string to the {py:class}`~.QuantinuumBackend` class. The available devices are:
 
 - `H2-1LE`, a version of the `H2-1E` emulator that runs locally. For running simulations locally, see the docs on [Local Emulators](#local-emulators).
 
@@ -53,8 +53,8 @@ tags: [skip-execution]
 compiled_circ = backend.get_compiled_circuit(circ)
 ```
 
-The passes applied by different levels of optimisation are specified in the table below. Note that optimisation level 0, 1 and 2 do not remove barriers from 
-a circuit, while optimisation level 3 will. At optimisation level 3 the default timeout is 5 minutes - consider increasing this for larger circuits if 
+The passes applied by different levels of optimisation are specified in the table below. Note that optimisation level 0, 1 and 2 do not remove barriers from
+a circuit, while optimisation level 3 will. At optimisation level 3 the default timeout is 5 minutes - consider increasing this for larger circuits if
 the circuit 2-qubit gate count is not reduced after compilation.
 
 :::{list-table} **Default compilation pass for the QuantinuumBackend**
@@ -105,17 +105,16 @@ the circuit 2-qubit gate count is not reduced after compilation.
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
-* -
-  - {py:meth}`~pytket.passes.RemoveRedundancies`
-  -
-  - {py:meth}`~pytket.passes.RemoveRedundancies`
-:::
+* - - {py:meth}`~pytket.passes.RemoveRedundancies`
+    -
+    - {py:meth}`~pytket.passes.RemoveRedundancies`
+      :::
 
-- \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
-- \[2\] {py:meth}`~pytket.passes.AutoRebase` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
-- \[3\] {py:meth}`~pytket.passes.FullPeepholeOptimise` has the argument `target_2qb_gate=OpType.TK2`.
-- \[4\] {py:meth}`~pytket.passes.AutoSquash` targets the $\{PhasedX, Rz\}$ gate set, i.e. `AutoSquash({OpType.PhasedX, OpType.Rz})`.
-- \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
+* \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
+* \[2\] {py:meth}`~pytket.passes.AutoRebase` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
+* \[3\] {py:meth}`~pytket.passes.FullPeepholeOptimise` has the argument `target_2qb_gate=OpType.TK2`.
+* \[4\] {py:meth}`~pytket.passes.AutoSquash` targets the $\{PhasedX, Rz\}$ gate set, i.e. `AutoSquash({OpType.PhasedX, OpType.Rz})`.
+* \[5\] Omitted if the target two-qubit gate is `OpType.TK2`.
 
 :::{note}
 If `optimisation_level = 0` the device constraints are solved but no additional optimisation is applied. Setting `optimisation_level = 1` applies some light optimisations to the circuit. More intensive optimisation is applied by level 2 at the expense of increased runtime.
@@ -176,6 +175,6 @@ Currently this emulation is noiseless.
 .. toctree::
    :caption: Useful links
 
-   Issue tracker <https://github.com/CQCL/pytket-quantinuum/issues>
+   Issue tracker <https://github.com/Quantinuum/pytket-quantinuum/issues>
    PyPi <https://pypi.org/project/pytket-quantinuum/>
 ```
