@@ -61,51 +61,51 @@ the circuit 2-qubit gate count is not reduced after compilation.
 :widths: 25 25 25 25
 :header-rows: 1
 
-- - optimisation_level = 0
+* - optimisation_level = 0
   - optimisation_level = 1
   - optimisation_level = 2 [1]
   - optimisation_level = 3
-- - {py:meth}`~pytket.passes.DecomposeBoxes`
+* - {py:meth}`~pytket.passes.DecomposeBoxes`
   - {py:meth}`~pytket.passes.DecomposeBoxes`
   - {py:meth}`~pytket.passes.DecomposeBoxes`
   - {py:meth}`~pytket.passes.DecomposeBoxes`
-- - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
+* - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
   - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
   - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
   - {py:func}`~pytket.passes.resizeregpass.scratch_reg_resize_pass`
-- - {py:meth}`~pytket.passes.AutoRebase` [2]
+* - {py:meth}`~pytket.passes.AutoRebase` [2]
   - {py:meth}`~pytket.passes.SynthesiseTket`
   - {py:meth}`~pytket.passes.FullPeepholeOptimise` [3]
   - {py:meth}`~pytket.passes.RemoveBarriers`
-- - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
+* - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.NormaliseTK2` [5]
   - {py:meth}`~pytket.passes.NormaliseTK2` [5]
   - {py:meth}`~pytket.passes.GreedyPauliSimp`
-- -
+* -
   - {py:meth}`~pytket.passes.DecomposeTK2` [5]
   - {py:meth}`~pytket.passes.DecomposeTK2` [5]
   - {py:meth}`~pytket.passes.NormaliseTK2` [5]
-- -
+* -
   - {py:meth}`~pytket.passes.AutoRebase` [2]
   - {py:meth}`~pytket.passes.AutoRebase` [2]
   - {py:meth}`~pytket.passes.DecomposeTK2` [5]
-- -
+* -
   - {py:meth}`~pytket.passes.ZZPhaseToRz`
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.AutoRebase` [2]
-- -
+* -
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.AutoSquash` [4]
   - {py:meth}`~pytket.passes.RemoveRedundancies`
-- -
+* -
   - {py:meth}`~pytket.passes.AutoSquash` [4]
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.AutoSquash` [4]
-- -
+* -
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
-- - - {py:meth}`~pytket.passes.RemoveRedundancies`
+* - - {py:meth}`~pytket.passes.RemoveRedundancies`
     -
     - {py:meth}`~pytket.passes.RemoveRedundancies`
       :::
