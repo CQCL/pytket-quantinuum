@@ -18,6 +18,6 @@ docs/poetry.lock
 docs/uv.lock
 docs/conf.py
 docs/_static
-.jupyter_cache
-jupyter_execute
-justfile
+docs/jupyter_execute
+docs/.jupyter_cache
+docs/justfile
