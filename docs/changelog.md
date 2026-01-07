@@ -4,6 +4,10 @@
 
 # Changelog
 
+## 0.57.0 (January 2026)
+
+- Update pytket version requirement to 2.11.0.
+
 ## 0.56.2 (December 2025)
 
 - fix to quantum-pecos to 0.7.0.dev4
