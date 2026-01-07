@@ -60,5 +60,5 @@ dev-dependencies = [
     "pre-commit >=3.8.0,<4",
     "pyupgrade >=2.29,<4.0",
     "pytket-pecos ~= 0.3.0",
-    "quantum-pecos == 0.8.0.dev4",
+    "quantum-pecos == 0.8.0.dev0",
 ]
