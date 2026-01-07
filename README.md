@@ -79,14 +79,16 @@ You should run `ruff` over any changed files before submitting a PR, to catch an
 
 An easy way to meet all formatting and linting requirements is to issue `pre-commit run --all-files`.
 
+If you are using uv running `uv run pre-commit run --all-files --show-diff-on-failure` will install the package and run all the checks.
+
 ### Tests
 
-To run the tests for a module:
+To run the tests for this module:
 
-1. `cd` into that module's `tests` directory;
-2. ensure you have installed `pytest`, `hypothesis`, and any modules listed in
-   the `test-requirements.txt` file (all via `pip`);
-3. run `pytest`.
+1. ensure you have installed `pytest`, `hypothesis`, and any modules listed in
+   the `dev-dependencies` section of the `pyproject.toml` file;
+   (If you are using uv this will be picked up automatically.)
+2. run `pytest`.
 
 When adding a new feature, please add a test for it. When fixing a bug, please
 add a test that demonstrates the fix.
