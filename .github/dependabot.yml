@@ -14,3 +14,8 @@ updates:
       python-packages:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "pytket-pecos"
+        versions: [">=0.3.0"]
+      - dependency-name: "quantum-pecos"
+        versions: [">=0.8.0.dev0"]
