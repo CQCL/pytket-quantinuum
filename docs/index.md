@@ -105,10 +105,11 @@ the circuit 2-qubit gate count is not reduced after compilation.
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
   - {py:meth}`~pytket.passes.RemoveRedundancies`
   - {py:meth}`~pytket.passes.FlattenRelabelRegistersPass`
-* - - {py:meth}`~pytket.passes.RemoveRedundancies`
-    -
-    - {py:meth}`~pytket.passes.RemoveRedundancies`
-      :::
+* -
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
+  -
+  - {py:meth}`~pytket.passes.RemoveRedundancies`
+:::
 
 * \[1\] If no value is specified then `optimisation_level` defaults to a value of 2.
 * \[2\] {py:meth}`~pytket.passes.AutoRebase` is a rebase that converts the circuit to the Quantinuum native gate set (e.g. $\{Rz, PhasedX, ZZMax, ZZPhase\}$).
